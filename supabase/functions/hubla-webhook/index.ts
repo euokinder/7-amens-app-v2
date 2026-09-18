@@ -34,22 +34,42 @@ function sameToken(received: string, expected: string) {
 }
 
 // Hubla names a product through several identifiers (product, offer, checkout).
-// Collect every candidate and let hubla_product_map decide which one we know.
-function candidateProductIds(event: Record<string, any>) {
+// Collect every candidate and let hubla_product_map decide which ones we know.
+const collectIds = (value: unknown, into: Set<string>) => { const id = text(value); if (id) into.add(id); };
+
+function singularProductIds(event: Record<string, any>) {
   const ids = new Set<string>();
-  const add = (value: unknown) => { const id = text(value); if (id) ids.add(id); };
-  add(event?.product?.id);
+  collectIds(event?.product?.id, ids);
+  return [...ids];
+}
+
+function listedProductIds(event: Record<string, any>) {
+  const ids = new Set<string>();
   for (const product of Array.isArray(event?.products) ? event.products : []) {
-    add(product?.id);
-    for (const offer of Array.isArray(product?.offers) ? product.offers : []) add(offer?.id);
+    collectIds(product?.id, ids);
+    for (const offer of Array.isArray(product?.offers) ? product.offers : []) collectIds(offer?.id, ids);
   }
   return [...ids];
 }
 
-async function resolveProduct(ids: string[]) {
-  if (!ids.length) return null;
-  const rows = await db(`hubla_product_map?hubla_id=in.(${ids.map(eq).join(',')})&select=hubla_id,product_key`);
-  return rows[0] || null;
+const candidateProductIds = (event: Record<string, any>) =>
+  [...new Set([...singularProductIds(event), ...listedProductIds(event)])];
+
+async function mapProducts(ids: string[]) {
+  if (!ids.length) return [];
+  const rows = await db(`hubla_product_map?hubla_id=in.(${ids.map(eq).join(',')})&select=product_key`);
+  return [...new Set(rows.map((row: { product_key: string }) => row.product_key))] as string[];
+}
+
+// On the recommended integration a single sale with order bump can carry several
+// products in one event, so granting only the first would silently skip an extra.
+// Removal stays deliberately narrow: event.product is the specific membership
+// that ended, and wrongly revoking a paying customer is far worse than granting
+// one product late.
+async function targetProducts(event: Record<string, any>, granting: boolean) {
+  if (granting) return mapProducts(candidateProductIds(event));
+  const specific = await mapProducts(singularProductIds(event));
+  return specific.length ? specific : mapProducts(listedProductIds(event));
 }
 
 // The purchase email stays the customer's login; hubla_user_id is the stable
@@ -180,16 +200,21 @@ Deno.serve(async (req: Request) => {
     }
 
     if (eventType === 'customer.member_added' || eventType === 'customer.member_removed') {
-      const mapped = await resolveProduct(candidateProductIds(event));
-      if (!mapped) {
+      const granting = eventType === 'customer.member_added';
+      const productKeys = await targetProducts(event, granting);
+      if (!productKeys.length) {
         // Unknown product is a configuration problem, not a delivery problem:
         // acknowledge so Hubla stops retrying, and never guess an access.
         await settle('needs_reconciliation', `Produto não mapeado: ${candidateProductIds(event).join(', ') || 'sem id'}`);
         return respond({ ok: true, unmapped: true });
       }
-      const result = await applyEntitlement(event, mapped.product_key, eventType === 'customer.member_added');
-      await settle(result.status, result.error);
-      return respond({ ok: true });
+
+      const results = [];
+      for (const productKey of productKeys) results.push(await applyEntitlement(event, productKey, granting));
+      const failed = results.find(result => result.status === 'needs_reconciliation');
+      await settle(failed ? 'needs_reconciliation' : 'processed',
+        failed ? failed.error : (productKeys.length > 1 ? `Produtos aplicados: ${productKeys.join(', ')}` : null));
+      return respond({ ok: true, products: productKeys });
     }
 
     // Financial and subscription events are audit only, by design.
