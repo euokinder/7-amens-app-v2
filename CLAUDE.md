@@ -118,9 +118,22 @@ Tudo sobre Hubla — webhook, payload, evento, status, reembolso, produto — sa
 
 **Especificação de integração aprovada: [docs/hubla-integracao-spec.md](docs/hubla-integracao-spec.md).** É a referência para o webhook. Decisão: adotar 100% da lógica dela, mas **manter os nomes de tabela atuais** (`customers`, `prayer_progress`, `products.key`) em vez dos propostos no documento (`profiles`, `progress`, `slug`) — renomear quebraria a `member-api`, o admin e o perfil num app já em produção.
 
+## Painel administrativo (`admin.html`)
+Protegido pela tabela `member_admins` — e um admin também precisa do `principal` ativo, porque a `member-api` exige isso antes de qualquer ação.
+
+Mostra: KPIs, campanhas do funil, lista de clientes com busca, e a ficha completa de cada uma (acessos, orações concluídas, dias de acesso ao site, campanhas enviadas, perfil respondido, eventos da Hubla e histórico administrativo).
+
+Age: liberar acesso na mão (aceita e-mail que ainda não existe), revogar produto específico, corrigir e-mail (derruba as sessões abertas).
+
+**Toda ação fica registrada em `admin_actions` com o admin responsável.**
+
+## ⚠️ Teste local fala com o banco de PRODUÇÃO
+Não existe ambiente de staging. `localhost:3000` usa a mesma `member-api` e o mesmo Supabase das clientes reais. **Liberar ou revogar acesso no painel local altera dados de verdade.**
+
 ## Prioridades atuais (decididas em 2026-09-18)
-1. **Webhook da Hubla** — login e acessos 100% funcionais, com cada cliente entrando já com os produtos certos. É o que trava a monetização.
-2. **Painel admin com controle** — hoje `admin.html` só mostra (KPIs, clientes, campanhas). Falta poder **agir** sobre as usuárias.
+1. ✅ **Webhook da Hubla** — entregue e rodando em produção desde 2026-09-18.
+2. ✅ **Painel admin com controle** — construído; falta publicar na Netlify.
+3. ⏳ **Carga inicial das clientes antigas** — a Hubla não faz backfill. Quem comprou antes do webhook não está no banco e não consegue entrar. Precisa de export da Hubla.
 
 ## Infraestrutura — identificadores
 - Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo** — a Netlify está ligada nele.
