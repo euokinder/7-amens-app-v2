@@ -34,7 +34,9 @@ JPG otimizado. Proporção mais vertical ou mais horizontal conforme o card.
 - Extremamente clara. O padrão aprovado nos materiais foi "que até uma criança entenda"
 - Frases curtas
 - Instruções práticas, não explicação técnica
-- Tom acolhedor, religioso, respeitoso — **nunca tom de marketing agressivo dentro do app**
+- Tom acolhedor, religioso, respeitoso no conteúdo e nas telas do produto
+
+**Exceção: as campanhas de oferta.** O Caio é copywriter e escreve as campanhas de venda, inclusive os textos de recusa. Em 2026-09-18 ele definiu para o pop-up do front o CTA "Entender antes de começar" e a recusa "Prefiro me arriscar sozinha". É decisão dele e **não deve ser suavizada sem que ele peça**. A copy das campanhas vive no banco (`member_offer_campaigns`), não no código — alterar é `update`, não deploy.
 - Em formulários e perguntas: "como se um padre quisesse conhecer melhor uma irmã"
 
 Abordagens muito técnicas já foram rejeitadas explicitamente. Se um texto parecer manual de software, está errado.
