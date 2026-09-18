@@ -95,8 +95,14 @@ Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catál
 Plataforma de vendas da operação. **Documentação oficial: https://hubla.gitbook.io/docs**
 Tudo sobre Hubla — webhook, payload, evento, status, reembolso, produto — sai exclusivamente de lá. Nunca inferir por analogia com Kiwify, Hotmart ou Stripe.
 
-## Build
+## Build e teste local
 `netlify.toml` roda `node scripts/build.mjs` e publica `dist/`. **Existe etapa de build de verdade** — quebrar o `build.mjs` derruba o deploy.
+
+**Sempre testar local antes de subir** (custo zero, Node 24 instalado):
+```
+node scripts/build.mjs && node scripts/preview.mjs
+```
+Abre em http://localhost:3000. Deploy de produção não é ferramenta de teste.
 
 ## Fluxo-alvo da Hubla
 compra na Hubla → webhook → backend lê e-mail + produto + status → Supabase cria/atualiza entitlement → app consulta direitos → card libera sozinho.
