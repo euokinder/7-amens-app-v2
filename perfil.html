@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conhecendo você — 7 Améns da Madrugada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="stylesheet" href="css/member.css">
+<link rel="stylesheet" href="css/perfil.css">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<main class="app profile-app">
+  <header class="header profile-header">
+    <button class="back-btn" id="profile-exit" type="button" aria-label="Voltar à tela anterior">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Voltar
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </header>
+
+  <section class="profile-progress" id="profile-progress" hidden aria-label="Progresso do questionário">
+    <div class="profile-progress-copy">
+      <span id="profile-progress-label">Pergunta 1 de 6</span>
+      <span id="profile-progress-percent">17%</span>
+    </div>
+    <div class="profile-progress-track" aria-hidden="true"><span id="profile-progress-bar"></span></div>
+  </section>
+
+  <form class="profile-form" id="profile-form" novalidate>
+    <section class="profile-screen profile-intro is-active" data-screen="intro">
+      <div class="profile-intro-icon" aria-hidden="true">🤍</div>
+      <span class="profile-pill">Leva menos de 1 minuto</span>
+      <h1>Antes de continuar, queremos conhecer um pouquinho melhor você, irmã.</h1>
+      <p>Cada pessoa chega até aqui carregando uma história, uma família e intenções diferentes no coração.</p>
+      <p>Responda apenas algumas perguntas rápidas para que possamos preparar uma experiência mais próxima do momento que você está vivendo.</p>
+      <button class="profile-primary" type="button" data-action="start">Começar agora</button>
+      <p class="profile-reassurance"><span aria-hidden="true">🔒</span> Suas respostas serão tratadas com carinho e respeito.</p>
+    </section>
+
+    <fieldset class="profile-screen profile-question" data-screen="question" data-question="1">
+      <legend>Irmã, hoje você é…</legend>
+      <p class="profile-instruction">Escolha a opção que melhor descreve você.</p>
+      <div class="profile-options">
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="mother"><span class="profile-option-emoji">🙏</span><span>Mãe</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="grandmother"><span class="profile-option-emoji">❤️</span><span>Avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="mother_and_grandmother"><span class="profile-option-emoji">🌷</span><span>Mãe e avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="neither"><span class="profile-option-emoji">🤍</span><span>Ainda não sou mãe nem avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="profile-screen profile-question" data-screen="question" data-question="2">
+      <legend>E sobre sua vida amorosa, qual dessas opções descreve melhor seu momento?</legend>
+      <p class="profile-instruction">Escolha apenas uma opção.</p>
+      <div class="profile-options">
+        <label class="profile-option"><input type="radio" name="relationship_status" value="married"><span class="profile-option-emoji">💍</span><span>Sou casada</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="relationship"><span class="profile-option-emoji">❤️</span><span>Estou em um relacionamento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="single"><span class="profile-option-emoji">🌷</span><span>Sou solteira</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="widowed"><span class="profile-option-emoji">🙏</span><span>Sou viúva</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="prefer_not_to_say"><span class="profile-option-emoji">🤍</span><span>Prefiro não responder</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="profile-screen profile-question" data-screen="question" data-question="3">
+      <legend>Como está sua caminhada com a Igreja atualmente?</legend>
+      <p class="profile-instruction">Escolha a opção mais próxima da sua realidade.</p>
+      <div class="profile-options">
+        <label class="profile-option"><input type="radio" name="church_frequency" value="weekly"><span class="profile-option-emoji">⛪</span><span>Vou à Missa praticamente toda semana</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="church_frequency" value="monthly"><span class="profile-option-emoji">🙏</span><span>Vou algumas vezes por mês</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="church_frequency" value="occasionally"><span class="profile-option-emoji">🌷</span><span>Vou de vez em quando, quando consigo</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="church_frequency" value="not_attending_but_faithful"><span class="profile-option-emoji">🤍</span><span>Faz algum tempo que não frequento, mas continuo tendo fé</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="church_frequency" value="reconnecting"><span class="profile-option-emoji">❤️</span><span>Estou tentando me aproximar novamente de Deus e da Igreja</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="profile-screen profile-question" data-screen="question" data-question="4">
+      <legend>Quando você se ajoelha para rezar, por quem seu coração mais pede a Deus?</legend>
+      <p class="profile-instruction">Escolha a pessoa que vem primeiro ao seu coração.</p>
+      <div class="profile-options">
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="children"><span class="profile-option-emoji">👨‍👩‍👧</span><span>Pelos meus filhos</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="grandchildren"><span class="profile-option-emoji">👧</span><span>Pelos meus netos</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="partner"><span class="profile-option-emoji">❤️</span><span>Pelo meu marido / relacionamento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="whole_family"><span class="profile-option-emoji">🏠</span><span>Pela minha família inteira</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="someone_in_difficulty"><span class="profile-option-emoji">🙏</span><span>Por alguém especial que está passando por dificuldades</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="self"><span class="profile-option-emoji">🤍</span><span>Por mim mesma</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="profile-screen profile-question" data-screen="question" data-question="5">
+      <legend>E hoje, irmã, qual dessas intenções mais pesa no seu coração?</legend>
+      <p class="profile-instruction">Escolha sua intenção principal neste momento.</p>
+      <div class="profile-options">
+        <label class="profile-option"><input type="radio" name="primary_intention" value="family_protection"><span class="profile-option-emoji">🛡️</span><span>Proteção para minha família e minha casa</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_intention" value="children_or_grandchildren"><span class="profile-option-emoji">❤️</span><span>Meus filhos ou netos</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_intention" value="health_and_healing"><span class="profile-option-emoji">🙏</span><span>Saúde e cura</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_intention" value="marriage_or_relationship"><span class="profile-option-emoji">💍</span><span>Meu casamento / relacionamento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_intention" value="finances_and_work"><span class="profile-option-emoji">💰</span><span>Vida financeira e trabalho</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_intention" value="peace_and_anxiety"><span class="profile-option-emoji">🕊️</span><span>Paz, ansiedade e preocupações</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_intention" value="difficult_cause"><span class="profile-option-emoji">✝️</span><span>Uma causa muito difícil que entreguei nas mãos de Deus</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="profile-screen profile-question" data-screen="question" data-question="6">
+      <legend>Existe algum santo ou devoção que ocupa um lugar especial no seu coração?</legend>
+      <p class="profile-instruction">Escolha a devoção com a qual você mais se identifica.</p>
+      <div class="profile-options">
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="saint_michael"><span class="profile-option-emoji">⚔️</span><span>São Miguel Arcanjo</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="saint_benedict"><span class="profile-option-emoji">🏅</span><span>São Bento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="our_lady"><span class="profile-option-emoji">🌹</span><span>Nossa Senhora</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="saint_joseph"><span class="profile-option-emoji">👨‍👩‍👧</span><span>São José</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="saint_rita"><span class="profile-option-emoji">🌹</span><span>Santa Rita de Cássia</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="saint_jude"><span class="profile-option-emoji">🙏</span><span>São Judas Tadeu</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="sacred_heart_or_divine_mercy"><span class="profile-option-emoji">❤️</span><span>Sagrado Coração de Jesus / Divina Misericórdia</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="favorite_devotion" value="no_specific_devotion"><span class="profile-option-emoji">✝️</span><span>Tenho fé em todos, não tenho uma devoção específica</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+      </div>
+    </fieldset>
+
+    <section class="profile-screen profile-finished" data-screen="finished" aria-live="polite">
+      <div class="profile-finished-icon" aria-hidden="true">🙏</div>
+      <span class="profile-pill">Tudo pronto</span>
+      <h1>Obrigada por abrir seu coração, irmã.</h1>
+      <p>Agora conhecemos um pouquinho melhor o seu momento e poderemos tornar sua experiência mais próxima das suas intenções.</p>
+      <button class="profile-primary" type="button" data-action="finish">Continuar para minhas orações</button>
+    </section>
+
+    <div class="profile-actions" id="profile-actions" hidden>
+      <button class="profile-secondary" type="button" data-action="previous">Voltar</button>
+      <button class="profile-primary" type="button" data-action="next" disabled>Continuar</button>
+      <p class="profile-form-status" id="profile-form-status" role="alert"></p>
+    </div>
+  </form>
+</main>
+<script src="js/perfil.js"></script>
+</body>
+</html>

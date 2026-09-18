@@ -5,6 +5,7 @@
   let token = readToken();
   let state = null;
   let refreshing = false;
+  let surveyRedirecting = false;
   const login = /\/login(?:\.html)?\/?$/.test(location.pathname);
   function remember(value) { token = value; try { value ? localStorage.setItem(storageKey, value) : localStorage.removeItem(storageKey); } catch {} }
   async function api(action, values = {}) {
@@ -97,23 +98,24 @@
     dialog.querySelector('.member-account-email').textContent = state.customer.email;
     dialog.querySelector('.member-sync').textContent = `${state.progress.filter(item => item.completed).length} orações concluídas · progresso salvo`;
   }
-  function setupMemberOffer() {
-    const offer = state?.offer;
+  function setupMemberOffer(nextOffer = null) {
+    const offer = nextOffer || state?.offer;
     if (!offer || document.getElementById('member-offer-dialog')) return;
     let target;
     try { target = new URL(offer.target_url); } catch { return; }
     if (target.protocol !== 'https:') return;
     const dialog = node('dialog', 'member-offer-dialog');
     dialog.id = 'member-offer-dialog';
+    dialog.dataset.offerType = offer.offer_type || 'product';
     dialog.setAttribute('aria-labelledby', 'member-offer-title');
     const sheet = node('div', 'member-offer-sheet');
-    const eyebrow = node('span', 'member-offer-eyebrow', 'Uma oportunidade para você');
+    const eyebrow = node('span', 'member-offer-eyebrow', offer.eyebrow || 'Uma oportunidade para você');
     const title = node('h2', '', offer.headline);
     title.id = 'member-offer-title';
     const copy = node('p', 'member-offer-copy', offer.body);
     const cta = node('button', 'member-button member-offer-cta', offer.cta_label || 'Assistir agora');
     cta.type = 'button';
-    const dismiss = node('button', 'member-offer-dismiss', 'Agora não');
+    const dismiss = node('button', 'member-offer-dismiss', offer.dismiss_label || 'Agora não');
     dismiss.type = 'button';
     let leaving = false;
     const record = event => api('offer_event', { campaign_key: offer.campaign_key, event }).catch(() => {});
@@ -127,12 +129,38 @@
     });
     dismiss.addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-    dialog.addEventListener('close', () => { if (!leaving) record('dismissed'); });
+    dialog.addEventListener('close', async () => {
+      if (leaving) return;
+      if (state?.offer?.campaign_key === offer.campaign_key) state.offer = null;
+      await record('dismissed');
+      dialog.remove();
+      try {
+        const followup = await api('offer_claim', {
+          trigger_type: 'dismissal',
+          source_campaign_key: offer.campaign_key,
+        });
+        if (followup.offer) setupMemberOffer(followup.offer);
+      } catch {}
+    });
     sheet.append(eyebrow, title, copy, cta, dismiss);
     dialog.append(sheet);
     document.body.append(dialog);
     dialog.showModal();
     record('shown');
+  }
+  function setupMemberSurvey() {
+    const survey = state?.survey;
+    if (!survey || surveyRedirecting || /\/perfil(?:\.html)?$/.test(location.pathname)) return false;
+    if (!/^[a-z0-9_-]+$/.test(survey.campaign_key || '') || !/^[a-z0-9-]+[.]html$/.test(survey.target_path || '')) return false;
+    surveyRedirecting = true;
+    try { sessionStorage.setItem('7amens.member.survey.return', `${location.pathname.split('/').pop() || 'index.html'}${location.search}`); } catch {}
+    const target = new URL(survey.target_path, location.href);
+    target.searchParams.set('campaign', survey.campaign_key);
+    Promise.race([
+      api('survey_event', { campaign_key: survey.campaign_key, event: 'shown' }),
+      new Promise(resolve => setTimeout(resolve, 900)),
+    ]).finally(() => location.assign(target.href));
+    return true;
   }
   function prayerKey(path, search) {
     const params = new URLSearchParams(search);
@@ -143,6 +171,7 @@
   }
   function render() {
     setupMemberMenu();
+    if (setupMemberSurvey()) return;
     setupMemberOffer();
     document.querySelectorAll('a.card[href]').forEach(card => {
       const url = new URL(card.getAttribute('href'), location.href);
@@ -225,4 +254,3 @@
     window.addEventListener('storage', event => { if (event.key === storageKey) { token = readToken(); if (!token) toLogin(); else { document.documentElement.classList.add('member-checking'); refresh(); } } });
   });
 })();
-

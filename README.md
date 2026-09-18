@@ -33,6 +33,40 @@ Para exibir uma oferta, preencha `checkout_url`; para o conteúdo adquirido, pre
 `content_url`. A home troca a oferta pelo acesso quando a compra estiver ativa.
 Não foram cadastrados produtos ou checkouts comerciais fictícios.
 
+O funil completo está preparado em cinco campanhas desativadas:
+
+- somente Front → UP01;
+- Front + UP01 → UP02;
+- recusa do UP02 → downsell UP02 + UP03;
+- Front + UP01 + UP02 → assinatura UP03;
+- funil completo → convite para o grupo VIP.
+
+`trigger_type` separa ofertas de entrada e ofertas após recusa;
+`source_campaign_key` vincula o downsell à oferta recusada. Todas as campanhas
+exigem `target_url` HTTPS e `enabled = true`, portanto nenhuma delas será exibida
+antes da configuração comercial real.
+
+## Pesquisa de perfil
+
+`member_visit_days` registra no máximo uma visita por cliente e data, usando o
+fuso de São Paulo. A campanha `profile_after_third_visit_day`, em
+`member_survey_campaigns`, direciona a cliente para `perfil.html` quando ela
+alcança três dias distintos de acesso. Os dias não precisam ser consecutivos e
+não dependem da ordem das orações.
+
+A regra é configurável: `min_distinct_visit_days` muda o dia do disparo,
+`enabled` liga ou desliga a campanha e `starts_at`/`ends_at` permitem definir uma
+janela. `member_survey_events` registra elegibilidade, exibição, início, dispensa
+e conclusão por cliente. `member_survey_responses` guarda as seis respostas
+estruturadas e não duplica nome ou e-mail, pois usa a relação com `customers`.
+
+## Painel administrativo
+
+`admin.html` exibe métricas do app, campanhas, estágio do funil e perfil das
+clientes. O endpoint é somente de leitura e exige que o cliente autenticado
+esteja cadastrado em `member_admins`. As views `admin_customer_overview` e
+`admin_offer_overview` não têm acesso para `anon` ou `authenticated`.
+
 Reembolso do principal bloqueia entrada e gravação de progresso. Reembolso de um
 extra altera somente aquele extra. O progresso fica preservado se o acesso voltar.
 As páginas atuais pertencem ao principal; extras futuros precisam validar seu
@@ -77,4 +111,3 @@ em `js/`, no HTML ou no Git. `member-config.js` contém apenas a URL pública da
 - Reembolso do principal bloqueia sessão existente, gravação e novo login.
 - Extra adquirido aparece em sessão ativa; reembolso do extra preserva principal.
 - Verificação de segurança do Supabase sem alertas.
-

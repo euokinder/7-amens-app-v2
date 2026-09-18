@@ -96,4 +96,3 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 @media (prefers-reduced-motion: reduce) {
   .member-menu-trigger { transition: none; }
 }
-

@@ -99,4 +99,3 @@ values (
 
 comment on table public.member_offer_campaigns is 'Campanhas internas do app. Só ficam elegíveis quando habilitadas e com URL HTTPS configurada.';
 comment on table public.member_offer_events is 'Registro servidor de exibição e clique para não repetir ofertas em outro navegador ou aparelho.';
-

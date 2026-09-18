@@ -4,6 +4,8 @@ const base = Deno.env.get('SUPABASE_URL')!;
 const secret = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}').default
   || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const allowedOrigin = 'https://7-amens-app-v2.netlify.app';
+const allowedNetlifyPreview = /^https:\/\/(?:deploy-preview-\d+|development)--7-amens-app-v2\.netlify\.app$/;
+const allowedLocalOrigin = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 const lifetime = 90 * 24 * 60 * 60 * 1000;
 const hash = async (value: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)))).map(b => b.toString(16).padStart(2, '0')).join('');
 async function db(path: string, method = 'GET', body?: unknown) {
@@ -19,25 +21,27 @@ async function access(customerId: string) {
   const rows = await db(`entitlements?customer_id=eq.${customerId}&status=eq.active&select=product_key`);
   return rows.map((row: {product_key: string}) => row.product_key);
 }
-async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeOffer = false) {
-  const [progress, catalog, offers] = await Promise.all([
+async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
+  const [progress, catalog, offers, surveys] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
     db('products?enabled=eq.true&select=key,title,description,checkout_url,content_url&order=sort_order.asc'),
-    includeOffer ? db('rpc/claim_member_offer', 'POST', { p_customer_id: customer.id }) : Promise.resolve([]),
+    includeCampaigns ? db('rpc/claim_member_offer', 'POST', { p_customer_id: customer.id, p_trigger_type: 'entry', p_source_campaign_key: null }) : Promise.resolve([]),
+    includeCampaigns ? db('rpc/claim_member_survey', 'POST', { p_customer_id: customer.id }) : Promise.resolve([]),
   ]);
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null };
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
   const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-member-session', 'Access-Control-Allow-Methods': 'POST, OPTIONS', Vary: 'Origin', 'Cache-Control': 'no-store' };
   const respond = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
-  if (origin && origin !== allowedOrigin && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return respond({ error: 'Origem não permitida.' }, 403);
-  if (origin?.startsWith('http://')) cors['Access-Control-Allow-Origin'] = origin;
+  const originAllowed = !origin || origin === allowedOrigin || allowedNetlifyPreview.test(origin) || allowedLocalOrigin.test(origin);
+  if (!originAllowed) return respond({ error: 'Origem não permitida.' }, 403);
+  if (origin && origin !== allowedOrigin) cors['Access-Control-Allow-Origin'] = origin;
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method !== 'POST') return respond({ error: 'Método não permitido.' }, 405);
   try {
     const raw = await req.text();
-    if (raw.length > 2048) return respond({ error: 'Solicitação inválida.' }, 400);
+    if (raw.length > 4096) return respond({ error: 'Solicitação inválida.' }, 400);
     let body;
     try { body = JSON.parse(raw); } catch { return respond({ error: 'Solicitação inválida.' }, 400); }
     if (!body || typeof body !== 'object') return respond({ error: 'Solicitação inválida.' }, 400);
@@ -77,6 +81,71 @@ Deno.serve(async (req: Request) => {
       const column = `${event}_at`;
       await db(`member_offer_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { [column]: new Date().toISOString() });
       return respond({ ok: true });
+    } else if (body.action === 'offer_claim') {
+      const triggerType = typeof body.trigger_type === 'string' ? body.trigger_type : '';
+      const sourceCampaignKey = typeof body.source_campaign_key === 'string' ? body.source_campaign_key : '';
+      if (triggerType !== 'dismissal' || !/^[a-z0-9_-]+$/.test(sourceCampaignKey)) return respond({ error: 'Oferta inválida.' }, 400);
+      const offers = await db('rpc/claim_member_offer', 'POST', {
+        p_customer_id: customerId,
+        p_trigger_type: triggerType,
+        p_source_campaign_key: sourceCampaignKey,
+      });
+      return respond({ offer: offers[0] || null });
+    } else if (body.action === 'survey_event') {
+      const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';
+      const event = typeof body.event === 'string' ? body.event : '';
+      if (!/^[a-z0-9_-]+$/.test(campaignKey) || !['shown', 'started', 'dismissed'].includes(event)) return respond({ error: 'Evento inválido.' }, 400);
+      const column = `${event}_at`;
+      await db(`member_survey_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { [column]: new Date().toISOString() });
+      return respond({ ok: true });
+    } else if (body.action === 'survey_submit') {
+      const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';
+      const answers = body.answers && typeof body.answers === 'object' ? body.answers : null;
+      const allowed = {
+        motherhood_status: ['mother','grandmother','mother_and_grandmother','neither'],
+        relationship_status: ['married','relationship','single','widowed','prefer_not_to_say'],
+        church_frequency: ['weekly','monthly','occasionally','not_attending_but_faithful','reconnecting'],
+        primary_prayer_recipient: ['children','grandchildren','partner','whole_family','someone_in_difficulty','self'],
+        primary_intention: ['family_protection','children_or_grandchildren','health_and_healing','marriage_or_relationship','finances_and_work','peace_and_anxiety','difficult_cause'],
+        favorite_devotion: ['saint_michael','saint_benedict','our_lady','saint_joseph','saint_rita','saint_jude','sacred_heart_or_divine_mercy','no_specific_devotion'],
+      } as const;
+      if (!/^[a-z0-9_-]+$/.test(campaignKey) || !answers || Array.isArray(answers)) return respond({ error: 'Respostas inválidas.' }, 400);
+      const responseValues: Record<string, string> = {};
+      for (const [field, values] of Object.entries(allowed)) {
+        if (!(values as readonly string[]).includes(String(answers[field]))) return respond({ error: 'Responda todas as perguntas para continuar.' }, 400);
+        responseValues[field] = String(answers[field]);
+      }
+      const [event] = await db(`member_survey_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}&select=campaign_key&limit=1`);
+      const [campaign] = event ? await db(`member_survey_campaigns?key=eq.${eq(campaignKey)}&select=survey_key&limit=1`) : [];
+      if (!event || !campaign) return respond({ error: 'Esta pesquisa não está disponível.' }, 404);
+      const now = new Date().toISOString();
+      await db('member_survey_responses?on_conflict=customer_id,survey_key', 'POST', {
+        customer_id: customerId,
+        survey_key: campaign.survey_key,
+        survey_version: 1,
+        ...responseValues,
+        completed_at: now,
+        updated_at: now,
+      });
+      await db(`member_survey_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { completed_at: now });
+      return respond({ ok: true });
+    } else if (body.action === 'admin_dashboard') {
+      const admins = await db(`member_admins?customer_id=eq.${customerId}&select=customer_id&limit=1`);
+      if (!admins.length) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
+      const [customers, campaigns] = await Promise.all([
+        db('admin_customer_overview?select=*&order=created_at.desc&limit=500'),
+        db('admin_offer_overview?select=*&order=sort_order.asc'),
+      ]);
+      return respond({
+        summary: {
+          customers: customers.length,
+          activeCustomers: customers.filter((customer: { funnel_stage: string }) => customer.funnel_stage !== 'sem_acesso_ativo').length,
+          completedProfiles: customers.filter((customer: { profile_completed_at: string | null }) => Boolean(customer.profile_completed_at)).length,
+          completedPrayers: customers.reduce((total: number, customer: { completed_prayers: number }) => total + customer.completed_prayers, 0),
+        },
+        customers,
+        campaigns,
+      });
     } else if (body.action !== 'session') return respond({ error: 'Ação inválida.' }, 400);
     const [customer] = await db(`customers?id=eq.${customerId}&select=id,email,name`);
     return respond(await snapshot(customer, products, body.action === 'session'));
@@ -85,4 +154,3 @@ Deno.serve(async (req: Request) => {
     return respond({ error: 'Não foi possível conectar agora. Tente novamente em instantes.' }, 503);
   }
 });
-
