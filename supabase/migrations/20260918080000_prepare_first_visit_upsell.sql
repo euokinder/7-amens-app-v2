@@ -23,8 +23,6 @@ create table public.member_offer_events (
  primary key (customer_id, campaign_key)
 );
 
-create index member_offer_events_campaign_idx on public.member_offer_events(campaign_key);
-
 create function public.claim_member_offer(p_customer_id uuid)
 returns table(campaign_key text, headline text, body text, cta_label text, target_url text)
 language plpgsql security invoker set search_path = ''
