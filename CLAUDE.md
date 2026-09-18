@@ -64,9 +64,16 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 7. **Webhooks da Hubla devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
 
-## Home como hub
+## ⚠️ Hoje o app não bloqueia nada por produto
+**Comprou o principal = acesso total ao aplicativo.** Os entitlements de upsell servem hoje só para a operação **saber quem comprou o quê**. Liberar ou revogar um upsell não muda nada para a cliente — e isso é intencional.
+
+O único bloqueio existente é o login (`products.includes('principal')`). Os três upsells estão `enabled = false` e sem URLs, então nem renderizam.
+
+**Não implementar bloqueio por upsell sem o Caio pedir.**
+
+## Home como hub (o "Desbloquear" é planejado, não existe)
 Cards: **7 Orações Sagradas · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha**.
-Cards são **inteligentes**: tem direito → entra; não tem → mostra "Desbloquear". O app vira consumo + venda de complementos sem jogar a cliente para fora.
+Desenho futuro: tem direito → entra; não tem → "Desbloquear". Depende de ativar o produto e preencher `checkout_url` e `content_url`.
 
 ## Modelo de dados — JÁ IMPLEMENTADO (`supabase/schema.sql`)
 O backend está bem mais adiantado do que o desenho original sugeria. Nomes reais das tabelas:

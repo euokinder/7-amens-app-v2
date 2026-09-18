@@ -36,9 +36,20 @@ Modelo: `products` (catálogo) + `entitlements` (o que cada cliente possui). **N
 
 Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva histórico e mantém o webhook idempotente.
 
-## Cards da Home
+## ⚠️ HOJE o app NÃO bloqueia nada por produto
 
-Cards são inteligentes: tem direito → entra; não tem → mostra "Desbloquear". O app é consumo **e** venda de complementos, sem mandar a cliente para fora.
+**Quem compra o produto principal tem acesso total ao aplicativo.** Os entitlements de upsell existem hoje apenas para a operação **saber quem comprou o quê** — não gateiam conteúdo.
+
+Verificado no código em 2026-09-18:
+- O único bloqueio do app é o login: `products.includes('principal')` na `member-api`.
+- Existe **uma única** checagem de produto no frontend inteiro, em `js/member.js`, e ela só troca o texto de um card extra na home ("Acessar meu conteúdo" vs "Conhecer este conteúdo"). Nunca esconde nem bloqueia conteúdo.
+- Os três upsells estão com `enabled = false` e `checkout_url`/`content_url` nulos, então nem chegam a renderizar.
+
+**Nunca implementar bloqueio de conteúdo por upsell sem o Caio pedir explicitamente.** Liberar ou revogar um upsell hoje não muda nada para a cliente, e isso é intencional.
+
+## Cards da Home — desenho FUTURO, não implementado
+
+Quando o Caio decidir ativar, a ideia registrada é: tem direito → entra; não tem → "Desbloquear", transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. Depende de ativar o produto e preencher `checkout_url` e `content_url`.
 Cards atuais: 7 Orações Sagradas · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha.
 
 ## Ofertas dentro do app
