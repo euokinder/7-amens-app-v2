@@ -3,3 +3,10 @@ assets/images/7 Oracoes - Dias/
 
 # Artefato de geração de ícone, não usado em lugar nenhum
 assets/images/icon-master.png
+
+dist/
+node_modules/
+.netlify/
+.env*
+supabase/.temp/
+deploy-*.zip

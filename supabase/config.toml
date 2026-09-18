@@ -1,0 +1,3 @@
+[functions.member-api]
+# Custom bearer sessions; login is deliberately identified by purchase email only.
+verify_jwt = false

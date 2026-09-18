@@ -1,0 +1,23 @@
+html.member-checking body > :not(#member-gate):not(script) { display: none !important; }
+#member-gate { max-width: 440px; margin: 20vh auto 0; padding: 28px; text-align: center; font-size: 18px; }
+.member-login { justify-content: center; padding: 36px 24px; gap: 24px; }
+.member-login .brand { width: 88px; height: 88px; border-radius: 24px; margin: 0 auto; }
+.member-login h1 { font-size: 30px; margin: 0; text-align: center; }
+.member-login p { line-height: 1.7; font-size: 17px; margin: 0; }
+.member-login form { display: flex; flex-direction: column; gap: 14px; }
+.member-login label { font-weight: 800; font-size: 17px; }
+.member-login input { width: 100%; min-height: 58px; padding: 16px; border: 1px solid #a39784; border-radius: 12px; font: inherit; font-size: 18px; background: white; }
+.member-button { min-height: 54px; padding: 14px 18px; border: 0; border-radius: 12px; background: var(--accent); color: var(--dark-on-accent); font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; }
+.member-button:disabled { opacity: .65; cursor: wait; }
+.member-button.secondary { background: var(--surface-alt); }
+.member-error { color: #922a20; min-height: 24px; font-size: 16px; line-height: 1.6; }
+.member-help { color: var(--ink); text-decoration: underline; text-align: center; font-size: 16px; padding: 12px; }
+.member-account { display: flex; flex-direction: column; gap: 10px; border-radius: 16px; background: var(--surface-alt); padding: 18px; overflow-wrap: anywhere; }
+.member-account p { margin: 0; font-size: 16px; }
+.member-account button { align-self: flex-start; }
+.member-progress { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
+.member-progress p { margin: 0; line-height: 1.6; font-size: 16px; }
+.member-done { position: absolute; right: 14px; top: 14px; z-index: 2; background: #e5f4df; color: #214a24; border-radius: 99px; padding: 8px 12px; font-weight: 800; font-size: 14px; }
+.member-offer { padding: 20px; border: 1px solid var(--hairline); border-radius: 16px; display: flex; flex-direction: column; gap: 12px; }
+.member-offer h2, .member-offer p { margin: 0; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #76531b; outline-offset: 4px; }
