@@ -99,7 +99,16 @@ Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catál
 | `upsell_02` | **Músicas dos Anjos** | addon |
 | `upsell_03` | **Comunidade da Fé** | addon |
 
-Os `hubla_product_id` de cada um **ainda não foram levantados** — sem eles o webhook não sabe qual acesso liberar. A spec é explícita: **nunca identificar produto pelo nome.**
+O mapeamento vive em `hubla_product_map` (vários IDs da Hubla podem apontar para o mesmo produto). Situação em 2026-09-18:
+
+| Produto | ID confirmado? |
+|---|---|
+| principal | ✅ `bniYICXEzykgw1PzEyme` |
+| upsell_01 | ✅ `ODOZxlF1tfhee2TkZikI` |
+| upsell_03 | ✅ `nMyLP4oFcIWiJ77UIbsu` |
+| upsell_02 | ⚠️ pendente — nenhum evento chegou ainda |
+
+⚠️ **Armadilha comprovada: o slug da página `hub.la/g/...` NÃO é sempre o `event.product.id`.** Para os Arcanjos era outro código. Só o payload real confirma. ID desconhecido cai em `needs_reconciliation` e **nunca** libera acesso errado — é para isso que o mapeamento é tabela e não coluna.
 
 A Novena Desatadora dos Nós **não é addon** — está incluída no produto principal.
 
