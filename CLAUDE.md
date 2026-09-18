@@ -91,9 +91,32 @@ Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catál
 
 **Ainda falta:** `hubla_events` e `webhook_logs`, e a Edge Function que recebe o webhook da Hubla. É aí que está o caminho para a monetização automática.
 
+## Catálogo de produtos
+| `products.key` | Nome comercial | Tipo |
+|---|---|---|
+| `principal` | **Os 7 Améns da Madrugada** | main — libera o app inteiro |
+| `upsell_01` | **Oração Celestial dos Quatro Arcanjos** | addon |
+| `upsell_02` | **Músicas dos Anjos** | addon |
+| `upsell_03` | **Comunidade da Fé** | addon |
+
+Os `hubla_product_id` de cada um **ainda não foram levantados** — sem eles o webhook não sabe qual acesso liberar. A spec é explícita: **nunca identificar produto pelo nome.**
+
+A Novena Desatadora dos Nós **não é addon** — está incluída no produto principal.
+
 ## Hubla
 Plataforma de vendas da operação. **Documentação oficial: https://hubla.gitbook.io/docs**
 Tudo sobre Hubla — webhook, payload, evento, status, reembolso, produto — sai exclusivamente de lá. Nunca inferir por analogia com Kiwify, Hotmart ou Stripe.
+
+**Especificação de integração aprovada: [docs/hubla-integracao-spec.md](docs/hubla-integracao-spec.md).** É a referência para o webhook. Decisão: adotar 100% da lógica dela, mas **manter os nomes de tabela atuais** (`customers`, `prayer_progress`, `products.key`) em vez dos propostos no documento (`profiles`, `progress`, `slug`) — renomear quebraria a `member-api`, o admin e o perfil num app já em produção.
+
+## Prioridades atuais (decididas em 2026-09-18)
+1. **Webhook da Hubla** — login e acessos 100% funcionais, com cada cliente entrando já com os produtos certos. É o que trava a monetização.
+2. **Painel admin com controle** — hoje `admin.html` só mostra (KPIs, clientes, campanhas). Falta poder **agir** sobre as usuárias.
+
+## Infraestrutura — identificadores
+- Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo** — a Netlify está ligada nele.
+- Supabase em uso: projeto **`7-amens-app-v2`**, ref `lbaudlocfbjunnaoyrtz`, região sa-east-1.
+- Existe um segundo projeto Supabase, `7 Orações da Madrugada` (`wyiqwsgfictcfkytldnu`), **vazio**. Não usar. Ocupa vaga do plano gratuito.
 
 ## Build e teste local
 `netlify.toml` roda `node scripts/build.mjs` e publica `dist/`. **Existe etapa de build de verdade** — quebrar o `build.mjs` derruba o deploy.

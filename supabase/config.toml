@@ -1,3 +1,7 @@
 [functions.member-api]
 # Custom bearer sessions; login is deliberately identified by purchase email only.
 verify_jwt = false
+
+[functions.hubla-webhook]
+# Hubla authenticates with its own x-hubla-token header and never sends a JWT.
+verify_jwt = false
