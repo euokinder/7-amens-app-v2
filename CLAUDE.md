@@ -106,9 +106,9 @@ O mapeamento vive em `hubla_product_map` (vários IDs da Hubla podem apontar par
 | principal | ✅ `bniYICXEzykgw1PzEyme` |
 | upsell_01 | ✅ `ODOZxlF1tfhee2TkZikI` |
 | upsell_03 | ✅ `nMyLP4oFcIWiJ77UIbsu` |
-| upsell_02 | ⚠️ pendente — nenhum evento chegou ainda |
+| upsell_02 | ✅ `vRuLDZ1avAMG2LllTWAu` |
 
-⚠️ **Armadilha comprovada: o slug da página `hub.la/g/...` NÃO é sempre o `event.product.id`.** Para os Arcanjos era outro código. Só o payload real confirma. ID desconhecido cai em `needs_reconciliation` e **nunca** libera acesso errado — é para isso que o mapeamento é tabela e não coluna.
+⚠️ **Armadilha comprovada: o slug da página `hub.la/g/...` quase nunca é o `event.product.id`.** Dos três slugs desse formato, **dois estavam errados** — só Comunidade da Fé coincidiu por acaso. Só o payload real confirma; nunca deduzir por analogia. ID desconhecido cai em `needs_reconciliation` e **nunca** libera acesso errado — é para isso que o mapeamento é tabela e não coluna.
 
 A Novena Desatadora dos Nós **não é addon** — está incluída no produto principal.
 
