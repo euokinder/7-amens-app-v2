@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7 Orações Sagradas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">7 Orações Sagradas</h1>
+        <p class="subtext">Toque em um dia para abrir a oração completa.</p>
+      </div>
+    </div>
+
+    <div id="dias-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+    <h2 class="section-label">Material Complementar</h2>
+
+    <a href="dia.html?material=guia-rapido" class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(assets/images/dia-0-introducao.jpg);">
+      <div class="icon-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--dark-on-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Guia Rápido</h3>
+        <p class="card-sub">As regras da jornada, antes de começar</p>
+      </div>
+    </a>
+
+    <a href="dia.html?material=pai-nosso" class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(assets/images/dia-1-pai-nosso.jpg);">
+      <div class="icon-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="6" y1="9" x2="18" y2="9"/></svg>
+      </div>
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Pai Nosso Avulso</h3>
+        <p class="card-sub">A oração completa, pra acessar quando quiser</p>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="modal-scrim" id="confirm-modal">
+  <div class="modal-card">
+    <div class="modal-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+    </div>
+    <div class="modal-heading">
+      <h3>Antes de continuar, confirme:</h3>
+    </div>
+    <div class="modal-checklist">
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Você já assistiu o vídeo anterior?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Está fazendo na hora correta?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Está respeitando todas as instruções?</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="confirm-yes" type="button">SIM, ESTÁ TUDO CERTO!</button>
+      <button class="modal-btn secondary" id="confirm-no" type="button">NÃO, ESTOU CONFUSA DE COMO FAZER</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/dias.js?v=18"></script>
+<script>
+  const FOTOS = [
+    'assets/images/dia-0-introducao.jpg',
+    'assets/images/dia-1-pai-nosso.jpg',
+    'assets/images/dia-2-perdao.jpg',
+    'assets/images/dia-3-cura.jpg',
+    'assets/images/dia-4-libertacao.jpg',
+    'assets/images/dia-5-prosperidade.jpg',
+    'assets/images/dia-6-paz.jpg',
+    'assets/images/dia-7-alianca.jpg'
+  ];
+  const OVERLAY = "linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)";
+
+  const lockIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--card-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+  const list = document.getElementById('dias-list');
+  let html = '';
+
+  for (let i = 0; i <= 7; i++) {
+    const dia = DIAS[i];
+    const foto = FOTOS[i];
+    const locked = !dia.disponivel;
+    const href = locked ? '#' : (i === 0 ? 'dia.html?dia=0' : `dia.html?dia=${i}`);
+    const needsConfirm = !locked && dia.confirmaAntes;
+    const tag = locked ? 'div' : 'a';
+    const hrefAttr = locked ? '' : `href="${href}"`;
+    const confirmAttr = needsConfirm ? 'data-confirm="true"' : '';
+
+    html += `
+      <${tag} ${hrefAttr} ${confirmAttr} class="card${locked ? ' locked' : ''}" style="height:320px;background-image:${OVERLAY}, url(${foto});">
+        <div class="num-badge">${dia.numero}</div>
+        ${locked ? '<div class="pill-badge">Indisponível</div>' : ''}
+        <div class="play-btn">${locked ? lockIcon : playIcon}</div>
+        <div class="card-body">
+          <h3 class="card-title">${dia.titulo}</h3>
+          <p class="card-sub">${dia.subtitulo}</p>
+        </div>
+      </${tag}>
+    `;
+  }
+
+  list.innerHTML = html;
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>

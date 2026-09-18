@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novena a Nossa Senhora Desatadora dos Nós</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">Novena Desatadora dos Nós</h1>
+        <p class="subtext">Um nó desfeito a cada dia, com Nossa Senhora. Toque um dia pra assistir.</p>
+      </div>
+    </div>
+
+    <div id="dias-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+  </div>
+</div>
+
+<div class="modal-scrim" id="confirm-modal" data-no-href="desatadora.html">
+  <div class="modal-card">
+    <div class="modal-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+    </div>
+    <div class="modal-heading">
+      <h3>Antes de continuar, confirme:</h3>
+    </div>
+    <div class="modal-checklist">
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Você já assistiu ao vídeo do dia anterior?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Está rezando um dia por vez, sem pular?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Está em um momento tranquilo pra rezar?</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="confirm-yes" type="button">SIM, ESTÁ TUDO PRONTO!</button>
+      <button class="modal-btn secondary" id="confirm-no" type="button">NÃO, NÃO SEI AINDA</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/novena-desatadora.js"></script>
+<script>
+  const ARTES_DESATADORA = [
+    'assets/images/desatadora/dia-1.svg',
+    'assets/images/desatadora/dia-2.svg',
+    'assets/images/desatadora/dia-3.svg',
+    'assets/images/desatadora/dia-4.svg',
+    'assets/images/desatadora/dia-5.svg',
+    'assets/images/desatadora/dia-6.svg',
+    'assets/images/desatadora/dia-7.svg',
+    'assets/images/desatadora/dia-8.svg',
+    'assets/images/desatadora/dia-9.svg'
+  ];
+  const OVERLAY = "linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)";
+
+  const lockIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--card-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+  const list = document.getElementById('dias-list');
+  let html = '';
+
+  for (let i = 1; i <= 9; i++) {
+    const dia = NOVENA_DESATADORA[i];
+    const arte = ARTES_DESATADORA[i - 1];
+    const locked = !dia.disponivel;
+    const href = locked ? '#' : `dia-desatadora.html?dia=${i}`;
+    const needsConfirm = !locked && dia.confirmaAntes;
+    const tag = locked ? 'div' : 'a';
+    const hrefAttr = locked ? '' : `href="${href}"`;
+    const confirmAttr = needsConfirm ? 'data-confirm="true"' : '';
+
+    html += `
+      <${tag} ${hrefAttr} ${confirmAttr} class="card${locked ? ' locked' : ''}" style="height:280px;background-image:${OVERLAY}, url(${arte});">
+        <div class="num-badge">${dia.numero}</div>
+        ${locked ? '<div class="pill-badge">Em breve</div>' : ''}
+        <div class="play-btn">${locked ? lockIcon : playIcon}</div>
+        <div class="card-body">
+          <h3 class="card-title">${dia.titulo}</h3>
+          <p class="card-sub">${dia.subtitulo}</p>
+        </div>
+      </${tag}>
+    `;
+  }
+
+  list.innerHTML = html;
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>

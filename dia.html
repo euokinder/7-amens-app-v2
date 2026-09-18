@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7 Améns da Madrugada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='novena.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+
+</div>
+
+<div class="modal-scrim sheet" id="material-modal">
+  <div class="material-sheet">
+    <div class="material-sheet-header">
+      <button class="back-btn" type="button" id="material-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        <span>Fechar</span>
+      </button>
+    </div>
+    <div class="material-sheet-body" id="material-sheet-body">
+      <span class="kicker" id="material-kicker"></span>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;" id="material-title"></h1>
+        <p class="subtext" id="material-subtitle"></p>
+      </div>
+
+      <button class="material-btn lg" type="button" id="material-pdf-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
+        Baixar PDF pra guardar ou imprimir
+      </button>
+
+      <div>
+        <h2 class="section-label" style="margin-bottom:14px;">Como Rezar Este Amém</h2>
+        <div class="modal-checklist" id="material-regras"></div>
+        <p class="subtext" id="material-importante" style="margin-top:14px;font-size:13px;line-height:1.6;display:none;"></p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <h2 class="section-label" style="margin:0;">Antes de Começar</h2>
+        <p class="subtext" style="font-size:15px;color:var(--ink);" id="material-antes"></p>
+        <div id="material-preencher-wrap" style="display:flex;flex-direction:column;gap:8px;">
+          <label class="kicker" id="material-preencher-label" style="text-transform:none;letter-spacing:0;"></label>
+          <input type="text" id="material-preencher-input" class="material-input" placeholder="Escreva aqui, se quiser guardar...">
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <h2 class="section-label" style="margin:0;">A Oração</h2>
+        <div class="prayer-card" id="material-oracao"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <h2 class="section-label" style="margin:0;">Depois de Rezar</h2>
+        <p class="subtext" style="font-size:15px;color:var(--ink);" id="material-depois"></p>
+      </div>
+
+      <div class="declaration-card">
+        <span class="kicker" style="color:var(--card-muted);">Declaração do Dia</span>
+        <p id="material-declaracao"></p>
+      </div>
+
+      <div class="banner">
+        <span>Não pule dias. Não inverta a ordem. Não reze mais de uma oração por dia.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/dias.js?v=18"></script>
+<script src="js/materiais.js?v=4"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const materialKey = params.get('material');
+  const diaNum = parseInt(params.get('dia'), 10);
+  const dia = materialKey ? MATERIAIS[materialKey] : DIAS[diaNum];
+  const content = document.getElementById('content');
+  const temVideo = !materialKey || (dia && dia.temVideo === true);
+
+  if (!dia || (!materialKey && !dia.disponivel)) {
+    content.innerHTML = `
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
+        <p class="subtext">Esse conteúdo ainda não foi liberado. Volte para a lista de orações.</p>
+      </div>
+    `;
+  } else {
+    const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+    let videoHtml = '';
+    let videoScriptSrc = '';
+    if (temVideo) {
+      if (dia.videoEmbed) {
+        videoHtml = `<div class="video-wrap-embed">${dia.videoEmbed.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>`;
+        videoScriptSrc = dia.videoEmbed.scriptSrc;
+      } else if (dia.videoId) {
+        videoHtml = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${dia.videoId}" title="${dia.titulo}" allowfullscreen></iframe></div>`;
+      } else {
+        videoHtml = `<div class="video-wrap"><div class="play-btn">${playIcon}</div></div>`;
+      }
+    }
+
+    const materialClick = (dia.materialPage || dia.guiaPage)
+      ? `onclick="abrirMaterialPage()"`
+      : `onclick="window.open('${dia.materialPdf}', '_blank')"`;
+
+    const materialHtml = (dia.materialPdf || dia.materialPage || dia.guiaPage)
+      ? `<button class="material-btn" type="button" ${materialClick}>
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2.5H7a1.5 1.5 0 0 0-1.5 1.5v16A1.5 1.5 0 0 0 7 21.5h10a1.5 1.5 0 0 0 1.5-1.5V7Z"/><path d="M14.5 2.5V7H19"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/><line x1="8.5" y1="16" x2="15.5" y2="16"/></svg>
+           ${dia.materialLabel}
+         </button>`
+      : `<p class="subtext" style="text-align:center;">Esse material ainda não foi adicionado.</p>`;
+
+    const materialExtraHtml = dia.materialExtraPdf
+      ? `<button class="material-btn" type="button" onclick="window.open('${dia.materialExtraPdf}', '_blank')">
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+           ${dia.materialExtraLabel}
+         </button>`
+      : '';
+
+    const descricaoHtml = dia.descricao
+      ? `<p style="margin:0;font-size:15px;font-weight:500;line-height:1.7;color:var(--ink);">${dia.descricao}</p>`
+      : '';
+
+    const audioHtml = dia.audioUrl
+      ? `<div class="audio-card">
+           <div class="audio-card-label">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+             <span>Ouça a Oração em Áudio</span>
+           </div>
+           <div class="audio-controls">
+             <button class="audio-play-btn" id="audio-play-btn" type="button" aria-label="Reproduzir">
+               <svg id="audio-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+             </button>
+             <div class="audio-progress-wrap">
+               <div class="audio-progress-track" id="audio-progress-track">
+                 <div class="audio-progress-fill" id="audio-progress-fill"></div>
+                 <div class="audio-progress-thumb" id="audio-progress-thumb"></div>
+               </div>
+               <div class="audio-time-row">
+                 <span id="audio-time-current">0:00</span>
+                 <span id="audio-time-duration">0:00</span>
+               </div>
+             </div>
+           </div>
+           <audio id="audio-el" preload="metadata" src="${dia.audioUrl}"></audio>
+         </div>`
+      : '';
+
+    let oracaoHtml = '';
+    if (dia.oracao) {
+      const blocos = dia.oracao.blocos
+        .map((b) => `<p>${b.replace(/\n/g, '<br>')}</p>`)
+        .join('');
+      oracaoHtml = `
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <h2 class="section-label" style="margin:0;">A oração</h2>
+          <div class="prayer-card">
+            <p class="opening">${dia.oracao.abertura}</p>
+            ${blocos}
+            <p class="closing">${dia.oracao.fechamento}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    const proximoHtml = dia.proximo
+      ? `<p class="subtext" style="text-align:center;">${dia.proximo}</p>`
+      : '';
+
+    content.innerHTML = `
+      <span class="kicker">${dia.kicker}</span>
+      <div class="section-heading" style="margin-top:-8px;">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;">${dia.titulo}</h1>
+          <p class="subtext">${dia.subtitulo}</p>
+        </div>
+      </div>
+
+      ${videoHtml}
+
+      ${descricaoHtml}
+
+      ${audioHtml}
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        ${materialHtml}
+        ${materialExtraHtml}
+      </div>
+
+      ${oracaoHtml}
+
+      ${proximoHtml}
+
+      <div class="banner">
+        <span>Faça as orações na ordem e nos horários corretos</span>
+      </div>
+    `;
+
+    if (videoScriptSrc) {
+      const playerScript = document.createElement('script');
+      playerScript.src = videoScriptSrc;
+      playerScript.async = true;
+      document.head.appendChild(playerScript);
+    }
+
+    if (dia.audioUrl) {
+      const audio = document.getElementById('audio-el');
+      const playBtn = document.getElementById('audio-play-btn');
+      const playIcon = document.getElementById('audio-play-icon');
+      const track = document.getElementById('audio-progress-track');
+      const fill = document.getElementById('audio-progress-fill');
+      const thumb = document.getElementById('audio-progress-thumb');
+      const currentEl = document.getElementById('audio-time-current');
+      const durationEl = document.getElementById('audio-time-duration');
+
+      const playPath = '<path d="M8 5.5v13l11-6.5-11-6.5Z"/>';
+      const pausePath = '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>';
+
+      const formatTime = (s) => {
+        if (!isFinite(s)) return '0:00';
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60).toString().padStart(2, '0');
+        return `${m}:${sec}`;
+      };
+
+      const updateProgress = () => {
+        const ratio = audio.duration ? audio.currentTime / audio.duration : 0;
+        fill.style.width = (ratio * 100) + '%';
+        thumb.style.left = (ratio * 100) + '%';
+        currentEl.textContent = formatTime(audio.currentTime);
+      };
+
+      audio.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', updateProgress);
+
+      audio.addEventListener('ended', () => {
+        audio.currentTime = 0;
+        playIcon.innerHTML = playPath;
+        playBtn.setAttribute('aria-label', 'Reproduzir');
+        updateProgress();
+      });
+
+      playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+          playIcon.innerHTML = pausePath;
+          playBtn.setAttribute('aria-label', 'Pausar');
+        } else {
+          audio.pause();
+          playIcon.innerHTML = playPath;
+          playBtn.setAttribute('aria-label', 'Reproduzir');
+        }
+      });
+
+      let isDragging = false;
+      const seekFromEvent = (e) => {
+        const rect = track.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const ratio = Math.min(1, Math.max(0, x / rect.width));
+        if (audio.duration) {
+          audio.currentTime = ratio * audio.duration;
+          updateProgress();
+        }
+      };
+      track.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        track.setPointerCapture(e.pointerId);
+        seekFromEvent(e);
+      });
+      track.addEventListener('pointermove', (e) => {
+        if (isDragging) seekFromEvent(e);
+      });
+      track.addEventListener('pointerup', () => { isDragging = false; });
+    }
+
+    if (dia.materialPage) {
+      const mp = dia.materialPage;
+      document.getElementById('material-kicker').textContent = dia.kicker;
+      document.getElementById('material-title').textContent = dia.titulo;
+      document.getElementById('material-subtitle').textContent = dia.subtitulo;
+      document.getElementById('material-pdf-btn').onclick = () => window.open(dia.materialPdf, '_blank');
+      document.getElementById('material-regras').innerHTML = mp.regras.map((r) => `
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>${r}</p>
+        </div>
+      `).join('');
+      const importanteEl = document.getElementById('material-importante');
+      if (mp.importante) {
+        importanteEl.innerHTML = `<i>Importante:</i> ${mp.importante}`;
+        importanteEl.style.display = 'block';
+      } else {
+        importanteEl.style.display = 'none';
+      }
+      document.getElementById('material-antes').textContent = mp.antes;
+      if (dia.oracao) {
+        const blocos = dia.oracao.blocos.map((b) => `<p>${b.replace(/\n/g, '<br>')}</p>`).join('');
+        document.getElementById('material-oracao').innerHTML = `
+          <p class="opening">${dia.oracao.abertura}</p>
+          ${blocos}
+          <p class="closing">${dia.oracao.fechamento}</p>
+        `;
+      }
+      document.getElementById('material-depois').textContent = mp.depois;
+      document.getElementById('material-declaracao').textContent = `“${mp.declaracao}”`;
+
+      const preencherWrap = document.getElementById('material-preencher-wrap');
+      const preencherInput = document.getElementById('material-preencher-input');
+      if (mp.preencher) {
+        document.getElementById('material-preencher-label').textContent = mp.preencher;
+        const storageKey = `pedido-dia-${dia.numero}`;
+        try {
+          const saved = localStorage.getItem(storageKey);
+          if (saved) preencherInput.value = saved;
+        } catch (e) {}
+        preencherInput.addEventListener('input', () => {
+          try { localStorage.setItem(storageKey, preencherInput.value); } catch (e) {}
+        });
+      } else {
+        preencherWrap.style.display = 'none';
+      }
+    } else if (dia.guiaPage) {
+      const gp = dia.guiaPage;
+      const checkIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>';
+      const numBadge = (n) => `<div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--dark-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;">${n}</div>`;
+      const numItem = (n, titulo, texto) => `
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          ${numBadge(n)}
+          <div>
+            <p style="margin:0;font-size:15px;font-weight:700;color:var(--ink);">${titulo}</p>
+            <p class="subtext" style="margin:2px 0 0;">${texto}</p>
+          </div>
+        </div>
+      `;
+      const checkItem = (texto) => `
+        <div class="item">
+          ${checkIcon}
+          <p>${texto}</p>
+        </div>
+      `;
+      const pdfBtnHtml = dia.materialPdf
+        ? `<button class="material-btn lg" type="button" onclick="window.open('${dia.materialPdf}', '_blank')">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
+             Baixar PDF pra guardar ou imprimir
+           </button>`
+        : '';
+
+      document.getElementById('material-sheet-body').innerHTML = `
+        <span class="kicker" id="material-kicker">${dia.kicker}</span>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;" id="material-title">${dia.titulo}</h1>
+          <p class="subtext" id="material-subtitle">${dia.subtitulo}</p>
+        </div>
+
+        ${pdfBtnHtml}
+
+        <div class="declaration-card">
+          <p style="font-size:17px;">${gp.destaque}</p>
+          <p class="subtext" style="color:var(--card-muted);font-style:normal;font-size:14px;">${gp.destaqueTexto}</p>
+        </div>
+
+        <div>
+          <h2 class="section-label" style="margin-bottom:8px;">${gp.fraseKicker}</h2>
+          <p style="margin:0 0 8px;font-size:18px;font-weight:800;color:var(--ink);">${gp.frase}</p>
+          <p class="subtext">${gp.fraseTexto}</p>
+        </div>
+
+        <div style="border:1px solid var(--surface-alt); border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; gap:4px;">
+          <span class="kicker" style="color:var(--accent-strong);">${gp.amanha.titulo}</span>
+          <p style="margin:0;font-size:16px;font-weight:700;color:var(--ink);">${gp.amanha.subtitulo}</p>
+          <p class="subtext" style="margin-top:4px;">${gp.amanha.texto}</p>
+        </div>
+
+        <div>
+          <h2 class="section-label" style="margin-bottom:14px;">Prepare Sua Primeira Madrugada</h2>
+          <div class="modal-checklist">
+            ${gp.prepare.map((item, i) => numItem(i + 1, item.titulo, item.texto)).join('')}
+          </div>
+        </div>
+
+        <div>
+          <h2 class="section-label" style="margin-bottom:14px;">Checklist Antes de Dormir</h2>
+          <div class="modal-checklist">
+            ${gp.checklist.map(checkItem).join('')}
+          </div>
+        </div>
+
+        <p class="subtext" style="font-size:13px;line-height:1.6;"><i>Se 4h às 7h não for possível:</i> ${gp.seNaoForPossivel}</p>
+
+        <div>
+          <h2 class="section-label" style="margin-bottom:14px;">As 7 Regras da Jornada</h2>
+          <div class="modal-checklist">
+            ${gp.regras.map((r, i) => numItem(i + 1, r.titulo, r.texto)).join('')}
+          </div>
+        </div>
+
+        <div class="declaration-card">
+          <span class="kicker" style="color:var(--card-muted);">Regra Mais Importante</span>
+          <p>${gp.regraPrincipal}</p>
+        </div>
+
+        <div>
+          <h2 class="section-label" style="margin-bottom:14px;">Sua Jornada, Dia a Dia</h2>
+          <div class="modal-checklist">
+            ${gp.jornada.map((d, i) => `
+              <div style="display:flex;gap:12px;align-items:flex-start;">
+                ${numBadge(i + 1)}
+                <div>
+                  <p style="margin:0;font-size:15px;font-weight:700;color:var(--ink);">${d.titulo}</p>
+                  <p class="subtext" style="margin:2px 0 4px;">${d.texto}</p>
+                  <p style="margin:0;font-size:13px;font-weight:600;font-style:italic;color:var(--accent-strong);">"${d.frase}"</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div>
+          <h2 class="section-label" style="margin-bottom:14px;">Dúvidas Rápidas</h2>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            ${gp.duvidas.map((qa) => `
+              <div>
+                <p style="margin:0;font-size:15px;font-weight:700;color:var(--ink);">${qa.p}</p>
+                <p class="subtext" style="margin-top:2px;">${qa.r}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <p class="subtext" style="font-size:13px;line-height:1.6;"><i>Importante sobre saúde:</i> ${gp.saude}</p>
+
+        <div>
+          <span class="kicker">${gp.planoTitulo}</span>
+          <h2 class="section-label" style="margin:4px 0 0;font-size:16px;color:var(--ink);text-transform:none;letter-spacing:0;">${gp.planoSubtitulo}</h2>
+          <p class="subtext" style="margin-top:4px;">${gp.planoTexto}</p>
+        </div>
+
+        <div class="modal-checklist">
+          ${gp.plano.map((p, i) => numItem(i + 1, p.titulo, p.texto)).join('')}
+        </div>
+
+        <div class="declaration-card">
+          <span class="kicker" style="color:var(--card-muted);">Lembrete</span>
+          <p>${gp.lembrete}</p>
+        </div>
+
+        <div class="banner">
+          <span>Faça as orações na ordem e nos horários corretos</span>
+        </div>
+      `;
+    }
+
+    if (dia.materialPage || dia.guiaPage) {
+      window.abrirMaterialPage = () => {
+        document.getElementById('material-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      };
+      document.getElementById('material-close').addEventListener('click', () => {
+        document.getElementById('material-modal').classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    }
+  }
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>

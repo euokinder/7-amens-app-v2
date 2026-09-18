@@ -1,0 +1,123 @@
+// 100 mensagens do dia (versículo + reflexão). Uma por dia, alternando automaticamente
+// a cada 24h (mesma mensagem pra todo mundo no mesmo dia, calculada por data UTC).
+const MENSAGENS = [
+  { ref: "João 14:27", texto: "Deixo-vos a paz, a minha paz vos dou; não a dou como o mundo a dá.", reflexao: "A paz que Jesus oferece não depende de tudo estar resolvido ao seu redor. Hoje, permita que essa paz habite no seu coração, mesmo em meio às preocupações do dia." },
+  { ref: "Filipenses 4:6-7", texto: "Não andeis ansiosos por coisa alguma; em tudo, pela oração, apresentai a Deus as vossas petições.", reflexao: "Deus convida você a trocar a ansiedade pela oração. Entregue hoje aquilo que pesa no seu coração — Ele promete guardar sua mente e seu coração em paz." },
+  { ref: "Isaías 26:3", texto: "Tu guardarás em perfeita paz aquele cujo propósito é firme, porque em ti confia.", reflexao: "A mente que se apoia em Deus encontra descanso mesmo nos dias mais incertos. Fixe seus pensamentos Nele hoje, e deixe que Sua paz sustente você." },
+  { ref: "Salmos 29:11", texto: "O Senhor abençoará o seu povo com paz.", reflexao: "A paz não é apenas ausência de conflito — é uma bênção que vem diretamente de Deus. Receba hoje essa bênção como um presente, não como algo que você precisa conquistar sozinha." },
+  { ref: "Colossenses 3:15", texto: "E a paz de Cristo domine em vossos corações.", reflexao: "Deixe que a paz, não a preocupação, seja quem toma as decisões dentro de você hoje. Ela tem esse poder quando você permite que Cristo reine no seu coração." },
+
+  { ref: "Romanos 15:13", texto: "O Deus de esperança vos encha de todo gozo e paz na vossa fé.", reflexao: "Mesmo quando o caminho parece incerto, a esperança em Deus não decepciona. Peça hoje que Ele encha seu coração de alegria, mesmo antes de ver a resposta." },
+  { ref: "Jeremias 29:11", texto: "Bem sei os pensamentos que tenho a vosso respeito... pensamentos de paz, e não de mal.", reflexao: "Deus já sabe o que está reservado para a sua vida, e é bom. Confie que Ele está trabalhando, mesmo quando você não consegue enxergar o próximo passo." },
+  { ref: "Salmos 42:11", texto: "Por que estás abatida, ó minha alma? Espera em Deus, pois ainda o louvarei.", reflexao: "É permitido estar cansada, é permitido duvidar — mas não pare de esperar em Deus. Ele é a razão pela qual você ainda pode louvar, mesmo em dias difíceis." },
+  { ref: "Romanos 8:28", texto: "Todas as coisas contribuem juntamente para o bem daqueles que amam a Deus.", reflexao: "Você pode não entender o motivo do que está vivendo agora, mas Deus está costurando cada fio da sua história para o bem. Confie no processo, mesmo sem ver o desenho completo." },
+  { ref: "Hebreus 11:1", texto: "A fé é o firme fundamento das coisas que se esperam, e a prova das coisas que se não veem.", reflexao: "Esperança não é ingenuidade — é confiar no que Deus prometeu, mesmo antes de ver. Hoje, deixe sua fé ser mais forte do que suas dúvidas." },
+
+  { ref: "Filipenses 4:13", texto: "Posso todas as coisas naquele que me fortalece.", reflexao: "A força que você precisa hoje não vem de você mesma — vem d'Ele. Não é sobre ter tudo sob controle, é sobre confiar em quem tem." },
+  { ref: "Isaías 41:10", texto: "Não temas, porque eu sou contigo; eu te fortaleço, e te ajudo.", reflexao: "Você não está enfrentando esse dia sozinha. Deus promete estar ao seu lado, segurando sua mão direita — permita-se apoiar n'Ele." },
+  { ref: "Salmos 46:1", texto: "Deus é o nosso refúgio e fortaleza, socorro bem presente na angústia.", reflexao: "Quando tudo parecer grande demais, lembre-se: Deus não está distante observando — Ele está bem perto, pronto para socorrer. Corra para Ele hoje." },
+  { ref: "Neemias 8:10", texto: "A alegria do Senhor é a vossa força.", reflexao: "Mesmo em dias cansativos, escolher a alegria em Deus renova suas forças de um jeito que o descanso sozinho não consegue. Busque hoje um motivo para se alegrar N'Ele." },
+  { ref: "2 Coríntios 12:9", texto: "A minha graça te basta, porque o meu poder se aperfeiçoa na fraqueza.", reflexao: "Você não precisa esconder o que não consegue fazer sozinha. É exatamente aí, na fraqueza, que o poder de Deus se mostra mais forte." },
+
+  { ref: "1 João 4:19", texto: "Nós o amamos a ele porque ele nos amou primeiro.", reflexao: "Antes de qualquer esforço seu, Deus já escolheu te amar. Hoje, descanse nesse amor que não depende do seu desempenho." },
+  { ref: "1 Coríntios 13:4", texto: "O amor é paciente, é benigno; o amor não é invejoso.", reflexao: "Esse é o padrão de amor que Deus tem por você — e o mesmo que Ele pede que você ofereça a quem está ao seu redor hoje, mesmo quando é difícil." },
+  { ref: "João 3:16", texto: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.", reflexao: "O maior presente que você já recebeu não foi merecido — foi dado por puro amor. Viva hoje lembrando do tamanho desse amor por você." },
+  { ref: "Romanos 8:38-39", texto: "Nada nos poderá separar do amor de Deus.", reflexao: "Não importa o que você esteja carregando hoje — culpa, medo, cansaço — nada disso tem poder para te afastar do amor de Deus. Ele permanece." },
+  { ref: "1 João 4:18", texto: "No amor não há temor, antes o perfeito amor lança fora o temor.", reflexao: "Quando o medo tentar tomar conta do seu coração hoje, lembre-se: o amor de Deus é maior, e Ele quer expulsar esse medo, não aumentá-lo." },
+
+  { ref: "1 Tessalonicenses 5:18", texto: "Em tudo dai graças, porque esta é a vontade de Deus.", reflexao: "Gratidão não significa fingir que está tudo bem — significa confiar em Deus mesmo no meio das dificuldades. Encontre hoje um motivo, por menor que seja, para agradecer." },
+  { ref: "Salmos 100:4", texto: "Entrai pelas suas portas com ação de graças.", reflexao: "Comece sua oração de hoje agradecendo, antes mesmo de pedir. Isso muda o jeito como seu coração se aproxima de Deus." },
+  { ref: "Colossenses 3:17", texto: "Tudo quanto fizerdes, fazei-o em nome do Senhor Jesus, dando por ele graças a Deus.", reflexao: "Até as tarefas mais simples do seu dia podem virar oração quando feitas com gratidão. Ofereça hoje suas tarefas a Deus." },
+  { ref: "Salmos 118:24", texto: "Este é o dia que fez o Senhor; regozijemo-nos, e alegremo-nos nele.", reflexao: "Hoje não é um dia qualquer — é um dia que Deus preparou. Escolha viver com esse olhar, mesmo que a agenda esteja cheia." },
+  { ref: "Efésios 5:20", texto: "Dando sempre graças por tudo a nosso Deus e Pai.", reflexao: "Mesmo o que ainda não faz sentido pode se tornar motivo de gratidão quando confiamos que Deus está no controle. Agradeça hoje por Ele estar com você." },
+
+  { ref: "Provérbios 3:5-6", texto: "Confia no Senhor de todo o teu coração, e não te estribes no teu próprio entendimento.", reflexao: "Você não precisa ter todas as respostas hoje. Confiar em Deus significa dar um passo mesmo sem enxergar o caminho inteiro." },
+  { ref: "Salmos 56:3", texto: "No dia em que temer, eu em ti confiarei.", reflexao: "O medo pode até aparecer, mas ele não precisa ficar. Escolha, no momento do medo, virar-se para Deus." },
+  { ref: "Isaías 41:13", texto: "Eu sou o Senhor teu Deus, que te toma pela tua mão direita.", reflexao: "Você não caminha sozinha — Deus segura sua mão mesmo quando você não sente. Confie nessa presença hoje, mesmo no silêncio." },
+  { ref: "Salmos 37:5", texto: "Entrega o teu caminho ao Senhor; confia nele, e ele o fará.", reflexao: "Existe um alívio em parar de carregar tudo sozinha. Entregue hoje a Deus aquilo que você vem tentando resolver com suas próprias forças." },
+  { ref: "Jeremias 17:7", texto: "Bendito o homem que confia no Senhor, e cuja esperança é o Senhor.", reflexao: "A confiança em Deus não elimina os problemas, mas muda o peso deles nas suas costas. Escolha confiar, mesmo sem todas as certezas." },
+
+  { ref: "Mateus 6:14", texto: "Se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará.", reflexao: "Perdoar é também um presente que você dá a si mesma. Hoje, considere soltar aquilo que você vem carregando contra alguém." },
+  { ref: "Colossenses 3:13", texto: "Suportando-vos e perdoando-vos uns aos outros, como também Cristo vos perdoou.", reflexao: "Você já foi perdoada muito mais do que imagina. Deixe esse perdão recebido transbordar para quem precisa do seu perdão hoje." },
+  { ref: "Efésios 4:32", texto: "Sede uns para com os outros benignos, misericordiosos, perdoando-vos uns aos outros.", reflexao: "A bondade e o perdão andam juntos. Hoje, escolha responder com misericórdia, mesmo quando o outro não merece." },
+  { ref: "Lucas 6:37", texto: "Perdoai, e sereis perdoados.", reflexao: "Existe uma liberdade em não guardar mágoa. Ao perdoar, você não está dizendo que estava certo o que aconteceu — está se libertando para seguir em frente." },
+  { ref: "Salmos 103:12", texto: "Assim como está longe o Oriente do Ocidente, assim afasta de nós as nossas transgressões.", reflexao: "Deus não guarda seus erros contra você. Se Ele te perdoa dessa forma tão completa, você também pode aprender a se perdoar hoje." },
+
+  { ref: "Josué 24:15", texto: "Eu e a minha casa serviremos ao Senhor.", reflexao: "Sua casa pode ser um lugar onde a fé é vivida diariamente, não apenas falada. Hoje, seja um exemplo de fé para quem mora com você." },
+  { ref: "Salmos 127:3", texto: "Eis que os filhos são herança do Senhor.", reflexao: "Cada pessoa da sua família é um presente que Deus confiou a você. Agradeça hoje por elas, mesmo nos dias mais cansativos." },
+  { ref: "Provérbios 22:6", texto: "Ensina a criança no caminho em que deve andar.", reflexao: "As sementes de fé que você planta hoje na sua família podem levar anos para florescer — mas elas não se perdem. Continue plantando." },
+  { ref: "Efésios 6:1-3", texto: "Filhos, obedecei em o Senhor a vossos pais... para que te vá bem.", reflexao: "As relações de família nem sempre são fáceis, mas Deus as valoriza profundamente. Ore hoje por paz e honra dentro da sua casa." },
+  { ref: "Provérbios 31:28", texto: "Levantam-se seus filhos, e lhe chamam bem-aventurada.", reflexao: "O cuidado que você oferece à sua família, mesmo em silêncio, não passa despercebido por Deus. Continue — ele dá frutos que você talvez só veja depois." },
+
+  { ref: "Jeremias 17:14", texto: "Sara-me, Senhor, e sararei; salva-me, e serei salvo.", reflexao: "Você pode levar a Deus tanto as feridas do corpo quanto as da alma. Peça hoje por essa cura, sem pressa de entender como ela vai chegar." },
+  { ref: "Salmos 147:3", texto: "Sara os quebrantados de coração, e liga-lhes as feridas.", reflexao: "Deus não ignora a dor que você carrega em silêncio. Ele se aproxima justamente dos corações mais feridos — deixe-o chegar perto hoje." },
+  { ref: "Isaías 53:5", texto: "E pelas suas pisaduras fomos sarados.", reflexao: "A cura que você busca já foi conquistada por Cristo. Isso não significa que tudo se resolve instantaneamente, mas que você não sofre sozinha nem sem propósito." },
+  { ref: "Tiago 5:15", texto: "A oração da fé salvará o doente.", reflexao: "A oração é um espaço legítimo para trazer sua saúde e a de quem você ama diante de Deus. Ore hoje com fé, mesmo em meio à incerteza." },
+  { ref: "Êxodo 15:26", texto: "Eu sou o Senhor que te sara.", reflexao: "Deus se apresenta como aquele que cuida e restaura. Convide-o hoje para essa parte da sua vida que ainda precisa ser curada." },
+
+  { ref: "Filipenses 4:19", texto: "O meu Deus, segundo as suas riquezas, suprirá todas as vossas necessidades.", reflexao: "Deus conhece exatamente aquilo que falta na sua vida agora. Confie que Ele proverá, mesmo que não seja do jeito que você imaginou." },
+  { ref: "Mateus 6:33", texto: "Buscai primeiro o reino de Deus... e todas essas coisas vos serão acrescentadas.", reflexao: "Quando colocamos Deus em primeiro lugar, as outras preocupações encontram seu devido tamanho. Busque hoje a Ele antes de buscar as soluções." },
+  { ref: "Salmos 23:1", texto: "O Senhor é o meu pastor; nada me faltará.", reflexao: "Como um pastor cuida de suas ovelhas, Deus cuida de cada detalhe da sua vida. Descanse hoje nessa certeza, mesmo que o caminho pareça incerto." },
+  { ref: "Malaquias 3:10", texto: "Provai-me nisto, diz o Senhor, se eu não vos abrir as janelas do céu.", reflexao: "Deus convida você a confiar Nele até nas questões financeiras. Continue fazendo sua parte com fé, e deixe que Ele cuide do restante." },
+  { ref: "2 Coríntios 9:8", texto: "Deus é poderoso para fazer abundar em vós toda a graça.", reflexao: "A provisão de Deus não é apenas o suficiente — é abundante. Espere hoje por essa generosidade, mesmo em meio à escassez que você enxerga." },
+
+  { ref: "Tiago 1:5", texto: "Se algum de vós tem falta de sabedoria, peça-a a Deus.", reflexao: "Você não precisa ter todas as respostas sozinha. Peça hoje a Deus a sabedoria para a decisão que está pesando no seu coração." },
+  { ref: "Provérbios 3:13", texto: "Bem-aventurado o homem que acha sabedoria.", reflexao: "A sabedoria de Deus vale mais do que qualquer solução rápida. Busque hoje entender as coisas com os olhos d'Ele, não só com os seus." },
+  { ref: "Provérbios 9:10", texto: "O temor do Senhor é o princípio da sabedoria.", reflexao: "Reverenciar a Deus muda a forma como enxergamos tudo o mais. Comece o seu dia reconhecendo quem Ele é." },
+  { ref: "Eclesiastes 7:12", texto: "A sabedoria dá vida ao seu possuidor.", reflexao: "Viver com sabedoria não é sobre ser perfeita, é sobre deixar Deus guiar suas escolhas diárias. Peça essa direção hoje." },
+  { ref: "Colossenses 2:3", texto: "Em quem estão escondidos todos os tesouros da sabedoria.", reflexao: "Tudo o que você precisa entender hoje já está guardado em Cristo. Vá a Ele antes de ir a qualquer outro lugar em busca de respostas." },
+
+  { ref: "Josué 1:9", texto: "Esforça-te, e tem bom ânimo; não temas, nem te espantes.", reflexao: "Deus não promete que o caminho será fácil, mas promete estar com você em cada passo. Tenha coragem hoje, sabendo que não está sozinha." },
+  { ref: "Deuteronômio 31:6", texto: "Ele não te deixará, nem te desamparará.", reflexao: "Mesmo quando parecer que ninguém entende o que você está enfrentando, Deus não se afasta. Essa certeza pode ser sua coragem hoje." },
+  { ref: "1 Coríntios 16:13", texto: "Vigiai, estai firmes na fé, portai-vos varonilmente, e fortalecei-vos.", reflexao: "A firmeza que você precisa hoje não vem de fingir que está tudo bem, mas de se apoiar na fé mesmo diante da dúvida." },
+  { ref: "Salmos 27:1", texto: "O Senhor é a minha luz e a minha salvação; a quem temerei?", reflexao: "Quando Deus é sua luz, nenhuma escuridão ao redor tem o poder final. Caminhe hoje confiando nessa luz que não se apaga." },
+  { ref: "2 Timóteo 1:7", texto: "Deus não nos deu o espírito de temor, mas de fortaleza, de amor, e de moderação.", reflexao: "O medo que você sente hoje não vem de Deus. Ele te oferece força, amor e domínio próprio — escolha viver a partir disso." },
+
+  { ref: "Mateus 11:28", texto: "Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.", reflexao: "Você não precisa carregar tudo sozinha até o esgotamento. Deus convida você a descansar Nele hoje, exatamente como você está." },
+  { ref: "Salmos 23:2", texto: "Deitar-me faz em verdes pastos; guia-me mansamente a águas tranquilas.", reflexao: "Deus não apressa você — Ele conduz com calma, para lugares de descanso. Permita-se esse ritmo hoje, mesmo que o mundo peça pressa." },
+  { ref: "Êxodo 33:14", texto: "A minha presença irá contigo, e eu te farei descansar.", reflexao: "O verdadeiro descanso não é apenas parar de trabalhar — é sentir a presença de Deus perto de você. Busque essa presença hoje." },
+  { ref: "Salmos 4:8", texto: "Em paz me deitarei e dormirei, porque só tu, Senhor, me fazes habitar em segurança.", reflexao: "Se hoje o sono não vier fácil por causa das preocupações, entregue-as a Deus antes de deitar. Ele cuida enquanto você descansa." },
+  { ref: "Marcos 6:31", texto: "Vinde vós, à parte, a um lugar deserto, e repousai um pouco.", reflexao: "Até Jesus reconhecia a necessidade de parar. Você tem permissão para descansar hoje, sem culpa." },
+
+  { ref: "Salmos 16:11", texto: "Na tua presença há plenitude de alegria.", reflexao: "A alegria mais profunda não depende das circunstâncias — ela nasce de estar perto de Deus. Busque hoje essa presença, e deixe a alegria vir dela." },
+  { ref: "João 15:11", texto: "Para que o meu gozo permaneça em vós, e o vosso gozo seja completo.", reflexao: "Jesus deseja que sua alegria seja completa, não parcial. Convide-o para dentro dos seus planos de hoje, e não apenas das suas orações." },
+  { ref: "Gálatas 5:22", texto: "Mas o fruto do Espírito é: amor, gozo, paz.", reflexao: "A alegria genuína é um fruto que cresce devagar, à medida que você caminha perto de Deus. Continue cultivando essa proximidade hoje." },
+  { ref: "Salmos 30:5", texto: "À noite durará o pranto, e pela manhã, a alegria.", reflexao: "Se você está numa noite difícil agora, saiba que ela não é permanente. Deus promete que a alegria ainda vai chegar." },
+  { ref: "Filipenses 4:4", texto: "Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.", reflexao: "Alegrar-se no Senhor é uma escolha, não apenas um sentimento. Escolha hoje se alegrar Nele, mesmo em meio às dificuldades." },
+
+  { ref: "Gálatas 6:9", texto: "Não nos cansemos de fazer o bem, porque a seu tempo ceifaremos.", reflexao: "Talvez você ainda não veja o fruto do esforço de hoje, mas ele não é em vão. Continue, a colheita chegará no tempo certo." },
+  { ref: "Tiago 1:2-4", texto: "Tende por motivo de grande gozo o passardes por várias tentações... a paciência tenha a sua obra perfeita.", reflexao: "As dificuldades de hoje podem estar formando em você uma força que você ainda não conhece. Persista, confiando no processo." },
+  { ref: "Hebreus 12:1", texto: "Corramos com paciência a carreira que nos está proposta.", reflexao: "Você não precisa correr na velocidade de ninguém além da sua. Continue seu caminho hoje, com paciência e constância." },
+  { ref: "Romanos 5:3-4", texto: "A tribulação produz a paciência; e a paciência a experiência; e a experiência a esperança.", reflexao: "Cada dificuldade que você atravessa está construindo algo em você que só a experiência ensina. Não desanime no meio do processo." },
+  { ref: "Tiago 1:12", texto: "Bem-aventurado o homem que suporta a tentação.", reflexao: "Persistir não é sinal de fraqueza — é sinal de fé em ação. Continue firme hoje, mesmo que o cansaço queira te convencer do contrário." },
+
+  { ref: "Salmos 91:1", texto: "Aquele que habita no esconderijo do Altíssimo, à sombra do Onipotente descansará.", reflexao: "Você pode se refugiar em Deus a qualquer momento do dia. Ele é o lugar seguro para onde você pode correr sempre que precisar." },
+  { ref: "Salmos 121:7", texto: "O Senhor te guardará de todo o mal; ele guardará a tua alma.", reflexao: "A proteção de Deus vai além do que os olhos enxergam — Ele cuida também da sua alma. Descanse hoje sob esse cuidado." },
+  { ref: "Provérbios 18:10", texto: "Torre forte é o nome do Senhor; a ele correrá o justo, e estará em segurança.", reflexao: "Quando o medo bater à porta hoje, você tem para onde correr. O nome de Deus é um refúgio sempre disponível." },
+  { ref: "Salmos 34:7", texto: "O anjo do Senhor acampa-se ao redor dos que o temem, e os livra.", reflexao: "Você não está desprotegida, mesmo quando não percebe. Deus cuida de você de formas que muitas vezes só entendemos depois." },
+  { ref: "2 Tessalonicenses 3:3", texto: "Fiel é o Senhor, que vos confirmará e guardará do maligno.", reflexao: "A fidelidade de Deus não depende da sua força — depende do caráter Dele. Confie hoje nessa proteção constante." },
+
+  { ref: "Marcos 11:24", texto: "Tudo o que pedirdes, orando, crede que o recebereis, e tê-lo-eis.", reflexao: "A fé se expressa em pedir com confiança, não com certeza de como a resposta vai chegar. Ore hoje esperando o melhor de Deus." },
+  { ref: "Mateus 17:20", texto: "Se tiverdes fé como um grão de mostarda... nada vos será impossível.", reflexao: "Você não precisa de uma fé gigante — só de uma fé verdadeira. Mesmo pequena, ela já é suficiente para mover o que parece impossível." },
+  { ref: "Romanos 10:17", texto: "A fé é pelo ouvir, e o ouvir pela palavra de Deus.", reflexao: "Sua fé cresce à medida que você se aproxima da Palavra. Reserve um tempo hoje para alimentar esse crescimento." },
+  { ref: "2 Coríntios 5:7", texto: "Porque andamos por fé, e não por vista.", reflexao: "Nem tudo vai fazer sentido aos seus olhos hoje — e está tudo bem. A fé caminha mesmo quando a visão ainda não alcança." },
+  { ref: "Habacuque 2:4", texto: "O justo pela sua fé viverá.", reflexao: "A fé não é apenas um sentimento de domingo — é o que sustenta a vida de segunda a segunda. Viva hoje a partir dela." },
+
+  { ref: "Colossenses 3:23", texto: "Tudo o que fizerdes, fazei-o de todo o coração, como ao Senhor.", reflexao: "Seu trabalho de hoje, mesmo o mais simples, pode ser oferecido a Deus. Isso muda o sentido de tudo o que você faz." },
+  { ref: "Provérbios 16:3", texto: "Confia ao Senhor as tuas obras, e teus pensamentos serão estabelecidos.", reflexao: "Antes de começar suas tarefas hoje, entregue-as a Deus. Isso traz clareza para o que antes parecia confuso." },
+  { ref: "Salmos 90:17", texto: "E confirma sobre nós a obra das nossas mãos.", reflexao: "Peça hoje que Deus abençoe o esforço que você está colocando em cada tarefa, mesmo aquelas que parecem pequenas demais para importar." },
+  { ref: "Eclesiastes 3:13", texto: "Que todo homem coma e beba, e goze do bem de todo o seu trabalho.", reflexao: "É permitido sentir satisfação pelo que você realiza. Reconheça hoje o valor do seu próprio esforço." },
+  { ref: "Provérbios 14:23", texto: "Em todo o trabalho há proveito.", reflexao: "Mesmo quando o resultado não aparece imediatamente, seu esforço não é desperdiçado. Continue com dedicação hoje." },
+
+  { ref: "Tiago 1:19", texto: "Todo o homem seja pronto para ouvir, tardio para falar.", reflexao: "Hoje, antes de reagir, tente ouvir com mais calma. Isso muda o tom de todas as suas relações." },
+  { ref: "Romanos 12:12", texto: "Alegrai-vos na esperança, sede pacientes na tribulação.", reflexao: "A paciência não nega a dificuldade — ela escolhe confiar em Deus no meio dela. Seja paciente hoje, mesmo sem pressa de ver o fim." },
+  { ref: "Eclesiastes 3:1", texto: "Tudo tem o seu tempo determinado.", reflexao: "Nem tudo precisa acontecer hoje. Confie que Deus tem um tempo certo para cada coisa da sua vida." },
+  { ref: "Salmos 27:14", texto: "Espera no Senhor; anima-te, e ele fortalecerá o teu coração.", reflexao: "Esperar em Deus não é ficar parada sem esperança — é confiar enquanto Ele age. Deixe-o fortalecer seu coração hoje, na espera." },
+  { ref: "Colossenses 3:12", texto: "Revesti-vos de entranhável misericórdia, benignidade, humildade, mansidão, longanimidade.", reflexao: "A paciência é algo que se veste, como uma roupa escolhida de manhã. Escolha hoje se vestir dela antes de sair de casa." },
+
+  { ref: "Mateus 28:20", texto: "Eis que estou convosco todos os dias, até a consumação dos séculos.", reflexao: "Você nunca está realmente sozinha, mesmo nos momentos mais silenciosos do dia. Essa promessa de Jesus vale também para hoje." },
+  { ref: "Salmos 139:9-10", texto: "Se tomar as asas da alva... até ali a tua mão me guiará.", reflexao: "Não existe lugar onde Deus não possa te alcançar. Onde quer que o seu dia te leve, Ele já está lá." },
+  { ref: "Deuteronômio 31:8", texto: "O Senhor é o que vai adiante de ti; ele será contigo.", reflexao: "Deus não apenas caminha ao seu lado — Ele vai à frente, preparando o caminho. Siga hoje com essa confiança." },
+  { ref: "Isaías 43:2", texto: "Quando passares pelas águas, eu serei contigo.", reflexao: "Seja qual for a dificuldade que você está atravessando, você não passa por ela sozinha. Deus promete estar presente exatamente ali." },
+  { ref: "Salmos 16:8", texto: "Tenho posto o Senhor continuamente diante de mim; estando ele à minha direita, não serei abalada.", reflexao: "Quando Deus está no centro dos seus pensamentos, o que vem ao seu redor perde a força de te abalar. Mantenha-o hoje diante de você." },
+];

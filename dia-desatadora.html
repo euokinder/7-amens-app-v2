@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novena a Nossa Senhora Desatadora dos Nós</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='desatadora.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+
+</div>
+
+<script src="js/novena-desatadora.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const diaNum = parseInt(params.get('dia'), 10);
+  const dia = NOVENA_DESATADORA[diaNum];
+  const content = document.getElementById('content');
+
+  if (!dia || !dia.disponivel) {
+    content.innerHTML = `
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
+        <p class="subtext">Esse dia ainda não foi liberado. Volte para a lista da novena.</p>
+      </div>
+    `;
+  } else {
+    const videoHtml = dia.videoId
+      ? `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${dia.videoId}" title="${dia.titulo}" allowfullscreen></iframe></div>`
+      : `<div class="video-wrap"><div class="play-btn"><svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></div></div>`;
+
+    const proximoHtml = dia.proximo
+      ? `<p class="subtext" style="text-align:center;">${dia.proximo}</p>`
+      : '';
+
+    content.innerHTML = `
+      <span class="kicker">${dia.kicker}</span>
+      <div class="section-heading" style="margin-top:-8px;">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;">${dia.titulo}</h1>
+          <p class="subtext">${dia.subtitulo}</p>
+        </div>
+      </div>
+
+      ${videoHtml}
+
+      ${proximoHtml}
+
+      <div class="banner">
+        <span>Reze um dia por vez, sem pular nem inverter a ordem</span>
+      </div>
+    `;
+  }
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>
