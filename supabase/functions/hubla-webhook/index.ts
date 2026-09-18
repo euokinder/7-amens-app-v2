@@ -67,9 +67,17 @@ async function mapProducts(ids: string[]) {
 // that ended, and wrongly revoking a paying customer is far worse than granting
 // one product late.
 async function targetProducts(event: Record<string, any>, granting: boolean) {
-  if (granting) return mapProducts(candidateProductIds(event));
-  const specific = await mapProducts(singularProductIds(event));
-  return specific.length ? specific : mapProducts(listedProductIds(event));
+  if (!granting) {
+    const specific = await mapProducts(singularProductIds(event));
+    return specific.length ? specific : mapProducts(listedProductIds(event));
+  }
+  const keys = await mapProducts(candidateProductIds(event));
+  if (!keys.length) return keys;
+  // A product flagged as unlocking the app also grants the main entitlement.
+  // The R$ 97 offer points at the front product on Hubla but is catalogued as
+  // an upsell here, and its buyers must not end up locked out of the app.
+  const unlocks = await db(`products?key=in.(${keys.map(eq).join(',')})&unlocks_app=is.true&select=key&limit=1`);
+  return unlocks.length ? [...new Set([...keys, 'principal'])] : keys;
 }
 
 // The purchase email stays the customer's login; hubla_user_id is the stable

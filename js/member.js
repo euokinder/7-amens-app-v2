@@ -98,6 +98,16 @@
     dialog.querySelector('.member-account-email').textContent = state.customer.email;
     dialog.querySelector('.member-sync').textContent = `${state.progress.filter(item => item.completed).length} orações concluídas · progresso salvo`;
   }
+  // Pré-visualização da oferta, para revisar o desenho: abre sempre, só para
+  // admin, sem gravar exibição e sem consumir as aparições reais da cliente.
+  const previaDaOferta = new URLSearchParams(location.search).has('previa-oferta');
+  async function mostrarPreviaDaOferta() {
+    if (document.getElementById('member-offer-dialog')) return;
+    try {
+      const resposta = await api('offer_preview', {});
+      if (resposta.offer) setupMemberOffer(resposta.offer);
+    } catch {}
+  }
   function setupMemberOffer(nextOffer = null) {
     const offer = nextOffer || state?.offer;
     if (!offer || document.getElementById('member-offer-dialog')) return;
@@ -112,13 +122,21 @@
     const eyebrow = node('span', 'member-offer-eyebrow', offer.eyebrow || 'Uma oportunidade para você');
     const title = node('h2', '', offer.headline);
     title.id = 'member-offer-title';
-    const copy = node('p', 'member-offer-copy', offer.body);
+    // Cada linha da copy vira um parágrafo: blocos curtos são bem mais fáceis
+    // de ler para o público do app, e a última frase é a que leva ao clique.
+    const paragrafos = String(offer.body || '').split('\n').map(linha => linha.trim()).filter(Boolean);
+    const copy = node('div', 'member-offer-copy');
+    paragrafos.forEach((linha, indice) => {
+      copy.append(node('p', indice === paragrafos.length - 1 && paragrafos.length > 1 ? 'member-offer-lead' : '', linha));
+    });
     const cta = node('button', 'member-button member-offer-cta', offer.cta_label || 'Assistir agora');
     cta.type = 'button';
     const dismiss = node('button', 'member-offer-dismiss', offer.dismiss_label || 'Agora não');
     dismiss.type = 'button';
     let leaving = false;
-    const record = event => api('offer_event', { campaign_key: offer.campaign_key, event }).catch(() => {});
+    const record = event => offer.preview
+      ? Promise.resolve()
+      : api('offer_event', { campaign_key: offer.campaign_key, event }).catch(() => {});
     cta.addEventListener('click', async () => {
       if (leaving) return;
       leaving = true;
@@ -134,6 +152,7 @@
       if (state?.offer?.campaign_key === offer.campaign_key) state.offer = null;
       await record('dismissed');
       dialog.remove();
+      if (offer.preview) return;
       try {
         const followup = await api('offer_claim', {
           trigger_type: 'dismissal',
@@ -172,7 +191,7 @@
   function render() {
     setupMemberMenu();
     if (setupMemberSurvey()) return;
-    setupMemberOffer();
+    if (previaDaOferta) mostrarPreviaDaOferta(); else setupMemberOffer();
     document.querySelectorAll('a.card[href]').forEach(card => {
       const url = new URL(card.getAttribute('href'), location.href);
       const key = prayerKey(url.pathname, url.search);

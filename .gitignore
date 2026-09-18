@@ -10,3 +10,7 @@ node_modules/
 .env*
 supabase/.temp/
 deploy-*.zip
+
+# Base exportada da Hubla e arquivos de migracao: contem dados pessoais de
+# clientes (e-mail, nome, telefone). Nunca versionar.
+migration/

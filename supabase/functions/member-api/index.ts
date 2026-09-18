@@ -139,6 +139,15 @@ Deno.serve(async (req: Request) => {
       });
       await db(`member_survey_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { completed_at: now });
       return respond({ ok: true });
+    } else if (body.action === 'offer_preview') {
+      // Mostra a campanha sempre, para revisar o desenho, sem gravar exibição
+      // nem gastar uma das duas aparições reais da cliente.
+      if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
+      const wanted = typeof body.campaign_key === 'string' && /^[a-z0-9_-]+$/.test(body.campaign_key) ? body.campaign_key : '';
+      const filtro = wanted ? `key=eq.${eq(wanted)}` : 'enabled=is.true&trigger_type=eq.entry';
+      const [campaign] = await db(`member_offer_campaigns?${filtro}&target_url=not.is.null&select=key,headline,body,cta_label,target_url,offer_type,eyebrow,dismiss_label&order=sort_order.asc&limit=1`);
+      if (!campaign) return respond({ offer: null });
+      return respond({ offer: { campaign_key: campaign.key, ...campaign, preview: true } });
     } else if (body.action === 'admin_customer_detail') {
       if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
       const target = typeof body.customer_id === 'string' ? body.customer_id : '';
