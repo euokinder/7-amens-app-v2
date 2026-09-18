@@ -19,12 +19,13 @@ async function access(customerId: string) {
   const rows = await db(`entitlements?customer_id=eq.${customerId}&status=eq.active&select=product_key`);
   return rows.map((row: {product_key: string}) => row.product_key);
 }
-async function snapshot(customer: { id: string; email: string; name: string }, products: string[]) {
-  const [progress, catalog] = await Promise.all([
+async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeOffer = false) {
+  const [progress, catalog, offers] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
     db('products?enabled=eq.true&select=key,title,description,checkout_url,content_url&order=sort_order.asc'),
+    includeOffer ? db('rpc/claim_member_offer', 'POST', { p_customer_id: customer.id }) : Promise.resolve([]),
   ]);
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog };
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
@@ -69,11 +70,19 @@ Deno.serve(async (req: Request) => {
     if (body.action === 'progress') {
       if (typeof body.prayer_key !== 'string' || !/^(principal:[0-7]|desatadora:[1-9])$/.test(body.prayer_key) || typeof body.completed !== 'boolean') return respond({ error: 'Progresso inválido.' }, 400);
       await db('prayer_progress?on_conflict=customer_id,prayer_key', 'POST', { customer_id: customerId, prayer_key: body.prayer_key, completed: body.completed, updated_at: new Date().toISOString() });
+    } else if (body.action === 'offer_event') {
+      const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';
+      const event = typeof body.event === 'string' ? body.event : '';
+      if (!/^[a-z0-9_-]+$/.test(campaignKey) || !['shown', 'clicked', 'dismissed'].includes(event)) return respond({ error: 'Evento inválido.' }, 400);
+      const column = `${event}_at`;
+      await db(`member_offer_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { [column]: new Date().toISOString() });
+      return respond({ ok: true });
     } else if (body.action !== 'session') return respond({ error: 'Ação inválida.' }, 400);
     const [customer] = await db(`customers?id=eq.${customerId}&select=id,email,name`);
-    return respond(await snapshot(customer, products));
+    return respond(await snapshot(customer, products, body.action === 'session'));
   } catch (error) {
     console.error(error instanceof Error ? error.message : 'Member API error');
     return respond({ error: 'Não foi possível conectar agora. Tente novamente em instantes.' }, 503);
   }
 });
+

@@ -19,6 +19,16 @@ No Table Editor do Supabase:
 4. Para retirar acesso, altere `status` para `refunded` ou `revoked`.
 
 Cada extra futuro tem uma linha em `products` e uma liberação em `entitlements`.
+
+## Campanhas de upsell no app
+
+`member_offer_campaigns` define ofertas exibidas dentro do app e
+`member_offer_events` registra a primeira exibição no servidor. A campanha
+`front_only_to_upsell_01` já está preparada, mas permanece desativada e sem URL.
+Ela exige o produto `principal` e exclui clientes que já possuem qualquer etapa
+`upsell_01`, `upsell_02` ou `upsell_03`. Para ativar depois da configuração da
+Hubla, defina uma `target_url` HTTPS, revise os textos e altere `enabled` para
+`true`. O registro servidor evita repetir o pop-up em outro navegador ou aparelho.
 Para exibir uma oferta, preencha `checkout_url`; para o conteúdo adquirido, preencha
 `content_url`. A home troca a oferta pelo acesso quando a compra estiver ativa.
 Não foram cadastrados produtos ou checkouts comerciais fictícios.
@@ -67,3 +77,4 @@ em `js/`, no HTML ou no Git. `member-config.js` contém apenas a URL pública da
 - Reembolso do principal bloqueia sessão existente, gravação e novo login.
 - Extra adquirido aparece em sessão ativa; reembolso do extra preserva principal.
 - Verificação de segurança do Supabase sem alertas.
+

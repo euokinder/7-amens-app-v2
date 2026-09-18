@@ -63,6 +63,24 @@ html.member-checking body > :not(#member-gate):not(script) { display: none !impo
 .member-sync { color: var(--ink-muted); font-size: 15px; line-height: 1.5; }
 .member-logout { width: 100%; }
 .member-account-hint { margin: -6px 0 0; color: var(--ink-muted); font-size: 13px; line-height: 1.55; text-align: center; }
+.member-offer-dialog {
+  width: min(430px, calc(100% - 32px));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  background: linear-gradient(160deg, #fffaf1 0%, var(--bg) 58%, #f4ead9 100%);
+  color: var(--ink);
+  box-shadow: 0 28px 80px oklch(0.16 0.04 55 / 0.36);
+}
+.member-offer-dialog::backdrop { background: oklch(0.16 0.04 55 / 0.62); backdrop-filter: blur(4px); }
+.member-offer-sheet { display: flex; flex-direction: column; gap: 18px; padding: 30px 26px 24px; text-align: center; }
+.member-offer-eyebrow { color: var(--accent-strong); font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.member-offer-sheet h2 { margin: 0; font-size: 27px; line-height: 1.18; }
+.member-offer-copy { margin: 0; color: var(--ink-muted); font-size: 16px; line-height: 1.65; }
+.member-offer-cta { width: 100%; margin-top: 4px; }
+.member-offer-dismiss { align-self: center; min-height: 44px; padding: 8px 18px; border: 0; background: transparent; color: var(--ink-muted); font: inherit; font-size: 15px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .member-progress { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
 .member-progress p { margin: 0; line-height: 1.6; font-size: 16px; }
 .member-done { position: absolute; right: 14px; top: 14px; z-index: 2; background: #e5f4df; color: #214a24; border-radius: 99px; padding: 8px 12px; font-weight: 800; font-size: 14px; }
@@ -72,7 +90,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 @media (max-width: 520px) {
   .member-account-dialog { width: calc(100% - 24px); margin: auto auto 12px; border-radius: 24px 24px 18px 18px; }
   .member-account-sheet { padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); }
+  .member-offer-dialog { width: calc(100% - 24px); margin: auto auto 12px; border-radius: 24px 24px 18px 18px; }
+  .member-offer-sheet { padding: 28px 22px calc(20px + env(safe-area-inset-bottom)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .member-menu-trigger { transition: none; }
 }
+

@@ -97,6 +97,43 @@
     dialog.querySelector('.member-account-email').textContent = state.customer.email;
     dialog.querySelector('.member-sync').textContent = `${state.progress.filter(item => item.completed).length} orações concluídas · progresso salvo`;
   }
+  function setupMemberOffer() {
+    const offer = state?.offer;
+    if (!offer || document.getElementById('member-offer-dialog')) return;
+    let target;
+    try { target = new URL(offer.target_url); } catch { return; }
+    if (target.protocol !== 'https:') return;
+    const dialog = node('dialog', 'member-offer-dialog');
+    dialog.id = 'member-offer-dialog';
+    dialog.setAttribute('aria-labelledby', 'member-offer-title');
+    const sheet = node('div', 'member-offer-sheet');
+    const eyebrow = node('span', 'member-offer-eyebrow', 'Uma oportunidade para você');
+    const title = node('h2', '', offer.headline);
+    title.id = 'member-offer-title';
+    const copy = node('p', 'member-offer-copy', offer.body);
+    const cta = node('button', 'member-button member-offer-cta', offer.cta_label || 'Assistir agora');
+    cta.type = 'button';
+    const dismiss = node('button', 'member-offer-dismiss', 'Agora não');
+    dismiss.type = 'button';
+    let leaving = false;
+    const record = event => api('offer_event', { campaign_key: offer.campaign_key, event }).catch(() => {});
+    cta.addEventListener('click', async () => {
+      if (leaving) return;
+      leaving = true;
+      cta.disabled = true;
+      cta.textContent = 'Abrindo…';
+      await Promise.race([record('clicked'), new Promise(resolve => setTimeout(resolve, 900))]);
+      location.assign(target.href);
+    });
+    dismiss.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener('close', () => { if (!leaving) record('dismissed'); });
+    sheet.append(eyebrow, title, copy, cta, dismiss);
+    dialog.append(sheet);
+    document.body.append(dialog);
+    dialog.showModal();
+    record('shown');
+  }
   function prayerKey(path, search) {
     const params = new URLSearchParams(search);
     const day = params.get('dia');
@@ -106,6 +143,7 @@
   }
   function render() {
     setupMemberMenu();
+    setupMemberOffer();
     document.querySelectorAll('a.card[href]').forEach(card => {
       const url = new URL(card.getAttribute('href'), location.href);
       const key = prayerKey(url.pathname, url.search);
@@ -184,3 +222,4 @@
     window.addEventListener('storage', event => { if (event.key === storageKey) { token = readToken(); if (!token) toLogin(); else { document.documentElement.classList.add('member-checking'); refresh(); } } });
   });
 })();
+
