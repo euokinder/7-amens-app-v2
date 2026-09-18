@@ -26,6 +26,77 @@
   }
   function node(tag, className, text) { const el = document.createElement(tag); if (className) el.className = className; if (text) el.textContent = text; return el; }
   const completed = key => Boolean(state?.progress.find(item => item.prayer_key === key)?.completed);
+  function closeMemberMenu() {
+    const dialog = document.getElementById('member-account-dialog');
+    if (dialog?.open) dialog.close();
+  }
+  function setupMemberMenu() {
+    let trigger = document.getElementById('member-menu-trigger');
+    const avatar = document.querySelector('.header .avatar');
+    if ((!avatar && !trigger) || !state) return;
+    if (!trigger) {
+      trigger = node('button', 'member-menu-trigger');
+      trigger.id = 'member-menu-trigger';
+      trigger.type = 'button';
+      trigger.setAttribute('aria-label', 'Abrir minha conta');
+      trigger.setAttribute('aria-haspopup', 'dialog');
+      trigger.setAttribute('aria-expanded', 'false');
+      const emoji = node('span', 'member-menu-emoji', '👤');
+      emoji.setAttribute('aria-hidden', 'true');
+      trigger.append(emoji);
+      avatar.replaceWith(trigger);
+    }
+    let dialog = document.getElementById('member-account-dialog');
+    if (!dialog) {
+      dialog = node('dialog', 'member-account-dialog');
+      dialog.id = 'member-account-dialog';
+      dialog.setAttribute('aria-labelledby', 'member-account-title');
+      const sheet = node('div', 'member-account-sheet');
+      const heading = node('div', 'member-account-heading');
+      const titleBlock = node('div', '');
+      const eyebrow = node('span', 'member-account-eyebrow', 'Minha conta');
+      const title = node('h2', '', 'Acesso ao aplicativo');
+      title.id = 'member-account-title';
+      titleBlock.append(eyebrow, title);
+      const close = node('button', 'member-menu-close', '×');
+      close.type = 'button';
+      close.setAttribute('aria-label', 'Fechar minha conta');
+      close.addEventListener('click', closeMemberMenu);
+      heading.append(titleBlock, close);
+      const details = node('div', 'member-account-details');
+      details.append(
+        node('span', 'member-account-label', 'E-mail de acesso'),
+        node('p', 'member-account-email', ''),
+        node('p', 'member-sync', '')
+      );
+      details.querySelector('.member-sync').setAttribute('role', 'status');
+      const logout = node('button', 'member-button member-logout', 'Sair / trocar e-mail');
+      logout.type = 'button';
+      logout.addEventListener('click', async () => {
+        logout.disabled = true;
+        logout.textContent = 'Saindo…';
+        try { await api('logout'); } catch {}
+        toLogin();
+      });
+      const hint = node('p', 'member-account-hint', 'Você poderá entrar novamente usando o e-mail da compra.');
+      sheet.append(heading, details, logout, hint);
+      dialog.append(sheet);
+      dialog.addEventListener('close', () => {
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      });
+      dialog.addEventListener('click', event => {
+        if (event.target === dialog) closeMemberMenu();
+      });
+      document.body.append(dialog);
+      trigger.addEventListener('click', () => {
+        trigger.setAttribute('aria-expanded', 'true');
+        dialog.showModal();
+      });
+    }
+    dialog.querySelector('.member-account-email').textContent = state.customer.email;
+    dialog.querySelector('.member-sync').textContent = `${state.progress.filter(item => item.completed).length} orações concluídas · progresso salvo`;
+  }
   function prayerKey(path, search) {
     const params = new URLSearchParams(search);
     const day = params.get('dia');
@@ -34,6 +105,7 @@
     return null;
   }
   function render() {
+    setupMemberMenu();
     document.querySelectorAll('a.card[href]').forEach(card => {
       const url = new URL(card.getAttribute('href'), location.href);
       const key = prayerKey(url.pathname, url.search);
@@ -44,17 +116,6 @@
     if (!content) return;
     const home = /\/(index(?:\.html)?)?$/.test(location.pathname);
     if (home) {
-      let account = document.getElementById('member-account');
-      if (!account) {
-        account = node('section', 'member-account'); account.id = 'member-account';
-        account.append(node('p', '', ''));
-        const status = node('p', 'member-sync', ''); status.setAttribute('role', 'status'); account.append(status);
-        const button = node('button', 'member-button secondary', 'Sair / trocar e-mail'); button.type = 'button';
-        button.addEventListener('click', async () => { button.disabled = true; try { await api('logout'); } catch {} toLogin(); });
-        account.append(button); content.prepend(account);
-      }
-      account.firstElementChild.textContent = state.customer.email;
-      account.querySelector('.member-sync').textContent = `${state.progress.filter(p => p.completed).length} orações concluídas · progresso salvo`;
       document.getElementById('member-extras')?.remove();
       const extras = node('section', ''); extras.id = 'member-extras';
       for (const product of state.catalog.filter(p => p.key !== 'principal')) {

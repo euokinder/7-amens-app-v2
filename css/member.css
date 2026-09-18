@@ -12,12 +12,67 @@ html.member-checking body > :not(#member-gate):not(script) { display: none !impo
 .member-button.secondary { background: var(--surface-alt); }
 .member-error { color: #922a20; min-height: 24px; font-size: 16px; line-height: 1.6; }
 .member-help { color: var(--ink); text-decoration: underline; text-align: center; font-size: 16px; padding: 12px; }
-.member-account { display: flex; flex-direction: column; gap: 10px; border-radius: 16px; background: var(--surface-alt); padding: 18px; overflow-wrap: anywhere; }
-.member-account p { margin: 0; font-size: 16px; }
-.member-account button { align-self: flex-start; }
+.member-menu-trigger {
+  width: 44px;
+  height: 44px;
+  border: 1px solid oklch(0.58 0.15 82 / 0.2);
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--dark-on-accent);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 14px oklch(0.45 0.08 70 / 0.14);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.member-menu-trigger:hover { transform: translateY(-1px); box-shadow: 0 6px 18px oklch(0.45 0.08 70 / 0.2); }
+.member-menu-trigger:active { transform: scale(.96); }
+.member-menu-emoji { font-size: 21px; line-height: 1; filter: grayscale(1) brightness(.32); }
+.member-account-dialog {
+  width: min(420px, calc(100% - 32px));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: 0 24px 70px oklch(0.18 0.03 50 / 0.3);
+}
+.member-account-dialog::backdrop { background: oklch(0.18 0.03 50 / 0.5); backdrop-filter: blur(3px); }
+.member-account-sheet { display: flex; flex-direction: column; gap: 20px; padding: 24px; }
+.member-account-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.member-account-heading h2 { margin: 4px 0 0; font-size: 23px; line-height: 1.2; }
+.member-account-eyebrow { color: var(--accent-strong); font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.member-menu-close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  color: var(--ink);
+  font: 400 30px/1 'Manrope', sans-serif;
+  cursor: pointer;
+}
+.member-account-details { display: flex; flex-direction: column; gap: 7px; padding: 18px; border-radius: 16px; background: var(--surface-alt); overflow-wrap: anywhere; }
+.member-account-details p { margin: 0; }
+.member-account-label { color: var(--ink-muted); font-size: 13px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+.member-account-email { font-size: 17px; font-weight: 700; line-height: 1.5; }
+.member-sync { color: var(--ink-muted); font-size: 15px; line-height: 1.5; }
+.member-logout { width: 100%; }
+.member-account-hint { margin: -6px 0 0; color: var(--ink-muted); font-size: 13px; line-height: 1.55; text-align: center; }
 .member-progress { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
 .member-progress p { margin: 0; line-height: 1.6; font-size: 16px; }
 .member-done { position: absolute; right: 14px; top: 14px; z-index: 2; background: #e5f4df; color: #214a24; border-radius: 99px; padding: 8px 12px; font-weight: 800; font-size: 14px; }
 .member-offer { padding: 20px; border: 1px solid var(--hairline); border-radius: 16px; display: flex; flex-direction: column; gap: 12px; }
 .member-offer h2, .member-offer p { margin: 0; }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #76531b; outline-offset: 4px; }
+@media (max-width: 520px) {
+  .member-account-dialog { width: calc(100% - 24px); margin: auto auto 12px; border-radius: 24px 24px 18px 18px; }
+  .member-account-sheet { padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .member-menu-trigger { transition: none; }
+}
