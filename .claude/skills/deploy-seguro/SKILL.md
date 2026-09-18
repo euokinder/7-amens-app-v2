@@ -10,6 +10,15 @@ Os créditos do plano Free já foram zerados uma vez neste projeto. Cada build d
 ## Regra de ouro
 **Deploy de produção não é ferramenta de teste.** Se a pergunta for "será que funcionou?", a resposta é teste local, não push para `main`.
 
+## ⚠️ O banco TAMBÉM é produção
+Mudança no Supabase não gasta crédito da Netlify, mas **chega na cliente na hora, sem passar por deploy nenhum**. Não confundir "não custa build" com "é seguro".
+
+Isso já deu errado em 2026-09-18: uma campanha de pop-up foi ligada (`enabled = true`) enquanto a interface que a renderiza direito ainda estava só na máquina. O front antigo em produção passou a exibir o pop-up na versão feia. Só não atingiu cliente real por sorte.
+
+**Antes de ligar qualquer coisa no banco que a cliente vê, perguntar: o front que renderiza isso já está publicado?** Se a resposta for não, a ordem é publicar primeiro e ligar depois.
+
+Vale para: `member_offer_campaigns.enabled`, `member_survey_campaigns.enabled`, `products.enabled`, `checkout_url`, `content_url` e qualquer texto que apareça na tela.
+
 ## Antes de qualquer push ou deploy, verificar nesta ordem
 
 1. **Em que branch estou?**
