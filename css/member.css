@@ -82,7 +82,26 @@ html.member-checking body > :not(#member-gate):not(script) { display: none !impo
 .member-offer-copy p { margin: 0; color: var(--ink-muted); font-size: 17px; line-height: 1.6; }
 /* A última frase é a que conduz ao clique, então ganha peso e cor plena. */
 .member-offer-copy .member-offer-lead { color: var(--ink); font-size: 18px; font-weight: 700; }
-.member-offer-cta { width: 100%; margin-top: 6px; min-height: 60px; font-size: 18px; }
+.member-offer-cta {
+  width: 100%; margin-top: 6px; min-height: 60px; font-size: 18px;
+  position: relative; isolation: isolate;
+  animation: member-offer-pulse 2.2s ease-in-out infinite;
+}
+/* O brilho fica atrás do botão: um halo dourado que respira, sem piscar. */
+.member-offer-cta::before {
+  content: ''; position: absolute; inset: -14px; z-index: -1; border-radius: inherit;
+  background: radial-gradient(55% 135% at 50% 50%, oklch(0.74 0.18 80 / 0.9), transparent 72%);
+  filter: blur(15px);
+  animation: member-offer-glow 2.2s ease-in-out infinite;
+}
+@keyframes member-offer-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 oklch(0.66 0.17 80 / 0.7), 0 6px 18px oklch(0.25 0.03 55 / 0.2); }
+  55% { transform: scale(1.035); box-shadow: 0 0 0 18px oklch(0.66 0.17 80 / 0), 0 16px 34px oklch(0.25 0.03 55 / 0.32); }
+}
+@keyframes member-offer-glow {
+  0%, 100% { opacity: 0.4; transform: scale(0.92); }
+  55% { opacity: 1; transform: scale(1.14); }
+}
 .member-offer-dismiss { align-self: center; min-height: 44px; padding: 8px 18px; border: 0; background: transparent; color: var(--ink-muted); font: inherit; font-size: 15px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .member-progress { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
 .member-progress p { margin: 0; line-height: 1.6; font-size: 16px; }
@@ -99,4 +118,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 @media (prefers-reduced-motion: reduce) {
   .member-menu-trigger { transition: none; }
+  /* Quem pediu menos movimento no aparelho mantem o destaque, sem a pulsacao. */
+  .member-offer-cta, .member-offer-cta::before { animation: none; }
+  .member-offer-cta { box-shadow: 0 0 22px oklch(0.72 0.14 85 / 0.45), 0 8px 22px oklch(0.25 0.03 55 / 0.22); }
+  .member-offer-cta::before { opacity: 0.8; }
 }
