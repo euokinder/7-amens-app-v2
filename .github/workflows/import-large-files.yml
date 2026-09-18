@@ -1,0 +1,52 @@
+name: Complete isolated app import
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-large-files.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import-large-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out destination repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download large files from the original repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://raw.githubusercontent.com/euokinder/7-amens-da-madrugada/64542d968124568336e6f0faaa06b490bb3628c1"
+
+          curl --fail --location --retry 3 "$base/assets/audio/dia-01-oracao.mp3" --output assets/audio/dia-01-oracao.mp3
+          curl --fail --location --retry 3 "$base/assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf" --output assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf
+          curl --fail --location --retry 3 "$base/assets/pdfs/pai-nosso-completo-premium.pdf" --output assets/pdfs/pai-nosso-completo-premium.pdf
+          curl --fail --location --retry 3 "$base/assets/pdfs/traducao-lado-a-lado.pdf" --output assets/pdfs/traducao-lado-a-lado.pdf
+
+      - name: Verify imported file hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object assets/audio/dia-01-oracao.mp3)" = "04c1d0187077fcbf91d4db1cb4a671a2fbecae6e"
+          test "$(git hash-object assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf)" = "f6488a4d28c747feb13d6b39cbd016b379a07aca"
+          test "$(git hash-object assets/pdfs/pai-nosso-completo-premium.pdf)" = "faa55d230c19ce0a1f5db5d1deb1beb0f09e6475"
+          test "$(git hash-object assets/pdfs/traducao-lado-a-lado.pdf)" = "23f06f833bb76e3a964c4ba3b99f194af52468ae"
+
+      - name: Commit completed import
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/audio/dia-01-oracao.mp3
+          git add assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf
+          git add assets/pdfs/pai-nosso-completo-premium.pdf
+          git add assets/pdfs/traducao-lado-a-lado.pdf
+          git rm .github/workflows/import-large-files.yml
+          git commit -m "Complete import of large app assets"
+          git push
