@@ -39,6 +39,8 @@ Distribuição final: 15/09 → 4 · 16/09 → 95 · 17/09 → 101.
 
 Se uma nova carga for feita algum dia, **gravar a data real desde o começo** — refazer depois custou uma rodada inteira de trabalho.
 
-## O que ainda falta conferir
+## Reembolsos — questão encerrada
 
-O export só trouxe faturas pagas e nenhum reembolso. Ou ninguém pediu reembolso em três dias, **ou o filtro do export excluiu os reembolsados**. Se for o segundo caso, existe a chance de alguém reembolsado ter recebido acesso. Vale reexportar incluindo todos os status e comparar.
+O export só trouxe faturas pagas, o que levantou a dúvida de se o filtro teria escondido reembolsos. **Caio confirmou em 2026-09-18: ele filtrou por aprovadas e não houve nenhum reembolso no período.** Nenhuma cliente reembolsada recebeu acesso indevido.
+
+Daqui em diante os reembolsos chegam pelo webhook, via `customer.member_removed`.
