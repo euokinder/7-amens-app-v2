@@ -100,11 +100,15 @@
   }
   // Pré-visualização da oferta, para revisar o desenho: abre sempre, só para
   // admin, sem gravar exibição e sem consumir as aparições reais da cliente.
-  const previaDaOferta = new URLSearchParams(location.search).has('previa-oferta');
+  // ?previa-oferta=1 mostra a primeira ativa; ?previa-oferta=<chave> mostra
+  // uma campanha específica, mesmo desativada, para revisar antes de ligar.
+  const previaPedida = new URLSearchParams(location.search).get('previa-oferta');
+  const previaDaOferta = previaPedida !== null;
   async function mostrarPreviaDaOferta() {
     if (document.getElementById('member-offer-dialog')) return;
     try {
-      const resposta = await api('offer_preview', {});
+      const chave = /^[a-z0-9_-]+$/.test(previaPedida) && previaPedida !== '1' ? previaPedida : '';
+      const resposta = await api('offer_preview', chave ? { campaign_key: chave } : {});
       if (resposta.offer) setupMemberOffer(resposta.offer);
     } catch {}
   }
@@ -119,7 +123,13 @@
     dialog.dataset.offerType = offer.offer_type || 'product';
     dialog.setAttribute('aria-labelledby', 'member-offer-title');
     const sheet = node('div', 'member-offer-sheet');
-    const eyebrow = node('span', 'member-offer-eyebrow', offer.eyebrow || 'Uma oportunidade para você');
+    // A chamada aceita duas linhas: a primeira vira alerta, a segunda o rótulo
+    // dourado de sempre. Uma linha só continua se comportando como antes.
+    const chamadas = String(offer.eyebrow || 'Uma oportunidade para você').split('\n').map(l => l.trim()).filter(Boolean);
+    const eyebrow = node('div', 'member-offer-eyebrow');
+    chamadas.forEach((linha, indice) => {
+      eyebrow.append(node('span', chamadas.length > 1 && indice === 0 ? 'member-offer-alert' : '', linha));
+    });
     const title = node('h2', '', offer.headline);
     title.id = 'member-offer-title';
     // Cada linha da copy vira um parágrafo: blocos curtos são bem mais fáceis

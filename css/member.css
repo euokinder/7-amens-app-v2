@@ -79,7 +79,14 @@ html.member-checking body > :not(#member-gate):not(script) { display: none !impo
 }
 .member-offer-dialog::backdrop { background: oklch(0.16 0.04 55 / 0.62); backdrop-filter: blur(4px); }
 .member-offer-sheet { display: flex; flex-direction: column; gap: 18px; padding: 30px 26px 24px; text-align: center; }
-.member-offer-eyebrow { color: var(--accent-strong); font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.member-offer-eyebrow { display: flex; flex-direction: column; gap: 8px; color: var(--accent-strong); font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+/* Chamada de alerta: em vermelho, maior e sem caixa alta, para ler como aviso
+   e não como rótulo de seção. */
+.member-offer-alert {
+  align-self: center; padding: 7px 14px; border-radius: 99px;
+  background: oklch(0.58 0.2 27 / 0.12); color: oklch(0.47 0.2 27);
+  font-size: 15px; letter-spacing: 0; text-transform: none;
+}
 .member-offer-sheet h2 { margin: 0; font-size: 27px; line-height: 1.18; }
 .member-offer-copy { display: flex; flex-direction: column; gap: 14px; margin: 0; }
 .member-offer-copy p { margin: 0; color: var(--ink-muted); font-size: 17px; line-height: 1.6; }
