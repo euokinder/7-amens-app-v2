@@ -21,6 +21,16 @@ async function access(customerId: string) {
   const rows = await db(`entitlements?customer_id=eq.${customerId}&status=eq.active&select=product_key`);
   return rows.map((row: {product_key: string}) => row.product_key);
 }
+const isAdmin = async (customerId: string) =>
+  (await db(`member_admins?customer_id=eq.${customerId}&select=customer_id&limit=1`)).length > 0;
+// Every manual change to access is recorded: more than one operator can grant
+// and revoke, so "who did this" has to be answerable.
+const audit = (adminId: string, action: string, targetId: string | null, targetEmail: string, details: unknown) =>
+  db('admin_actions', 'POST', { admin_customer_id: adminId, action, target_customer_id: targetId, target_email: targetEmail, details });
+const validEmail = (value: unknown) => {
+  const address = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return address.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? address : '';
+};
 async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
   const [progress, catalog, offers, surveys] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
@@ -129,14 +139,90 @@ Deno.serve(async (req: Request) => {
       });
       await db(`member_survey_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { completed_at: now });
       return respond({ ok: true });
+    } else if (body.action === 'admin_customer_detail') {
+      if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
+      const target = typeof body.customer_id === 'string' ? body.customer_id : '';
+      if (!/^[0-9a-f-]{36}$/.test(target)) return respond({ error: 'Cliente inválida.' }, 400);
+      const [profile] = await db(`admin_customer_overview?id=eq.${target}&select=*`);
+      if (!profile) return respond({ error: 'Cliente não encontrada.' }, 404);
+      // Hubla keys its events by e-mail, not by our customer id, and the address
+      // may arrive in any case, so the match is deliberately case-insensitive.
+      const address = String(profile.email || '');
+      const [entitlements, progress, visits, offers, surveys, events, history] = await Promise.all([
+        db(`entitlements?customer_id=eq.${target}&select=product_key,status,source,granted_at,revoked_at,updated_at&order=product_key.asc`),
+        db(`prayer_progress?customer_id=eq.${target}&select=prayer_key,completed,updated_at&order=prayer_key.asc`),
+        db(`member_visit_days?customer_id=eq.${target}&select=visited_on,first_seen_at,last_seen_at&order=visited_on.desc&limit=60`),
+        db(`member_offer_events?customer_id=eq.${target}&select=campaign_key,claimed_at,shown_at,clicked_at,dismissed_at,converted_at&order=claimed_at.desc`),
+        db(`member_survey_responses?customer_id=eq.${target}&select=*`),
+        db(`hubla_events?payload->event->user->>email=ilike.${eq(address)}&select=event_type,processing_status,sandbox,received_at,payload&order=received_at.desc&limit=40`),
+        db(`admin_actions?target_customer_id=eq.${target}&select=action,details,created_at&order=created_at.desc&limit=30`),
+      ]);
+      const hubla = events.map((row: Record<string, any>) => ({
+        event_type: row.event_type, processing_status: row.processing_status, sandbox: row.sandbox,
+        received_at: row.received_at, product: row.payload?.event?.product?.name || null,
+        invoice_status: row.payload?.event?.invoice?.status || null,
+      }));
+      return respond({ customer: profile, entitlements, progress, visits, offers, survey: surveys[0] || null, hubla, history });
+    } else if (body.action === 'admin_grant_access' || body.action === 'admin_revoke_access') {
+      if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
+      const granting = body.action === 'admin_grant_access';
+      const productKey = typeof body.product_key === 'string' ? body.product_key : '';
+      if (!/^[a-z0-9_-]+$/.test(productKey)) return respond({ error: 'Produto inválido.' }, 400);
+      const [product] = await db(`products?key=eq.${eq(productKey)}&select=key,title`);
+      if (!product) return respond({ error: 'Produto não encontrado.' }, 404);
+
+      // Granting accepts an e-mail that is not in the base yet: this is how an
+      // older buyer, or a courtesy, gets in without waiting for a Hubla event.
+      let target = typeof body.customer_id === 'string' && /^[0-9a-f-]{36}$/.test(body.customer_id) ? body.customer_id : '';
+      const address = validEmail(body.email);
+      if (!target) {
+        if (!address) return respond({ error: 'Informe um e-mail válido.' }, 400);
+        const [found] = await db(`customers?email=eq.${eq(address)}&select=id`);
+        if (found) target = found.id;
+        else if (granting) {
+          const [created] = await db('customers', 'POST', { email: address, name: typeof body.name === 'string' ? body.name.trim() : '' });
+          target = created.id;
+        } else return respond({ error: 'Cliente não encontrada.' }, 404);
+      }
+
+      const stamp = new Date().toISOString();
+      const [existing] = await db(`entitlements?customer_id=eq.${target}&product_key=eq.${eq(productKey)}&select=product_key`);
+      const fields = granting
+        ? { status: 'active', source: 'manual', granted_at: stamp, revoked_at: null, updated_at: stamp }
+        : { status: 'revoked', revoked_at: stamp, updated_at: stamp };
+      if (existing) await db(`entitlements?customer_id=eq.${target}&product_key=eq.${eq(productKey)}`, 'PATCH', fields);
+      else if (granting) await db('entitlements', 'POST', { customer_id: target, product_key: productKey, ...fields });
+      else return respond({ error: 'Esta cliente não possui esse produto.' }, 404);
+
+      await audit(customerId, granting ? 'grant_access' : 'revoke_access', target, address, { product_key: productKey, product_title: product.title });
+      return respond({ ok: true, customer_id: target });
+    } else if (body.action === 'admin_update_email') {
+      if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
+      const target = typeof body.customer_id === 'string' ? body.customer_id : '';
+      const address = validEmail(body.email);
+      if (!/^[0-9a-f-]{36}$/.test(target)) return respond({ error: 'Cliente inválida.' }, 400);
+      if (!address) return respond({ error: 'Informe um e-mail válido.' }, 400);
+      const [current] = await db(`customers?id=eq.${target}&select=email`);
+      if (!current) return respond({ error: 'Cliente não encontrada.' }, 404);
+      const [taken] = await db(`customers?email=eq.${eq(address)}&select=id`);
+      if (taken && taken.id !== target) return respond({ error: 'Já existe uma cliente com esse e-mail.' }, 409);
+      await db(`customers?id=eq.${target}`, 'PATCH', { email: address });
+      // The e-mail is the login, so open sessions must not survive the change.
+      await db(`member_sessions?customer_id=eq.${target}`, 'DELETE');
+      await audit(customerId, 'update_email', target, address, { from: current.email, to: address });
+      return respond({ ok: true });
     } else if (body.action === 'admin_dashboard') {
       const admins = await db(`member_admins?customer_id=eq.${customerId}&select=customer_id&limit=1`);
       if (!admins.length) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
-      const [customers, campaigns] = await Promise.all([
+      // The catalogue here is deliberately unfiltered: a product disabled in the
+      // app still has to be grantable by hand from the panel.
+      const [customers, campaigns, catalogue] = await Promise.all([
         db('admin_customer_overview?select=*&order=created_at.desc&limit=500'),
         db('admin_offer_overview?select=*&order=sort_order.asc'),
+        db('products?select=key,title,type,billing_type,enabled&order=sort_order.asc'),
       ]);
       return respond({
+        products: catalogue,
         summary: {
           customers: customers.length,
           activeCustomers: customers.filter((customer: { funnel_stage: string }) => customer.funnel_stage !== 'sem_acesso_ativo').length,

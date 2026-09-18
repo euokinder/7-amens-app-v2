@@ -53,14 +53,42 @@
 
       <section class="admin-section">
         <div class="admin-section-heading">
+          <div><span class="admin-kicker">Operação</span><h2>Liberar acesso na mão</h2></div>
+        </div>
+        <form class="admin-form" id="grant-form">
+          <label for="grant-email">E-mail da cliente</label>
+          <input id="grant-email" type="email" required placeholder="email@exemplo.com" autocomplete="off">
+          <label for="grant-product">Produto</label>
+          <select id="grant-product" required></select>
+          <button type="submit">Liberar acesso</button>
+          <p class="admin-form-hint">Serve para cliente que comprou antes do webhook, cortesia, ou venda fora da Hubla. Se o e-mail ainda não existir, a cliente é criada.</p>
+          <p class="admin-form-status" id="grant-status" role="status" hidden></p>
+        </form>
+      </section>
+
+      <section class="admin-section">
+        <div class="admin-section-heading">
           <div><span class="admin-kicker">Público</span><h2>Clientes e perfis</h2></div>
           <span class="admin-count" id="customer-count">0</span>
         </div>
+        <input class="admin-search" id="customer-search" type="search" placeholder="Buscar por nome ou e-mail…" autocomplete="off" aria-label="Buscar cliente">
         <div class="admin-customers" id="admin-customers"></div>
       </section>
     </section>
   </div>
 </main>
+
+<dialog class="admin-detail" id="customer-detail" aria-label="Detalhes da cliente">
+  <div class="admin-detail-head">
+    <div>
+      <h2 id="detail-name">Cliente</h2>
+      <p id="detail-email"></p>
+    </div>
+    <button type="button" id="detail-close" aria-label="Fechar">✕</button>
+  </div>
+  <div class="admin-detail-body" id="detail-body"></div>
+</dialog>
+
 <script src="js/admin.js"></script>
 </body>
 </html>
