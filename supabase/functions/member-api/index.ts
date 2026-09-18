@@ -3,8 +3,16 @@
 const base = Deno.env.get('SUPABASE_URL')!;
 const secret = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}').default
   || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const allowedOrigin = 'https://7-amens-app-v2.netlify.app';
-const allowedNetlifyPreview = /^https:\/\/(?:deploy-preview-\d+|development)--7-amens-app-v2\.netlify\.app$/;
+// setemadrugadas.com.br é a produção; 7-amens-app-v2 é onde se valida antes de
+// promover. Domínio fora desta lista é recusado antes de chegar no banco, então
+// esquecer um endereço aqui derruba o login inteiro naquele endereço.
+const allowedOrigin = 'https://setemadrugadas.com.br';
+const allowedOrigins = new Set([
+  'https://setemadrugadas.com.br',
+  'https://www.setemadrugadas.com.br',
+  'https://7-amens-app-v2.netlify.app',
+]);
+const allowedNetlifyPreview = /^https:\/\/(?:deploy-preview-\d+|development|main)--(?:7-amens-app-v2|7madrugadas)\.netlify\.app$/;
 const allowedLocalOrigin = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 const lifetime = 90 * 24 * 60 * 60 * 1000;
 const hash = async (value: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)))).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -44,9 +52,9 @@ Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
   const cors = { 'Access-Control-Allow-Origin': allowedOrigin, 'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-member-session', 'Access-Control-Allow-Methods': 'POST, OPTIONS', Vary: 'Origin', 'Cache-Control': 'no-store' };
   const respond = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
-  const originAllowed = !origin || origin === allowedOrigin || allowedNetlifyPreview.test(origin) || allowedLocalOrigin.test(origin);
+  const originAllowed = !origin || allowedOrigins.has(origin) || allowedNetlifyPreview.test(origin) || allowedLocalOrigin.test(origin);
   if (!originAllowed) return respond({ error: 'Origem não permitida.' }, 403);
-  if (origin && origin !== allowedOrigin) cors['Access-Control-Allow-Origin'] = origin;
+  if (origin) cors['Access-Control-Allow-Origin'] = origin;
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method !== 'POST') return respond({ error: 'Método não permitido.' }, 405);
   try {
