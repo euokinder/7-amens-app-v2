@@ -183,8 +183,11 @@
         catch (error) { if ([401, 403].includes(error.status)) return toLogin(error.message); message.textContent = 'Não foi possível salvar. Confira sua conexão e toque novamente.'; }
         finally { button.disabled = false; }
       });
-      progress.append(button, message); content.append(progress);
+      progress.append(button, message);
     }
+    const progressAnchor = document.getElementById('member-progress-anchor') || content.querySelector('.banner');
+    if (progressAnchor) progressAnchor.before(progress);
+    else if (!progress.isConnected) content.append(progress);
     progress.querySelector('button').textContent = completed(key) ? '✓ Oração concluída · desfazer' : 'Concluí esta oração';
   }
   async function refresh() {
