@@ -68,6 +68,7 @@ create table public.member_offer_events (
  converted_at timestamptz,
  primary key (customer_id, campaign_key)
 );
+create index member_offer_events_campaign_idx on public.member_offer_events(campaign_key);
 create function public.allow_member_login(bucket_key text) returns boolean
 language plpgsql security invoker set search_path = ''
 as $$
