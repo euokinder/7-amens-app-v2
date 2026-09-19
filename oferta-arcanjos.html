@@ -13,6 +13,39 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
+<!-- =====================================================================
+     DE ONDE ELA VEIO — a etiqueta de rastreamento
+
+     O pop-up manda a cliente para cá com uma etiqueta no endereço, dizendo
+     QUAL das quatro versões do pop-up ela clicou. Essa etiqueta precisa
+     chegar até o checkout da Hubla: é o único jeito de saber qual pop-up
+     traz venda de verdade.
+
+     ⚠️ POR QUE ESTE BLOCO FICA AQUI EM CIMA, antes de qualquer outro script:
+     a VTurb mexe no endereço da página para escrever a etiqueta DELA. Ao
+     guardar a nossa cópia antes de o player carregar, não importa o que
+     aconteça com o endereço depois — a nossa etiqueta já está salva.
+
+     ⚠️ POR QUE A ETIQUETA NÃO SE CHAMA "src": esse nome é o que a VTurb usa
+     para as plataformas que ela não integra nativamente, e ela sobrescreve
+     o que estiver lá. Usamos os campos utm_*, que a VTurb só lê, nunca
+     escreve.
+     ===================================================================== -->
+<script>
+window.ETIQUETAS_DE_ORIGEM = (function () {
+  var permitidas = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  var chegaram = new URLSearchParams(location.search);
+  var guardadas = {};
+  permitidas.forEach(function (nome) {
+    var valor = (chegaram.get(nome) || '').trim();
+    // Endereço é coisa que qualquer pessoa pode digitar. Só segue adiante o
+    // que tem cara de etiqueta nossa: letras, números, ponto, hífen e
+    // sublinhado. Assim nada estranho entra no link do checkout.
+    if (valor && valor.length <= 80 && /^[A-Za-z0-9._-]+$/.test(valor)) guardadas[nome] = valor;
+  });
+  return guardadas;
+})();
+</script>
 <script src="js/member-config.js"></script>
 <script src="js/member.js"></script>
 </head>
@@ -108,6 +141,42 @@
 <script>
 (() => {
   'use strict';
+
+  // ------------------------------------------------------------------
+  // LEVAR A ETIQUETA ATÉ O CHECKOUT
+  //
+  // Sem isto a etiqueta morre nesta página: a Hubla registra a venda e não
+  // diz de onde ela veio. Aqui a gente cola a etiqueta no link de cada
+  // carta, antes de a cliente tocar em qualquer uma.
+  //
+  // CONFERIDO DE VERDADE, não deduzido: o link hub.la/r/... passa por dois
+  // redirecionamentos até pay.hub.la e os parâmetros chegam inteiros do
+  // outro lado. A Hubla guarda esses campos na fatura e os devolve no
+  // webhook, em event.subscription.firstPaymentSession.utm — que é onde a
+  // gente vai ler para saber qual pop-up vendeu.
+  //
+  // Quando a cliente chega aqui SEM etiqueta nenhuma (digitou o endereço,
+  // ou um link novo esqueceu de etiquetar), mandamos "sem-popup" de
+  // propósito. Campo vazio deixa a dúvida entre "veio direto" e "o
+  // rastreamento quebrou"; este valor responde a pergunta.
+  var SEM_POPUP = {
+    utm_source: 'app',
+    utm_medium: 'direto',
+    utm_campaign: 'arcanjos',
+    utm_content: 'sem-popup'
+  };
+
+  var etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
+  if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.carta'), function (carta) {
+    var destino;
+    try { destino = new URL(carta.href); } catch (e) { return; }
+    Object.keys(etiquetas).forEach(function (nome) {
+      destino.searchParams.set(nome, etiquetas[nome]);
+    });
+    carta.href = destino.href;
+  });
 
   var segundosDaCarta = 356; // 5:56
 

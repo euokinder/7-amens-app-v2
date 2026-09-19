@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-09-18
+> Atualizado: 2026-09-19
 
 ---
 
@@ -14,10 +14,11 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
-| 1 | **Deploy acumulado** | Tem correções locais prontas que nunca subiram. O Caio disse que quer "mais algumas otimizações" antes. Quando ele autorizar, sobe **tudo de uma vez só**, não em pedaços. Desde 18/09 a pilha inclui duas correções que só valem depois de publicadas: o webhook que parava de perder evento (precisa ser publicado no **Supabase**) e o relógio do painel (precisa de deploy na **Netlify**). São dois lugares diferentes — publicar um não publica o outro. |
+| 1 | **Publicar o webhook no Supabase** | O conserto que impede o webhook de perder evento está commitado e já foi para a `main` — mas isso **não publica nada**: Edge Function do Supabase sobe por fora da Netlify. Enquanto ninguém publicar lá, o buraco que engoliu a venda de R$ 197 continua aberto. ⚠️ **Corrigido em 19/09:** este item também dizia que o relógio do painel esperava deploy na Netlify. **Já subiu**, dentro do commit `c83eb29` — conferido no conteúdo do arquivo, não no nome. Sobrou só a metade do Supabase. |
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
 | 3 | **Topologia de branches** (achado #5 da auditoria) | Hoje teste e produção saem os dois da `main`. Isso precisa ser separado, mas envolve mexer em configuração da Netlify — e ele pediu para não mexer no que está no ar sem perguntar. |
 | 4 | **Qual e-mail vale quando a cliente tem dois** | Três clientes têm um e-mail na fatura e outro na conta da Hubla (ver entrada de 18/09 sobre a janela cega). Elas vão tentar entrar com o do recibo, que o app não conhece. Dá para corrigir no painel, mas a pergunta é qual dos dois passa a valer: o do recibo é o que ela lembra; o da conta Hubla é o que o webhook vai continuar mandando nas próximas compras dela. |
+| 5 | **Ligar o rastreamento de venda por pop-up** | Pronto e validado localmente em 19/09 (ver a entrada de hoje). Falta você autorizar dois passos, e **a ordem importa**: primeiro rodar `supabase/etiquetar-popup-para-medir-venda.sql` na produção, **depois** publicar a página. Ao contrário, a página carimba `sem-popup` numa venda que veio do pop-up — dado errado, que é pior que dado em branco. |
 
 ---
 
@@ -26,12 +27,85 @@ Nada anda nestes pontos até ele responder.
 - **Decidir sobre a headline "O Papa me pediu para mostrar isso pra vocês".** Já está no ar, na página de oferta. A revisão apontou que ela afirma um endosso que não existe, para vender assinatura recorrente, a um público para quem a palavra do Papa tem peso real — risco de estorno e de publicidade enganosa. Copy é decisão do Caio; ele foi avisado duas vezes e optou por seguir. Mudar agora custa um build.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
 - **Ver o pop-up e a página de oferta com os olhos, no site no ar.** Os dois públicos foram conferidos pelo caminho dos dados em 18/09 (ver a entrada de hoje), e a página foi testada na tela em `localhost` — mas ninguém abriu `setemadrugadas.com.br`, clicou no pop-up e percorreu até as cartas. As variantes de **segunda exibição** (`front_novas_2` e `front_antigas_2`, rótulos `-b`) continuam sem nenhum teste.
+- **Conferir a etiqueta numa venda de verdade.** Depois que o rastreamento do pop-up estiver ligado, abrir a primeira venda dos Arcanjos na Hubla e ver se o campo "Parâmetros de UTM" traz o nome do pop-up. A documentação oficial da Hubla diz que traz, e o nosso webhook já guarda o evento inteiro — mas **nenhuma venda real passou por esse caminho ainda**.
 - **Opcional, economia de peso:** `assets/audio/dia-01-oracao.mp3` está em estéreo 192kbps (4,98 MB). Em mono 64kbps cai para 1,66 MB. Voz falada não perde nada audível. São ~3,3 MB a menos para cada cliente baixar.
 - **Avisar as três clientes de e-mail duplo.** `cliente A · e-mail da fatura`, `cliente B · e-mail da fatura` e `cliente C · e-mail da fatura` **não conseguem entrar** — o app as conhece por outro endereço. Não é bug, é a diferença entre o e-mail do recibo e o da conta Hubla. Depende da decisão nº 4 acima para saber qual e-mail gravar.
 - **Conferir o resgate do webhook contra um Supabase de verdade.** A correção foi testada num banco de mentira, escrito por mim a partir do que eu *acredito* que o PostgREST faz. O ponto exato que precisa de confirmação é o comando que grava a linha de falha (`on_conflict=idempotency_key` com `resolution=merge-duplicates`). Se o banco real se comportar diferente, a rede de segurança não abre — e só se descobre na próxima falha. O jeito de confirmar: publicar a função no projeto de **teste** e disparar um evento de mentira. Não depende de decisão nenhuma.
 - **Ver as datas corrigidas no painel de verdade.** A correção do fuso passou em 11 conferências × 4 fusos, mas ninguém abriu o `admin.html` e olhou a ficha de uma cliente com a tela. O banco de teste não tem admin cadastrado nem cliente com visitas, então isso ficou de fora.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-19 — A venda passa a dizer de qual pop-up ela veio
+
+**Chat:** aberto pelo Caio com uma tarefa só — medir o desempenho de cada pop-up. Faixa combinada: **mexer local, validar e relatar**. No fim, autorizado a commitar.
+
+### O buraco
+
+A etiqueta do pop-up **morria na página de oferta**. Os links das quatro cartas eram `hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6` puro, sem nenhum parâmetro. A Hubla registrava a venda dos Arcanjos sem dizer de onde ela veio, e as quatro versões do pop-up ficavam indistinguíveis uma da outra.
+
+### Por que o `src` não servia — o Caio já desconfiava, e estava certo
+
+A documentação da VTurb confirma: ela **lê** `src`, `sck` e os cinco campos `utm_*`, mas **escreve** no `src` quando a plataforma de venda não é uma das que ela integra nativamente. A Hubla não é. Ou seja: o que a gente escrevesse em `src` seria sobrescrito antes de chegar ao checkout.
+
+A saída é o `utm_content`. Os campos `utm_*` a VTurb apenas lê, nunca escreve — e a Hubla aceita os cinco, mostra na fatura e devolve no webhook.
+
+### Os nomes das campanhas, definidos de uma vez
+
+Fixos nos quatro pop-ups: `utm_source=app` · `utm_medium=popup` · `utm_campaign=arcanjos`.
+Quem mede é o `utm_content`:
+
+| Pop-up no banco | Quem vê | `utm_content` |
+|---|---|---|
+| `front_novas_1` | cliente que acabou de comprar, 1ª vez | `novas-1a-exibicao` |
+| `front_novas_2` | cliente que acabou de comprar, 2ª vez | `novas-2a-exibicao` |
+| `front_antigas_1` | base histórica, 1ª vez | `antigas-1a-exibicao` |
+| `front_antigas_2` | base histórica, 2ª vez | `antigas-2a-exibicao` |
+
+Nome por extenso de propósito: daqui a três meses, numa fatura da Hubla, `antigas-1a-exibicao` se explica sozinho. O rótulo antigo, `v2-a`, não explicava nada sem consultar uma tabela.
+
+### Onde o Caio vai ler isso
+
+1. Na Hubla, na fatura da venda, no campo **"Parâmetros de UTM"**.
+2. No nosso banco, dentro de `hubla_events.payload`, no caminho `event.subscription.firstPaymentSession.utm.content`. **O webhook não precisou de mudança nenhuma** — ele já guardava o evento inteiro. A consulta pronta que conta venda por pop-up está comentada no fim do arquivo SQL.
+
+### A prova — rodando, não deduzindo
+
+| Elo da corrente | Como foi provado | |
+|---|---|---|
+| Pop-up → página | Rodada a mesma função do `js/member.js` que troca o domínio em `localhost` | etiqueta sobrevive ✅ |
+| Página → checkout | Navegador, as 4 cartas conferidas uma a uma | todas etiquetadas ✅ |
+| **Aguenta a VTurb** | Apagado o endereço inteiro da página e posto `?src=vturb-sobrescreveu-tudo` | etiqueta intacta ✅ |
+| Chegou sem etiqueta | Página aberta sem parâmetro nenhum | vira `sem-popup` ✅ |
+| Alguém digitando lixo | `utm_content` com `<script>` dentro | recusado ✅ |
+| Checkout → Hubla | `curl` nos 4 links reais, seguindo os redirecionamentos | 4/4 chegam em `pay.hub.la`, HTTP 200 ✅ |
+| Build | `node scripts/build.mjs` | passa ✅ |
+
+O `curl` confirmou de quebra que as cartas apontam para `ODOZxlF1tfhee2TkZikI` — é o `upsell_01`, os Quatro Arcanjos. Produto certo.
+
+### Arquivos
+
+| Arquivo | |
+|---|---|
+| `oferta-arcanjos.html` | alterado — captura a etiqueta e cola nos links das quatro cartas |
+| `supabase/etiquetar-popup-para-medir-venda.sql` | **novo** — troca o endereço dos quatro pop-ups, com conferência, consulta de resultado e rollback |
+
+### O que NÃO foi tocado
+
+**Nada em produção. Nada em banco nenhum — nem produção, nem teste.** Nenhum deploy, nenhum crédito gasto. O SQL foi escrito, não executado.
+
+### O que NÃO foi verificado — leia antes de confiar
+
+- **Nenhuma venda real passou por este caminho.** Que a Hubla devolve o `utm` no webhook está na documentação oficial dela; vira fato só na primeira venda de verdade.
+- **O SQL não rodou em lugar nenhum**, nem no banco de teste. A troca é um `update` simples numa coluna de texto, e os endereços novos passam na única trava que existe (`^https://`) — mas ninguém executou.
+- **A VTurb não carrega em `localhost`** (o CDN dela recusa a origem por CORS). O comportamento dela foi **simulado**, não observado. A simulação apagou o endereço inteiro, que é o pior caso possível — mas continua sendo simulação.
+
+### Dois detalhes que enganam e valem registro
+
+**O que faz isso aguentar a VTurb é a POSIÇÃO do código, não o código.** A captura da etiqueta fica no topo do `<head>`, antes de qualquer script de fora. Quando o player mexe no endereço depois, a nossa cópia já está guardada. Se alguém mover esse bloco para baixo do player "para organizar", o rastreamento quebra **em silêncio** — nada aparece errado na tela, a venda só volta a chegar sem origem.
+
+**Link encurtado da Hubla preserva parâmetro.** O `hub.la/r/...` passa por **dois** redirecionamentos até `pay.hub.la` e os parâmetros chegam inteiros do outro lado. Conferido com `curl`, não suposto — encurtador que come query string é comum o bastante para valer o teste.
 
 ---
 
