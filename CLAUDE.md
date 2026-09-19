@@ -25,17 +25,23 @@ Confundir os dois é o erro mais caro possível aqui: dá para testar no endere�
 
 O endereço antigo `https://7madrugadas.netlify.app` é o MESMO site de produção. Ele está sendo redirecionado para o domínio pelo `netlify.toml`, e a `member-api` também o aceita — mas não use esse endereço para nada.
 
-✅ **O push publica sozinho, e cada branch alimenta um site.** Confirmado pelo Caio em 2026-09-18:
+🔴 **OS DOIS SITES SEGUEM A MESMA BRANCH: `main`.** Verificado na API da Netlify em 2026-09-18, não deduzido:
 
-| Push em | Muda sozinho |
-|---|---|
-| `development` | **só a validação** — `7-amens-app-v2.netlify.app` |
-| `main` | **a produção** — `setemadrugadas.com.br` |
+| Projeto | Branch de produção | Endereço |
+|---|---|---|
+| `7madrugadas` | **`main`** | setemadrugadas.com.br |
+| `7-amens-app-v2` | **`main`** | 7-amens-app-v2.netlify.app |
 
-Consequências práticas, nesta ordem de importância:
-1. **Push na `main` é publicar para as clientes.** Não existe etapa separada de "promover" depois — o push é a publicação. Antes dele, anotar a data e o ID do último deploy bom na Netlify: é a rede de segurança para voltar atrás.
-2. **Todo push gasta build.** Os créditos do Netlify Free já foram zerados uma vez. Push pequeno e repetido custa igual a push grande — juntar as alterações e subir de uma vez é mais barato.
-3. O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`, então a `main` não sai daqui por acidente.
+O deploy atual da validação traz, literalmente, `"branch": "main"` e `"context": "production"`.
+
+**O que isso significa na prática — e é grave:**
+1. **Não existe conferir na validação antes de publicar.** Um push na `main` atualiza os DOIS sites ao mesmo tempo. A validação não é ensaio: ela muda junto com a produção.
+2. **Push na `development` não muda site nenhum.** Não gasta build e não publica nada — serve só para guardar o trabalho no GitHub. Foi o que aconteceu no commit `c83eb29`: o push saiu, os dois sites continuaram na versão antiga.
+3. **Então o único ensaio real é o teste local** (`node scripts/build.mjs && node scripts/preview.mjs`). Ele deixa de ser "boa prática" e passa a ser a única rede antes das clientes.
+4. **Push na `main` é publicar para as clientes.** Antes dele, anotar data e ID do último deploy bom na Netlify: é a única forma de voltar atrás.
+5. O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`, então a `main` não sai daqui por acidente.
+
+⚠️ Isto é o achado #5 da auditoria, que o diário lista como **esperando decisão do Caio**: separar as duas topologias (ex.: apontar `7-amens-app-v2` para `development`) devolveria o ensaio antes da produção. Enquanto não for feito, publicar é sempre direto no alvo.
 
 ## Status atual
 - **Validação:** https://7-amens-app-v2.netlify.app/ (versão com login e sistema de membros)

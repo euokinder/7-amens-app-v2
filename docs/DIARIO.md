@@ -23,7 +23,7 @@ Nada anda nestes pontos até ele responder.
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- **`_teste_sem_js.html` ainda está no ar em produção.** A remoção já está feita no local, mas só sai do ar no próximo deploy.
+- **Rodar `supabase/repontar-popup-para-o-app.sql`.** É o que faz o pop-up parar de mandar a cliente para fora e passar a abrir a página de oferta dentro do app. A página já está no ar (18/09), então a ordem está satisfeita. **Ainda não foi rodado** — depende do Caio mandar.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
 - **Testar a cliente antiga.** Só a `teste.novas@exemplo.com` (público novo, popup v1) foi testada de ponta a ponta. A `teste.antigas@exemplo.com` (base histórica, popup v2) e as variantes de segunda exibição (`-b`) nunca foram abertas.
 - **Confirmar o link do popup pelo HTML.** O popup certo apareceu na tela, mas ninguém leu o endereço do botão — então o `?src=rec-app-up01-v1-a` está deduzido pelo texto, não comprovado.
@@ -109,6 +109,52 @@ O erro do print também foi reproduzido em laboratório: com o código antigo, `
 ### Detalhe que engana
 
 Uma data no formato `2026-09-18` e uma data com hora (`2026-09-18T23:16:00Z`) **são tratadas de formas diferentes** pelo navegador: a primeira vira meia-noite em Londres, a segunda respeita o fuso informado. Por isso o bug atingia só as visitas e não as compras — e por isso parecia que "o banco estava errado" quando o banco estava certo.
+
+---
+
+## 2026-09-18 — A oferta de upsell entrou no app, e a topologia das branches ficou provada
+
+**Chat:** a página de oferta dentro do app · publicado em produção
+
+### O ponto de retorno deste deploy
+
+Se a produção precisar voltar atrás, é para cá:
+
+| | |
+|---|---|
+| Deploy bom **anterior** a esta leva | `6aad48c17323b50008e0399b` |
+| Publicado em | 18/09/2026, 14:20:59 UTC |
+| Commit | `348db75` — *"Impedir os dois pop-ups no mesmo dia"* |
+| Ver como estava | `https://6aad48c17323b50008e0399b--7madrugadas.netlify.app` |
+
+Netlify → `7madrugadas` → **Deploys** → esse ID → **"Publish deploy"**. Volta em segundos e **não gasta crédito**, porque não roda build.
+
+### 🔴 A correção que motivou esta entrada
+
+O `CLAUDE.md` dizia que ninguém tinha confirmado qual branch alimenta a produção. Foi confirmado — e o resultado contraria o que se supunha:
+
+**Os DOIS projetos da Netlify seguem a branch `main`.** Provado pela API, não deduzido: o deploy no ar da *validação* traz `"branch": "main"` e `"context": "production"`.
+
+O que isso custa na prática:
+- **Não existe ensaio.** Um push na `main` muda produção e validação ao mesmo tempo. A validação não serve de rede.
+- **Push na `development` não muda site nenhum** — não publica e não gasta build. Serve só para guardar no GitHub.
+- **O único ensaio real é o teste local.** Deixou de ser boa prática e virou a única rede antes das clientes.
+
+Isso é o achado #5 da auditoria (item 3 da lista de decisões lá em cima), agora com prova.
+
+### O que foi ao ar
+
+`oferta-arcanjos.html` — a VSL de upsell dentro do app, no lugar de mandar a cliente para um site de fora. Cabeçalho, vídeo da VTurb e o painel das quatro cartas, que só aparece aos **5:56** de vídeo pelo código oficial de delay da VTurb (conta tempo **assistido**, não tempo de página aberta).
+
+Conferido no ar: página 200, painel escondido por padrão, preço "R$ 137 por mês", 4 cartas com o checkout certo, `noindex` na página, `_teste_sem_js.html` fora (404), produção **sem** `x-robots-tag` (o risco de desindexar o site não se materializou) e a `member-api` viva.
+
+### Três armadilhas que valeram o registro
+
+**O produto é assinatura MENSAL, não compra única.** Descoberto indo até o fim do checkout: a Hubla mostra "R$ 137,00 por mês · Plano de assinatura". A página dizia só "R$ 137", que uma senhora lê como pagamento único. Corrigido para "R$ 137 **por mês**" mais uma linha de recorrência. O `CLAUDE.md` registrava `upsell_01` como addon simples — também corrigido.
+
+**Dado pessoal de cliente quase foi para um repositório público.** `docs/DIARIO.md` e `supabase/conferir-acessos-perdidos.sql` traziam 14 e-mails reais, nenhum deles ainda no histórico do Git. O repositório é **público** (`"visibility": "public"`) e o próprio `.gitignore` já mandava não versionar dado pessoal. Uma varredura por CSV e por chave de API **não pega isso** — os e-mails estavam dentro de comentário de SQL e de texto em Markdown. Os endereços saíram; a lição técnica ficou.
+
+**A rede de segurança de um delay não pode contar o relógio da página.** A primeira versão revelava as cartas 476s após o carregamento. Se a cliente pausasse o vídeo para atender o telefone, as cartas apareciam antes do pitch. Hoje a rede se desliga assim que o player dá sinal de vida.
 
 ---
 
