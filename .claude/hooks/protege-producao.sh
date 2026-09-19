@@ -1,50 +1,37 @@
 #!/usr/bin/env bash
-# Protege os créditos da Netlify: barra push para produção e deploy direto
-# sem confirmação explícita do Caio.
+# Protege a producao e os creditos da Netlify.
 #
-# Recebe o JSON do PreToolUse no stdin. Sai com código 2 para bloquear,
-# devolvendo a explicação pelo stderr.
+# Recebe o JSON do PreToolUse no stdin. Sai com codigo 2 para bloquear,
+# devolvendo a explicacao pelo stderr.
+#
+# A logica de verdade mora no protege-producao.py ao lado: jq nao existe nesta
+# maquina, e ler o JSON com grep foi justamente o furo da versao anterior
+# (bastava a palavra "development" aparecer em qualquer campo para liberar).
 
 entrada="$(cat)"
+aqui="$(dirname "$0")"
 
-# Só interessa o conteúdo do comando que o agente quer rodar.
-cmd="$entrada"
+py=""
+for candidato in python python3 py; do
+  if command -v "$candidato" >/dev/null 2>&1; then py="$candidato"; break; fi
+done
 
-bloqueia() {
-  printf '%s\n' "$1" >&2
-  exit 2
-}
+if [ -z "$py" ] || [ ! -f "$aqui/protege-producao.py" ]; then
+  # Sem como analisar direito: barra o que pode custar caro e libera o resto.
+  if printf '%s' "$entrada" | grep -Eq 'git[^"]*push|netlify[[:space:]]+deploy|netlify[[:space:]]+(sites:create|init)'; then
+    printf '%s\n' "BLOQUEADO pelo hook protege-producao.
 
-# --- push para a branch de produção -----------------------------------------
-if printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+push'; then
-  if ! printf '%s' "$cmd" | grep -q 'development'; then
-    bloqueia "BLOQUEADO pelo hook protege-producao.
+Nao consegui analisar este comando (falta o Python ou o arquivo
+protege-producao.py ao lado deste), e ele pode publicar em producao e gastar
+credito da Netlify.
 
-Este push pode atingir a branch main, que dispara build de produção na Netlify e consome crédito.
-
-Antes de insistir:
-  1. Confirme a branch atual com: git branch --show-current
-  2. Se for trabalho normal, use a branch development
-  3. Se for produção mesmo, PERGUNTE ao Caio de forma explícita, dizendo o que vai ao ar e que isso gasta um build
-
-Só rode o push depois que ele responder que pode."
+Confira a mao antes de insistir:
+  1. git branch --show-current  ->  tem que dizer development
+  2. Se for producao mesmo, PERGUNTE ao Caio de forma explicita." >&2
+    exit 2
   fi
+  exit 0
 fi
 
-# --- deploy direto de produção ----------------------------------------------
-if printf '%s' "$cmd" | grep -Eq 'netlify[[:space:]]+deploy' && printf '%s' "$cmd" | grep -Eq '\-\-prod'; then
-  bloqueia "BLOQUEADO pelo hook protege-producao.
-
-Deploy de produção direto pela CLI consome crédito da Netlify na hora.
-Pergunte ao Caio antes, dizendo exatamente o que vai ser publicado."
-fi
-
-# --- criar site novo na Netlify ---------------------------------------------
-if printf '%s' "$cmd" | grep -Eq 'netlify[[:space:]]+(sites:create|init)'; then
-  bloqueia "BLOQUEADO pelo hook protege-producao.
-
-A decisão do projeto é manter UM ÚNICO site na Netlify, com development para teste e main para produção.
-Criar site novo para contornar crédito foi descartado. Confirme com o Caio antes."
-fi
-
-exit 0
+printf '%s' "$entrada" | "$py" "$aqui/protege-producao.py"
+exit $?

@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "7amens-local",
-      "runtimeExecutable": "node",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": ["scripts/preview.mjs"],
       "port": 3000
     }

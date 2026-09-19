@@ -19,7 +19,9 @@ Export de faturas da Hubla, período nominal 18/06 a 18/09/2026 — mas os dados
 | | |
 |---|---|
 | Clientes criadas | **178** |
-| Acessos concedidos | **241** |
+| Acessos concedidos | **200** (178 principal + 21 upsell_01 + 1 upsell_02) |
+
+> O CSV de origem tinha 241 linhas; a chave do banco consolidou as repetidas em 200 acessos. Conferido depois: **nenhuma cliente ficou sem o produto principal** (clientes importadas sem acesso ativo = 0). Os 241 não são acessos perdidos.
 | Clientes sem acesso ao app | **0** |
 | Fora da carga | 1 venda de R$ 10 na oferta "hggh", confirmada como teste do produtor |
 

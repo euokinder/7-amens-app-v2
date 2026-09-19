@@ -10,14 +10,42 @@ const secret = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}').default
   || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const hublaToken = Deno.env.get('HUBLA_WEBHOOK_TOKEN') || '';
 
+// A passing error - the key refused for one instant, the database blinking -
+// must never cost an event. On 18/09 a single 401 lost a R$ 197 sale. Retry
+// briefly before giving up; only statuses that can heal on their own qualify,
+// because a malformed request of ours would fail the same way forever.
+const RETRIABLE = new Set([401, 403, 408, 425, 429, 500, 502, 503, 504]);
+const ATTEMPTS = 3;
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const excerpt = (value: string) => value.replace(/\s+/g, ' ').trim().slice(0, 200);
+
 async function db(path: string, method = 'GET', body?: unknown, prefer = 'return=representation') {
-  const response = await fetch(`${base}/rest/v1/${path}`, {
-    method,
-    headers: { apikey: secret, Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json', Prefer: prefer },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  if (!response.ok) throw new Error(`Database operation failed (${response.status}) on ${path}`);
-  return response.status === 204 ? null : response.json();
+  let lastError = new Error(`Database call never ran on ${path}`);
+
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
+    if (attempt > 1) await wait(attempt * 400);
+
+    let response: Response;
+    try {
+      response = await fetch(`${base}/rest/v1/${path}`, {
+        method,
+        headers: { apikey: secret, Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json', Prefer: prefer },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+    } catch (networkError) {
+      // No answer at all: the network is down, always worth another try.
+      lastError = new Error(`Database unreachable on ${path}: ${networkError instanceof Error ? networkError.message : 'erro de rede'}`);
+      continue;
+    }
+
+    if (response.ok) return response.status === 204 ? null : response.json();
+
+    const detail = excerpt(await response.text().catch(() => ''));
+    lastError = new Error(`Database operation failed (${response.status}) on ${path}${detail ? `: ${detail}` : ''}`);
+    if (!RETRIABLE.has(response.status)) throw lastError;
+  }
+
+  throw lastError;
 }
 
 const eq = (value: string) => encodeURIComponent(value);
@@ -168,23 +196,25 @@ Deno.serve(async (req: Request) => {
     || Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw))))
       .map(byte => byte.toString(16).padStart(2, '0')).join('');
 
-  try {
-    const record = {
-      idempotency_key: idempotencyKey,
-      event_type: eventType,
-      payload_version: text(payload?.version) || null,
-      sandbox,
-      hubla_user_id: text(event?.user?.id) || null,
-      hubla_product_id: candidateProductIds(event)[0] || null,
-      subscription_id: text(event?.subscription?.id) || null,
-      invoice_id: text(event?.invoice?.id) || null,
-      entity_version: Number.isInteger(event?.subscription?.version) ? event.subscription.version : null,
-      payload,
-    };
+  // Built outside the try so the rescue in the catch can still write the whole
+  // event when the very first insert is what failed.
+  const record = {
+    idempotency_key: idempotencyKey,
+    event_type: eventType,
+    payload_version: text(payload?.version) || null,
+    sandbox,
+    hubla_user_id: text(event?.user?.id) || null,
+    hubla_product_id: candidateProductIds(event)[0] || null,
+    subscription_id: text(event?.subscription?.id) || null,
+    invoice_id: text(event?.invoice?.id) || null,
+    entity_version: Number.isInteger(event?.subscription?.version) ? event.subscription.version : null,
+    payload,
+  };
 
+  try {
     // Insert first: the unique key makes idempotency atomic, with no race between
     // a lookup and a write when Hubla retries.
-    let stored: Record<string, any>;
+    let stored: Record<string, any> | undefined;
     const [inserted] = await db('hubla_events', 'POST', record, 'return=representation,resolution=ignore-duplicates');
     if (inserted) {
       stored = inserted;
@@ -197,6 +227,10 @@ Deno.serve(async (req: Request) => {
       }
       stored = previous;
     }
+
+    // Neither inserted nor found. Fall into the rescue instead of dying on
+    // stored.id, which would leave no trace of the event anywhere.
+    if (!stored?.id) throw new Error('Evento gravado mas nao localizado para processamento.');
 
     const settle = (status: string, error: string | null = null) =>
       db(`hubla_events?id=eq.${stored.id}`, 'PATCH', { processing_status: status, error, processed_at: now() });
@@ -232,8 +266,21 @@ Deno.serve(async (req: Request) => {
     const message = error instanceof Error ? error.message : 'Erro inesperado.';
     console.error('hubla-webhook', message);
     try {
-      await db(`hubla_events?idempotency_key=eq.${eq(idempotencyKey)}`, 'PATCH', { processing_status: 'failed', error: message });
-    } catch { /* the 500 below already asks Hubla to retry */ }
+      // Upsert, never PATCH. A PATCH cannot mark a row that was never inserted,
+      // and that is exactly how the R$ 197 event of 18/09 vanished: the failure
+      // happened during the insert itself. This writes the event when it is
+      // missing and marks it failed when it is there, so the payload survives
+      // and conferir-acessos-perdidos.sql can always find it.
+      await db('hubla_events?on_conflict=idempotency_key', 'POST',
+        { ...record, processing_status: 'failed', error: message },
+        'return=minimal,resolution=merge-duplicates');
+    } catch (rescueError) {
+      // The database is unreachable even for this. Nothing durable is possible
+      // from here, so print the whole payload - it can be replayed from the
+      // logs - and answer 500 so Hubla delivers the event again.
+      const reason = rescueError instanceof Error ? rescueError.message : 'erro desconhecido';
+      console.error('hubla-webhook EVENTO_NAO_GRAVADO', JSON.stringify({ idempotencyKey, falha: message, gravacao: reason, payload }));
+    }
     return respond({ error: 'Falha ao processar o evento.' }, 500);
   }
 });

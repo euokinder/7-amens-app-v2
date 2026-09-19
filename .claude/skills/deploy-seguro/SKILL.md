@@ -39,12 +39,20 @@ Vale para: `member_offer_campaigns.enabled`, `member_survey_campaigns.enabled`, 
 ## Nunca fazer sem confirmação explícita
 - `git push origin main` ou qualquer push que atinja a branch de produção
 - Mudar plano, billing ou método de pagamento na Netlify
-- Criar site novo na Netlify — a decisão do projeto é **um único site**, com `development` para teste e `main` para produção
+- Criar site novo na Netlify — já existem DOIS projetos e essa é a conta fechada: `7madrugadas` (produção, https://setemadrugadas.com.br) e `7-amens-app-v2` (validação, https://7-amens-app-v2.netlify.app)
 - Alterar `netlify.toml` em `main`
 - Habilitar build automático em branch que não tinha
 
 ## Se o assunto for "acabaram os créditos"
 Não sugerir criar conta nova nem site novo para contornar. As saídas legítimas são: reduzir frequência de build, agrupar mudanças, testar local, ou assumir o plano pago (~US$9/mês) como decisão consciente. Apresentar o custo, deixar a escolha com ele.
+
+## Se der errado: rollback sem gastar crédito
+1. Projeto **`7madrugadas`** na Netlify → aba **Deploys**.
+2. Achar o último deploy que estava bom (pela data/hora).
+3. **"Publish deploy"** nele. Volta em segundos, sem build novo, sem consumir crédito.
+4. Investigar a causa depois, na validação.
+
+Anotar a data e o ID do deploy bom **antes** de promover. O ponto de retorno não é um commit: `6c90670` já contém o login.
 
 ## Contexto técnico do build
 `netlify.toml` roda `node scripts/build.mjs` e publica `dist/`. Ou seja: **existe etapa de build de verdade** — não é publicação estática direta. Quebrar o `build.mjs` derruba o deploy inteiro. Rodar o build localmente antes de subir é barato e evita um build perdido.

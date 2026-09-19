@@ -3,11 +3,43 @@
 > Fonte de verdade das regras do projeto. Atualizado: 2026-09-18
 > Contexto histórico completo em `docs/contexto-completo.md`. Leia sob demanda, não sempre.
 
+## 🧭 Comece pelo diário
+Antes de qualquer coisa, leia `docs/DIARIO.md`. Ele diz **onde a gente parou** — o que está pendente e o que está travado esperando decisão do Caio. Este arquivo aqui diz *como as coisas são*; o diário diz *o que falta*. Começar sem ler o diário é repetir trabalho já feito ou mexer no que está esperando resposta.
+
+**O jeito rápido de fazer isso: `/abrir`.** Ele lê o diário, confere o estado real da máquina (alterações locais, commits não enviados), reporta o que está pendente e o que está travado esperando decisão do Caio — e para, sem executar nada.
+
+**Ao terminar um chat, rode `/fechar`.** Ele escreve no diário enquanto ainda há espaço para pensar. Um chat que enche até o teto morre levando junto a lista do que faltava — aconteceu em 2026-09-18, com 2.935 mensagens e 101 capturas de tela.
+
+**Um chat por tarefa.** Quando a frase que descreve a tarefa estiver respondida, fecha e abre outro. Captura de tela do navegador pesa muito: ler a página como texto é o padrão, foto só quando o Caio precisa ver com os próprios olhos.
+
 ## Em uma frase
 Um app católico extremamente simples para a cliente, com infraestrutura por trás capaz de saber quem ela é, o que comprou, o que pode acessar e onde parou — tudo automaticamente.
 
+## ⚠️ São DOIS sites na Netlify, não um
+Confundir os dois é o erro mais caro possível aqui: dá para testar no endereço errado e declarar "está funcionando" olhando para um site que a cliente não usa.
+
+| Papel | Endereço | Projeto na Netlify | O que nunca fazer |
+|---|---|---|---|
+| **PRODUÇÃO** (clientes que pagaram) | https://setemadrugadas.com.br | `7madrugadas` | publicar sem conferir antes na validação |
+| **VALIDAÇÃO** (conferir antes de promover) | https://7-amens-app-v2.netlify.app | `7-amens-app-v2` | ligar campanha de verdade durante um teste |
+
+O endereço antigo `https://7madrugadas.netlify.app` é o MESMO site de produção. Ele está sendo redirecionado para o domínio pelo `netlify.toml`, e a `member-api` também o aceita — mas não use esse endereço para nada.
+
+✅ **O push publica sozinho, e cada branch alimenta um site.** Confirmado pelo Caio em 2026-09-18:
+
+| Push em | Muda sozinho |
+|---|---|
+| `development` | **só a validação** — `7-amens-app-v2.netlify.app` |
+| `main` | **a produção** — `setemadrugadas.com.br` |
+
+Consequências práticas, nesta ordem de importância:
+1. **Push na `main` é publicar para as clientes.** Não existe etapa separada de "promover" depois — o push é a publicação. Antes dele, anotar a data e o ID do último deploy bom na Netlify: é a rede de segurança para voltar atrás.
+2. **Todo push gasta build.** Os créditos do Netlify Free já foram zerados uma vez. Push pequeno e repetido custa igual a push grande — juntar as alterações e subir de uma vez é mais barato.
+3. O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`, então a `main` não sai daqui por acidente.
+
 ## Status atual
-- **MVP no ar e vendendo:** https://7-amens-app-v2.netlify.app/
+- **Validação:** https://7-amens-app-v2.netlify.app/ (versão com login e sistema de membros)
+- **Produção:** https://setemadrugadas.com.br (ainda rodando versão antiga, sem login)
 - É um site HTML/CSS/JS puro desenhado para parecer app. **Não está em loja nenhuma.**
 - Desafio NÃO é criar do zero — é **otimizar e completar** o que existe.
 - Em andamento: login por e-mail (incompleto — próxima tarefa).
@@ -96,13 +128,38 @@ Edge Function: `supabase/functions/member-api/index.ts` — **todo acesso ao ban
 
 Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catálogo vai crescer (novenas, jornadas 21/30 dias, materiais). O banco não pode assumir produto único.
 
-**Ainda falta:** `hubla_events` e `webhook_logs`, e a Edge Function que recebe o webhook da Hubla. É aí que está o caminho para a monetização automática.
+**Já existe e está rodando:** `hubla_events` e a Edge Function `supabase/functions/hubla-webhook/index.ts`, que recebe a venda da Hubla e libera o acesso sozinha.
+
+### ✅ A receita do banco existe: `supabase/schema-completo.sql`
+**Resolvido em 2026-09-18.** Este é o arquivo que constrói o banco inteiro do zero — 16 tabelas, 2 visões, 3 funções, 33 índices, 61 travas e a configuração de produtos e campanhas. Sem nenhum dado de cliente.
+
+**Ele foi testado de verdade, não só escrito.** Rodou num banco vazio e o resultado bateu com a produção campo por campo (152 colunas de cada lado). Depois um teste funcional confirmou que a segmentação dos pop-ups funciona num banco construído só a partir dele: cliente nova recebeu `front_novas_1`, cliente da base antiga recebeu `front_antigas_1`.
+
+A comparação pegou um erro real: na primeira versão faltavam as duas visões do painel (`admin_customer_overview`, `admin_offer_overview`), varridas de fora porque a consulta inicial só olhava tabelas. **Lição: conferir contra o banco vivo, nunca confiar no que parece completo.**
+
+⛔ **Nunca rodar `schema-completo.sql` na produção.** Ele é todo "se não existir" e não estragaria nada, mas o lugar dele é um banco NOVO.
+
+**O problema histórico que ele resolve:** as migrations do repositório e as aplicadas no Supabase são conjuntos diferentes — nenhum número coincide, e 7 alterações (entre elas a que cria `customers` e `entitlements`) nunca tiveram arquivo. Isso continua verdade para a pasta `migrations/`, então:
+- **NÃO rodar `supabase db push` / `db reset` / `db pull`** — os três partem do princípio de que a pasta reflete o banco, e ela não reflete.
+- Para recriar o banco ou montar ambiente novo, usar `schema-completo.sql`, não a pasta.
+
+⚠️ Existe também um `supabase/schema.sql` antigo, anterior a esta reconstrução e **não validado**. Em caso de dúvida, o válido é o `schema-completo.sql`.
+
+### Segredos obrigatórios do Supabase
+Se um destes sumir, nada aparece quebrado na tela — e o estrago é silencioso:
+
+| Segredo | O que quebra se faltar |
+|---|---|
+| `HUBLA_WEBHOOK_TOKEN` | o webhook recusa **todos** os eventos com "não autorizado": as vendas novas param de liberar acesso, sem aviso |
+| `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_SECRET_KEYS` | a `member-api` para de responder: ninguém entra |
+
+Sintoma número um para conferir: se `hubla_events` parar de receber linhas depois de uma venda, o suspeito é o `HUBLA_WEBHOOK_TOKEN`.
 
 ## Catálogo de produtos
 | `products.key` | Nome comercial | Tipo |
 |---|---|---|
 | `principal` | **Os 7 Améns da Madrugada** | main — libera o app inteiro |
-| `upsell_01` | **Oração Celestial dos Quatro Arcanjos** | addon |
+| `upsell_01` | **Oração Celestial dos Quatro Arcanjos** | addon — ⚠️ **assinatura MENSAL de R$ 137**, não pagamento único |
 | `upsell_02` | **Músicas dos Anjos** | addon |
 | `upsell_03` | **Comunidade da Fé** | addon |
 
@@ -134,18 +191,33 @@ Age: liberar acesso na mão (aceita e-mail que ainda não existe), revogar produ
 
 **Toda ação fica registrada em `admin_actions` com o admin responsável.**
 
-## ⚠️ Teste local fala com o banco de PRODUÇÃO
-Não existe ambiente de staging. `localhost:3000` usa a mesma `member-api` e o mesmo Supabase das clientes reais. **Liberar ou revogar acesso no painel local altera dados de verdade.**
+## ✅ Teste local fala com o banco de TESTE
+**Mudou em 2026-09-18.** Antes, `localhost:3000` usava o Supabase das clientes reais — liberar ou revogar acesso no painel local alterava dados de verdade.
+
+Hoje `js/member-config.js` escolhe o banco pelo endereço do navegador:
+
+| Onde você abre | Banco |
+|---|---|
+| `localhost` ou `127.0.0.1` | **teste** (`wyiqwsgfictcfkytldnu`) — ninguém dentro |
+| qualquer outro endereço | **produção** (`lbaudlocfbjunnaoyrtz`) — clientes reais |
+
+Produção não muda: o site no ar nunca é "localhost". O desvio só existe na máquina de quem desenvolve. Quando o banco de teste está em uso, o console do navegador avisa em destaque.
+
+⚠️ **Isso só vale se a `member-api` estiver publicada no projeto de teste.** Se não estiver, o site local não conecta em nada e mostra erro. Publicar a função lá não exige segredo nenhum: `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` são injetados pelo próprio Supabase. Só o `hubla-webhook` precisaria de `HUBLA_WEBHOOK_TOKEN`, e só se alguém for testar webhook.
+
+Para popular o banco de teste do zero: rodar `supabase/schema-completo.sql` nele.
 
 ## Prioridades atuais (decididas em 2026-09-18)
 1. ✅ **Webhook da Hubla** — entregue e rodando em produção desde 2026-09-18.
 2. ✅ **Painel admin com controle** — construído; falta publicar na Netlify.
-3. ⏳ **Carga inicial das clientes antigas** — a Hubla não faz backfill. Quem comprou antes do webhook não está no banco e não consegue entrar. Precisa de export da Hubla.
+3. ✅ **Carga inicial das clientes antigas** — executada em 2026-09-18, registrada em `docs/migracao-base-historica.md`.
 
 ## Infraestrutura — identificadores
-- Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo** — a Netlify está ligada nele.
+- Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo.**
+- ⚠️ Em 2026-09-18 a `main` recebeu tudo o que estava na `development` e foi enviada ao GitHub. Hoje as duas branches são idênticas — não existe mais uma versão antiga guardada na `main` para servir de rede de segurança. A rede de segurança é o deploy antigo na Netlify (ver rollback, abaixo).
+- O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`. Teste de regressão: `python .claude/hooks/testa-protege-producao.py`. Ele só enxerga comandos rodados nesta máquina — as travas de verdade são branch protection na `main` (GitHub) e "Stop auto publishing" no projeto `7madrugadas` (Netlify).
 - Supabase em uso: projeto **`7-amens-app-v2`**, ref `lbaudlocfbjunnaoyrtz`, região sa-east-1.
-- Existe um segundo projeto Supabase, `7 Orações da Madrugada` (`wyiqwsgfictcfkytldnu`), **vazio**. Não usar. Ocupa vaga do plano gratuito.
+- Supabase de **TESTE**: projeto `7 Orações da Madrugada`, ref `wyiqwsgfictcfkytldnu`, região us-west-2. Desde 2026-09-18 ele tem o schema completo e é o banco que o `localhost` usa. Região diferente da produção não atrapalha teste. **Nenhuma cliente real aqui** — as contas `teste.novas@exemplo.com` e `teste.antigas@exemplo.com` são cobaias de propósito.
 
 ## Build e teste local
 `netlify.toml` roda `node scripts/build.mjs` e publica `dist/`. **Existe etapa de build de verdade** — quebrar o `build.mjs` derruba o deploy.
@@ -155,6 +227,33 @@ Não existe ambiente de staging. `localhost:3000` usa a mesma `member-api` e o m
 node scripts/build.mjs && node scripts/preview.mjs
 ```
 Abre em http://localhost:3000. Deploy de produção não é ferramenta de teste.
+
+⚠️ **`node` não está no PATH desta máquina.** O comando acima falha com "node: command not found" até alguém acrescentar `C:\Program Files\nodejs` ao PATH do Windows. Enquanto isso não for feito, usar o caminho completo:
+```
+"C:\Program Files\nodejs\node.exe" scripts/build.mjs
+```
+O build apaga `dist/` antes de copiar, então o que você vê no preview é exatamente o que vai ao ar.
+
+## Se a produção quebrar depois de publicar (rollback)
+Nesta ordem, e sem mexer em código:
+1. Abrir o projeto **`7madrugadas`** na Netlify → aba **Deploys**.
+2. Achar na lista o último deploy que estava bom (pela data/hora).
+3. Clicar nele e usar **"Publish deploy"**. Volta em segundos, **não roda build novo** e portanto **não consome crédito**.
+4. Só depois investigar a causa, com calma, no ambiente de validação.
+
+As páginas HTML são servidas com `Cache-Control: no-cache`, então a volta atrás aparece na hora para as clientes.
+
+⚠️ O ponto de retorno **não é um commit do Git**. O commit `6c90670` já contém o login — voltar para ele não restaura o site antigo aberto. A rede de segurança é o deploy antigo na Netlify: anote a data e o ID dele antes de promover.
+
+## ⚠️ O login é portão de experiência, não de segurança
+Decisão tomada de olhos abertos: o login esconde a tela de quem não entrou, mas **não tranca o conteúdo**. Os textos das orações (`js/dias.js`), os IDs dos vídeos e os PDFs continuam sendo arquivos públicos — qualquer pessoa com o link direto baixa sem e-mail nenhum.
+
+O que o login entrega de verdade: saber quem entrou, medir progresso e mostrar ofertas. Isso ele faz bem.
+
+Consequências que valem dinheiro:
+- **Não prometer "conteúdo protegido" em nenhuma peça de venda.**
+- Áudio (5,2 MB) e PDFs (1,6 MB) em endereço fixo consomem banda da Netlify de quem quer que baixe, inclusive robô e link colado em grupo de WhatsApp.
+- Controle de acesso por papel na própria Netlify é **recurso de plano pago**, não um botão do plano gratuito. O caminho realista para proteção real é servir PDF e áudio pela API com link que expira — e isso é trabalho, não ajuste.
 
 ## Fluxo-alvo da Hubla
 compra na Hubla → webhook → backend lê e-mail + produto + status → Supabase cria/atualiza entitlement → app consulta direitos → card libera sozinho.
@@ -169,7 +268,8 @@ cliente entra com e-mail → sistema a encontra → sabe o que comprou → mostr
 - **Créditos do Netlify Free já foram zerados uma vez.** Plano pago ~US$9/mês em avaliação.
 - **Nunca gastar deploy de produção em alteração pequena.** Desenvolver e testar localmente (inclusive Supabase, login, regras, progresso).
 - Deploy externo só quando precisar de URL alcançável (teste real de webhook).
-- **Um único site na Netlify**, com branch `development` para teste e `main` para produção. Não criar sites novos para fugir de créditos.
+- **Dois sites na Netlify** (ver a tabela no topo deste arquivo): `7madrugadas` = produção, `7-amens-app-v2` = validação. Não criar sites novos para fugir de créditos.
+- Cada verificação de sessão do app grava no banco. O intervalo é de **5 minutos** (`js/member.js`); baixar esse número multiplica o consumo da Supabase.
 - Alertar sobre qualquer risco de cobrança automática no cartão antes de acontecer.
 
 ## Segurança — calibragem

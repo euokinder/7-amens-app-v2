@@ -11,8 +11,14 @@ const allowedOrigins = new Set([
   'https://setemadrugadas.com.br',
   'https://www.setemadrugadas.com.br',
   'https://7-amens-app-v2.netlify.app',
+  // O endereço antigo do projeto de produção continua respondendo e é o link
+  // que a Netlify mostra no painel. Sem ele aqui, quem abrisse por ali via o
+  // app travar em "confira sua conexão" com a conexão perfeita.
+  'https://7madrugadas.netlify.app',
 ]);
-const allowedNetlifyPreview = /^https:\/\/(?:deploy-preview-\d+|development|main)--(?:7-amens-app-v2|7madrugadas)\.netlify\.app$/;
+// Qualquer prefixo antes de --<projeto>: cobre branch, deploy preview e também
+// o link permanente de cada deploy (<id>--7madrugadas.netlify.app).
+const allowedNetlifyPreview = /^https:\/\/[a-z0-9][a-z0-9-]*--(?:7-amens-app-v2|7madrugadas)\.netlify\.app$/;
 const allowedLocalOrigin = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 const lifetime = 90 * 24 * 60 * 60 * 1000;
 const hash = async (value: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)))).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -40,13 +46,16 @@ const validEmail = (value: unknown) => {
   return address.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? address : '';
 };
 async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
-  const [progress, catalog, offers, surveys] = await Promise.all([
+  const [progress, catalog, offers, surveys, admin] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
     db('products?enabled=eq.true&select=key,title,description,checkout_url,content_url&order=sort_order.asc'),
     includeCampaigns ? db('rpc/claim_member_offer', 'POST', { p_customer_id: customer.id, p_trigger_type: 'entry', p_source_campaign_key: null }) : Promise.resolve([]),
     includeCampaigns ? db('rpc/claim_member_survey', 'POST', { p_customer_id: customer.id }) : Promise.resolve([]),
+    // Só um sinal para a tela: quem não é administradora nem deve ver o painel
+    // abrir. A tranca de verdade continua sendo a checagem de cada ação aqui.
+    includeCampaigns ? isAdmin(customer.id) : Promise.resolve(false),
   ]);
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null };
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
@@ -66,9 +75,12 @@ Deno.serve(async (req: Request) => {
     if (body.action === 'login') {
       const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
       if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return respond({ error: 'Confira seu e-mail e tente novamente.' }, 400);
-      const rateKey = await hash(`login:${req.headers.get('x-forwarded-for')?.split(',')[0] || email}`);
+      // Contar só por endereço de internet barra cliente inocente: operadora de
+      // celular põe muita gente atrás do mesmo IP. A conta é por pessoa (e-mail)
+      // dentro do endereço, então uma vizinha de operadora nunca trava a outra.
+      const rateKey = await hash(`login:${req.headers.get('x-forwarded-for')?.split(',')[0] || ''}|${email}`);
       const permitted = await db('rpc/allow_member_login', 'POST', { bucket_key: rateKey });
-      if (!permitted) return respond({ error: 'Muitas tentativas. Aguarde alguns minutos e tente novamente.' }, 429);
+      if (!permitted) return respond({ error: 'Muitas tentativas seguidas com este e-mail. Aguarde um minutinho e tente de novo.' }, 429);
       const customers = await db(`customers?email=eq.${eq(email)}&select=id,email,name&limit=1`);
       const customer = customers[0];
       const products = customer ? await access(customer.id) : [];

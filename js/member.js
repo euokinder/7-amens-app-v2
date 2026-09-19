@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const storageKey = '7amens.member.session.v2';
+  const AJUDA = 'https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.';
   const readToken = () => { try { return localStorage.getItem(storageKey) || ''; } catch { return ''; } };
   let token = readToken();
   let state = null;
@@ -8,15 +9,28 @@
   let surveyRedirecting = false;
   const login = /\/login(?:\.html)?\/?$/.test(location.pathname);
   function remember(value) { token = value; try { value ? localStorage.setItem(storageKey, value) : localStorage.removeItem(storageKey); } catch {} }
+  // AbortSignal.timeout não existe em iPhone com iOS 15 ou anterior, aparelho
+  // comum no público do app. Com ele, a chamada quebrava antes de sair do
+  // celular e a cliente lia "confira sua internet" com a internet perfeita.
+  function limiteDeTempo(ms) {
+    const controle = new AbortController();
+    const relogio = setTimeout(() => controle.abort(), ms);
+    return { signal: controle.signal, encerrar: () => clearTimeout(relogio) };
+  }
   async function api(action, values = {}) {
-    const response = await fetch(window.MEMBER_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-member-session': token }, body: JSON.stringify({ action, ...values }), signal: AbortSignal.timeout(15000) });
-    const data = await response.json();
-    if (!response.ok) { const error = new Error(data.error || 'Não foi possível conectar. Tente novamente.'); error.status = response.status; throw error; }
-    return data;
+    const limite = limiteDeTempo(15000);
+    try {
+      const response = await fetch(window.MEMBER_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-member-session': token }, body: JSON.stringify({ action, ...values }), signal: limite.signal });
+      // Um 502 do gateway volta em HTML, nao em JSON. Sem isto, o erro que a
+      // cliente le e uma mensagem tecnica de leitura, e nao o que aconteceu.
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) { const error = new Error(data.error || 'Não foi possível conectar. Tente novamente.'); error.status = response.status; throw error; }
+      return data;
+    } finally { limite.encerrar(); }
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -112,12 +126,26 @@
       if (resposta.offer) setupMemberOffer(resposta.offer);
     } catch {}
   }
+  // Os endereços do próprio app, em todas as roupas que ele veste: o
+  // domínio de verdade, o site de validação e os links de cada deploy.
+  const nossosSites = /(?:^|[.-])(?:setemadrugadas\.com\.br|7-amens-app-v2\.netlify\.app|7madrugadas\.netlify\.app)$/;
+  // A campanha guarda o endereço COMPLETO (o banco só aceita https). Quando
+  // esse endereço é uma página do próprio app, trocamos o domínio pelo de
+  // agora. Sem isto, clicar no pop-up em localhost jogaria quem está
+  // testando direto no site das clientes reais.
+  function mesmoApp(url) {
+    if (!nossosSites.test(url.hostname)) return url;
+    try { return new URL(url.pathname + url.search + url.hash, location.href); } catch { return url; }
+  }
   function setupMemberOffer(nextOffer = null) {
     const offer = nextOffer || state?.offer;
     if (!offer || document.getElementById('member-offer-dialog')) return;
+    // Na própria página de oferta o pop-up não aparece: ela já está lá dentro.
+    if (/\/oferta-arcanjos(?:\.html)?$/.test(location.pathname)) return;
     let target;
     try { target = new URL(offer.target_url); } catch { return; }
     if (target.protocol !== 'https:') return;
+    target = mesmoApp(target);
     const dialog = node('dialog', 'member-offer-dialog');
     dialog.id = 'member-offer-dialog';
     dialog.dataset.offerType = offer.offer_type || 'product';
@@ -179,7 +207,10 @@
   }
   function setupMemberSurvey() {
     const survey = state?.survey;
-    if (!survey || surveyRedirecting || /\/perfil(?:\.html)?$/.test(location.pathname)) return false;
+    // A pesquisa de perfil não interrompe a página de oferta. Ela chegou ali
+    // por um pop-up, está no meio de um vídeo de venda: arrancá-la para
+    // responder um formulário mata a oferta e ainda perde o vídeo já assistido.
+    if (!survey || surveyRedirecting || /\/(perfil|oferta-arcanjos)(?:\.html)?$/.test(location.pathname)) return false;
     if (!/^[a-z0-9_-]+$/.test(survey.campaign_key || '') || !/^[a-z0-9-]+[.]html$/.test(survey.target_path || '')) return false;
     surveyRedirecting = true;
     try { sessionStorage.setItem('7amens.member.survey.return', `${location.pathname.split('/').pop() || 'index.html'}${location.search}`); } catch {}
@@ -238,7 +269,7 @@
       button.addEventListener('click', async () => {
         button.disabled = true; message.textContent = 'Salvando sua oração…';
         try { state = await api('progress', { prayer_key: key, completed: !completed(key) }); render(); message.textContent = 'Seu progresso foi salvo.'; }
-        catch (error) { if ([401, 403].includes(error.status)) return toLogin(error.message); message.textContent = 'Não foi possível salvar. Confira sua conexão e toque novamente.'; }
+        catch (error) { if ([401, 403].includes(error.status)) return toLogin(error.message); message.textContent = 'Não conseguimos salvar agora. Confira sua conexão e toque de novo — se continuar, fale com a gente no WhatsApp.'; }
         finally { button.disabled = false; }
       });
       progress.append(button, message);
@@ -248,14 +279,39 @@
     else if (!progress.isConnected) content.append(progress);
     progress.querySelector('button').textContent = completed(key) ? '✓ Oração concluída · desfazer' : 'Concluí esta oração';
   }
+  let ultimaVerificacao = 0;
+  // Voltar para a aba, reconectar e destravar o celular disparam quase juntos.
+  // Sem esta pausa, um gesto só da cliente vira três gravações no banco.
+  const reverifica = () => { if (Date.now() - ultimaVerificacao > 20000) refresh(); };
   async function refresh() {
     if (refreshing || document.hidden) return;
     refreshing = true;
-    try { state = await api('session'); render(); document.documentElement.classList.remove('member-checking'); document.getElementById('member-gate')?.remove(); }
+    ultimaVerificacao = Date.now();
+    try {
+      state = await api('session');
+      // O painel não é para cliente. A tranca continua sendo a member-api, que
+      // recusa cada ação; aqui só evitamos que ela veja a tela do painel abrir
+      // com uma tarja vermelha dizendo que não está autorizada.
+      // `=== false` de propósito: enquanto a member-api antiga ainda estiver no ar
+      // ela não devolve este campo, e com `!state.admin` o próprio Caio seria
+      // expulso do painel. Assim, a tela só fecha depois que a função subir.
+      if (/\/admin(?:\.html)?$/.test(location.pathname) && state.admin === false) { location.replace('index.html'); return; }
+      // Libera a tela assim que o acesso é confirmado, ANTES de desenhar.
+      // Se o desenho quebrar depois — uma oferta, o menu, um recurso que o
+      // navegador dela não tem — ela ainda vê as orações que comprou.
+      document.documentElement.classList.remove('member-checking');
+      document.getElementById('member-gate')?.remove();
+      try { render(); } catch (erroAoDesenhar) { console.error('Falha ao desenhar a tela', erroAoDesenhar); }
+    }
     catch (error) {
       if ([401, 403].includes(error.status)) return toLogin(error.message);
       const gate = document.getElementById('member-gate');
-      if (gate) { gate.replaceChildren(node('p', '', 'Não foi possível verificar seu acesso. Confira sua conexão.')); const retry = node('button', 'member-button', 'Tentar novamente'); retry.onclick = refresh; gate.append(retry); }
+      // A mensagem do servidor é mais honesta que culpar a internet dela.
+      if (gate) gate.replaceChildren(
+        node('p', '', error.message || 'Nosso sistema está instável neste momento. Já estamos vendo isso.'),
+        (() => { const b = node('button', 'member-button', 'Tentar novamente'); b.onclick = refresh; return b; })(),
+        (() => { const a = node('a', 'member-gate-help', 'Falar com a gente no WhatsApp'); a.href = AJUDA; a.target = '_blank'; a.rel = 'noopener'; return a; })(),
+      );
       const status = document.querySelector('.member-sync'); if (status) status.textContent = 'Sem conexão. Seus acessos serão atualizados ao reconectar.';
     } finally { refreshing = false; }
   }
@@ -267,19 +323,38 @@
       form.addEventListener('submit', async event => {
         event.preventDefault(); const button = form.querySelector('button'); button.disabled = true; button.textContent = 'Entrando…'; error.textContent = '';
         try { const data = await api('login', { email: form.email.value }); remember(data.token); location.replace(returnPath()); }
-        catch (err) { error.textContent = err.status ? err.message : 'Não foi possível conectar. Confira sua internet e tente novamente.'; }
+        // Sem status, o problema é nosso ou do caminho — não da internet dela.
+        catch (err) { error.textContent = err.status ? err.message : 'Não conseguimos abrir seu acesso agora. Tente de novo em instantes, ou fale com a gente no WhatsApp.'; }
         finally { button.disabled = false; button.textContent = 'Entrar nas minhas orações'; }
       });
       return;
     }
     if (!token) return toLogin();
-    const gate = node('div', '', 'Verificando seu acesso…'); gate.id = 'member-gate'; gate.setAttribute('role', 'status'); document.body.append(gate);
+    // O aviso de espera já vem escrito no HTML, então existe mesmo que este
+    // arquivo falhe. Aqui só garantimos que ele exista em página antiga.
+    if (!document.getElementById('member-gate')) {
+      const gate = node('div', '', 'Verificando seu acesso…'); gate.id = 'member-gate'; gate.setAttribute('role', 'status'); document.body.append(gate);
+    }
+    // Se em 12 segundos a tela não liberou, a cliente precisa de uma saída,
+    // não de uma tela parada. Acontece com internet ruim de madrugada.
+    setTimeout(() => {
+      if (!document.documentElement.classList.contains('member-checking')) return;
+      const gate = document.getElementById('member-gate');
+      if (!gate || gate.dataset.esgotado) return;
+      gate.dataset.esgotado = '1';
+      gate.append(
+        node('p', '', 'Está demorando mais que o normal. Se não abrir, fale com a gente.'),
+        (() => { const a = node('a', 'member-gate-help', 'Falar com a gente no WhatsApp'); a.href = AJUDA; a.target = '_blank'; a.rel = 'noopener'; return a; })(),
+      );
+    }, 12000);
     refresh();
-    setInterval(refresh, 30000);
-    window.addEventListener('focus', refresh);
-    window.addEventListener('online', refresh);
-    document.addEventListener('visibilitychange', refresh);
-    window.addEventListener('pageshow', refresh);
+    // 5 minutos, não 30 segundos: cada verificação grava no banco (dia de visita
+    // e rotina de ofertas). Acesso revogado continua sendo bloqueado, só que em
+    // minutos — e o consumo da Supabase cai cerca de dez vezes.
+    setInterval(refresh, 300000);
+    window.addEventListener('online', reverifica);
+    document.addEventListener('visibilitychange', reverifica);
+    window.addEventListener('pageshow', reverifica);
     window.addEventListener('storage', event => { if (event.key === storageKey) { token = readToken(); if (!token) toLogin(); else { document.documentElement.classList.add('member-checking'); refresh(); } } });
   });
 })();

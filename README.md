@@ -2,12 +2,14 @@
 
 Ambiente de validação independente do site original.
 
-- Site: https://7-amens-app-v2.netlify.app
+- Produção: https://setemadrugadas.com.br (projeto Netlify `7madrugadas`)
+- Validação: https://7-amens-app-v2.netlify.app (projeto Netlify `7-amens-app-v2`)
+- São dois projetos Netlify distintos. Publicar na `main` não atualiza a produção sozinho.
 - Supabase: projeto `lbaudlocfbjunnaoyrtz`, região São Paulo.
 - Entrada por e-mail da compra, sem senha ou confirmação, por decisão de produto.
 - Produto `principal` ativo libera todo o conteúdo existente.
 - Progresso individual por oração, salvo no Supabase.
-- Acessos atualizados a cada 30 segundos e ao voltar à aba.
+- Acessos atualizados a cada 5 minutos e ao voltar à aba.
 
 ## Administração manual
 
@@ -63,8 +65,10 @@ estruturadas e não duplica nome ou e-mail, pois usa a relação com `customers`
 ## Painel administrativo
 
 `admin.html` exibe métricas do app, campanhas, estágio do funil e perfil das
-clientes. O endpoint é somente de leitura e exige que o cliente autenticado
-esteja cadastrado em `member_admins`. As views `admin_customer_overview` e
+clientes, e também **libera acesso na mão, revoga produto e corrige e-mail** —
+toda ação fica registrada em `admin_actions`. Exige que o cliente autenticado
+esteja cadastrado em `member_admins`; quem não estiver é mandado para a home
+antes de a tela abrir, e a `member-api` recusa cada ação de qualquer jeito. As views `admin_customer_overview` e
 `admin_offer_overview` não têm acesso para `anon` ou `authenticated`.
 
 Reembolso do principal bloqueia entrada e gravação de progresso. Reembolso de um
@@ -85,7 +89,14 @@ os vídeos externos e os demais arquivos estáticos mantêm a distribuição ori
 a tela de entrada não é DRM nem torna esses arquivos privados. A API protege os
 dados de clientes e progresso contra listagem pública.
 
-A Hubla ainda não está integrada. Nenhuma compra real é importada automaticamente.
+A Hubla **está integrada** desde 2026-09-18: a Edge Function
+`supabase/functions/hubla-webhook/index.ts` recebe a venda e libera o acesso
+sozinha. A carga histórica das clientes antigas também já foi executada
+(`docs/migracao-base-historica.md`).
+
+⚠️ O caminho do **reembolso** nunca rodou com evento real: os testes de remoção
+feitos até aqui vieram do sandbox, e o código descarta evento de sandbox antes de
+mexer em acesso. Ou seja, o trecho que tira acesso de alguém nunca executou.
 
 ## Desenvolvimento e publicação
 

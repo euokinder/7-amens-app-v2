@@ -2,15 +2,40 @@
 command = "node scripts/build.mjs"
 publish = "dist"
 
+# O endereço antigo do projeto de produção continua respondendo e não é
+# redirecionado sozinho pela Netlify: definir o domínio principal no painel só
+# carimba "canonical", não manda ninguém embora. Esta regra é o que de fato
+# fecha a porta duplicada. Casa só com este host, então não toca no ambiente de
+# validação (7-amens-app-v2) nem nos endereços de branch (main--, development--).
+[[redirects]]
+from = "https://7madrugadas.netlify.app/*"
+to = "https://setemadrugadas.com.br/:splat"
+status = 301
+force = true
+
+# ATENÇÃO: [[headers]] e [[redirects]] na Netlify são GLOBAIS — não existe
+# versão por branch. Por isso o "noindex" NÃO mora aqui: ele valeria também para
+# setemadrugadas.com.br e pediria ao Google para apagar o domínio de vendas.
+# Quem escreve o noindex é o scripts/build.mjs, num arquivo dist/_headers, e só
+# quando a build não é a de produção.
 [[headers]]
 for = "/*"
 [headers.values]
 X-Content-Type-Options = "nosniff"
 X-Frame-Options = "SAMEORIGIN"
 Referrer-Policy = "strict-origin-when-cross-origin"
-X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
 for = "/*.html"
 [headers.values]
 Cache-Control = "no-cache"
+
+# Imagens, áudio e PDFs só mudam quando o conteúdo muda. Guardar no celular por
+# um ano evita rebaixar 600 KB a cada visita.
+# REGRA DE OURO: ao trocar o conteúdo de um destes arquivos, troque o NOME dele
+# (ex.: dia-01-oracao-v2.mp3). Sem trocar o nome, a cliente continua vendo o
+# arquivo antigo por até um ano.
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"

@@ -1,4 +1,9 @@
 (() => {
+  // AbortSignal.timeout nao existe em iOS 15 ou anterior, aparelho comum
+  // no publico do app. Sem isto a chamada quebra antes de sair do celular.
+  // O relogio e desligado assim que a resposta chega: sem isso cada chamada
+  // deixa um despertador pendurado por 15s, gastando bateria a toa.
+  const limiteDeTempo = ms => { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return { signal: c.signal, encerrar: () => clearTimeout(t) }; };
   const storageKey = '7amens.member.session.v2';
   const status = document.getElementById('admin-status');
   const dashboard = document.getElementById('admin-dashboard');
@@ -51,18 +56,46 @@
     return node;
   }
 
-  const day = value => (value ? new Date(value).toLocaleDateString('pt-BR') : '—');
-  const moment = value => (value ? new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—');
+  // --- datas do painel ---------------------------------------------------
+  // O painel é operado no Brasil e a Hubla informa tudo em horário de
+  // Brasília. A tela precisa mostrar esse fuso sempre, nunca o relógio de
+  // quem abriu a página: num computador configurado em outro fuso todos os
+  // horários apareceriam deslocados, sem nenhum aviso.
+  const FUSO = 'America/Sao_Paulo';
+
+  // Uma data sem hora ("2026-09-18") é lida pelo navegador como meia-noite em
+  // Londres e recua um dia ao ser convertida para cá — foi assim que uma
+  // visita do dia 18 apareceu como 17. Esses campos já vêm no fuso certo do
+  // banco, então são apenas reordenados, sem conversão nenhuma.
+  const SO_DATA = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+  const day = value => {
+    if (!value) return '—';
+    const partes = SO_DATA.exec(String(value));
+    if (partes) return `${partes[3]}/${partes[2]}/${partes[1]}`;
+    return new Date(value).toLocaleDateString('pt-BR', { timeZone: FUSO });
+  };
+  const moment = value => (value
+    ? new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: FUSO })
+    : '—');
+  const hour = value => (value
+    ? new Date(value).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: FUSO })
+    : '—');
+  // --- fim das datas do painel -------------------------------------------
 
   async function api(payload) {
     const token = localStorage.getItem(storageKey) || '';
-    const response = await fetch(window.MEMBER_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-member-session': token },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(20000),
-    });
-    const data = await response.json();
+    const limite = limiteDeTempo(20000);
+    let response;
+    try {
+      response = await fetch(window.MEMBER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-member-session': token },
+        body: JSON.stringify(payload),
+        signal: limite.signal,
+      });
+    } finally { limite.encerrar(); }
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || 'Não foi possível concluir a ação.');
     return data;
   }
@@ -180,7 +213,7 @@
       line(prayerLabels[item.prayer_key] || item.prayer_key, moment(item.updated_at)));
 
     const visits = data.visits.slice(0, 15).map(item =>
-      line(day(item.visited_on), `${moment(item.first_seen_at).split(' ')[1] || ''} às ${moment(item.last_seen_at).split(' ')[1] || ''}`));
+      line(day(item.visited_on), `${hour(item.first_seen_at)} às ${hour(item.last_seen_at)}`));
 
     const offers = data.offers.map(item => {
       const marks = [];

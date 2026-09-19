@@ -27,6 +27,7 @@ const TIPOS = {
   '.ico': 'image/x-icon',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
+  '.pdf': 'application/pdf',
   '.mp3': 'audio/mpeg',
   '.mp4': 'video/mp4',
   '.webmanifest': 'application/manifest+json',

@@ -80,5 +80,5 @@ A Hubla é a **fonte da verdade** de compras e reembolsos. Fluxo-alvo:
 compra → webhook → identifica e-mail + produto + status → cria/atualiza entitlement no Supabase → app consulta → card libera sozinho.
 
 - Webhooks **precisam ser idempotentes**: o mesmo evento chegando duas vezes não pode duplicar entitlement nem inconsistir o banco. Guardar o id do evento e ignorar repetido.
-- Ainda **não existem** as tabelas `hubla_events` e `webhook_logs` no schema. Falta criar.
+- `hubla_events` **já existe e está em uso** desde 2026-09-18, junto com a Edge Function `hubla-webhook`. Não existe `webhook_logs` — o registro de cada evento vive em `hubla_events`.
 - **Toda informação sobre a Hubla vem exclusivamente de https://hubla.gitbook.io/docs.** Não inferir formato de payload por analogia com Kiwify, Hotmart ou Stripe — buscar na documentação e confirmar o campo real antes de escrever código.

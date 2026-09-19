@@ -1,4 +1,9 @@
 (() => {
+  // AbortSignal.timeout nao existe em iOS 15 ou anterior, aparelho comum
+  // no publico do app. Sem isto a chamada quebra antes de sair do celular.
+  // O relogio e desligado assim que a resposta chega: sem isso cada chamada
+  // deixa um despertador pendurado por 15s, gastando bateria a toa.
+  const limiteDeTempo = ms => { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return { signal: c.signal, encerrar: () => clearTimeout(t) }; };
   const form = document.getElementById('profile-form');
   if (!form) return;
 
@@ -18,14 +23,18 @@
 
   async function api(action, values = {}) {
     const token = localStorage.getItem(storageKey) || '';
-    const response = await fetch(window.MEMBER_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-member-session': token },
-      body: JSON.stringify({ action, ...values }),
-      signal: AbortSignal.timeout(15000),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Não foi possível salvar agora. Tente novamente.');
+    const limite = limiteDeTempo(15000);
+    let response;
+    try {
+      response = await fetch(window.MEMBER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-member-session': token },
+        body: JSON.stringify({ action, ...values }),
+        signal: limite.signal,
+      });
+    } finally { limite.encerrar(); }
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Não foi possível salvar agora. Confira sua conexão — se continuar, fale com a gente no WhatsApp.');
     return data;
   }
 
@@ -100,7 +109,7 @@
     let target = 'index.html';
     try {
       const saved = sessionStorage.getItem('7amens.member.survey.return') || '';
-      if (/^(index|novena|desatadora|dia|dia-desatadora)\.html(\?[^#]*)?$/.test(saved)) target = saved;
+      if (/^(index|novena|desatadora|dia|dia-desatadora|oferta-arcanjos)\.html(\?[^#]*)?$/.test(saved)) target = saved;
       sessionStorage.removeItem('7amens.member.survey.return');
     } catch {}
     location.href = target;
