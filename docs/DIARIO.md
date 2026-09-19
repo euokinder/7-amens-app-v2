@@ -23,10 +23,9 @@ Nada anda nestes pontos até ele responder.
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- **Rodar `supabase/repontar-popup-para-o-app.sql`.** É o que faz o pop-up parar de mandar a cliente para fora e passar a abrir a página de oferta dentro do app. A página já está no ar (18/09), então a ordem está satisfeita. **Ainda não foi rodado** — depende do Caio mandar.
+- **Decidir sobre a headline "O Papa me pediu para mostrar isso pra vocês".** Já está no ar, na página de oferta. A revisão apontou que ela afirma um endosso que não existe, para vender assinatura recorrente, a um público para quem a palavra do Papa tem peso real — risco de estorno e de publicidade enganosa. Copy é decisão do Caio; ele foi avisado duas vezes e optou por seguir. Mudar agora custa um build.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
-- **Testar a cliente antiga.** Só a `teste.novas@exemplo.com` (público novo, popup v1) foi testada de ponta a ponta. A `teste.antigas@exemplo.com` (base histórica, popup v2) e as variantes de segunda exibição (`-b`) nunca foram abertas.
-- **Confirmar o link do popup pelo HTML.** O popup certo apareceu na tela, mas ninguém leu o endereço do botão — então o `?src=rec-app-up01-v1-a` está deduzido pelo texto, não comprovado.
+- **Ver o pop-up e a página de oferta com os olhos, no site no ar.** Os dois públicos foram conferidos pelo caminho dos dados em 18/09 (ver a entrada de hoje), e a página foi testada na tela em `localhost` — mas ninguém abriu `setemadrugadas.com.br`, clicou no pop-up e percorreu até as cartas. As variantes de **segunda exibição** (`front_novas_2` e `front_antigas_2`, rótulos `-b`) continuam sem nenhum teste.
 - **Opcional, economia de peso:** `assets/audio/dia-01-oracao.mp3` está em estéreo 192kbps (4,98 MB). Em mono 64kbps cai para 1,66 MB. Voz falada não perde nada audível. São ~3,3 MB a menos para cada cliente baixar.
 - **Avisar as três clientes de e-mail duplo.** `cliente A · e-mail da fatura`, `cliente B · e-mail da fatura` e `cliente C · e-mail da fatura` **não conseguem entrar** — o app as conhece por outro endereço. Não é bug, é a diferença entre o e-mail do recibo e o da conta Hubla. Depende da decisão nº 4 acima para saber qual e-mail gravar.
 - **Conferir o resgate do webhook contra um Supabase de verdade.** A correção foi testada num banco de mentira, escrito por mim a partir do que eu *acredito* que o PostgREST faz. O ponto exato que precisa de confirmação é o comando que grava a linha de falha (`on_conflict=idempotency_key` com `resolution=merge-duplicates`). Se o banco real se comportar diferente, a rede de segurança não abre — e só se descobre na próxima falha. O jeito de confirmar: publicar a função no projeto de **teste** e disparar um evento de mentira. Não depende de decisão nenhuma.
@@ -147,6 +146,32 @@ Isso é o achado #5 da auditoria (item 3 da lista de decisões lá em cima), ago
 `oferta-arcanjos.html` — a VSL de upsell dentro do app, no lugar de mandar a cliente para um site de fora. Cabeçalho, vídeo da VTurb e o painel das quatro cartas, que só aparece aos **5:56** de vídeo pelo código oficial de delay da VTurb (conta tempo **assistido**, não tempo de página aberta).
 
 Conferido no ar: página 200, painel escondido por padrão, preço "R$ 137 por mês", 4 cartas com o checkout certo, `noindex` na página, `_teste_sem_js.html` fora (404), produção **sem** `x-robots-tag` (o risco de desindexar o site não se materializou) e a `member-api` viva.
+
+### O pop-up foi repontado — o caminho está fechado
+
+Rodado em produção no mesmo dia, depois de a página estar no ar (a ordem importava: ao contrário, quem clicasse cairia numa página inexistente).
+
+As quatro campanhas do front trocaram de destino, cada uma mantendo o seu rótulo:
+
+| | |
+|---|---|
+| Antes | `https://thedailyinsightreport.com/uppp?src=rec-app-up01-…` |
+| Agora | `https://setemadrugadas.com.br/oferta-arcanjos.html?src=rec-app-up01-…` |
+
+`front_novas_1` = `v1-a`, `front_novas_2` = `v1-b`, `front_antigas_1` = `v2-a`, `front_antigas_2` = `v2-b`. As quatro seguem `enabled = true`.
+
+**Para desfazer:** o bloco de rollback está pronto e comentado no fim de `supabase/repontar-popup-para-o-app.sql`. Volta na hora, sem deploy.
+
+**Conferido depois de rodar**, perguntando ao backend o que ele entregaria de verdade:
+
+| Cobaia | Campanha entregue | Rótulo |
+|---|---|---|
+| `teste.novas@exemplo.com` (compra nova) | `front_novas_1` | `v1-a` |
+| `teste.antigas@exemplo.com` (base histórica) | `front_antigas_1` | `v2-a` |
+
+Isso fecha o item "Testar a cliente antiga", que estava pendente desde 18/09 — **com uma ressalva**: a conferência foi pelo caminho dos dados (função do banco + member-api), não clicando na tela. O painel do navegador não estava desenhando na hora.
+
+O mesmo teste provou a troca de endereço por ambiente: o banco guarda o endereço de produção, e quem abre em `localhost` é levado para `localhost`, não para o site das clientes.
 
 ### Três armadilhas que valeram o registro
 
