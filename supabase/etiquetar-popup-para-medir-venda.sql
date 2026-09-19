@@ -87,18 +87,49 @@ select key, enabled, target_url
 --
 -- Só leitura, não altera nada. Roda direto no SQL Editor do Supabase.
 -- Lê o evento cru que a Hubla mandou, exatamente como ele chegou.
+--
+-- ⚠️ LEIA ISTO ANTES DE INTERPRETAR O RESULTADO — descoberto em 19/09
+-- olhando os eventos reais, não na documentação:
+--
+-- Os Quatro Arcanjos são vendidos em DOIS lugares diferentes, e os dois
+-- caem no MESMO checkout:
+--   1. o upsell pós-compra do funil de vendas (logo depois da compra
+--      principal, ainda no fluxo do anúncio);
+--   2. o pop-up dentro do app, que é o que este arquivo etiqueta.
+--
+-- As 42 vendas que existiam até 19/09 vieram TODAS do funil, nenhuma do
+-- pop-up — dá para ver pelo endereço do checkout, que traz `fbclid` e um
+-- parâmetro `sck` com o nome do anúncio do Facebook. O funil rastreia por
+-- `sck`; nós rastreamos por `utm_*`. Por isso os dois não se atrapalham.
+--
+-- Se você agrupar só por utm_content, vai ver nomes de anúncio do Facebook
+-- misturados com os nossos rótulos e achar que algo quebrou. Não quebrou:
+-- são origens diferentes. A consulta abaixo já separa as duas.
 -- =====================================================================
 -- select
---   coalesce(
---     payload -> 'event' -> 'subscription' -> 'firstPaymentSession' -> 'utm' ->> 'content',
---     '(sem etiqueta)'
---   ) as pop_up,
+--   case
+--     when utm ->> 'medium' = 'popup' then 'POP-UP · ' || coalesce(utm ->> 'content', '(sem rotulo)')
+--     when utm ->> 'source' = 'FB'    then 'Funil · upsell pos-compra (anuncio)'
+--     when utm is null                then '(sem etiqueta nenhuma)'
+--     else 'Outra origem · ' || coalesce(utm ->> 'source', '?')
+--   end as origem,
 --   count(*) as vendas
--- from public.hubla_events
--- where event_type = 'customer.member_added'
---   and hubla_product_id = 'ODOZxlF1tfhee2TkZikI'   -- Quatro Arcanjos
+-- from (
+--   select e.payload -> 'event' -> 'subscription' -> 'firstPaymentSession' -> 'utm' as utm
+--     from public.hubla_events e
+--     join public.hubla_product_map m on m.hubla_id = e.hubla_product_id
+--    where e.event_type = 'customer.member_added'
+--      and m.product_key = 'upsell_01'   -- Quatro Arcanjos
+-- ) t
 -- group by 1
 -- order by vendas desc;
+--
+-- Se algum dia a conta parecer estranha, confira no endereço cru do
+-- checkout, que é a fonte mais crua que existe e nunca é reinterpretada:
+--   select payload -> 'event' -> 'invoice' -> 'paymentSession' ->> 'url'
+--     from public.hubla_events
+--    where event_type = 'invoice.status_updated'
+--    order by received_at desc limit 20;
 
 
 -- =====================================================================
