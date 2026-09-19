@@ -18,7 +18,6 @@ Nada anda nestes pontos até ele responder.
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
 | 3 | **Topologia de branches** (achado #5 da auditoria) | Hoje teste e produção saem os dois da `main`. Isso precisa ser separado, mas envolve mexer em configuração da Netlify — e ele pediu para não mexer no que está no ar sem perguntar. |
 | 4 | **Qual e-mail vale quando a cliente tem dois** | Três clientes têm um e-mail na fatura e outro na conta da Hubla (ver entrada de 18/09 sobre a janela cega). Elas vão tentar entrar com o do recibo, que o app não conhece. Dá para corrigir no painel, mas a pergunta é qual dos dois passa a valer: o do recibo é o que ela lembra; o da conta Hubla é o que o webhook vai continuar mandando nas próximas compras dela. |
-| 5 | **Ligar o rastreamento de venda por pop-up** | Pronto e validado localmente em 19/09 (ver a entrada de hoje). Falta você autorizar dois passos, e **a ordem importa**: primeiro rodar `supabase/etiquetar-popup-para-medir-venda.sql` na produção, **depois** publicar a página. Ao contrário, a página carimba `sem-popup` numa venda que veio do pop-up — dado errado, que é pior que dado em branco. |
 
 ---
 
@@ -27,6 +26,7 @@ Nada anda nestes pontos até ele responder.
 - **Decidir sobre a headline "O Papa me pediu para mostrar isso pra vocês".** Já está no ar, na página de oferta. A revisão apontou que ela afirma um endosso que não existe, para vender assinatura recorrente, a um público para quem a palavra do Papa tem peso real — risco de estorno e de publicidade enganosa. Copy é decisão do Caio; ele foi avisado duas vezes e optou por seguir. Mudar agora custa um build.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
 - **Ver o pop-up e a página de oferta com os olhos, no site no ar.** Os dois públicos foram conferidos pelo caminho dos dados em 18/09 (ver a entrada de hoje), e a página foi testada na tela em `localhost` — mas ninguém abriu `setemadrugadas.com.br`, clicou no pop-up e percorreu até as cartas. As variantes de **segunda exibição** (`front_novas_2` e `front_antigas_2`, rótulos `-b`) continuam sem nenhum teste.
+- **Esperar a primeira venda dos Arcanjos vinda do pop-up.** Até 19/09 existiam 42 vendas do produto e **nenhuma** veio do pop-up — todas vieram do upsell pós-compra do funil. Não é defeito: o pop-up só passou a apontar para a página dentro do app em 18/09, e o rastreamento subiu em 19/09. A consulta que separa as duas origens está comentada no fim de `supabase/etiquetar-popup-para-medir-venda.sql`.
 - **Conferir a etiqueta numa venda de verdade.** Depois que o rastreamento do pop-up estiver ligado, abrir a primeira venda dos Arcanjos na Hubla e ver se o campo "Parâmetros de UTM" traz o nome do pop-up. A documentação oficial da Hubla diz que traz, e o nosso webhook já guarda o evento inteiro — mas **nenhuma venda real passou por esse caminho ainda**.
 - **Opcional, economia de peso:** `assets/audio/dia-01-oracao.mp3` está em estéreo 192kbps (4,98 MB). Em mono 64kbps cai para 1,66 MB. Voz falada não perde nada audível. São ~3,3 MB a menos para cada cliente baixar.
 - **Avisar as três clientes de e-mail duplo.** `cliente A · e-mail da fatura`, `cliente B · e-mail da fatura` e `cliente C · e-mail da fatura` **não conseguem entrar** — o app as conhece por outro endereço. Não é bug, é a diferença entre o e-mail do recibo e o da conta Hubla. Depende da decisão nº 4 acima para saber qual e-mail gravar.
@@ -91,15 +91,43 @@ O `curl` confirmou de quebra que as cartas apontam para `ODOZxlF1tfhee2TkZikI` �
 | `oferta-arcanjos.html` | alterado — captura a etiqueta e cola nos links das quatro cartas |
 | `supabase/etiquetar-popup-para-medir-venda.sql` | **novo** — troca o endereço dos quatro pop-ups, com conferência, consulta de resultado e rollback |
 
-### O que NÃO foi tocado
+### ✅ FOI PUBLICADO no mesmo dia
 
-**Nada em produção. Nada em banco nenhum — nem produção, nem teste.** Nenhum deploy, nenhum crédito gasto. O SQL foi escrito, não executado.
+O Caio autorizou ("pode publicar") e os dois passos foram executados:
+
+| Passo | Quem fez | Quando | Prova |
+|---|---|---|---|
+| Deploy da página | Caio (`git push origin main`) | 19/09 | deploy `6aae06d6beafe00008ba580b`, página responde 200 com o código na linha 35 |
+| SQL das campanhas | Caio (SQL Editor) | 19/09 **00:59** | as 4 linhas conferidas no banco, cada uma com o seu `utm_content` |
+
+**Ponto de retorno**, se a produção precisar voltar: deploy `6aade6f319eefa0008691a09`, de 18/09 às 22:35, commit `c83eb29`. Netlify → `7madrugadas` → Deploys → "Publish deploy". Não gasta crédito.
+
+⚠️ **A ordem saiu invertida** — o deploy foi antes do SQL, ao contrário do que estava escrito. Na janela entre um e outro (~20 min), um clique no pop-up teria virado `sem-popup`. **Impacto real: zero**, porque nenhuma venda do pop-up aconteceu nessa janela (nem antes). Mas a ordem continua valendo para a próxima vez.
+
+### 🔴 A descoberta que muda como ler os números
+
+Investigando os eventos reais no banco — não a documentação — apareceu isto:
+
+**Os Quatro Arcanjos são vendidos em DOIS lugares, e os dois caem no MESMO checkout:**
+
+| Origem | Como se reconhece | Vendas até 19/09 |
+|---|---|---|
+| Upsell pós-compra do **funil** (logo depois da compra principal, ainda no fluxo do anúncio) | endereço com `fbclid` e um parâmetro `sck` com o nome do anúncio do Facebook | **27** identificadas + 12 sem etiqueta + 3 outras |
+| **Pop-up dentro do app** (o que este trabalho etiqueta) | `utm_medium=popup` | **0** |
+
+Ou seja: **nenhuma das 42 vendas do produto veio do pop-up.** Não é defeito — o pop-up só passou a apontar para a página dentro do app em 18/09, e o rastreamento subiu hoje.
+
+**Por que isso importa:** quem olhar "vendas dos Arcanjos" achando que é resultado do pop-up vai superestimar muito. E quem agrupar só por `utm_content` vai ver nome de anúncio do Facebook misturado com os nossos rótulos e achar que quebrou. A consulta comentada no fim do arquivo SQL já separa as duas origens.
+
+**De quebra, isso resolveu a dúvida que faltava:** nas vendas do funil, o `firstPaymentSession` do evento do upsell reflete a sessão do checkout **do upsell**, não a da compra principal. Era exatamente o risco do campo escolhido. Conferido cruzando o `customer.member_added` com o `invoice.status_updated` da mesma venda: os dois batem.
+
+O funil rastreia por `sck`; nós rastreamos por `utm_*`. Os dois não se atrapalham — e nenhum dos dois é o `src`, que é da VTurb.
 
 ### O que NÃO foi verificado — leia antes de confiar
 
-- **Nenhuma venda real passou por este caminho.** Que a Hubla devolve o `utm` no webhook está na documentação oficial dela; vira fato só na primeira venda de verdade.
-- **O SQL não rodou em lugar nenhum**, nem no banco de teste. A troca é um `update` simples numa coluna de texto, e os endereços novos passam na única trava que existe (`^https://`) — mas ninguém executou.
+- **Nenhuma venda real passou pelo pop-up ainda.** Toda a corrente foi provada elo por elo, mas a confirmação final é a primeira venda de verdade com `utm_medium=popup`.
 - **A VTurb não carrega em `localhost`** (o CDN dela recusa a origem por CORS). O comportamento dela foi **simulado**, não observado. A simulação apagou o endereço inteiro, que é o pior caso possível — mas continua sendo simulação.
+- **Ninguém clicou no pop-up no site no ar e percorreu até o checkout com os próprios olhos.** A conferência da produção foi pelo endereço (`curl`) e pelo banco.
 
 ### Dois detalhes que enganam e valem registro
 
