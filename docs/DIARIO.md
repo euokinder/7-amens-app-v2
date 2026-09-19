@@ -23,7 +23,8 @@ Nada anda nestes pontos até ele responder.
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- 🆕 **Publicar a `member-api` corrigida no Supabase** (19/09). O conserto do painel travado em 500 clientes está pronto no código e testado na lógica, mas **não foi publicado na produção** — a sessão que o escreveu teve o acesso ao banco de produção bloqueado. Enquanto não subir, os quatro números do painel continuam errados e a busca continua cega para as clientes antigas. Mesmo bloqueio prático do item 🔴 nº 1: ninguém está conseguindo publicar Edge Function. ✅ **Já foi publicada e verificada no banco de teste** (19/09): 1.202 clientes de mentira, todas apareceram, nenhuma repetida, 1,5s. Falta só a produção. ⚠️ `verify_jwt` tem que ir como `false`.
+- 🆕 **Abrir o painel admin da produção e confirmar com os olhos** (19/09). O conserto do travamento em 500 foi publicado (`member-api` versão 12) e a produção respondeu saudável, mas ninguém viu a tela — conferir isso exigiria entrar como uma cliente real. Basta o Caio abrir o `admin.html` e ver o número de clientes passar de 500.
+- 🆕 **Levar o conserto do painel para a `main`** (19/09). A produção do Supabase roda um código que no repositório só existe na `development` (commit `853db9a`). Quem publicar a `member-api` a partir da `main` **desfaz o conserto sem perceber**. Custa um build nos dois sites, então o certo é ir junto com a próxima leva — mas não pode ser esquecido.
 - **Decidir sobre a headline "O Papa me pediu para mostrar isso pra vocês".** Já está no ar, na página de oferta. A revisão apontou que ela afirma um endosso que não existe, para vender assinatura recorrente, a um público para quem a palavra do Papa tem peso real — risco de estorno e de publicidade enganosa. Copy é decisão do Caio; ele foi avisado duas vezes e optou por seguir. Mudar agora custa um build.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
 - **Ver o pop-up e a página de oferta com os olhos, no site no ar.** Os dois públicos foram conferidos pelo caminho dos dados em 18/09 (ver a entrada de hoje), e a página foi testada na tela em `localhost` — mas ninguém abriu `setemadrugadas.com.br`, clicou no pop-up e percorreu até as cartas. As variantes de **segunda exibição** (`front_novas_2` e `front_antigas_2`, rótulos `-b`) continuam sem nenhum teste.
@@ -40,7 +41,7 @@ Nada anda nestes pontos até ele responder.
 
 ## 2026-09-19 — Painel admin travado em 500 clientes
 
-**Chat:** este. **Status: publicado e verificado no banco de TESTE. Na produção, ainda NÃO.**
+**Chat:** este. **Status: ✅ publicado na produção e conferido.** Faixa autorizada pelo Caio: "pode ajustar direto no principal, faça na calma".
 
 ### O que estava errado
 
@@ -89,11 +90,39 @@ O teste dos ids repetidos foi de propósito o mais cruel possível: as 1.200 for
 
 **Limpeza:** as 1.200 cobaias foram apagadas; o banco de teste voltou a ter 2 clientes. **A admin foi mantida de propósito** — o diário listava "ver as datas corrigidas no painel de verdade" como bloqueado por não existir admin no banco de teste. Agora existe.
 
+### Publicado na produção — 19/09
+
+Ordem pedida pelo Caio: salvar na `development` primeiro, depois publicar.
+
+1. **Commit `853db9a` na `development`** (só `member-api/index.ts` e este diário — o trabalho em andamento de outros chats não pegou carona). Push feito. **Não disparou build:** a `development` não alimenta site nenhum, então custo zero de crédito Netlify.
+2. **`member-api` publicada na produção** (`lbaudlocfbjunnaoyrtz`): **versão 12, ATIVA, `verify_jwt: false`**.
+
+Conferência logo depois de publicar:
+
+| Checagem | Resultado |
+|---|---|
+| A função subiu e responde | HTTP 401 "Entre novamente com seu e-mail." — correto |
+| O login fala com o banco | HTTP 403 para e-mail inexistente — correto |
+| Origem estranha continua barrada | HTTP 403 — correto |
+| `setemadrugadas.com.br` | HTTP 200 |
+
+**Nenhuma cliente real foi usada no teste.** Entrar como uma delas criaria sessão de verdade na conta de uma pessoa, então a conferência usou um e-mail inexistente de propósito — prova que o caminho do login funciona sem tocar em ninguém.
+
+### ⚠️ A `main` ainda não tem este conserto
+
+A produção do Supabase está rodando código que, no repositório, **só existe na `development`**. Se alguém publicar a `member-api` a partir da `main`, **desfaz o conserto sem perceber**. Levar para a `main` custa um build nos dois sites (o arquivo nem faz parte do site), então ficou para ir junto com a próxima leva — mas não pode ser esquecido.
+
+### Como voltar atrás, se precisar
+
+Republicar a versão guardada no commit `588fe6d`:
+`git show 588fe6d:supabase/functions/member-api/index.ts`
+Leva um minuto, não passa pela Netlify, não gasta crédito.
+
 ### O que ainda NÃO foi verificado
 
 - **Os tipos não foram checados:** o Deno não está instalado nesta máquina. Na prática o código rodou, o que vale mais — mas não é a mesma coisa.
-- **Ninguém abriu o `admin.html` e olhou com os olhos.** O teste foi pelo caminho dos dados: login de verdade, resposta de verdade, números conferidos. A tela em si não foi vista.
-- **Não sabemos quantas clientes a produção tem.** A consulta ao banco de produção foi bloqueada pelo modo de segurança da sessão.
+- **Ninguém abriu o `admin.html` da produção e olhou com os olhos.** É a única coisa que falta: o Caio entrar no painel e ver o número passar de 500. No teste a conferência foi pelo caminho dos dados; na produção nem isso, porque exigiria entrar como uma cliente real.
+- **Continuo sem saber quantas clientes a produção tem.** A consulta direta ao banco segue bloqueada pelo modo de segurança da sessão. O painel agora sabe — é só abrir.
 
 ### ⚠️ Antes de publicar, leia isto
 
