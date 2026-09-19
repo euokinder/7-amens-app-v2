@@ -30,6 +30,33 @@ async function db(path: string, method = 'GET', body?: unknown) {
   if (!response.ok) throw new Error(`Database operation failed (${response.status})`);
   return response.status === 204 ? null : response.json();
 }
+// O banco devolve no máximo uma página por consulta, e esse teto é do servidor:
+// pedir um limite maior não traz mais linhas, ele corta em silêncio. Quem lê só
+// a primeira página acha que viu tudo. Para os números do painel serem
+// verdadeiros, o resumo precisa enxergar TODAS as clientes, então aqui as
+// páginas são buscadas em sequência até a última.
+const PAGINA = 1000;
+// Trava de segurança: se uma consulta vier errada, isto impede uma varredura
+// sem fim consumindo o banco.
+const TETO_DE_LINHAS = 20000;
+async function dbTodas(path: string) {
+  // Mesmo tipo solto que db() já devolve: o código que consome estas linhas
+  // declara o formato que espera em cada uso, e apertar aqui quebraria aquilo.
+  // deno-lint-ignore no-explicit-any
+  const todas: any[] = [];
+  let passo = 0;
+  while (todas.length < TETO_DE_LINHAS) {
+    const pagina = await db(`${path}&limit=${PAGINA}&offset=${todas.length}`);
+    if (!pagina.length) break;
+    // A primeira página revela o teto real do servidor, que pode ser menor que
+    // PAGINA. Sem guardar esse número, uma página cheia porém curta seria lida
+    // como "acabaram as clientes" e o resumo voltaria a mentir.
+    if (!passo) passo = pagina.length;
+    todas.push(...pagina);
+    if (pagina.length < passo) break;
+  }
+  return todas;
+}
 const eq = (value: string) => encodeURIComponent(value);
 async function access(customerId: string) {
   const rows = await db(`entitlements?customer_id=eq.${customerId}&status=eq.active&select=product_key`);
@@ -245,8 +272,16 @@ Deno.serve(async (req: Request) => {
       if (!admins.length) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
       // The catalogue here is deliberately unfiltered: a product disabled in the
       // app still has to be grantable by hand from the panel.
+      // Aqui vai a lista COMPLETA, não a primeira página: os quatro números do
+      // topo do painel são somados a partir dela, e a busca por nome/e-mail
+      // acontece no navegador em cima do que chegou. Cortar esta lista faz o
+      // painel esconder as clientes mais antigas e ainda exibir totais errados
+      // como se fossem os de verdade — foi o que aconteceu ao travar em 500.
+      // O desempate por id é obrigatório: sem ele, duas clientes cadastradas no
+      // mesmo instante podem pular ou repetir na virada de uma página para a
+      // outra.
       const [customers, campaigns, catalogue] = await Promise.all([
-        db('admin_customer_overview?select=*&order=created_at.desc&limit=500'),
+        dbTodas('admin_customer_overview?select=*&order=created_at.desc,id.desc'),
         db('admin_offer_overview?select=*&order=sort_order.asc'),
         db('products?select=key,title,type,billing_type,enabled&order=sort_order.asc'),
       ]);

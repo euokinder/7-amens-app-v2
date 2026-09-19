@@ -23,6 +23,7 @@ Nada anda nestes pontos até ele responder.
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕 **Publicar a `member-api` corrigida no Supabase** (19/09). O conserto do painel travado em 500 clientes está pronto no código e testado na lógica, mas **não foi publicado na produção** — a sessão que o escreveu teve o acesso ao banco de produção bloqueado. Enquanto não subir, os quatro números do painel continuam errados e a busca continua cega para as clientes antigas. Mesmo bloqueio prático do item 🔴 nº 1: ninguém está conseguindo publicar Edge Function. ✅ **Já foi publicada e verificada no banco de teste** (19/09): 1.202 clientes de mentira, todas apareceram, nenhuma repetida, 1,5s. Falta só a produção. ⚠️ `verify_jwt` tem que ir como `false`.
 - **Decidir sobre a headline "O Papa me pediu para mostrar isso pra vocês".** Já está no ar, na página de oferta. A revisão apontou que ela afirma um endosso que não existe, para vender assinatura recorrente, a um público para quem a palavra do Papa tem peso real — risco de estorno e de publicidade enganosa. Copy é decisão do Caio; ele foi avisado duas vezes e optou por seguir. Mudar agora custa um build.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
 - **Ver o pop-up e a página de oferta com os olhos, no site no ar.** Os dois públicos foram conferidos pelo caminho dos dados em 18/09 (ver a entrada de hoje), e a página foi testada na tela em `localhost` — mas ninguém abriu `setemadrugadas.com.br`, clicou no pop-up e percorreu até as cartas. As variantes de **segunda exibição** (`front_novas_2` e `front_antigas_2`, rótulos `-b`) continuam sem nenhum teste.
@@ -34,6 +35,75 @@ Nada anda nestes pontos até ele responder.
 - **Ver as datas corrigidas no painel de verdade.** A correção do fuso passou em 11 conferências × 4 fusos, mas ninguém abriu o `admin.html` e olhou a ficha de uma cliente com a tela. O banco de teste não tem admin cadastrado nem cliente com visitas, então isso ficou de fora.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-19 — Painel admin travado em 500 clientes
+
+**Chat:** este. **Status: publicado e verificado no banco de TESTE. Na produção, ainda NÃO.**
+
+### O que estava errado
+
+O Caio viu o painel travado em 500 clientes. A causa era uma linha em `supabase/functions/member-api/index.ts`: o painel pedia ao banco `limit=500`, sempre.
+
+**E era pior que a lista.** Os quatro números do topo — clientes cadastradas, com acesso, perfis respondidos, orações concluídas — eram somados **em cima dessas 500 linhas**, não do banco. Os quatro estavam mentindo.
+
+Como a ordem é da mais recente para a mais antiga, quem sumia eram **as mais antigas**: a base histórica importada da Hubla.
+
+E a busca do painel filtra no navegador, em cima do que chegou. Então procurar uma cliente antiga pelo e-mail respondia "Nenhuma cliente encontrada" **para uma cliente que existe e pagou**. Risco real de atendimento.
+
+**Nada disso afetou o acesso das clientes.** Login e liberação de conteúdo usam consultas diferentes, sem esse limite. Era cegueira do painel, não falha do produto.
+
+### O que foi mudado
+
+Duas mudanças, só no backend. O painel (`js/admin.js`, `admin.html`) **não precisou de nenhuma alteração** — ele já lia os números do resumo e já buscava na lista completa; era a lista que chegava cortada.
+
+1. **Novo `dbTodas()`** — lê o banco em páginas até a última, em vez de parar na primeira. Com trava de 20.000 linhas para nunca virar varredura sem fim.
+2. **O painel passou a usar `dbTodas`**, com desempate por `id` na ordenação.
+
+⚠️ **Por que não bastava trocar 500 por 5000:** o banco tem um teto próprio por consulta (normalmente 1000) e corta em silêncio. O painel travaria em 1000 e pareceria resolvido. O `dbTodas` descobre o teto real do servidor na primeira página e se adapta.
+
+### O que foi verificado
+
+A lógica de paginação foi testada contra um banco simulado, 10 casos, todos passaram: banco vazio, 1 cliente, total exato igual ao tamanho da página, teto do servidor menor que o pedido, 2500 clientes, e a trava de 20.000. Conferido também que nenhuma linha se repete nem some na virada de página.
+
+### Verificado no banco de teste — com o problema reproduzido de propósito
+
+Publicado no projeto de teste (`wyiqwsgfictcfkytldnu`) como **versão 2, ATIVA, `verify_jwt: false`**.
+
+O banco de teste só tinha 2 clientes — com 2 clientes o conserto não aparece, porque tanto o código velho quanto o novo devolvem 2. Então o cenário foi montado: **1.200 clientes de mentira** (`carga.teste.N@exemplo.invalid`), todas com acesso principal, mais uma admin.
+
+Resultado, entrando pelo login de verdade e abrindo o painel:
+
+| | |
+|---|---|
+| Clientes cadastradas | **1202** (era o que existia) |
+| Com acesso | 1202 |
+| Linhas na lista | **1202** |
+| Ids únicos | 1202 — **nenhuma repetida** |
+| Passou de 1000? | **Sim** — o teto do servidor foi vencido |
+| A cliente mais antiga veio junto? | **Sim** |
+| Tempo | 1,5 segundo |
+
+O teste dos ids repetidos foi de propósito o mais cruel possível: as 1.200 foram criadas no mesmo instante, então todas têm praticamente o mesmo horário de cadastro. É exatamente o caso em que a ordenação sem desempate embaralha linhas na virada de página. Nenhuma repetiu.
+
+**Limpeza:** as 1.200 cobaias foram apagadas; o banco de teste voltou a ter 2 clientes. **A admin foi mantida de propósito** — o diário listava "ver as datas corrigidas no painel de verdade" como bloqueado por não existir admin no banco de teste. Agora existe.
+
+### O que ainda NÃO foi verificado
+
+- **Os tipos não foram checados:** o Deno não está instalado nesta máquina. Na prática o código rodou, o que vale mais — mas não é a mesma coisa.
+- **Ninguém abriu o `admin.html` e olhou com os olhos.** O teste foi pelo caminho dos dados: login de verdade, resposta de verdade, números conferidos. A tela em si não foi vista.
+- **Não sabemos quantas clientes a produção tem.** A consulta ao banco de produção foi bloqueada pelo modo de segurança da sessão.
+
+### ⚠️ Antes de publicar, leia isto
+
+A `member-api` é **a mesma função que faz o login de todas as clientes**. Um deploy ruim aqui não estraga só o painel — ninguém entra no app.
+
+Caminho calmo recomendado: publicar primeiro no projeto de **teste** (`wyiqwsgfictcfkytldnu`), entrar pelo site local, conferir o painel, e só depois publicar na produção.
+
+Publicar a função **não passa pela Netlify** e não gasta crédito de build. São coisas separadas.
+
+⚠️ Ao publicar, `verify_jwt` **tem que ser `false`**. A ferramenta de deploy vem com `true` por padrão — aceitar o padrão faz todo login virar erro 401.
 
 ---
 
