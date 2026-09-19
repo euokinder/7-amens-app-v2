@@ -183,44 +183,33 @@ h1.oferta-headline {
   font-weight: 800;
 }
 
-.preco-de {
+/* A linha inteira do preço: "de R$ 197 por R$ 137". O respiro de cima mora
+   aqui, num só lugar, para os pedaços ficarem alinhados na mesma base em vez
+   de cada um se deslocar por conta própria. */
+.preco-bloco {
   display: inline-block;
   margin-top: 12px;
+}
+
+/* O preço antigo. Vermelho claro (#ff8f8f), não vermelho puro: sobre o roxo
+   escuro o vermelho forte fica sujo e cansa a vista. O risco vai mais grosso
+   que o padrão do navegador para ser visível em tela de celular. */
+.preco-de {
   font-size: 20px;
   font-weight: 600;
-  color: #b9a8c9;
+  color: #ff8f8f;
   text-decoration: line-through;
+  text-decoration-thickness: 2px;
 }
 
+/* O valor com desconto. É o único verde da página, de propósito: verde aqui
+   quer dizer "este é o preço que você paga". O brilho suave repete o mesmo
+   recurso já usado no nome do Arcanjo, para não parecer coisa de fora. */
 .preco-por {
-  display: inline-block;
-  margin-top: 12px;
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 800;
-  color: #f0d693;
-}
-
-/* "por mês" anda colado no valor e quase do mesmo tamanho. Miudinho ao lado
-   de um número grande é o jeito clássico de esconder recorrência — aqui ele
-   precisa ser lido junto, não depois. */
-.preco-periodo {
-  display: inline-block;
-  font-size: 22px;
-  font-weight: 800;
-  color: #f0d693;
-  margin-left: 4px;
-}
-
-/* Uma linha discreta, sem caixa e sem alarde. Quem carrega o aviso de
-   verdade é o "por mês" grudado no valor, logo acima. Esta linha só fecha
-   a frase para não restar dúvida — por isso é pequena, mas continua
-   legível (13px, não 10px) e não usa cinza apagado sobre o fundo escuro. */
-.revelacao-recorrencia {
-  margin: 8px 0 0;
-  font-size: 13px;
-  line-height: 1.45;
-  font-weight: 500;
-  color: #cbb9dd;
+  color: #7ee787;
+  text-shadow: 0 2px 14px rgba(126, 231, 135, 0.35);
 }
 
 .revelacao-loading {

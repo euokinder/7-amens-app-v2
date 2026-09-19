@@ -95,11 +95,19 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
     <div class="cartas-painel esconder">
       <div class="cartas-headline">Descubra o seu Arcanjo protetor e garanta 30% de desconto na sua assinatura</div>
 
+      <!-- A classe "smartplayer-click-event" e o que faz a VTurb contar o
+           toque na carta como "Clique no Botao" no Analytics dela. E o nome
+           exato exigido pela documentacao oficial: nao inventar, nao
+           encurtar, nao trocar por id. Sem ela o Analytics mostra ZERO
+           cliques e nao da para saber quantas mulheres tocaram numa carta.
+           Os ids soltos de cada carta NAO servem para isso -- sao so
+           identificadores nossos. Para tirar uma carta da conta um dia,
+           a classe do contrario e "ignore-click-event". -->
       <div class="cartas-container" id="cartas-container">
-        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta" data-carta="1" id="7d08c4af-fe10-6c5e-e683-b8ecb5b2d799"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 1 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta" data-carta="2" id="942e0a02-7453-d1c2-f50f-4d06a7661d94"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 2 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta" data-carta="3" id="533d7c9d-f87d-2fb4-cf21-b163325e1858"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 3 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta" data-carta="4" id="c1f4b6e2-9a37-4d81-b5c0-2e7a9f3d4188"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 4 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta smartplayer-click-event" data-carta="1" id="7d08c4af-fe10-6c5e-e683-b8ecb5b2d799"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 1 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta smartplayer-click-event" data-carta="2" id="942e0a02-7453-d1c2-f50f-4d06a7661d94"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 2 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta smartplayer-click-event" data-carta="3" id="533d7c9d-f87d-2fb4-cf21-b163325e1858"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 3 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6" class="carta smartplayer-click-event" data-carta="4" id="c1f4b6e2-9a37-4d81-b5c0-2e7a9f3d4188"><img src="assets/images/carta-anjo.jpg" alt="Escolher a carta 4 e revelar o seu Arcanjo" loading="lazy" decoding="async" width="309" height="563"></a>
       </div>
 
       <div class="revelacao" id="revelacao" style="display:none;" role="status" aria-live="polite" tabindex="-1">
@@ -107,13 +115,21 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
         <div class="revelacao-texto">
           O seu anjo da guarda é o <strong>Arcanjo Miguel</strong>! Seu <strong>desconto de 30%</strong> já foi aplicado automaticamente:
           <br>
-          <span class="preco-por">R$ 137</span> <span class="preco-periodo">por mês</span>
+          <!-- O preço antigo riscado em vermelho, o novo em verde.
+
+               ⚠️ LEIA ANTES DE MEXER: o produto é ASSINATURA MENSAL de
+               R$ 137, não pagamento único. Em 19/09 o Caio mandou retirar,
+               desta tela, as duas frases que diziam isso: a linha "Cobrança
+               mensal, até você cancelar" e o "por mês" colado no valor.
+               Foi decisão dele, avisado do risco. Ou seja: hoje esta página
+               NÃO informa a recorrência em lugar nenhum -- quem informa é o
+               checkout da Hubla, depois do clique. Se alguém um dia quiser
+               o aviso de volta, é aqui que ele entra.
+
+               O "de R$ 197 por" também não quebra de linha longe do valor:
+               por isso os três pedaços moram dentro de .preco-bloco. -->
+          <span class="preco-bloco">de <span class="preco-de">R$ 197</span> por <span class="preco-por">R$ 137</span></span>
         </div>
-        <!-- O checkout cobra R$ 137 TODO MÊS. Quem avisa disso é o "por mês"
-             colado no valor, acima; esta linha só termina a frase. Pode
-             ficar pequena, mas não pode sumir: sem ela a cliente lê preço
-             único, é cobrada de novo no mês seguinte e pede estorno. -->
-        <p class="revelacao-recorrencia">Cobrança mensal, até você cancelar.</p>
         <div class="revelacao-loading">Preparando a sua proteção, aguarde um instante…</div>
       </div>
 
@@ -262,10 +278,11 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   // Para dar mais ou menos tempo de leitura, mude "segundosDaRevelacao".
   // ------------------------------------------------------------------
   // 5 segundos. O bloco leva quase meio segundo para aparecer, e o que ela
-  // precisa ler antes de sair da tela é: o nome do Arcanjo, o preço E o
-  // aviso de que a cobrança é mensal. Esse aviso é o motivo de o número ser
-  // 5 e não 3: preço recorrente que passa voando é estorno no mês seguinte.
-  // Aumentar aqui é seguro; diminuir tira a chance de ela ler o "por mês".
+  // precisa ler antes de sair da tela é o nome do Arcanjo e os dois preços,
+  // o riscado e o novo. Em 19/09 o aviso de cobrança mensal saiu desta tela
+  // por decisão do Caio (ver o comentário junto do preço, mais acima), então
+  // hoje são só esses três itens. Aumentar aqui é seguro; diminuir aperta a
+  // leitura de quem lê devagar — e o público daqui é 45+.
   var segundosDaRevelacao = 5;
 
   var cartas = document.getElementById('cartas-container');
