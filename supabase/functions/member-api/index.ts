@@ -285,6 +285,63 @@ Deno.serve(async (req: Request) => {
         db('admin_offer_overview?select=*&order=sort_order.asc'),
         db('products?select=key,title,type,billing_type,enabled&order=sort_order.asc'),
       ]);
+      // A visão que separa Pix de cartão é nova. Se o banco ainda não recebeu
+      // o metricas-do-funil.sql, ela simplesmente não existe — e o painel
+      // inteiro não pode cair por causa de um número a mais. Sem ela, esse
+      // bloco some da tela e todo o resto continua de pé.
+      const payments = await db('admin_payment_overview?select=*').catch(() => []);
+
+      // Os números do funil saem da lista que já foi carregada acima: nenhuma
+      // consulta a mais ao banco, nenhum custo novo por abrir o painel.
+      const temProduto = (customer: { active_products: string[] | null }, key: string) =>
+        Array.isArray(customer.active_products) && customer.active_products.includes(key);
+      const frontBuyers = customers.filter((customer: { active_products: string[] | null }) => temProduto(customer, 'principal'));
+
+      // "Compraram o upsell" esconde que são TRÊS produtos diferentes, e some
+      // com dois deles. O painel precisa dizer QUAL. A lista sai do catálogo,
+      // nunca escrita à mão: o catálogo vai crescer (novenas, jornadas de 21 e
+      // 30 dias) e um número cravado no código pararia de contar sozinho.
+      const addons = catalogue.filter((product: { type: string }) => product.type === 'addon');
+      const byProduct = addons.map((product: { key: string; title: string }) => ({
+        key: product.key,
+        title: product.title,
+        buyers: frontBuyers.filter((customer: { active_products: string[] | null }) => temProduto(customer, product.key)).length,
+      }));
+
+      // A ESCADA. De quem tem o extra N, quantas tem o N+1.
+      // A base de cada degrau e o degrau ANTERIOR, nunca o total: e isso que
+      // separa "28,6% de quem levou o UP01" de "4,4% de todas as clientes".
+      // E a base do terceiro degrau sao TODAS as donas do UP02, nao so as que
+      // tambem tem UP01 - foi essa a pergunta feita.
+      const codigo = (key: string) => key.replace(/^upsell_0?/, 'UP0').toUpperCase();
+      const donasDe = (key: string) =>
+        frontBuyers.filter((customer: { active_products: string[] | null }) => temProduto(customer, key));
+
+      const steps = addons.map((produto: { key: string }, i: number) => {
+        const anterior = i === 0
+          ? { rotulo: 'o principal', pessoas: frontBuyers }
+          : { rotulo: codigo(addons[i - 1].key), pessoas: donasDe(addons[i - 1].key) };
+        return {
+          de: anterior.rotulo,
+          para: codigo(produto.key),
+          base: anterior.pessoas.length,
+          n: anterior.pessoas.filter((customer: { active_products: string[] | null }) => temProduto(customer, produto.key)).length,
+        };
+      });
+
+      // Quem tem um extra sem ter o anterior. Se isto for zero, a esteira esta
+      // sendo seguida na ordem; se nao for, o extra vende sozinho - e isso muda
+      // onde a oferta deve ser colocada.
+      const outOfOrder = addons.slice(1).map((produto: { key: string }, i: number) => ({
+        produto: codigo(produto.key),
+        semOAnterior: codigo(addons[i].key),
+        pessoas: frontBuyers.filter((customer: { active_products: string[] | null }) =>
+          temProduto(customer, produto.key) && !temProduto(customer, addons[i].key)).length,
+      }));
+
+      const somaCampanhas = (campo: string) =>
+        campaigns.reduce((total: number, campaign: Record<string, number>) => total + (campaign[campo] || 0), 0);
+
       return respond({
         products: catalogue,
         summary: {
@@ -292,6 +349,20 @@ Deno.serve(async (req: Request) => {
           activeCustomers: customers.filter((customer: { funnel_stage: string }) => customer.funnel_stage !== 'sem_acesso_ativo').length,
           completedProfiles: customers.filter((customer: { profile_completed_at: string | null }) => Boolean(customer.profile_completed_at)).length,
           completedPrayers: customers.reduce((total: number, customer: { completed_prayers: number }) => total + customer.completed_prayers, 0),
+        },
+        funnel: {
+          base: frontBuyers.length,
+          frontBuyers: frontBuyers.length,
+          steps,
+          outOfOrder,
+          anyAddonBuyers: frontBuyers.filter((customer: { active_products: string[] | null }) =>
+            addons.some((product: { key: string }) => temProduto(customer, product.key))).length,
+          byProduct,
+          enteredApp: frontBuyers.filter((customer: { distinct_visit_days: number }) => (customer.distinct_visit_days || 0) > 0).length,
+          offerShown: somaCampanhas('shown'),
+          offerClicked: somaCampanhas('clicked'),
+          offerConverted: somaCampanhas('converted'),
+          byPaymentMethod: payments,
         },
         customers,
         campaigns,

@@ -4,8 +4,8 @@
 --
 -- O QUE É ESTE ARQUIVO
 -- Ele constrói o banco inteiro do zero: as 16 tabelas, as travas de
--- segurança, os índices, as 3 funções e a configuração de produtos e
--- campanhas. Rodando este arquivo num banco vazio, você tem um sistema
+-- segurança, os índices, as 3 funções, as 3 visões do painel e a
+-- configuração de produtos e campanhas. Rodando este arquivo num banco vazio, você tem um sistema
 -- funcionando — só sem clientes.
 --
 -- POR QUE ELE EXISTE
@@ -238,6 +238,10 @@ create table if not exists public.member_offer_campaigns (
   eyebrow text not null default 'Uma oportunidade para você',
   dismiss_label text not null default 'Agora não',
   required_principal_sources text[] not null default '{}',
+  -- Qual produto esta campanha vende. Sem isto, o sistema vê "clicou no
+  -- pop-up" e "comprou o UP01" como dois fatos soltos, e a coluna
+  -- converted_at nunca sai do zero.
+  offered_product_key text references public.products(key) on delete set null,
   constraint member_offer_campaigns_key_check check (key ~ '^[a-z0-9_-]+$'),
   constraint member_offer_campaigns_target_url_check check (target_url is null or target_url ~ '^https://'),
   constraint member_offer_campaigns_trigger_type_check check (trigger_type in ('entry','dismissal')),
@@ -533,18 +537,36 @@ begin
  limit 1
  on conflict do nothing;
 
+ -- Entregar e registrar são a MESMA operação: este update marca shown_at no
+ -- instante em que devolve a campanha. Antes isto era um select e quem marcava
+ -- era o navegador — numa rede ruim o aviso se perdia e o formulário voltava a
+ -- aparecer para quem já tinha visto. O "shown_at is null" aqui dentro também
+ -- resolve a corrida de duas abas abertas ao mesmo tempo: só uma recebe.
  return query
+ with marcada as (
+   update public.member_survey_events event
+      set shown_at = now()
+    where event.customer_id = p_customer_id
+      and event.shown_at is null
+      and event.completed_at is null
+      and event.campaign_key = (
+        select elegivel.campaign_key
+        from public.member_survey_events elegivel
+        join public.member_survey_campaigns campaign on campaign.key = elegivel.campaign_key
+        where elegivel.customer_id = p_customer_id
+          and elegivel.shown_at is null
+          and elegivel.completed_at is null
+          and campaign.enabled
+          and (campaign.starts_at is null or campaign.starts_at <= now())
+          and (campaign.ends_at is null or campaign.ends_at > now())
+        order by elegivel.claimed_at, campaign.sort_order
+        limit 1
+      )
+   returning event.campaign_key
+ )
  select campaign.key, campaign.survey_key, campaign.target_path
- from public.member_survey_events event
- join public.member_survey_campaigns campaign on campaign.key = event.campaign_key
- where event.customer_id = p_customer_id
-   and event.shown_at is null
-   and event.completed_at is null
-   and campaign.enabled
-   and (campaign.starts_at is null or campaign.starts_at <= now())
-   and (campaign.ends_at is null or campaign.ends_at > now())
- order by event.claimed_at, campaign.sort_order
- limit 1;
+ from marcada
+ join public.member_survey_campaigns campaign on campaign.key = marcada.campaign_key;
 end;
 $function$;
 
@@ -627,6 +649,46 @@ create or replace view public.admin_offer_overview as
   group by campaign.key, campaign.headline, campaign.trigger_type, campaign.offer_type, campaign.enabled, campaign.sort_order;
 
 
+-- Conversão do upsell separada por forma de pagamento do front.
+--
+-- A forma de pagamento NÃO vem no evento que libera o acesso: ela chega no
+-- evento da fatura, que o sistema guarda inteiro. Como o texto completo de
+-- todos os eventos fica no banco, dá para extrair sem pedir nada novo à
+-- Hubla — e funciona para o passado também.
+--
+-- ⚠️ Só enxerga vendas que passaram pelo webhook. Base histórica importada
+-- e liberações manuais não têm fatura, logo não têm forma de pagamento.
+create or replace view public.admin_payment_overview as
+with fatura_do_front as (
+  select distinct on (event.payload->'event'->'user'->>'id')
+         event.payload->'event'->'user'->>'id' as hubla_user_id,
+         event.payload->'event'->'invoice'->>'paymentMethod' as payment_method
+    from public.hubla_events as event
+    join public.hubla_product_map as map
+      on map.hubla_id = event.payload->'event'->'product'->>'id'
+   where event.event_type = 'invoice.status_updated'
+     and event.payload->'event'->'invoice'->>'status' = 'paid'
+     and map.product_key = 'principal'
+     and event.sandbox = false
+   order by event.payload->'event'->'user'->>'id', event.received_at
+),
+comprou_o_upsell as (
+  select distinct customer.hubla_user_id
+    from public.entitlements as entitlement
+    join public.customers as customer on customer.id = entitlement.customer_id
+   where entitlement.product_key = 'upsell_01'
+     and customer.hubla_user_id is not null
+)
+select fatura.payment_method,
+       count(*)::integer as front_buyers,
+       count(upsell.hubla_user_id)::integer as upsell_buyers
+  from fatura_do_front as fatura
+  left join comprou_o_upsell as upsell
+    on upsell.hubla_user_id = fatura.hubla_user_id
+ where fatura.payment_method is not null
+ group by fatura.payment_method;
+
+
 -- =====================================================================
 -- 10. CONFIGURAÇÃO DO NEGÓCIO
 -- =====================================================================
@@ -695,6 +757,17 @@ insert into public.member_offer_campaigns(key, headline, body, cta_label, requir
  ('upsell_01_02_to_upsell_03_subscription', 'Seu próximo passo pode acompanhar você todos os meses', 'Como você já avançou em nossa jornada, preparamos uma assinatura mensal acessível e exclusiva para você.', 'Conhecer minha assinatura', '{principal,upsell_01,upsell_02}', '{upsell_03}', false, 30, 'entry', null, 'subscription', 'Condição exclusiva', 'Agora não'),
  ('full_funnel_to_vip_whatsapp', 'Você faz parte das nossas clientes mais especiais', 'Queremos convidar você para um grupo VIP, onde compartilharemos novidades e condições reservadas.', 'Entrar no grupo VIP', '{principal,upsell_01,upsell_02,upsell_03}', '{}', false, 40, 'entry', null, 'vip', 'Convite especial', 'Talvez depois')
 on conflict (key) do nothing;
+
+-- As quatro campanhas ligadas vendem a mesma coisa: a Oração Celestial dos
+-- Quatro Arcanjos. Elas se diferenciam pelo público (cliente nova x base
+-- antiga) e pela vez (primeira x segunda exibição), não pelo produto.
+-- As campanhas desligadas ficam sem produto de propósito: duas delas vendem
+-- combinação de produtos, e chutar o mapeamento faria o painel atribuir
+-- venda errada.
+update public.member_offer_campaigns
+   set offered_product_key = 'upsell_01'
+ where key in ('front_novas_1', 'front_novas_2', 'front_antigas_1', 'front_antigas_2')
+   and offered_product_key is null;
 
 insert into public.member_survey_campaigns(key, survey_key, target_path, min_distinct_visit_days, enabled, sort_order) values
  ('profile_after_third_visit_day', 'member_profile_v1', 'perfil.html', 3, true, 10)

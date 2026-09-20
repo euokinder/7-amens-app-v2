@@ -216,10 +216,12 @@
     try { sessionStorage.setItem('7amens.member.survey.return', `${location.pathname.split('/').pop() || 'index.html'}${location.search}`); } catch {}
     const target = new URL(survey.target_path, location.href);
     target.searchParams.set('campaign', survey.campaign_key);
-    Promise.race([
-      api('survey_event', { campaign_key: survey.campaign_key, event: 'shown' }),
-      new Promise(resolve => setTimeout(resolve, 900)),
-    ]).finally(() => location.assign(target.href));
+    // Quem registra que o formulário apareceu é o BANCO, na mesma operação em
+    // que ele decide entregá-lo. Aqui havia um aviso com espera de 0,9s: numa
+    // rede ruim ele falhava calado, a exibição não era gravada e o formulário
+    // voltava a aparecer para quem já tinha visto. Sem ele o desvio também
+    // deixa de ter meio segundo de tela parada.
+    location.assign(target.href);
     return true;
   }
   function prayerKey(path, search) {
@@ -229,7 +231,38 @@
     if (/\/dia-desatadora(?:\.html)?$/.test(path) && /^[1-9]$/.test(day || '')) return `desatadora:${day}`;
     return null;
   }
+  // A SAUDACAO DA HOME
+  //
+  // "Ola Maria, que a paz do Senhor esteja com voce!". O nome vem do cadastro
+  // da Hubla, junto com a venda, e chega torto com frequencia: em 19/09/2026,
+  // das 575 clientes com nome, 27 estavam em MAIUSCULAS, 9 em minusculas e 5
+  // tinham numero no meio. Duas nao tinham nome nenhum.
+  //
+  // Por isso o nome passa por uma peneira antes de aparecer na tela. Nome que
+  // nao passa nao vira "Ola ," nem "Ola MARIA123," -- fica valendo a saudacao
+  // sem nome que ja esta escrita no index.html, que se sustenta sozinha.
+  //
+  // So o primeiro nome. "Ola Maria Aparecida da Silva" e comprido demais para
+  // uma linha de boas-vindas, e ninguem fala assim.
+  function primeiroNome(nomeCompleto) {
+    const bruto = String(nomeCompleto || '').trim().split(/\s+/)[0] || '';
+    // Letra de verdade no comeco, depois letras, hifen ou apostrofo -- Maria,
+    // Jose, Ana-Clara, D'Angelo. De 2 a 15 letras: um "M" sozinho nao vira
+    // saudacao, e nome grudado sem espaco (o maior no banco tem 32 letras)
+    // tambem nao. Numero ou arroba reprovam o nome inteiro.
+    if (!/^[\p{L}][\p{L}'-]{1,14}$/u.test(bruto)) return '';
+    // MARIA e maria viram Maria; ANA-CLARA vira Ana-Clara.
+    return bruto.toLowerCase().replace(/(^|[-'])(\p{L})/gu, (_, separador, letra) => separador + letra.toUpperCase());
+  }
+  function desenharSaudacao() {
+    const alvo = document.getElementById('saudacao');
+    if (!alvo) return;
+    const nome = primeiroNome(state && state.customer && state.customer.name);
+    // Sem nome bom, nao mexe: o texto do HTML ja esta certo.
+    if (nome) alvo.textContent = `Olá ${nome}, que a paz do Senhor esteja com você!`;
+  }
   function render() {
+    desenharSaudacao();
     setupMemberMenu();
     if (setupMemberSurvey()) return;
     if (previaDaOferta) mostrarPreviaDaOferta(); else setupMemberOffer();

@@ -41,7 +41,14 @@
     <div class="admin-status" id="admin-status" role="status">Carregando informações…</div>
 
     <section class="admin-dashboard" id="admin-dashboard" hidden>
-      <div class="admin-kpis" aria-label="Resumo do aplicativo">
+      <section class="admin-section">
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Carteira</span><h2>Quem comprou o quê</h2></div>
+        </div>
+        <div class="admin-analise" id="admin-analise"></div>
+      </section>
+
+      <div class="admin-kpis" aria-label="Uso do aplicativo">
         <article class="admin-kpi"><span>Clientes</span><strong id="kpi-customers">0</strong><small>cadastradas</small></article>
         <article class="admin-kpi"><span>Com acesso</span><strong id="kpi-active">0</strong><small>ativas agora</small></article>
         <article class="admin-kpi"><span>Perfis</span><strong id="kpi-profiles">0</strong><small>respondidos</small></article>
@@ -50,7 +57,7 @@
 
       <section class="admin-section">
         <div class="admin-section-heading">
-          <div><span class="admin-kicker">Jornada comercial</span><h2>Campanhas do funil</h2></div>
+          <div><span class="admin-kicker">Dentro do app</span><h2>Pop-up de oferta</h2></div>
           <span class="admin-count" id="campaign-count">0</span>
         </div>
         <div class="admin-campaigns" id="admin-campaigns"></div>

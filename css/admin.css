@@ -14,6 +14,41 @@
 .admin-kpi span { color: var(--ink-muted); font-size: 13px; font-weight: 750; }
 .admin-kpi strong { margin: 4px 0 0; color: var(--accent-strong); font-size: 32px; line-height: 1.1; }
 .admin-kpi small { color: var(--ink-muted); font-size: 12px; }
+.admin-analise { display: grid; gap: 22px; }
+.admin-baseline { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--surface-alt); color: var(--ink); font-size: 14px; line-height: 1.5; }
+.admin-funnel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+
+.admin-block { display: grid; gap: 10px; padding: 18px; border: 1px solid var(--hairline); border-radius: 20px; background: white; }
+.admin-block h3 { margin: 0; color: var(--ink); font-size: 17px; }
+.admin-block-q { margin: -4px 0 0; color: var(--ink-muted); font-size: 14px; }
+.admin-block-foot { margin: 4px 0 0; color: var(--ink); font-size: 14px; font-weight: 650; }
+.admin-legend { margin: 0; color: var(--ink-muted); font-size: 13px; line-height: 1.6; }
+
+/* Ressalva nunca abaixo de 14px: se não dá para ler, o número mente sozinho. */
+.admin-note { margin: 6px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: var(--surface-alt); color: var(--ink-muted); font-size: 14px; line-height: 1.55; }
+
+/* Grid, não flex: alinhamento vertical É o gesto de comparar. Com flex, a
+   porcentagem de cada linha parava num lugar diferente. */
+.admin-matrix-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 8px 10px; padding: 10px 0; border-top: 1px solid var(--hairline); }
+.admin-matrix-nome { color: var(--ink); font-size: 14px; line-height: 1.35; }
+.admin-matrix-num { color: var(--ink); font-size: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+.admin-matrix-pct { grid-column: 2 / -1; color: var(--accent-strong); font-size: 15px; font-weight: 750; text-align: left; font-variant-numeric: tabular-nums; }
+.admin-matrix-pct:empty { display: none; }
+
+/* --card-ink é o creme claro do projeto para texto sobre fundo escuro.
+   A variável --surface NÃO existe aqui: usá-la deixava o chip preto no preto. */
+.admin-chip-up { display: inline-block; min-width: 44px; padding: 5px 6px; border-radius: 8px; background: var(--ink); color: var(--card-ink); font-size: 12px; font-weight: 800; text-align: center; letter-spacing: .04em; }
+
+.admin-bar { grid-column: 1 / -1; height: 10px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
+.admin-bar-fill { height: 100%; border-radius: 999px; background: var(--accent-strong); }
+.admin-bar.is-thin .admin-bar-fill { background: var(--ink-muted); opacity: .45; }
+
+/* O degrau da escada: o absoluto primeiro, a porcentagem depois. */
+.admin-step { display: grid; grid-template-columns: minmax(0, 1fr); align-items: baseline; gap: 4px 12px; margin-top: 10px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: 14px; background: var(--surface-alt); }
+.admin-step-de { grid-column: 1 / -1; color: var(--ink-muted); font-size: 13px; }
+.admin-step strong { color: var(--ink); font-size: 16px; }
+.admin-step-pct { color: var(--accent-strong); font-size: 20px; font-weight: 800; text-align: left; font-variant-numeric: tabular-nums; }
+.admin-step-pct.is-thin { color: var(--ink-muted); font-size: 13px; font-weight: 650; }
 .admin-section { display: flex; flex-direction: column; gap: 14px; }
 .admin-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
 .admin-section-heading h2 { margin: 3px 0 0; font-size: 22px; line-height: 1.2; }
@@ -76,5 +111,11 @@
 @media (min-width: 680px) {
   .admin-content { padding-inline: 30px; }
   .admin-kpis { grid-template-columns: repeat(4, 1fr); }
+  .admin-funnel { grid-template-columns: repeat(3, 1fr); }
+  .admin-step { grid-template-columns: minmax(0, 1fr) auto; }
+  .admin-step-pct { text-align: right; }
+  .admin-matrix-row { grid-template-columns: 54px minmax(0, 1fr) 56px 72px minmax(120px, 1.2fr); }
+  .admin-matrix-pct { grid-column: auto; text-align: right; }
+  .admin-bar { grid-column: auto; }
   .admin-campaigns, .admin-customers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

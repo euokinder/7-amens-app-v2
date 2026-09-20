@@ -151,12 +151,12 @@ async function currentEntitlement(customerId: string, productKey: string) {
 
 async function applyEntitlement(event: Record<string, any>, productKey: string, granting: boolean) {
   const customerId = await upsertCustomer(event?.user || {});
-  if (!customerId) return { status: 'needs_reconciliation', error: 'Evento sem e-mail de comprador.' };
+  if (!customerId) return { status: 'needs_reconciliation', error: 'Evento sem e-mail de comprador.', customerId: null };
 
   const subscription = event?.subscription || {};
   const version = Number.isInteger(subscription?.version) ? subscription.version as number : null;
   const existing = await currentEntitlement(customerId, productKey);
-  if (isLateEvent(existing, version)) return { status: 'ignored', error: 'Evento atrasado; estado mais novo preservado.' };
+  if (isLateEvent(existing, version)) return { status: 'ignored', error: 'Evento atrasado; estado mais novo preservado.', customerId };
 
   const stamp = now();
   const fields: Record<string, unknown> = {
@@ -173,7 +173,45 @@ async function applyEntitlement(event: Record<string, any>, productKey: string, 
   if (existing) await db(`entitlements?customer_id=eq.${customerId}&product_key=eq.${eq(productKey)}`, 'PATCH', fields);
   else await db('entitlements', 'POST', { customer_id: customerId, product_key: productKey, ...fields });
 
-  return { status: 'processed', error: null };
+  return { status: 'processed', error: null, customerId };
+}
+
+// The panel already counts how many customers saw an in-app offer and how many
+// clicked it. Until now the last column, the one that matters, always read zero
+// because nothing ever wrote converted_at: on 19/09 the real numbers were 245
+// clicks and 10 purchases, and the panel showed 245 and 0.
+//
+// This closes that gap at the only moment the truth is known - the purchase.
+// The campaign says which product it sells (offered_product_key), so a sale of
+// that product right after a click on that pop-up is the conversion.
+//
+// Every failure here is swallowed on purpose. This is bookkeeping: it must
+// never be able to cost a customer the access she paid for. It also means the
+// function can be deployed before metricas-do-funil.sql runs - the column will
+// simply not exist yet, and the only consequence is a panel still showing zero.
+async function markOfferConverted(event: Record<string, any>, customerId: string, productKeys: string[]) {
+  try {
+    // A PROVA de que a venda veio do pop-up é a etiqueta que viaja até o
+    // checkout, não o fato de a cliente ter clicado antes. Os Quatro Arcanjos
+    // são vendidos em DOIS lugares que caem no mesmo checkout: o upsell do
+    // funil do anúncio (minutos depois da compra principal) e este pop-up.
+    // Sem esta trava, toda venda do funil feita por quem passou pelo app
+    // seria creditada ao pop-up: em 19/09 isso daria 10 vendas onde existiam
+    // 2 de verdade — cinco vezes mais do que a realidade.
+    const utm = event?.subscription?.firstPaymentSession?.utm || {};
+    if (text(utm?.medium) !== 'popup') return;
+
+    const campaigns = await db(
+      `member_offer_campaigns?offered_product_key=in.(${productKeys.map(eq).join(',')})&select=key`);
+    if (!campaigns.length) return;
+    const keys = campaigns.map((campaign: { key: string }) => campaign.key);
+    await db(
+      `member_offer_events?customer_id=eq.${customerId}&campaign_key=in.(${keys.map(eq).join(',')})`
+      + '&clicked_at=not.is.null&converted_at=is.null',
+      'PATCH', { converted_at: now() }, 'return=minimal');
+  } catch (error) {
+    console.error('hubla-webhook offer-conversion', error instanceof Error ? error.message : 'erro inesperado');
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -253,6 +291,11 @@ Deno.serve(async (req: Request) => {
 
       const results = [];
       for (const productKey of productKeys) results.push(await applyEntitlement(event, productKey, granting));
+
+      // She bought after clicking an offer inside the app? Write it down.
+      const buyerId = results.find(result => result.customerId)?.customerId;
+      if (granting && buyerId) await markOfferConverted(event, buyerId, productKeys);
+
       const failed = results.find(result => result.status === 'needs_reconciliation');
       await settle(failed ? 'needs_reconciliation' : 'processed',
         failed ? failed.error : (productKeys.length > 1 ? `Produtos aplicados: ${productKeys.join(', ')}` : null));

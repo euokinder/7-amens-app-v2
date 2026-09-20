@@ -13,12 +13,16 @@
   const grantStatus = document.getElementById('grant-status');
   const detail = document.getElementById('customer-detail');
   const detailBody = document.getElementById('detail-body');
-  const stageLabels = {
-    somente_front: 'Somente Front',
-    somente_up01: 'Front + UP01',
-    up01_e_up02: 'Front + UP01 + UP02',
-    funil_completo: 'Funil completo',
-    sem_acesso_ativo: 'Sem acesso ativo',
+  // A etapa saía de `funnel_stage`, uma cascata do banco que classifica errado
+  // quem pula degrau: uma cliente com principal + UP02 e SEM UP01 é impressa
+  // como "Somente Front". Hoje ninguém pula, mas esse rótulo é lido pelo
+  // atendimento todos os dias e vira mentira no primeiro caso. Montado a partir
+  // de `active_products` ele nunca erra — e fala o mesmo vocabulário da análise.
+  const etapaDaCliente = customer => {
+    const tem = Array.isArray(customer.active_products) ? customer.active_products : [];
+    if (!tem.includes('principal')) return 'Sem acesso ativo';
+    const extras = tem.filter(key => key !== 'principal').sort().map(codigo);
+    return extras.length ? `Front · ${extras.join(' · ')}` : 'Só o Front';
   };
   const prayerLabels = {
     'principal:1': 'Dia 1 — Pai Nosso', 'principal:2': 'Dia 2 — Perdão', 'principal:3': 'Dia 3 — Cura',
@@ -100,6 +104,159 @@
     return data;
   }
 
+  // --- análise do funil ----------------------------------------------------
+  // Uma regra atravessa esta seção inteira: PORCENTAGEM COM BASE PEQUENA MENTE.
+  // Com 26 clientes no UP02 e 13 no UP03, uma pessoa a mais move 8 pontos. Por
+  // isso a taxa é calculada num lugar só, e ela mesma decide se pode ou não
+  // aparecer em destaque. Não existe como contornar: quem chama, obedece.
+  const BASE_CONFIAVEL = 30;
+  const BASE_MINIMA = 10;
+
+  function taxa(parte, base) {
+    const bruto = `${parte} de ${base}`;
+    if (!base) return { destaque: '—', apoio: 'sem base', fraca: true, pct: null };
+    const pct = 100 * parte / base;
+    const texto = `${pct.toFixed(1).replace('.', ',')}%`;
+    if (base >= BASE_CONFIAVEL) return { destaque: texto, apoio: bruto, fraca: false, pct };
+    if (base >= BASE_MINIMA) return { destaque: bruto, apoio: `${texto} — base pequena`, fraca: true, pct };
+    return { destaque: bruto, apoio: 'poucas clientes para concluir', fraca: true, pct: null };
+  }
+
+  // upsell_01 -> UP01. O Caio pediu para chamá-los assim, e o código curto é o
+  // que deixa o olho varrer a coluna. O nome comercial anda sempre junto, senão
+  // o atendimento perde o fio quando a cliente fala do produto pelo nome.
+  const codigo = key => key.replace(/^upsell_0?/, 'UP0').toUpperCase();
+
+  function chip(texto) { return element('span', 'admin-chip-up', texto); }
+
+  function barra(pct, fraca) {
+    const trilho = element('div', `admin-bar${fraca ? ' is-thin' : ''}`);
+    const cheio = element('div', 'admin-bar-fill');
+    // Piso de 3px: 2,2% em tela larga some, e uma barra invisível ao lado de
+    // outra invisível faz 2,2% e 4,4% parecerem iguais.
+    cheio.style.width = `max(3px, ${Math.max(0, pct || 0)}%)`;
+    trilho.append(cheio);
+    return trilho;
+  }
+
+  function bloco(titulo, pergunta) {
+    const secao = element('section', 'admin-block');
+    secao.append(element('h3', '', titulo));
+    if (pergunta) secao.append(element('p', 'admin-block-q', pergunta));
+    return secao;
+  }
+
+  const nota = texto => element('p', 'admin-note', texto);
+
+  function linhaMatriz(colunas) {
+    const linha = element('div', 'admin-matrix-row');
+    colunas.forEach(coluna => linha.append(coluna));
+    return linha;
+  }
+
+  // Contagem pura: não tem denominador, então não tem taxa. Comparar a base
+  // com ela mesma e imprimir "100,0%" é ruído que ensina o olho a ignorar.
+  function contadorCard(label, valor, apoio) {
+    const card = element('article', 'admin-kpi');
+    card.append(element('span', '', label), element('strong', '', String(valor)), element('small', '', apoio));
+    return card;
+  }
+
+  function funnelCard(label, parte, total, unidade) {
+    const card = element('article', 'admin-kpi');
+    const t = taxa(parte, total);
+    card.append(element('span', '', label), element('strong', '', t.destaque),
+      element('small', '', t.fraca ? t.apoio : `${t.apoio} ${unidade}`));
+    return card;
+  }
+
+  const nomeDoPagamento = { pix: 'Pix', credit_card: 'Cartão de crédito', boleto: 'Boleto' };
+
+  function renderFunnel(funnel) {
+    const area = document.getElementById('admin-analise');
+    if (!funnel) { area.replaceChildren(); return; }
+    const base = funnel.base || 0;
+    const blocos = [];
+
+    // ---------------------------------------------------------------- contexto
+    // O denominador declarado UMA vez. Antes ele era repetido em cada linha
+    // ("de 589" seis vezes na tela) e mesmo assim ninguém sabia de quem era.
+    blocos.push(element('p', 'admin-baseline',
+      `${base} clientes com o produto principal ativo hoje. Toda porcentagem desta página é sobre elas.`));
+
+    // ---------------------------------------------------------------- topo
+    const topo = element('div', 'admin-funnel');
+    topo.append(
+      contadorCard('Clientes com acesso', base, 'com o principal ativo'),
+      funnelCard('Entraram no app', funnel.enteredApp, base, 'clientes'),
+      funnelCard('Levaram algum extra', funnel.anyAddonBuyers, base, 'clientes'),
+    );
+    blocos.push(topo);
+
+    // ---------------------------------------------------------------- a escada
+    const escada = bloco('A escada dos extras', 'De quem levou um, quantas levaram o seguinte?');
+    escada.append(element('p', 'admin-legend', (funnel.byProduct || [])
+      .map(item => `${codigo(item.key)} = ${item.title}`).join(' · ')));
+
+    (funnel.steps || []).forEach((passo, i) => {
+      const item = (funnel.byProduct || [])[i];
+      const t = taxa(passo.n, passo.base);
+      const degrau = element('div', 'admin-step');
+      degrau.append(
+        element('span', 'admin-step-de', `Das ${passo.base} com ${passo.de}`),
+        element('strong', '', `${passo.n} também têm ${passo.para}`),
+        element('span', `admin-step-pct${t.fraca ? ' is-thin' : ''}`, t.fraca ? t.apoio : t.destaque),
+      );
+      escada.append(degrau);
+      if (!item) return;
+      // A barra é SEMPRE proporcional ao total, nunca ao degrau anterior. Se
+      // usasse a taxa condicional, o UP02 (28,6% de 91) ficaria quase o dobro
+      // do UP01 (15,4% de 591) — e a forma afirmaria que o UP02 é maior,
+      // quando são 26 contra 91. A taxa condicional vive no texto acima.
+      const sobreTotal = taxa(item.buyers, base);
+      escada.append(linhaMatriz([
+        chip(codigo(item.key)),
+        element('span', 'admin-matrix-nome', item.title),
+        element('strong', 'admin-matrix-num', String(item.buyers)),
+        element('span', 'admin-matrix-pct', sobreTotal.fraca ? '' : sobreTotal.destaque),
+        barra(sobreTotal.pct, sobreTotal.fraca),
+      ]));
+    });
+
+    const pulou = (funnel.outOfOrder || []).filter(item => item.pessoas > 0);
+    escada.append(element('p', 'admin-block-foot', pulou.length
+      ? `Fora de ordem: ${pulou.map(i => `${i.pessoas} têm ${i.produto} sem ${i.semOAnterior}`).join(' · ')}.`
+      : 'Ninguém pulou degrau: quem tem um extra tem também o anterior.'));
+
+    escada.append(nota('Conta quem TEM hoje, não quem já comprou: assinatura cancelada e reembolso saem da conta. '
+      + 'E a ordem é imposta pela esteira de vendas — o extra seguinte só é oferecido a quem levou o anterior. '
+      + 'Por isso estas taxas dizem "quantas aceitaram quando foi oferecido", não "quantas escolheram entre tudo".'));
+    blocos.push(escada);
+
+    // ---------------------------------------------------------------- pagamento
+    const formas = funnel.byPaymentMethod || [];
+    if (formas.length) {
+      const pagamento = bloco('Como ela pagou o principal', 'A forma de pagamento muda a chance de levar o UP01?');
+      formas.forEach(forma => {
+        const t = taxa(forma.upsell_buyers, forma.front_buyers);
+        pagamento.append(linhaMatriz([
+          chip(String(forma.front_buyers)),
+          element('span', 'admin-matrix-nome',
+            `${nomeDoPagamento[forma.payment_method] || forma.payment_method} — ${t.fraca ? t.apoio : `${forma.upsell_buyers} levaram o UP01`}`),
+          element('strong', 'admin-matrix-num', String(forma.upsell_buyers)),
+          element('span', 'admin-matrix-pct', t.fraca ? '' : t.destaque),
+          barra(t.pct, t.fraca),
+        ]));
+      });
+      pagamento.append(nota('Só conta vendas que passaram pelo webhook — a base histórica e as liberações feitas '
+        + 'na mão não têm fatura, então não têm forma de pagamento. Este é o único bloco da página cujo total '
+        + 'não bate com os de cima.'));
+      blocos.push(pagamento);
+    }
+
+    area.replaceChildren(...blocos);
+  }
+
   function renderCampaign(campaign) {
     const card = element('article', 'admin-campaign');
     const top = element('div', 'admin-campaign-top');
@@ -113,6 +270,10 @@
       const item = element('span'); item.append(element('strong', '', String(value)), document.createTextNode(String(label))); metrics.append(item);
     });
     card.append(top, meta, metrics);
+    // NÃO dividir `comprou` por `clicou`. Os cliques são contados desde sempre;
+    // as compras, só desde 19/09 às 00:59, quando a etiqueta que prova a origem
+    // subiu. A razão entre os dois mistura duas janelas de tempo e sai menor que
+    // a realidade — em qualquer nível da tela.
     return card;
   }
 
@@ -124,7 +285,7 @@
     const displayName = customer.name?.trim() || customer.email.split('@')[0];
     const initial = element('span', 'admin-initial', displayName.charAt(0).toUpperCase());
     const main = element('div', 'admin-customer-main');
-    main.append(element('h3', '', displayName), element('p', '', customer.email), element('span', 'admin-stage', stageLabels[customer.funnel_stage] || customer.funnel_stage));
+    main.append(element('h3', '', displayName), element('p', '', customer.email), element('span', 'admin-stage', etapaDaCliente(customer)));
     top.append(initial, main);
     const stats = element('div', 'admin-customer-stats');
     [['Dias', customer.distinct_visit_days], ['Orações', customer.completed_prayers], ['Perfil', customer.profile_completed_at ? 'Sim' : 'Não']].forEach(([label, value]) => {
@@ -203,7 +364,7 @@
 
     const resume = block('Resumo', [
       line('Cadastrada em', day(customer.created_at)),
-      line('Etapa do funil', stageLabels[customer.funnel_stage] || customer.funnel_stage),
+      line('O que ela tem hoje', etapaDaCliente(customer)),
       line('Dias de acesso ao site', String(customer.distinct_visit_days)),
       line('Última visita', day(customer.last_visit_on)),
       line('Orações concluídas', String(customer.completed_prayers)),
@@ -314,6 +475,7 @@
       document.getElementById('kpi-active').textContent = data.summary.activeCustomers;
       document.getElementById('kpi-profiles').textContent = data.summary.completedProfiles;
       document.getElementById('kpi-prayers').textContent = data.summary.completedPrayers;
+      renderFunnel(data.funnel);
       const campaigns = document.getElementById('admin-campaigns');
       campaigns.replaceChildren(...data.campaigns.map(renderCampaign));
       if (!data.campaigns.length) campaigns.append(element('p', 'admin-empty', 'Nenhuma campanha configurada.'));

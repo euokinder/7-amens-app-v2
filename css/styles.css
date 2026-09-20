@@ -108,6 +108,34 @@ a:hover { color: var(--accent-strong); }
   color: var(--accent);
 }
 
+/* A SAUDACAO DA HOME -- "Ola Maria, que a paz do Senhor esteja com voce!"
+   Regra propria, e nao a ".eyebrow" acima, porque aquela classe tambem veste
+   o titulo do painel administrativo, que nao deve mudar junto.
+
+   Por que diferente da .eyebrow:
+
+   1. COR. O dourado --accent sobre o creme do fundo da 2,31 de contraste,
+      quando o minimo aceitavel para texto e 4,5. Passava enquanto a linha
+      dizia so "Bem-vindo(a)" e ninguem precisava ler. Agora ela traz o nome
+      da cliente e uma bencao -- e o publico e de senhoras 45+, para quem
+      enxergar e limitacao real, nao preferencia. Este dourado mais fundo
+      da 5,08 e continua dentro da paleta creme + dourado + preto.
+      (Medido no navegador, sobre o fundo real, nao estimado.)
+
+   2. TAMANHO. 14px era etiqueta; agora e uma frase que se le. 16px.
+
+   3. LARGURA. O limite de 30ch faz a frase quebrar sempre em 2 linhas,
+      com nome curto ou comprido. Sem ele, "Ola Ana" cabia em 1 linha e
+      "Ola Conceicao" ia para 2 -- e a home inteira descia um degrau
+      dependendo de quem entrasse. */
+#saudacao {
+  display: block;
+  font-size: 16px;
+  line-height: 1.45;
+  max-width: 30ch;
+  color: oklch(0.52 0.14 82);
+}
+
 h1.title {
   margin: 0;
   font-size: 26px;

@@ -73,11 +73,12 @@ h1.oferta-headline {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Sans-serif, como no modelo aprovado pelo Caio. O serif da página fica para
+   o nome do Arcanjo, na revelação -- aqui o título é anúncio, não oração. */
 .cartas-headline {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.4;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: #eccf80;
@@ -88,27 +89,35 @@ h1.oferta-headline {
 /* ---------------------------------------------------------------------
    AS QUATRO CARTAS
 
-   Duas em cima, duas embaixo. Quatro lado a lado no celular deixaria
-   cada carta com uns 60 pixels de largura — pequena demais para o dedo
-   e pequena demais para enxergar o desenho. Em 2x2 elas ficam grandes.
+   Uma fileira só, as quatro lado a lado, como no modelo que o Caio
+   aprovou. Antes eram 2x2, por receio de a carta ficar pequena demais
+   para o dedo de uma senhora. Medido em tela de 375px: cada carta fica
+   com cerca de 68 x 124 pixels, bem acima dos 44 que se considera o
+   mínimo confortável para toque. Se um dia a fileira precisar voltar
+   a 2x2, é só trocar o 4 por 2 na linha de baixo.
    --------------------------------------------------------------------- */
 
 .cartas-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   justify-items: center;
+  /* O recuo lateral do modelo: as cartas nao encostam na borda do painel. */
+  padding: 0 14px;
 }
 
 .carta {
   display: block;
   width: 100%;
   max-width: 170px;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.18s ease, filter 0.18s ease;
+  /* O halo quente que as cartas têm no modelo. Discreto: é para separar a
+     carta do fundo escuro, não para virar enfeite. */
+  filter: drop-shadow(0 3px 10px rgba(236, 207, 128, 0.22));
 }
 
 .carta img {
@@ -142,7 +151,7 @@ h1.oferta-headline {
   font-size: 15px;
   line-height: 1.6;
   font-weight: 500;
-  color: #e3c584;
+  color: #f2e6cd;
 }
 
 /* ---------------------------------------------------------------------

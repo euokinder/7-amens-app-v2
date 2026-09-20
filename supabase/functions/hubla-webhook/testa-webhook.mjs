@@ -39,6 +39,11 @@ function zerarBanco() {
     { key: 'principal', unlocks_app: true },
     { key: 'upsell_01', unlocks_app: false },
   ];
+  banco.member_offer_campaigns = [
+    { key: 'front_novas_1', offered_product_key: 'upsell_01' },
+    { key: 'front_antigas_1', offered_product_key: 'upsell_01' },
+  ];
+  banco.member_offer_events = [];
   falhas = [];
   chamadas = [];
 }
@@ -55,6 +60,10 @@ function filtrar(linhas, params) {
       } else if (criterio.startsWith('in.(')) {
         const valores = criterio.slice(4, -1).split(',').map(decodeURIComponent);
         if (!valores.includes(String(linha[campo]))) return false;
+      } else if (criterio === 'is.null') {
+        if (linha[campo] !== null && linha[campo] !== undefined) return false;
+      } else if (criterio === 'not.is.null') {
+        if (linha[campo] === null || linha[campo] === undefined) return false;
       } else if (criterio === 'is.true') {
         if (linha[campo] !== true) return false;
       } else if (criterio === 'is.false') {
@@ -155,6 +164,17 @@ const venda = (extra = {}) => ({
     product: { id: 'bniYICXEzykgw1PzEyme' },
     subscription: { id: 'sub-1', version: 1, modifiedAt: '2026-09-18T23:16:00Z' },
     ...extra,
+  },
+});
+
+// Venda do produto do pop-up COM a etiqueta que prova a origem. É o que a
+// Hubla devolve quando a cliente sai do pop-up, passa pela página de oferta e
+// compra: o utm viaja junto e chega no evento.
+const vendaDoPopup = () => venda({
+  product: { id: 'ODOZxlF1tfhee2TkZikI' },
+  subscription: {
+    id: 'sub-2', version: 1,
+    firstPaymentSession: { utm: { source: 'app', medium: 'popup', campaign: 'arcanjos', content: 'novas-1a-exibicao' } },
   },
 });
 
@@ -281,6 +301,85 @@ await cenario('9. O evento existe mas a leitura volta vazia', async () => {
     banco.hubla_events[0]?.processing_status === 'failed', banco.hubla_events[0]?.processing_status);
   confere('e o payload foi preenchido no resgate',
     banco.hubla_events[0]?.payload?.event?.user?.email === 'cliente@exemplo.com');
+});
+
+await cenario('10. Comprou depois de clicar no pop-up: a venda fica atribuída', async () => {
+  await enviar(venda());                                   // compra o front, vira cliente
+  const cliente = banco.customers[0];
+  banco.member_offer_events.push({
+    customer_id: cliente.id, campaign_key: 'front_novas_1',
+    clicked_at: '2026-09-19T12:00:00Z', converted_at: null,
+  });
+
+  const resposta = await enviar(vendaDoPopup(), { 'x-hubla-idempotency': 'evt-002' });
+
+  confere('responde 200', resposta.status === 200);
+  confere('liberou o upsell', banco.entitlements.some(e => e.product_key === 'upsell_01' && e.status === 'active'));
+  confere('a conversão foi atribuída ao pop-up',
+    banco.member_offer_events[0].converted_at !== null, 'continua vazio');
+});
+
+await cenario('10b. Venda do funil do anúncio NÃO é creditada ao pop-up', async () => {
+  // O mesmo produto é vendido logo depois da compra principal, dentro do
+  // fluxo do anúncio, e cai no mesmo checkout. Quem passou pelo app e clicou
+  // no pop-up antes disso NÃO pode virar conversão do pop-up.
+  await enviar(venda());
+  const cliente = banco.customers[0];
+  banco.member_offer_events.push({
+    customer_id: cliente.id, campaign_key: 'front_novas_1',
+    clicked_at: '2026-09-19T12:00:00Z', converted_at: null,
+  });
+
+  const doFunil = venda({
+    product: { id: 'ODOZxlF1tfhee2TkZikI' },
+    subscription: { id: 'sub-2', version: 1, firstPaymentSession: { utm: { medium: '[MF] Videos01|1202499', content: '[MF] AC01 H6|1202499' } } },
+  });
+  await enviar(doFunil, { 'x-hubla-idempotency': 'evt-003' });
+
+  confere('liberou o upsell', banco.entitlements.some(e => e.product_key === 'upsell_01' && e.status === 'active'));
+  confere('NÃO creditou a venda ao pop-up', banco.member_offer_events[0].converted_at === null,
+    'creditou errado');
+});
+
+await cenario('10c. Venda sem etiqueta nenhuma também não é creditada', async () => {
+  await enviar(venda());
+  const cliente = banco.customers[0];
+  banco.member_offer_events.push({
+    customer_id: cliente.id, campaign_key: 'front_novas_1',
+    clicked_at: '2026-09-19T12:00:00Z', converted_at: null,
+  });
+  await enviar(venda({ product: { id: 'ODOZxlF1tfhee2TkZikI' } }), { 'x-hubla-idempotency': 'evt-004' });
+  confere('liberou o upsell', banco.entitlements.some(e => e.product_key === 'upsell_01'));
+  confere('não creditou ao pop-up', banco.member_offer_events[0].converted_at === null);
+});
+
+await cenario('11. Quem não clicou em pop-up nenhum não é atribuída', async () => {
+  await enviar(venda());
+  await enviar(vendaDoPopup(), { 'x-hubla-idempotency': 'evt-002' });
+
+  confere('liberou o upsell', banco.entitlements.some(e => e.product_key === 'upsell_01'));
+  confere('não inventou conversão nenhuma', banco.member_offer_events.length === 0);
+});
+
+await cenario('12. Se a atribuição falhar, a cliente NÃO fica sem acesso', async () => {
+  // O pior cenário: o banco recusa justamente a parte de contabilidade.
+  // Isso é anotação de marketing — não pode custar o acesso de ninguém.
+  await enviar(venda());
+  const cliente = banco.customers[0];
+  banco.member_offer_events.push({
+    customer_id: cliente.id, campaign_key: 'front_novas_1',
+    clicked_at: '2026-09-19T12:00:00Z', converted_at: null,
+  });
+  falhas.push({ quando: c => c.tabela === 'member_offer_campaigns', status: 403 });
+
+  const resposta = await enviar(vendaDoPopup(), { 'x-hubla-idempotency': 'evt-002' });
+
+  confere('responde 200 assim mesmo', resposta.status === 200, `veio ${resposta.status}`);
+  confere('o acesso foi liberado', banco.entitlements.some(e => e.product_key === 'upsell_01' && e.status === 'active'));
+  confere('o evento consta como processado',
+    banco.hubla_events.every(e => e.processing_status === 'processed'),
+    banco.hubla_events.map(e => e.processing_status).join(','));
+  confere('só a atribuição ficou de fora', banco.member_offer_events[0].converted_at === null);
 });
 
 console.log(`\n${passou} passaram, ${falhou} falharam`);

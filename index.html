@@ -6,7 +6,7 @@
 <title>Início — 7 Améns da Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="stylesheet" href="css/styles.css?v=12">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
@@ -28,7 +28,12 @@
   <div class="content">
 
     <div class="heading-block">
-      <span class="eyebrow">Bem-vindo(a)</span>
+      <!-- O nome entra aqui pelo js/member.js, assim que a sessao confirma
+           quem e a cliente. O texto abaixo, sem nome, e o que fica no ar se
+           o nome nao vier do cadastro: ele se sustenta sozinho e nao parece
+           defeito. Tem id proprio porque a classe "eyebrow" tambem veste o
+           titulo do painel administrativo, que nao deve mudar junto. -->
+      <span class="eyebrow" id="saudacao">Olá, que a paz do Senhor esteja com você!</span>
       <h1 class="title">Escolha um conteúdo</h1>
       <p class="subtext">Toque em qualquer card para abrir e começar.</p>
     </div>
