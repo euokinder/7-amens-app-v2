@@ -101,7 +101,8 @@
   </div>
 </div>
 
-<script src="js/dias.js?v=18"></script>
+<script src="js/dias.js?v=19"></script>
+<script src="js/trava.js?v=1"></script>
 <script>
   const FOTOS = [
     'assets/images/dia-0-introducao.jpg',
@@ -119,20 +120,29 @@
   const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
 
   const list = document.getElementById('dias-list');
+
+  // A lista nasce com as sete madrugadas abertas. Quem fecha o que ainda não
+  // chegou é a função desenharDias() logo abaixo, chamada pelo js/member.js
+  // quando a sessão responde. Esse instante de lista aberta a cliente NÃO vê:
+  // a tela inteira fica atrás do aviso “Verificando seu acesso…”. E se o
+  // js/member.js falhar, ela encontra as orações que comprou em vez de uma
+  // lista de cadeados — a trava é de experiência, e experiência não vale um
+  // acesso perdido.
+  const destinos = [];
   let html = '';
 
   for (let i = 0; i <= 7; i++) {
     const dia = DIAS[i];
     const foto = FOTOS[i];
     const locked = !dia.disponivel;
-    const href = locked ? '#' : (i === 0 ? 'dia.html?dia=0' : `dia.html?dia=${i}`);
+    const href = i === 0 ? 'dia.html?dia=0' : `dia.html?dia=${i}`;
+    destinos[i] = href;
     const needsConfirm = !locked && dia.confirmaAntes;
-    const tag = locked ? 'div' : 'a';
     const hrefAttr = locked ? '' : `href="${href}"`;
     const confirmAttr = needsConfirm ? 'data-confirm="true"' : '';
 
     html += `
-      <${tag} ${hrefAttr} ${confirmAttr} class="card${locked ? ' locked' : ''}" style="height:320px;background-image:${OVERLAY}, url(${foto});">
+      <a ${hrefAttr} ${confirmAttr} class="card${locked ? ' locked' : ''}" style="height:320px;background-image:${OVERLAY}, url(${foto});">
         <div class="num-badge">${dia.numero}</div>
         ${locked ? '<div class="pill-badge">Indisponível</div>' : ''}
         <div class="play-btn">${locked ? lockIcon : playIcon}</div>
@@ -140,11 +150,65 @@
           <h3 class="card-title">${dia.titulo}</h3>
           <p class="card-sub">${dia.subtitulo}</p>
         </div>
-      </${tag}>
+      </a>
     `;
   }
 
   list.innerHTML = html;
+  const cartoes = [...list.children];
+
+  // A TRAVA DAS MADRUGADAS (js/trava.js) AJUSTA os cartões que já estão na
+  // tela. Ela NÃO redesenha a lista.
+  //
+  // Redesenhar com innerHTML parecia mais simples e estava errado — e o erro
+  // era invisível lendo o código. O js/app.js roda no DOMContentLoaded e
+  // guarda referências a estes cartões para duas coisas: o efeito de foco ao
+  // rolar, que é o único que tira o cartão de `opacity: 0.5`, e o pop-up
+  // “Antes de continuar, confirme” dos dias 2 a 4. Trocar o innerHTML joga
+  // fora os elementos guardados, e os dois param de funcionar: a lista inteira
+  // fica desbotada e a confirmação some. Nada disso derruba a tela — só fica
+  // quebrado em silêncio. Visto no navegador em 20/09/2026.
+  let aplicadoCom = null;
+
+  function desenharDias(trava) {
+    const liberados = trava ? trava.liberados : 7;
+    // De 5 em 5 minutos a sessão é verificada de novo. Sem esta linha, cada
+    // verificação mexeria nos cartões à toa.
+    if (aplicadoCom === liberados) return;
+    aplicadoCom = liberados;
+
+    for (let i = 0; i <= 7; i++) {
+      const cartao = cartoes[i];
+      if (!cartao) continue;
+      // Dia 0 é a Introdução: abre junto com o Dia 1, sempre.
+      const aindaNaoAbriu = i > liberados;
+      const travado = !DIAS[i].disponivel || aindaNaoAbriu;
+
+      cartao.classList.toggle('locked', travado);
+      // Sem href o cartão deixa de ser link: não abre no toque, não abre em aba
+      // nova e sai da navegação por teclado. O `pointer-events: none` do
+      // .card.locked barra o dedo, mas sozinho ele é só aparência.
+      if (travado) cartao.removeAttribute('href');
+      else cartao.setAttribute('href', destinos[i]);
+
+      const texto = aindaNaoAbriu && window.TRAVA ? window.TRAVA.selo(i, trava) : 'Indisponível';
+      let selo = cartao.querySelector('.pill-badge');
+      if (travado) {
+        if (!selo) {
+          selo = document.createElement('div');
+          selo.className = 'pill-badge';
+          cartao.querySelector('.num-badge').after(selo);
+        }
+        selo.textContent = texto;
+      } else if (selo) {
+        selo.remove();
+      }
+
+      cartao.querySelector('.play-btn').innerHTML = travado ? lockIcon : playIcon;
+    }
+  }
+
+  window.desenharDias = desenharDias;
 </script>
 <script src="js/app.js?v=4"></script>
 </body>

@@ -5,7 +5,8 @@
       "name": "7amens-local",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": ["scripts/preview.mjs"],
-      "port": 3000
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }

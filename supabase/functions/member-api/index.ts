@@ -72,8 +72,19 @@ const validEmail = (value: unknown) => {
   const address = typeof value === 'string' ? value.trim().toLowerCase() : '';
   return address.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? address : '';
 };
+// O dia de hoje na conta de Brasília, no formato "2026-09-20".
+//
+// Quem decide que dia é hoje é o servidor, NUNCA o celular da cliente. Relógio
+// torto, fuso de viagem ou aparelho com a data errada não podem adiantar nem
+// atrasar a madrugada dela. Em UTC o dia viraria às 21h de Brasília — três
+// horas adiantado — e quem rezasse às 22h já encontraria a oração de amanhã
+// aberta. 'en-CA' é o truque que entrega o formato do banco sem precisar
+// montar a data pedaço por pedaço.
+const hojeEmBrasilia = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+
 async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
-  const [progress, catalog, offers, surveys, admin] = await Promise.all([
+  const [progress, catalog, offers, surveys, admin, primeiraVisita] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
     db('products?enabled=eq.true&select=key,title,description,checkout_url,content_url&order=sort_order.asc'),
     includeCampaigns ? db('rpc/claim_member_offer', 'POST', { p_customer_id: customer.id, p_trigger_type: 'entry', p_source_campaign_key: null }) : Promise.resolve([]),
@@ -81,8 +92,20 @@ async function snapshot(customer: { id: string; email: string; name: string }, p
     // Só um sinal para a tela: quem não é administradora nem deve ver o painel
     // abrir. A tranca de verdade continua sendo a checagem de cada ação aqui.
     includeCampaigns ? isAdmin(customer.id) : Promise.resolve(false),
+    // A TRAVA DAS MADRUGADAS: o primeiro dia em que ela pisou no app é a
+    // âncora da jornada — o Dia 1 é nesse dia, o Dia 2 na meia-noite seguinte.
+    // Vai em TODO snapshot, não só na verificação de sessão: se sumisse na
+    // resposta de "salvar progresso", a tela redesenharia com as sete abertas
+    // no instante em que ela marca uma oração como concluída.
+    // Custo: uma leitura direta na chave primária (customer_id, visited_on),
+    // devolvendo uma linha. É das consultas mais baratas que existem aqui.
+    db(`member_visit_days?customer_id=eq.${customer.id}&select=visited_on&order=visited_on.asc&limit=1`),
   ]);
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin };
+  // `primeiroAcesso` vem vazio na primeiríssima verificação de sessão de uma
+  // cliente nova: a gravação do dia de visita acontece na mesma leva de
+  // consultas e pode chegar depois desta. Não é problema — sem âncora, o
+  // js/trava.js usa `hoje`, que é exatamente o dia em que ela está entrando.
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');

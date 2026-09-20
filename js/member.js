@@ -261,10 +261,47 @@
     // Sem nome bom, nao mexe: o texto do HTML ja esta certo.
     if (nome) alvo.textContent = `Olá ${nome}, que a paz do Senhor esteja com você!`;
   }
+  // A TRAVA DAS MADRUGADAS — a conta mora em js/trava.js
+  //
+  // Duas telas obedecem a ela. A lista das 7 orações (novena.html) redesenha
+  // com cadeado nas que ainda não abriram, logo abaixo no render(). E esta
+  // função cuida da outra: a página de uma oração (dia.html), para quem chega
+  // por link direto — de um WhatsApp antigo, de um favorito, ou porque trocou
+  // o número no endereço.
+  //
+  // O js/trava.js só é carregado nessas duas páginas; nas outras `trava` chega
+  // nulo e aqui não há nada a fazer.
+  //
+  // ⚠️ Não é cadeado de verdade. O texto das orações está em js/dias.js, que é
+  // arquivo público. Isto guia a jornada; não protege conteúdo.
+  function bloquearDiaTravado(trava) {
+    if (!trava) return false;
+    const dia = /^principal:([1-7])$/.exec(prayerKey(location.pathname, location.search) || '');
+    if (!dia || Number(dia[1]) <= trava.liberados) return false;
+
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    const titulo = node('h1', 'title', 'Esta oração ainda não chegou');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', window.TRAVA.selo(Number(dia[1]), trava) === 'Abre amanhã'
+      ? 'Ela abre amanhã, assim que a madrugada virar. Uma oração por dia, do jeito que a jornada foi feita.'
+      : 'Cada madrugada abre a seguinte. Esta ainda está esperando a vez dela chegar.'));
+    const voltar = node('a', 'member-button', 'Voltar para as minhas orações');
+    voltar.href = 'novena.html';
+    content.replaceChildren(bloco, voltar);
+    return true;
+  }
   function render() {
     desenharSaudacao();
     setupMemberMenu();
+    // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
+    // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
+    // lista continuar com as sete abertas — e o desvio nem sempre acontece.
+    const trava = window.TRAVA ? window.TRAVA.calcular(state) : null;
+    if (trava && typeof window.desenharDias === 'function') window.desenharDias(trava);
     if (setupMemberSurvey()) return;
+    if (bloquearDiaTravado(trava)) return;
     if (previaDaOferta) mostrarPreviaDaOferta(); else setupMemberOffer();
     document.querySelectorAll('a.card[href]').forEach(card => {
       const url = new URL(card.getAttribute('href'), location.href);
