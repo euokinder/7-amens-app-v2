@@ -14,31 +14,41 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
-| 1 | **Publicar o webhook no Supabase** | O conserto que impede o webhook de perder evento está commitado e já foi para a `main` — mas isso **não publica nada**: Edge Function do Supabase sobe por fora da Netlify. Enquanto ninguém publicar lá, o buraco que engoliu a venda de R$ 197 continua aberto. ⚠️ **Corrigido em 19/09:** este item também dizia que o relógio do painel esperava deploy na Netlify. **Já subiu**, dentro do commit `c83eb29` — conferido no conteúdo do arquivo, não no nome. Sobrou só a metade do Supabase. |
+| ~~1~~ | ~~**Publicar o webhook no Supabase**~~ | ✅ **RESOLVIDO em 20/09.** O Caio autorizou, e o `hubla-webhook` foi publicado na produção como **versão 5**, conferido byte a byte contra o arquivo do repositório. O buraco que engoliu a venda de R$ 197 está fechado. A `member-api` subiu junto, como **versão 13**. Ver a entrada de 20/09. |
+| 6 | **A arte do banner precisa ser reexportada em 1200×900** ⏰ **trava o banner** | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
 | 3 | **Topologia de branches** (achado #5 da auditoria) | Hoje teste e produção saem os dois da `main`. Isso precisa ser separado, mas envolve mexer em configuração da Netlify — e ele pediu para não mexer no que está no ar sem perguntar. |
-| 5 | **Atualizar o `CLAUDE.md`?** | Perguntei duas vezes em 19/09 e o Caio não respondeu — então **nada foi tocado lá**. Quatro coisas que este chat descobriu pertencem ao `CLAUDE.md`, não ao diário, porque são "como as coisas são": (a) o `schema-completo.sql` passou a ter **3 visões**, não 2; (b) o código de produto que chega no evento **não é** o do link de checkout (Arcanjos: link `ODOZxlF1tfhee2TkZikI`, evento `5pUr8toveL5R5zR3zyaT`) — é a armadilha do slug, agora comprovada dentro do próprio evento; (c) `invoice.amount` é um **objeto** (`totalCents`), não um número; (d) `funnel_stage` classifica errado quem pula degrau e não deve ser fonte de número nenhum. |
+| 5 | **Atualizar o `CLAUDE.md`?** | Perguntei duas vezes em 19/09 e o Caio não respondeu — então **nada foi tocado lá**. Quatro coisas que este chat descobriu pertencem ao `CLAUDE.md`, não ao diário, porque são "como as coisas são": (a) o `schema-completo.sql` passou a ter **3 visões**, não 2; (b) o código de produto que chega no evento **não é** o do link de checkout (Arcanjos: link `ODOZxlF1tfhee2TkZikI`, evento `5pUr8toveL5R5zR3zyaT`) — é a armadilha do slug, agora comprovada dentro do próprio evento; (c) `invoice.amount` é um **objeto** (`totalCents`), não um número; (d) `funnel_stage` classifica errado quem pula degrau e não deve ser fonte de número nenhum. **Somaram-se em 20/09, e estas são mais urgentes porque enganam quem abrir o projeto:** (e) o `CLAUDE.md` diz que a base tem **577 clientes** — hoje são **663**; (f) o banco de **TESTE** passou a ter coisas que a produção NÃO tem (a tabela `member_home_banners` e a trava `admin_actions_action_check` alargada), e ninguém adivinha isso olhando o repositório; (g) a `member-api` do teste é a **v7 com o banner dentro**, a da produção é a **v13 sem** — publicar a de teste na produção levaria o banner junto. |
 | 4 | **Qual e-mail vale quando a cliente tem dois** | Três clientes têm um e-mail na fatura e outro na conta da Hubla (ver entrada de 18/09 sobre a janela cega). Elas vão tentar entrar com o do recibo, que o app não conhece. Dá para corrigir no painel, mas a pergunta é qual dos dois passa a valer: o do recibo é o que ela lembra; o da conta Hubla é o que o webhook vai continuar mandando nas próximas compras dela. |
+| 6 | **Travar as orações e liberar 1 por dia — três perguntas** | Ele perguntou o tamanho disso em 20/09. A resposta: **a trava já existe construída**, falta só uma conta (ver a entrada de 20/09). Mas três coisas são decisão dele, e sem elas nada anda: **(a)** quando vira "o dia seguinte" — meia-noite ou 4h da manhã? A jornada é de madrugada, e à meia-noite quem rezou 23h libera o dia seguinte em 1 hora; **(b)** e se ela rezar e **esquecer de marcar "Concluí"**? Hoje é botão manual. Se a liberação depender dele, quem esquecer fica presa e liga no WhatsApp — com senhoras 45+ isso vai acontecer; **(c)** vale para quem já começou? ⏳ **Esta terceira tem prazo:** hoje só **71 de 664** clientes têm algum progresso e ninguém passou do dia 3 — travar agora quase não incomoda ninguém. A cada dia de vendas essa janela fecha. |
+| 7 | **A saudação pode chamar a cliente pelo nome do marido** | Medido em 19/09: **~40% dos cadastros estão em nome masculino** (244 de 604 nomes utilizáveis). Para um produto vendido a mulheres 45+, quase certamente é marido/filho/neto que comprou — o diário já tem três casos comprovados de cadastro no nome de outra pessoa da família. A saudação nova lê esse mesmo campo (`js/member.js`, `state.customer.name`), então ~4 em cada 10 abririam o app lendo *"Olá Luiz, que a paz do Senhor esteja com você!"* sendo ela Maria. **Isso está na fila para publicar.** Saídas possíveis: aceitar, saudar só quando o nome for reconhecidamente feminino, ou perguntar o nome dela uma vez dentro do app. ⚠️ O Caio pediu essa análise **só no chat, sem gravar em arquivo** — aqui ficou apenas a consequência operacional, porque ela afeta trabalho que já está esperando deploy. Se ele preferir, é só apagar esta linha. |
 | ~~5~~ | ~~**Ligar o conserto do formulário de perfil na produção**~~ | ✅ **RESOLVIDO em 20/09 às 00:35.** O Caio autorizou e o conserto foi aplicado na produção, com conferência. Ver a entrada de 20/09. |
 
 ---
 
-## 📦 A FILA DE PUBLICAÇÃO — leia isto ANTES de publicar qualquer coisa
+## ✅ A FILA DE PUBLICAÇÃO FOI ESVAZIADA EM 20/09
 
-> Escrito em 19/09/2026, 18h. **Quem publicar sobe o trabalho de cinco chats de uma vez**, não só o seu. Esta seção existe para ninguém descobrir isso depois.
+> A fila abaixo foi escrita em 19/09 às 18h e **foi inteiramente publicada em 20/09**, de madrugada. O texto original fica aqui embaixo como registro do que era, riscado onde deixou de valer. **Não use a tabela antiga para decidir nada** — a tabela nova é esta:
 
-### Como está a produção AGORA — conferido, não suposto
+### Como está a produção AGORA — conferido em 20/09, não suposto
 
 | O quê | Situação |
 |---|---|
-| `setemadrugadas.com.br` | HTTP 200, no ar |
-| `7-amens-app-v2.netlify.app` | HTTP 200 |
-| `member-api` de produção | **v12**, de 19/09 12:54 |
-| `hubla-webhook` de produção | **v4, de 18/09 09:52 — SEM o conserto do evento perdido** |
-| Coluna `offered_product_key` no banco de produção | não existe |
-| Visão `admin_payment_overview` no banco de produção | não existe |
+| `setemadrugadas.com.br` | HTTP 200, com a versão nova no ar |
+| `7-amens-app-v2.netlify.app` | HTTP 200, subiu junto (os dois saem da `main`) |
+| `member-api` de produção | **v13** — conferida byte a byte contra o repositório |
+| `hubla-webhook` de produção | **v5 — COM o conserto do evento perdido** |
+| Coluna `offered_product_key` no banco de produção | ✅ existe |
+| Visão `admin_payment_overview` no banco de produção | ✅ existe, e já tem número dentro |
+| Função `claim_member_survey` | versão nova (quem marca é o banco) |
+| Commit publicado | `c5d3a82`, na `main` e na `development` |
 
-⚠️ **O webhook que está atendendo as vendas neste momento é o antigo.** Passaram 226 vendas por ele só em 19/09, cada uma correndo o risco que custou a cliente de R$ 197 em 18/09. **Aqui o risco é não publicar, não o contrário.**
+**Saúde conferida logo depois:** 4 clientes ativas nos últimos 15 minutos, 5 logins novos em 30 minutos, último evento de venda da Hubla às 01:20, **zero eventos com problema nas 2 horas anteriores**. Clientes reais entrando e vendas entrando.
+
+<details>
+<summary>O texto original da fila, de 19/09 — só para registro</summary>
+
+⚠️ ~~**O webhook que está atendendo as vendas neste momento é o antigo.** Passaram 226 vendas por ele só em 19/09.~~ Resolvido em 20/09.
 
 ### O que está esperando, e quem viu funcionando
 
@@ -53,7 +63,11 @@ Nada anda nestes pontos até ele responder.
 | `supabase/dados-de-teste.sql` | 12 clientes falsas para validar o painel | — | ⛔ **NUNCA na produção** |
 | ~~`supabase/marcar-exibicao-do-formulario-no-banco.sql`~~ | ✅ **JÁ FOI APLICADO NA PRODUÇÃO** em 20/09 00:35, com autorização do Caio, e conferido. **Não precisa entrar nesta fila** — é só SQL, não depende de deploy nem de push. Ver a entrada de 20/09. | | |
 
-Nada disso tem commit. **Está tudo solto no computador do Caio** — se a máquina pifar hoje, some.
+⚠️ **ATUALIZADO EM 20/09, FIM DO DIA — a maior parte disto JÁ FOI COMMITADA.** O commit `c5d3a82` ("Reunir o trabalho de quatro chats") levou o webhook, o teste do webhook, o `metricas-do-funil.sql`, o `dados-de-teste.sql`, a saudação e a oferta. **Conferido no conteúdo dos arquivos dentro do commit, não pelo nome dele.**
+
+**O que continua SOLTO, sem commit:** o redesenho do painel — a escada UP01→UP02→UP03, a trava de base pequena, os chips e os números da carteira. São **362 linhas** em `js/admin.js`, `admin.html`, `css/admin.css` e `supabase/functions/member-api/index.ts`. Isso é o trabalho aprovado e congelado pelo Caio, e **se a máquina pifar, some.**
+
+⚠️ E **commitar não publica nada**: os dois sites seguem a `main`, e a `member-api` é Edge Function do Supabase, que sobe por fora.
 
 ⚠️ **Antes de commitar, confira a hora de cada arquivo** (`date -r arquivo`) contra a hora em que o seu chat começou. Neste projeto o `git status` contém trabalho de outras conversas: quem assumir que tudo que está sujo é seu vai commitar o trabalho pela metade de outra pessoa. Lição registrada pelo chat da saudação, que viu 3 arquivos virarem 15 enquanto trabalhava.
 
@@ -67,17 +81,23 @@ Nada disso tem commit. **Está tudo solto no computador do Caio** — se a máqu
 
 **A ordem 2 antes de 3 é recomendada, não obrigatória.** A marcação de conversão falha em silêncio de propósito: se a função subir antes do SQL, ninguém fica sem acesso — só a coluna continua zerada.
 
-### O que muda para a cliente
+### O que muda para a cliente (texto de 19/09)
 
 Do lado do painel e do webhook: **nada na tela dela.** O único efeito é a favor — o webhook passa a tentar de novo quando o erro é passageiro e guarda o evento quando falha.
 Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.** É trabalho de outros chats e precisa de conferência de quem o escreveu.
+
+</details>
 
 ---
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- 🆕 **16 arquivos alterados e nenhum commitado** (19/09, fim do dia). São **QUATRO** trabalhos diferentes misturados na mesma pasta: o card da oferta (de ontem), o painel de funil comercial (de outro chat que rodou em paralelo), a saudação com o nome e o conserto do formulário de perfil. O Caio pediu um commit único com tudo, o commit foi preparado e conferido, mas ele mandou parar antes de gravar. **Nada foi commitado.** Quem for commitar precisa saber que está levando os quatro de uma vez.
-  ⚠️ **Dois arquivos carregam trabalho de mais de um chat ao mesmo tempo**, então não dá para separar por arquivo: `js/member.js` tem a saudação com o nome **e** a retirada do aviso do formulário; `supabase/schema-completo.sql` tem a visão nova do painel **e** a função nova do formulário.
+- 🆕 **Não conclua nada sobre "quantos dias ela volta" antes de 24/09** (20/09). A contagem de visitas só existe desde **18/09**. Qualquer pergunta do tipo "quantas vieram 4 dias?" vai responder **zero** — e isso **não é abandono, é a régua sendo mais curta que a pergunta**. Para a jornada de 7 madrugadas virar número confiável, a medição precisa de 7 dias corridos, ou seja, a partir de **24/09**.
+- ✅ ~~**16 arquivos alterados e nenhum commitado**~~ **RESOLVIDO em 20/09.** Viraram o commit `c5d3a82` e já estão na `main` e no ar. Os quatro trabalhos foram separados do banner um por um. Ver a entrada de 20/09.
+
+- 🆕🔴 **O banner de destaque está SÓ na máquina do Caio** (20/09). Cinco arquivos fora do commit, por decisão dele — ele quer trabalhar mais nele antes de publicar: `js/banner.js`, `supabase/banners-da-home.sql`, `assets/images/banner-novena-desatadora.jpg`, `scripts/ver-no-celular.html` e o PNG original na raiz. **Se a máquina pifar, some.** Mais oito arquivos rastreados têm o banner por cima (`index.html`, `css/styles.css`, `admin.html`, `js/admin.js`, `css/admin.css`, `js/member.js`, `member-api`, `schema-completo.sql`) — quem for commitar qualquer coisa nesses arquivos vai levar o banner junto sem querer.
+- 🆕 **Ver o banner num celular de verdade** (20/09). Foi medido em cinco tamanhos de tela no navegador e o deslizar foi testado em sete comportamentos, mas **ninguém arrastou com o dedo num aparelho real** — e é o dedo que decide se a inércia e o pouso ficaram bons. A página para isso está pronta em `scripts/ver-no-celular.html`: rodar o build, copiar para `dist/`, e abrir `http://<ip-do-pc>:3000/ver-no-celular.html` no celular, no mesmo Wi-Fi. Ela tem três botões que trocam a moldura e mostram os números do próprio aparelho na tela.
+- 🆕 **Abrir o painel da produção e olhar o funil com os olhos** (20/09, substitui o item de 19/09). Agora há mais o que conferir: o número de clientes deve mostrar **663**, a escada UP01→UP02→UP03 deve desenhar, a coluna "Compras" do pop-up deve mostrar **6** (saiu do zero), e deve aparecer o bloco novo de **Pix × cartão**. Nada disso foi visto na tela da produção — só o caminho dos dados foi conferido.
 - 🆕 **Olhar a taxa de resposta do formulário de perfil com tempo de estrada** (20/09). Ele estreou hoje à 00:01 e na primeira meia hora foram **4 entregas e 0 respostas completas** — número que não significa nada ainda, porque duas pessoas estavam respondendo naquele instante. A consulta: contar `member_survey_events` contra `member_survey_responses` no banco de produção. Se a taxa ficar baixa de verdade depois de uns dias, o suspeito número um é a pergunta 4 (item abaixo).
 - 🆕 **A opção "Por mim mesma" fica escondida na pergunta 4 do formulário** (19/09). Nas perguntas 4, 5 e 6 nem todas as opções cabem na tela do celular, e a barra "Voltar / Continuar" fica fixa no rodapé dando a impressão de que a lista acabou. Nas perguntas 5 e 6 sobra meio cartão aparecendo, o que avisa que tem mais; **na pergunta 4 não** — os cinco primeiros terminam inteiros e o sexto, "Por mim mesma", só aparece rolando. É justamente a resposta de quem reza sozinha, sem filho nem neto. Saída mais barata: subir "Por mim mesma" na lista. O Caio viu este apontamento e respondeu *"muito bom, layout ficou ótimo"* — **não dá para saber se ele recusou a mudança ou se só não comentou.** Perguntar antes de mexer.
 - 🆕 **Ver o formulário de perfil num celular de verdade** (19/09). Foi percorrido inteiro no navegador em tela de 375px, tela por tela. Ninguém abriu num aparelho real.
@@ -90,16 +110,139 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - **Decidir sobre a headline "O Papa me pediu para mostrar isso pra vocês".** Já está no ar, na página de oferta. A revisão apontou que ela afirma um endosso que não existe, para vender assinatura recorrente, a um público para quem a palavra do Papa tem peso real — risco de estorno e de publicidade enganosa. Copy é decisão do Caio; ele foi avisado duas vezes e optou por seguir. Mudar agora custa um build.
 - **A lista dos 26 achados menores da auditoria foi prometida e nunca entregue.** O Caio pediu e não recebeu.
 - **Ver o pop-up e a página de oferta com os olhos, no site no ar.** Os dois públicos foram conferidos pelo caminho dos dados em 18/09 (ver a entrada de hoje), e a página foi testada na tela em `localhost` — mas ninguém abriu `setemadrugadas.com.br`, clicou no pop-up e percorreu até as cartas. As variantes de **segunda exibição** (`front_novas_2` e `front_antigas_2`, rótulos `-b`) continuam sem nenhum teste.
-- ✅ **A primeira venda vinda do pop-up ACONTECEU.** Esta linha dizia que nenhuma venda tinha vindo do pop-up — era verdade quando foi escrita e **deixou de ser** no mesmo dia: em 19/09 entraram **2 vendas com a etiqueta `utm_medium=popup`**, as duas da campanha `front_novas_1`. O rastreamento está provado com venda real, não só com teste. Conversão medida: 2 em 176 cliques desde que a etiqueta subiu = **1,1%**. A consulta que separa as duas origens está comentada no fim de `supabase/etiquetar-popup-para-medir-venda.sql`.
+- ✅ **A primeira venda vinda do pop-up ACONTECEU.** Esta linha dizia que nenhuma venda tinha vindo do pop-up — era verdade quando foi escrita e **deixou de ser** no mesmo dia. ⚠️ **Atualizado em 20/09: são 6, não 2.** O número "2" foi medido na tarde de 19/09 e as vendas continuaram depois — a conta final foi **5 em 19/09 e 1 em 20/09**, todas da campanha `front_novas_1`, todas conferidas uma a uma contra os eventos da Hubla. **Quem ler o "2" em qualquer lugar deste diário está lendo foto velha.** O rastreamento está provado com venda real. A consulta que separa as duas origens está comentada no fim de `supabase/etiquetar-popup-para-medir-venda.sql`.
 - **Conferir a etiqueta numa venda de verdade.** Depois que o rastreamento do pop-up estiver ligado, abrir a primeira venda dos Arcanjos na Hubla e ver se o campo "Parâmetros de UTM" traz o nome do pop-up. A documentação oficial da Hubla diz que traz, e o nosso webhook já guarda o evento inteiro — mas **nenhuma venda real passou por esse caminho ainda**.
 - **Opcional, economia de peso:** `assets/audio/dia-01-oracao.mp3` está em estéreo 192kbps (4,98 MB). Em mono 64kbps cai para 1,66 MB. Voz falada não perde nada audível. São ~3,3 MB a menos para cada cliente baixar.
 - **Avisar as três clientes de e-mail duplo.** `cliente A · e-mail da fatura`, `cliente B · e-mail da fatura` e `cliente C · e-mail da fatura` **não conseguem entrar** — o app as conhece por outro endereço. Não é bug, é a diferença entre o e-mail do recibo e o da conta Hubla. Depende da decisão nº 4 acima para saber qual e-mail gravar.
 - 🆕 **Consertar a corrida do 409 ao criar cliente** (19/09). Achado olhando os eventos reais: `gsampaio13@icloud.com` teve o evento marcado como falho às 03:14 com `Database operation failed (409) on customers` — dois eventos da mesma pessoa chegaram juntos e os dois tentaram criar o cadastro; um ganhou, o outro bateu na trava do banco. **Ela está com acesso ativo, ninguém ficou no prejuízo**, porque a compra entrou pelo outro evento. Mas a retentativa que escrevi hoje **não resolve este caso**: ela repete o mesmo pedido, que vai bater no mesmo 409. O conserto certo é outro — ao levar 409 criando cliente, reler o cadastro que o outro evento acabou de criar em vez de desistir. Ofereci ao Caio e ele não respondeu.
 - **Conferir o resgate do webhook contra um Supabase de verdade.** A correção foi testada num banco de mentira, escrito por mim a partir do que eu *acredito* que o PostgREST faz. O ponto exato que precisa de confirmação é o comando que grava a linha de falha (`on_conflict=idempotency_key` com `resolution=merge-duplicates`). Se o banco real se comportar diferente, a rede de segurança não abre — e só se descobre na próxima falha. O jeito de confirmar: publicar a função no projeto de **teste** e disparar um evento de mentira. Não depende de decisão nenhuma.
 - ✅ **O painel foi visto funcionando, com dados.** Esta linha dizia que o banco de teste não tinha admin nem cliente com visitas. Tem agora: `supabase/dados-de-teste.sql` cria 12 clientes falsas e a operadora `admin.teste@exemplo.com`. Abrir http://localhost:3000, entrar com esse e-mail, e o painel inteiro aparece. Continua sem conferir: as datas na ficha de uma cliente **real**, na produção.
-- **Rodar `supabase/metricas-do-funil.sql`** — cria a coluna e a visão que fazem o painel mostrar o funil. Muda a estrutura do banco, então entra junto com a decisão de deploy. Já validado no banco de teste.
+- ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-20 — O banner de destaque nasceu, e tudo que estava parado foi publicado
+
+**Chat:** o Caio pediu um banner em carrossel no alto da home, trocável pelo painel. No meio do caminho ele mandou commitar e publicar todo o resto que estava parado. **Faixa autorizada:** começou em "pode mexer local" e terminou em "pode publicar".
+
+### O que mudou na produção — a lista completa
+
+| O quê | De | Para |
+|---|---|---|
+| `hubla-webhook` | v4 | **v5** — o conserto da venda perdida está no ar |
+| `member-api` | v12 | **v13** |
+| Coluna `offered_product_key` | não existia | criada |
+| Visão `admin_payment_overview` | não existia | criada |
+| Conversões do pop-up marcadas | 0 | **6** |
+| Site | versão antiga | commit `c5d3a82` |
+
+Tudo com autorização explícita. As duas funções foram conferidas **por hash**, baixadas de volta do Supabase e comparadas com o arquivo do repositório: idênticas.
+
+**Saúde conferida depois de publicar:** 4 clientes ativas em 15 minutos, 5 logins novos em 30 minutos, venda da Hubla entrando às 01:20, zero eventos com problema. A tela de login foi aberta no navegador em 375px, sem erro de console.
+
+### A conta que o painel novo revelou
+
+| Forma de pagamento | Compraram o front | Levaram o upsell | Conversão |
+|---|---|---|---|
+| **Cartão** | 123 | 41 | **33,3%** |
+| **Pix** | 320 | 33 | **10,3%** |
+
+**Quem paga no cartão compra o upsell mais de 3 vezes mais que quem paga no Pix.** Base grande dos dois lados. Era exatamente para isso que a visão foi construída — e é a primeira vez que esse número existe.
+
+### O banner: pronto, testado, e de propósito fora do ar
+
+Fica só na máquina do Caio, a pedido dele, para ser trabalhado mais.
+
+**Como ficou:** moldura **4:3** (escolha dele), ocupando 38% da tela do celular, sempre mais largo que alto. Em cinco tamanhos de tela medidos, o texto "Escolha um conteúdo" sempre cabe sem rolar e **sempre sobra uma tira do primeiro card aparecendo** — de 48px no iPhone SE a 158px num Android grande. É essa tira que conta para a cliente que a página rola, que era o pedido dele.
+
+**Sem giro automático, e é decisão:** imagem que troca sozinha é alvo que se mexe na hora do toque, e o público lê devagar. Se ele pedir depois, entra com botão de pausa junto.
+
+**O painel de banners funciona de ponta a ponta** — trocar imagem, trocar link, ligar, desligar, reordenar, criar e apagar, tudo com registro de quem fez. Foi percorrido inteiro no banco de teste, e a home refletiu cada mudança.
+
+**Onde mora o que:** o banco de **teste** ganhou a tabela `member_home_banners` e a `member-api` de lá é a **v7, com o banner dentro**. A produção **não tem nada disso**. ⚠️ Publicar a função do teste na produção levaria o banner junto sem querer — por isso a versão publicada hoje foi extraída do commit, não do disco.
+
+### Três coisas que enganam, e custaram tempo
+
+**1. A arte 16:9 numa moldura 4:3 mutila o texto.** O banner que o Caio mandou vira "NOVENA DE 9 DIAS / IARIA / ESATADORA DE NÓS" — perde 17% de cada lado. Ele viu e escolheu manter o 4:3 mesmo assim, o que significa **reexportar a arte em 1200×900**. O formato escolhido vale para toda peça futura.
+
+**2. Fim de linha CRLF faz busca falhar em silêncio.** Ao separar o banner do resto para commitar só metade, três remoções falharam caladas: a linha do `<script src="js/banner.js">` ficou no `index.html`, e duas chamadas (`entregarBanners` e `renderBanners`) ficaram sem as funções. **O painel abria com erro e a home perdia metade do `render()`** — o menu da conta, o pop-up de oferta e as marcas de oração concluída simplesmente não apareciam. Nada disso derruba a tela, porque o `render()` está dentro de um `try/catch`: a home continua bonita com o trabalho pela metade. **Só apareceu abrindo as duas páginas no navegador.** Isso iria para 663 clientes.
+
+**3. O "exatamente 2" do SQL do funil era foto velha.** A conferência mandava parar se não desse 2, e deu 6. Parar foi certo; a explicação também: o "2" foi medido na tarde de 19/09 e as vendas continuaram. Conferido contra a fonte — a Hubla tem exatamente 5 vendas etiquetadas em 19/09 e 1 em 20/09, e o SQL marcou essas 6, uma para uma.
+
+### O que foi revisado de verdade
+
+O banner passou por uma revisão adversarial: 38 apontamentos levantados, cada um julgado por três céticos com instrução de refutar. **30 caíram, 8 eram reais e foram consertados** — entre eles um grave, em que salvar um banner duas vezes criava banner duplicado na home de todo mundo, e um em que dois toques rápidos na seta andavam um slide só.
+
+### O que NÃO foi conferido
+
+- O painel da produção **não foi aberto na tela** — só o caminho dos dados. Precisa dos olhos do Caio.
+- O banner **não foi arrastado num celular de verdade**, só medido no navegador.
+- A home da produção logada não foi vista — exigiria entrar na conta de uma cliente real.
+
+---
+
+## 2026-09-20 — Quanto ela volta, quem é o público pelo nome, e o tamanho de travar 1 oração por dia
+
+**Chat:** continuação do dia anterior. Só perguntas e uma análise de viabilidade. **Nenhum arquivo do projeto foi alterado, nenhum banco foi escrito, nada foi publicado.** Todas as consultas à produção foram de leitura.
+
+### Quantos dias diferentes ela abre o app
+
+| Dias no app | Clientes | % da base |
+|---|---|---|
+| **0 — nunca entrou** | 312 | 47,0% |
+| 01 dia | 281 | 42,3% |
+| 02 dias | 65 | 9,8% |
+| 03 dias | 6 | 0,9% |
+| 04 dias | — | **impossível ainda** |
+
+Base: 664 clientes com o principal ativo.
+
+⚠️ **A armadilha:** "04 dias" deu vazio e isso **não é abandono**. A contagem de visitas nasceu em **18/09** e o dia da consulta era **20/09** — três dias de régua para uma pergunta de quatro. Quem ler a tabela sem essa frase conclui que ninguém volta.
+
+O único número que **não** depende do tempo de medição é o primeiro: **47% pagaram e nunca abriram o app.** Esse pode ser usado hoje.
+
+### Travar as orações e liberar 1 por dia — o levantamento
+
+O Caio perguntou o tamanho. **A resposta surpreendeu: a trava já está construída.**
+
+| Peça | Onde | Situação |
+|---|---|---|
+| Card com cadeado e selo "Em breve" | `novena.html` | ✅ pronto — já roda na Novena Desatadora |
+| Bloqueio de quem entra pelo link direto | `dia.html` | ✅ pronto — "Esse conteúdo ainda não foi liberado" |
+| O app saber o que ela concluiu **e quando** | `state.progress`, da member-api | ✅ já chega no navegador, com data e hora |
+
+Hoje o campo que decide (`disponivel`, em `js/dias.js`) está **fixo em `true`** para os 7 dias. O trabalho é trocar essa constante por uma conta — algo como 40 a 60 linhas, numa função e dois pontos de uso.
+
+**Três consequências que valem registrar:**
+
+1. **É só frontend.** Não precisa de tabela nova, consulta nova nem publicar Edge Function. **Não depende do item nº 1 travado na lista vermelha** — sobe no deploy normal do site.
+2. **A trava é de experiência, não de segurança.** Os textos estão em `js/dias.js`, arquivo público. Mesmo desenho já decidido para o login: serve para guiar, não para impedir quem souber abrir o código. Não prometer o contrário em peça de venda.
+3. **A regra de negócio já está decidida** no `CLAUDE.md`: perdeu um dia, não reinicia e não faz duas no mesmo dia — continua de onde parou. Ou seja, o dia N libera **no dia seguinte ao dia em que o N-1 foi concluído**, não numa data fixa contada da compra.
+
+**O estado da base, que define a urgência:**
+
+| | |
+|---|---|
+| Clientes com algum progresso | **71** de 664 |
+| Orações concluídas no total | 81 |
+| Quem fez 2 ou mais no mesmo dia | 9 |
+| Recorde de uma pessoa | **3** orações |
+
+**Ninguém passou do dia 3.** Travar agora incomodaria no máximo 9 pessoas. Em duas semanas isso vira centenas de jornadas em andamento. A janela está aberta **e fechando**.
+
+As três perguntas que faltam foram para a lista vermelha (item 6). **Nada anda sem elas** — principalmente a do "esqueceu de marcar", que é a que gera atendimento.
+
+### Quem é o público, pelos nomes
+
+Análise feita **a pedido do Caio e mantida só na conversa** — ele pediu para não gravar em arquivo. Aqui fica só o que tem consequência operacional, que virou o item 7 da lista vermelha: **~40% dos cadastros estão em nome masculino**, e a saudação nova lê exatamente esse campo.
+
+### O que NÃO foi verificado
+
+- **A distribuição de visitas não foi conferida na tela do painel** — saiu de consulta SQL direta.
+- **A classificação por nome é estimativa**, não medida. Lista curada mais terminação (-a/-o); 16 pessoas ficaram genuinamente ambíguas. Não existe campo de gênero no banco.
+- **O levantamento da trava não virou código.** Foi leitura de arquivo e contagem no banco. Nada foi escrito.
 
 ---
 
