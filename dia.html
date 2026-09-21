@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="stylesheet" href="css/dia-doacao.css?v=7">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
@@ -92,7 +93,7 @@
   </div>
 </div>
 
-<script src="js/dias.js?v=19"></script>
+<script src="js/dias.js?v=20"></script>
 <script src="js/trava.js?v=1"></script>
 <script src="js/materiais.js?v=4"></script>
 <script>
@@ -102,6 +103,7 @@
   const dia = materialKey ? MATERIAIS[materialKey] : DIAS[diaNum];
   const content = document.getElementById('content');
   const temVideo = !materialKey || (dia && dia.temVideo === true);
+  const previaDoacao = params.get('previa-doacao') === '1';
 
   if (!dia || (!materialKey && !dia.disponivel)) {
     content.innerHTML = `
@@ -146,6 +148,30 @@
 
     const descricaoHtml = dia.descricao
       ? `<p style="margin:0;font-size:15px;font-weight:500;line-height:1.7;color:var(--ink);">${dia.descricao}</p>`
+      : '';
+
+    // O Dia 03 tem três caminhos de doação sincronizados com o vídeo.
+    // ?previa-doacao=1 revela o bloco imediatamente para revisão visual.
+    const doacaoHtml = !materialKey && diaNum === 3
+      ? `<section class="doacao-dia-03${previaDoacao ? '' : ' doacao-dia-03--oculta'}" id="doacoes-dia-03" aria-labelledby="doacao-dia-03-titulo">
+           <h2 class="doacao-dia-03__titulo" id="doacao-dia-03-titulo">Faça a sua doação abaixo, vamos juntos nessa missão!</h2>
+           <div class="doacao-dia-03__opcoes">
+             <a class="doacao-dia-03__botao doacao-dia-03__botao--destaque smartplayer-click-event" href="https://pay.hub.la/4vSvS89vI3KSJw0BSFdd">
+               <span>O seu nome gravado no</span>
+               <strong>Relicário das Sete Orações</strong>
+               <small>(Acompanha réplica Devocional da Basílica)</small>
+             </a>
+             <a class="doacao-dia-03__botao smartplayer-click-event" href="https://pay.hub.la/KVOgmVu5VyF04JUgitat">
+               <span>O seu nome gravado no</span>
+               <strong>Pedestal da imagem de Cristo</strong>
+               <small>(Acompanha réplica Devocional da Basílica)</small>
+             </a>
+             <a class="doacao-dia-03__botao smartplayer-click-event" href="https://pay.hub.la/SBLUP4swsvhsHvTo4HqY">
+               <span>Réplica Devocional do</span>
+               <strong>Relicário da Basílica Sete Orações</strong>
+             </a>
+           </div>
+         </section>`
       : '';
 
     const audioHtml = dia.audioUrl
@@ -206,6 +232,8 @@
 
       ${videoHtml}
 
+      ${doacaoHtml}
+
       ${descricaoHtml}
 
       ${audioHtml}
@@ -229,6 +257,31 @@
       playerScript.src = videoScriptSrc;
       playerScript.async = true;
       document.head.appendChild(playerScript);
+    }
+
+    // O relógio principal é o próprio vídeo: pausar o vídeo também pausa a
+    // espera. A persistência faz o bloco nascer aberto quando a cliente volta
+    // depois de já ter alcançado os 10:30. O timer comum só é uma rede de
+    // segurança para o caso raro de o script da VTurb não carregar.
+    const doacaoBloco = document.getElementById('doacoes-dia-03');
+    const doacaoDelaySegundos = Number(dia.doacaoDelaySegundos);
+    if (doacaoBloco && !previaDoacao && Number.isFinite(doacaoDelaySegundos)) {
+      const revelarDoacao = () => doacaoBloco.classList.remove('doacao-dia-03--oculta');
+      const redeDeSeguranca = setTimeout(revelarDoacao, (doacaoDelaySegundos + 120) * 1000);
+      const player = content.querySelector('vturb-smartplayer');
+
+      if (player) {
+        player.addEventListener('player:ready', () => {
+          if (typeof player.displayHiddenElements === 'function') {
+            player.displayHiddenElements(
+              doacaoDelaySegundos,
+              ['.doacao-dia-03--oculta'],
+              { persist: true }
+            );
+            clearTimeout(redeDeSeguranca);
+          }
+        });
+      }
     }
 
     if (dia.audioUrl) {
