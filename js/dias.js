@@ -176,10 +176,10 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 03',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6ab0e9238aae747f6170be9a" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab0e9238aae747f6170be9a/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6ab20824350d2676742e7309" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab20824350d2676742e7309/v4/player.js'
     },
-    doacaoDelaySegundos: 630,
+    doacaoDelaySegundos: 554,
     materialPdf: 'assets/pdfs/dia-03-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
     materialPage: {

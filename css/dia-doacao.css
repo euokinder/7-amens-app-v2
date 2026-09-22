@@ -72,9 +72,11 @@
   letter-spacing: 0.035em;
 }
 
+/* 20px porque o preço virou a mensagem inteira do botão. Os 17px antigos
+   eram o tamanho de uma linha do meio, entre a descrição e o que acompanha. */
 .doacao-dia-03__botao strong {
   color: var(--ink);
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: 0.015em;
 }
@@ -139,7 +141,7 @@
   }
 
   .doacao-dia-03__botao strong {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
 
