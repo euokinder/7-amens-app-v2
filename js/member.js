@@ -397,6 +397,13 @@
         catch (err) { error.textContent = err.status ? err.message : 'Não conseguimos abrir seu acesso agora. Tente de novo em instantes, ou fale com a gente no WhatsApp.'; }
         finally { button.disabled = false; button.textContent = 'Entrar nas minhas orações'; }
       });
+      // A tela de recuperação por CPF (js/recuperar.js) precisa falar com a
+      // member-api e guardar a sessão exatamente como este formulário guarda.
+      // Expor as três funções evita repetir a chave do localStorage e o
+      // endereço da API em dois arquivos: se mudassem num só, o login
+      // continuaria funcionando e a recuperação deixaria a cliente na porta,
+      // sem erro nenhum aparecendo na tela.
+      window.MEMBER_RECUPERACAO = { api, guardar: remember, destino: returnPath };
       return;
     }
     if (!token) return toLogin();

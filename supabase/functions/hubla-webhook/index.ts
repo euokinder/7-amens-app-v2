@@ -51,6 +51,11 @@ async function db(path: string, method = 'GET', body?: unknown, prefer = 'return
 const eq = (value: string) => encodeURIComponent(value);
 const now = () => new Date().toISOString();
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+// A mesma conta feita pela member-api e pelo recuperacao-por-cpf.sql. Os tres
+// precisam bater: se divergirem, a busca por CPF para de achar quem procura,
+// e o defeito nao aparece na tela de ninguem.
+const sha256 = async (valor: string) =>
+  Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(valor)))).map(b => b.toString(16).padStart(2, '0')).join('');
 const email = (value: unknown) => text(value).toLowerCase();
 
 // Timing-safe comparison so a wrong token cannot be guessed byte by byte.
@@ -120,6 +125,17 @@ async function upsertCustomer(user: Record<string, any>) {
   if (first) fields.first_name = first;
   if (last) fields.last_name = last;
   if (text(user?.phone)) fields.phone = text(user?.phone);
+  // O CPF vem em event.user.document — confirmado na documentacao oficial da
+  // Hubla em 22/09/2026 e presente em 99,6% dos eventos ja guardados. Serve
+  // para a cliente recuperar sozinha o e-mail de acesso quando nao lembra qual
+  // usou, tirando essa conversa do WhatsApp do suporte.
+  //
+  // Guardado embaralhado, nunca legivel. So 11 digitos: CNPJ nao recupera nada.
+  const documento = text(user?.document).replace(/\D/g, '');
+  if (documento.length === 11 && !/^(.)\1{10}$/.test(documento)) {
+    fields.cpf_hash = await sha256(documento);
+    fields.cpf_ultimos3 = documento.slice(-3);
+  }
   if (text(user?.id)) fields.hubla_user_id = text(user?.id);
   const fullName = [first, last].filter(Boolean).join(' ');
   if (fullName) fields.name = fullName;
@@ -133,8 +149,21 @@ async function upsertCustomer(user: Record<string, any>) {
     return existing.id as string;
   }
 
-  const [created] = await db('customers', 'POST', { email: address, ...fields });
-  return created.id as string;
+  try {
+    const [created] = await db('customers', 'POST', { email: address, ...fields });
+    return created.id as string;
+  } catch (erro) {
+    // Rede de seguranca de ordem de implantacao. Se esta funcao subir ANTES do
+    // recuperacao-por-cpf.sql rodar, as colunas do CPF ainda nao existem e o
+    // cadastro inteiro falharia — ou seja, quem acabou de pagar ficaria sem
+    // acesso por causa de um campo acessorio. Entao tenta de novo sem ele.
+    // Ja aconteceu uma venda perdida neste projeto; nao pode acontecer outra.
+    if (!('cpf_hash' in fields)) throw erro;
+    delete fields.cpf_hash;
+    delete fields.cpf_ultimos3;
+    const [created] = await db('customers', 'POST', { email: address, ...fields });
+    return created.id as string;
+  }
 }
 
 // Hubla does not guarantee event order. A lower version means a late event:

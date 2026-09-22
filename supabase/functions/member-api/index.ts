@@ -139,6 +139,42 @@ Deno.serve(async (req: Request) => {
       await db('member_sessions', 'POST', { token_hash: await hash(token), customer_id: customer.id, expires_at: new Date(Date.now() + lifetime).toISOString() });
       return respond({ token, ...await snapshot(customer, products) });
     }
+    // Recuperar o acesso pelo CPF — para quem não lembra, ou errou, o e-mail.
+    // Roda SEM sessão, como o `login`: é justamente para quem não consegue entrar.
+    //
+    // ATENÇÃO: isto devolve o e-mail de acesso a quem digitar o CPF certo. É
+    // escolha de negócio, tomada de olhos abertos em 22/09/2026. O login já não
+    // tem senha nem código, então quem sabe o e-mail entra de qualquer jeito; o
+    // que se ganha aqui é tirar do WhatsApp do suporte a cliente que só errou
+    // uma letra. Mesma calibragem do login, registrada no CLAUDE.md.
+    if (body.action === 'recover') {
+      const digitos = typeof body.cpf === 'string' ? body.cpf.replace(/\D/g, '') : '';
+      if (digitos.length !== 11) return respond({ error: 'Confira os números do seu CPF e tente de novo.' }, 400);
+      // A conta é POR ENDEREÇO DE INTERNET, e aqui está a diferença para o
+      // `login`. Lá o balde inclui o e-mail, para que uma vizinha de operadora
+      // não trave a outra. Aqui isso seria o avesso do que se quer: quem
+      // varresse uma lista de CPFs ganharia um balde novo a cada tentativa, e
+      // portanto tentativas infinitas para colher e-mails alheios.
+      const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '';
+      const permitido = await db('rpc/allow_member_login', 'POST', { bucket_key: await hash(`recuperar:${ip}`) });
+      if (!permitido) return respond({ error: 'Você tentou várias vezes seguidas. Espere uns minutinhos e tente outra vez.' }, 429);
+      const achadas = await db(`customers?cpf_hash=eq.${eq(await hash(digitos))}&select=id,email,name&order=created_at.asc`);
+      if (!achadas.length) return respond({ error: 'Não encontramos nenhuma compra com esse CPF.' }, 404);
+      // A mesma pessoa pode ter comprado duas vezes, com e-mails diferentes.
+      // Vale o cadastro que TEM acesso ativo: devolver o outro mandaria ela
+      // para um e-mail que não abre o app, que é exatamente o problema que
+      // esta tela existe para resolver.
+      let escolhida: { id: string; email: string; name: string } | null = null;
+      let produtos: string[] = [];
+      for (const candidata of achadas) {
+        const lista = await access(candidata.id);
+        if (lista.includes('principal')) { escolhida = candidata; produtos = lista; break; }
+      }
+      if (!escolhida) return respond({ error: 'Encontramos sua compra, mas o acesso não está ativo no momento.' }, 403);
+      const sessao = `${crypto.randomUUID()}${crypto.randomUUID()}`;
+      await db('member_sessions', 'POST', { token_hash: await hash(sessao), customer_id: escolhida.id, expires_at: new Date(Date.now() + lifetime).toISOString() });
+      return respond({ token: sessao, email: escolhida.email, ...await snapshot(escolhida, produtos) });
+    }
     const token = req.headers.get('x-member-session') || '';
     if (!/^[a-f0-9-]{72}$/.test(token)) return respond({ error: 'Entre novamente com seu e-mail.' }, 401);
     const tokenHash = await hash(token);

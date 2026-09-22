@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Entrar — 7 Améns da Madrugada</title>
 <link rel="stylesheet" href="css/styles.css?v=11">
-<link rel="stylesheet" href="css/member.css">
+<link rel="stylesheet" href="css/member.css?v=3">
 <link rel="icon" href="assets/images/icon-32.png">
 </head>
 <body>
@@ -19,9 +19,40 @@
     <button class="member-button" type="submit">Entrar nas minhas orações</button>
     <p id="member-login-error" class="member-error" role="alert"></p>
   </form>
-  <a class="member-help" href="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Preciso de ajuda para entrar</a>
+  <!--
+    Aqui ficava o link do WhatsApp. Ele saiu da frente de propósito em 22/09:
+    era a única saída de quem não lembrava o e-mail, e mandava para o suporte
+    uma conversa que o app resolve sozinho. O WhatsApp continua existindo —
+    mas agora dentro da conversa, como última porta, e não como primeira.
+  -->
+  <button id="recuperar-abrir" class="member-button secondary" type="button">Não sei qual e-mail usei</button>
 </main>
+
+<!--
+  A conversa de recuperação. Nasce escondida e ocupa a tela inteira quando
+  abre: no celular, meia tela com o login aparecendo atrás dividiria a atenção
+  de quem já está com dificuldade.
+-->
+<section id="recuperar" class="recuperar" hidden aria-labelledby="recuperar-titulo"
+         data-whatsapp="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.">
+  <header class="recuperar-topo">
+    <div class="recuperar-identidade">
+      <!-- Decorativo: o título ao lado ja diz o que e esta tela, entao o
+           leitor de tela nao precisa ouvir a imagem duas vezes. -->
+      <img class="recuperar-marca" src="assets/images/icon-180.png" alt="" width="40" height="40">
+      <h2 id="recuperar-titulo">Recuperar acesso</h2>
+    </div>
+    <button type="button" id="recuperar-fechar" class="recuperar-fechar" aria-label="Fechar e voltar para a tela de entrar">Voltar</button>
+  </header>
+  <div id="recuperar-conversa" class="recuperar-conversa" role="log" aria-live="polite"></div>
+  <form id="recuperar-form" class="recuperar-barra">
+    <input id="recuperar-cpf" aria-label="Digite o seu CPF" type="tel" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="000.000.000-00" maxlength="14">
+    <button class="member-button" type="submit">Enviar</button>
+  </form>
+</section>
+
 <script src="js/member-config.js"></script>
 <script src="js/member.js"></script>
+<script src="js/recuperar.js"></script>
 </body>
 </html>
