@@ -81,6 +81,29 @@
 .admin-customer { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
 .admin-customer:hover, .admin-customer:focus-visible { border-color: var(--accent); box-shadow: 0 6px 22px oklch(0.25 0.025 50 / .09); outline: none; }
 .admin-search { width: 100%; padding: 13px 15px; border: 1px solid var(--hairline); border-radius: 13px; background: white; color: var(--ink); font: 500 15px/1.4 'Manrope', sans-serif; }
+
+/* Filtros da lista de clientes. O chip carrega o proprio numero: o operador
+   ve quantas pessoas ganha ANTES de tocar, e nao precisa tentar para
+   descobrir que o cruzamento da zero. */
+.admin-filters { display: flex; flex-direction: column; gap: 11px; margin-top: 11px; padding: 14px; border: 1px solid var(--hairline); border-radius: 15px; background: white; }
+/* O resumo reaproveita .admin-block e .admin-matrix-row do funil de
+   propósito: é a mesma leitura (rótulo, número, barra) e não faz sentido o
+   painel ter dois jeitos de mostrar a mesma coisa. */
+.admin-perfil { display: flex; flex-direction: column; gap: 11px; margin-top: 11px; }
+/* O resumo do perfil não tem o chip UP01 na frente, então a coluna de 44px
+   que existe na linha do funil sobra e espreme o nome da resposta. */
+.admin-matrix-row.is-perfil { grid-template-columns: minmax(0, 1fr) auto; }
+.admin-matrix-row.is-perfil .admin-matrix-pct { grid-column: 1 / -1; }
+.admin-perfil[hidden] { display: none; }
+.admin-filter-group { display: flex; flex-direction: column; gap: 7px; }
+.admin-filter-label { color: var(--ink-muted); font-size: 12px; font-weight: 800; letter-spacing: .03em; }
+.admin-filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.admin-filter-chip { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid var(--hairline); border-radius: 99px; background: var(--surface-alt); color: var(--ink); font: 700 13px/1 'Manrope', sans-serif; cursor: pointer; }
+.admin-filter-chip:hover { border-color: var(--accent-strong); }
+.admin-filter-chip.is-on { border-color: var(--accent-strong); background: var(--accent-strong); color: var(--on-accent); }
+.admin-filter-chip-n { padding: 2px 7px; border-radius: 99px; background: rgba(0, 0, 0, .09); font-size: 12px; font-weight: 800; }
+.admin-filter-chip.is-on .admin-filter-chip-n { background: rgba(255, 255, 255, .26); }
+.admin-filter-clear { align-self: flex-start; padding: 8px 0; border: 0; background: none; color: var(--ink-muted); font: 800 13px/1 'Manrope', sans-serif; text-decoration: underline; cursor: pointer; }
 .admin-form { display: flex; flex-direction: column; gap: 9px; padding: 17px; border: 1px solid var(--hairline); border-radius: 18px; background: white; }
 .admin-form label { color: var(--ink-muted); font-size: 12px; font-weight: 800; }
 .admin-form input, .admin-form select { padding: 12px 14px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--surface-alt); color: var(--ink); font: 500 15px/1.4 'Manrope', sans-serif; }
@@ -108,6 +131,39 @@
 .admin-detail-line.is-off { background: var(--surface-alt); color: var(--ink-muted); }
 .admin-mini-btn { flex: 0 0 auto; padding: 7px 13px; border: 1px solid var(--hairline); border-radius: 99px; background: var(--bg); color: var(--ink); font: 800 12px/1 'Manrope', sans-serif; cursor: pointer; }
 .admin-mini-btn:hover { border-color: var(--accent); background: var(--accent); color: var(--dark-on-accent); }
+/* Banners do destaque da home. Segue o figurino da .admin-campaign
+   (cartão branco, borda de fio de cabelo, raio 17) — mas este é
+   editável, então ele ganha campos e botões. */
+.admin-banners { display: flex; flex-direction: column; gap: 11px; }
+.admin-banner { display: flex; flex-direction: column; gap: 10px; padding: 17px; border: 1px solid var(--hairline); border-radius: 17px; background: white; }
+/* Banner ainda não salvo: a borda dourada diz que falta terminar. */
+.admin-banner.is-novo { border-color: var(--accent); box-shadow: 0 6px 22px oklch(0.25 0.025 50 / .09); }
+.admin-banner-top { display: flex; align-items: center; gap: 12px; }
+/* 4:3, a mesma forma do banner na home — a miniatura tem que mentir o
+   mínimo possível sobre o que a cliente vai ver. */
+.admin-banner-thumb { flex: 0 0 auto; width: 80px; height: 60px; border-radius: 10px; background: var(--surface-alt); object-fit: cover; }
+.admin-banner-thumb.is-quebrada { border: 2px solid #812c24; object-fit: contain; padding: 8px; }
+.admin-banner-id { min-width: 0; flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.admin-banner-id strong { font-size: 15px; overflow-wrap: anywhere; }
+.admin-banner-ordem { flex: 0 0 auto; display: flex; gap: 6px; }
+.admin-banner-ordem .admin-mini-btn { min-width: 44px; padding: 11px 0; text-align: center; font-size: 15px; }
+.admin-banner-campo { display: flex; flex-direction: column; gap: 5px; }
+.admin-banner-campo label { color: var(--ink-muted); font-size: 12px; font-weight: 800; }
+.admin-banner-campo input { padding: 12px 14px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--surface-alt); color: var(--ink); font: 500 14px/1.4 'Manrope', sans-serif; }
+.admin-banner-campo input:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 1px; }
+/* Alvo de toque grande no que liga e desliga o banner na home: é a
+   chave que muda a tela de 577 pessoas. */
+.admin-banner-check { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-alt); font-size: 14px; font-weight: 700; cursor: pointer; }
+.admin-banner-check input { width: 22px; height: 22px; accent-color: var(--accent-strong); cursor: pointer; }
+.admin-banner-acoes { display: flex; gap: 8px; }
+.admin-banner-salvar { flex: 1 1 auto; padding: 13px; border: 0; border-radius: 12px; background: var(--accent-strong); color: var(--on-accent); font: 800 15px/1 'Manrope', sans-serif; cursor: pointer; }
+.admin-banner-salvar:hover { background: var(--accent); color: var(--dark-on-accent); }
+.admin-banner-salvar:disabled { background: var(--surface-alt); color: var(--ink-muted); cursor: default; }
+.admin-banner-remover { flex: 0 0 auto; padding: 13px 16px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--bg); color: #812c24; font: 800 14px/1 'Manrope', sans-serif; cursor: pointer; }
+.admin-banner-remover:hover { border-color: #812c24; background: #f8e3df; }
+.admin-banner-add { padding: 14px; border: 2px dashed var(--hairline); border-radius: 14px; background: none; color: var(--ink-muted); font: 800 14px/1 'Manrope', sans-serif; cursor: pointer; }
+.admin-banner-add:hover { border-color: var(--accent); color: var(--accent-strong); }
+
 @media (min-width: 680px) {
   .admin-content { padding-inline: 30px; }
   .admin-kpis { grid-template-columns: repeat(4, 1fr); }
@@ -117,5 +173,5 @@
   .admin-matrix-row { grid-template-columns: 54px minmax(0, 1fr) 56px 72px minmax(120px, 1.2fr); }
   .admin-matrix-pct { grid-column: auto; text-align: right; }
   .admin-bar { grid-column: auto; }
-  .admin-campaigns, .admin-customers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-campaigns, .admin-customers, .admin-banners { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

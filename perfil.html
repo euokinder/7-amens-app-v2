@@ -40,21 +40,25 @@
     <section class="profile-screen profile-intro is-active" data-screen="intro">
       <div class="profile-intro-icon" aria-hidden="true">🤍</div>
       <span class="profile-pill">Leva menos de 1 minuto</span>
-      <h1>Antes de continuar, queremos conhecer um pouquinho melhor você, irmã.</h1>
+      <h1>Antes de continuar, queremos conhecer um pouquinho melhor você.</h1>
       <p>Cada pessoa chega até aqui carregando uma história, uma família e intenções diferentes no coração.</p>
       <p>Responda apenas algumas perguntas rápidas para que possamos preparar uma experiência mais próxima do momento que você está vivendo.</p>
-      <button class="profile-primary" type="button" data-action="start">Começar agora</button>
+      <p class="profile-instruction">Como você prefere que a gente te chame?</p>
+      <div class="profile-tratamento">
+        <button class="profile-primary" type="button" data-action="start" data-tratamento="irma">Sou irmã</button>
+        <button class="profile-primary" type="button" data-action="start" data-tratamento="irmao">Sou irmão</button>
+      </div>
       <p class="profile-reassurance"><span aria-hidden="true">🔒</span> Suas respostas serão tratadas com carinho e respeito.</p>
     </section>
 
     <fieldset class="profile-screen profile-question" data-screen="question" data-question="1">
-      <legend>Irmã, hoje você é…</legend>
+      <legend data-irma="Irmã, hoje você é…" data-irmao="Irmão, hoje você é…">Irmã, hoje você é…</legend>
       <p class="profile-instruction">Escolha a opção que melhor descreve você.</p>
       <div class="profile-options">
-        <label class="profile-option"><input type="radio" name="motherhood_status" value="mother"><span class="profile-option-emoji">🙏</span><span>Mãe</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="motherhood_status" value="grandmother"><span class="profile-option-emoji">❤️</span><span>Avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="motherhood_status" value="mother_and_grandmother"><span class="profile-option-emoji">🌷</span><span>Mãe e avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="motherhood_status" value="neither"><span class="profile-option-emoji">🤍</span><span>Ainda não sou mãe nem avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="mother" data-valor-irma="mother" data-valor-irmao="father"><span class="profile-option-emoji">🙏</span><span data-irma="Mãe" data-irmao="Pai">Mãe</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="grandmother" data-valor-irma="grandmother" data-valor-irmao="grandfather"><span class="profile-option-emoji">❤️</span><span data-irma="Avó" data-irmao="Avô">Avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="mother_and_grandmother" data-valor-irma="mother_and_grandmother" data-valor-irmao="father_and_grandfather"><span class="profile-option-emoji">🌷</span><span data-irma="Mãe e avó" data-irmao="Pai e avô">Mãe e avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="motherhood_status" value="neither"><span class="profile-option-emoji">🤍</span><span data-irma="Ainda não sou mãe nem avó" data-irmao="Ainda não sou pai nem avô">Ainda não sou mãe nem avó</span><span class="profile-option-mark" aria-hidden="true"></span></label>
       </div>
     </fieldset>
 
@@ -62,10 +66,10 @@
       <legend>E sobre sua vida amorosa, qual dessas opções descreve melhor seu momento?</legend>
       <p class="profile-instruction">Escolha apenas uma opção.</p>
       <div class="profile-options">
-        <label class="profile-option"><input type="radio" name="relationship_status" value="married"><span class="profile-option-emoji">💍</span><span>Sou casada</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="married"><span class="profile-option-emoji">💍</span><span data-irma="Sou casada" data-irmao="Sou casado">Sou casada</span><span class="profile-option-mark" aria-hidden="true"></span></label>
         <label class="profile-option"><input type="radio" name="relationship_status" value="relationship"><span class="profile-option-emoji">❤️</span><span>Estou em um relacionamento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="relationship_status" value="single"><span class="profile-option-emoji">🌷</span><span>Sou solteira</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="relationship_status" value="widowed"><span class="profile-option-emoji">🙏</span><span>Sou viúva</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="single"><span class="profile-option-emoji">🌷</span><span data-irma="Sou solteira" data-irmao="Sou solteiro">Sou solteira</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="relationship_status" value="widowed"><span class="profile-option-emoji">🙏</span><span data-irma="Sou viúva" data-irmao="Sou viúvo">Sou viúva</span><span class="profile-option-mark" aria-hidden="true"></span></label>
         <label class="profile-option"><input type="radio" name="relationship_status" value="prefer_not_to_say"><span class="profile-option-emoji">🤍</span><span>Prefiro não responder</span><span class="profile-option-mark" aria-hidden="true"></span></label>
       </div>
     </fieldset>
@@ -88,15 +92,15 @@
       <div class="profile-options">
         <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="children"><span class="profile-option-emoji">👨‍👩‍👧</span><span>Pelos meus filhos</span><span class="profile-option-mark" aria-hidden="true"></span></label>
         <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="grandchildren"><span class="profile-option-emoji">👧</span><span>Pelos meus netos</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="partner"><span class="profile-option-emoji">❤️</span><span>Pelo meu marido / relacionamento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="partner"><span class="profile-option-emoji">❤️</span><span data-irma="Pelo meu marido / relacionamento" data-irmao="Pela minha esposa / relacionamento">Pelo meu marido / relacionamento</span><span class="profile-option-mark" aria-hidden="true"></span></label>
         <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="whole_family"><span class="profile-option-emoji">🏠</span><span>Pela minha família inteira</span><span class="profile-option-mark" aria-hidden="true"></span></label>
         <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="someone_in_difficulty"><span class="profile-option-emoji">🙏</span><span>Por alguém especial que está passando por dificuldades</span><span class="profile-option-mark" aria-hidden="true"></span></label>
-        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="self"><span class="profile-option-emoji">🤍</span><span>Por mim mesma</span><span class="profile-option-mark" aria-hidden="true"></span></label>
+        <label class="profile-option"><input type="radio" name="primary_prayer_recipient" value="self"><span class="profile-option-emoji">🤍</span><span data-irma="Por mim mesma" data-irmao="Por mim mesmo">Por mim mesma</span><span class="profile-option-mark" aria-hidden="true"></span></label>
       </div>
     </fieldset>
 
     <fieldset class="profile-screen profile-question" data-screen="question" data-question="5">
-      <legend>E hoje, irmã, qual dessas intenções mais pesa no seu coração?</legend>
+      <legend data-irma="E hoje, irmã, qual dessas intenções mais pesa no seu coração?" data-irmao="E hoje, irmão, qual dessas intenções mais pesa no seu coração?">E hoje, irmã, qual dessas intenções mais pesa no seu coração?</legend>
       <p class="profile-instruction">Escolha sua intenção principal neste momento.</p>
       <div class="profile-options">
         <label class="profile-option"><input type="radio" name="primary_intention" value="family_protection"><span class="profile-option-emoji">🛡️</span><span>Proteção para minha família e minha casa</span><span class="profile-option-mark" aria-hidden="true"></span></label>
@@ -127,7 +131,7 @@
     <section class="profile-screen profile-finished" data-screen="finished" aria-live="polite">
       <div class="profile-finished-icon" aria-hidden="true">🙏</div>
       <span class="profile-pill">Tudo pronto</span>
-      <h1>Obrigada por abrir seu coração, irmã.</h1>
+      <h1 data-irma="Obrigada por abrir seu coração, irmã." data-irmao="Obrigada por abrir seu coração, irmão.">Obrigada por abrir seu coração, irmã.</h1>
       <p>Agora conhecemos um pouquinho melhor o seu momento e poderemos tornar sua experiência mais próxima das suas intenções.</p>
       <button class="profile-primary" type="button" data-action="finish">Continuar para minhas orações</button>
     </section>

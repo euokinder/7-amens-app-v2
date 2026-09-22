@@ -42,6 +42,21 @@
     ? api('survey_event', { campaign_key: campaignKey, event }).catch(() => {})
     : Promise.resolve();
 
+  // Quase 4 em cada 10 cadastros estão em nome masculino, e o formulário
+  // falava só com mulheres ("Sou casada", "Por mim mesma"). Quem escolhe na
+  // abertura decide o texto de todas as telas seguintes.
+  //
+  // Só a pergunta 1 troca o VALOR gravado — pai não é mãe. Nas outras muda
+  // apenas o rótulo, e o valor continua o mesmo: nenhuma resposta já
+  // coletada muda de sentido por causa disto.
+  function aplicarTratamento(tratamento) {
+    const chave = tratamento === 'irmao' ? 'irmao' : 'irma';
+    form.querySelectorAll(`[data-${chave}]`).forEach(el => { el.textContent = el.dataset[chave]; });
+    form.querySelectorAll(`input[data-valor-${chave}]`).forEach(input => {
+      input.value = input.dataset[`valor${chave === 'irmao' ? 'Irmao' : 'Irma'}`];
+    });
+  }
+
   function showScreen(target) {
     screens.forEach(screen => screen.classList.toggle('is-active', screen === target));
     const questionIndex = questions.indexOf(target);
@@ -75,7 +90,11 @@
   form.addEventListener('click', event => {
     const action = event.target.closest('[data-action]')?.dataset.action;
     if (!action) return;
-    if (action === 'start') { record('started'); showScreen(questions[0]); }
+    if (action === 'start') {
+      aplicarTratamento(event.target.closest('[data-tratamento]')?.dataset.tratamento);
+      record('started');
+      showScreen(questions[0]);
+    }
     if (action === 'previous') showScreen(questions[Math.max(0, current - 1)]);
     if (action === 'next' && !nextButton.disabled) {
       if (current < questions.length - 1) showScreen(questions[current + 1]);

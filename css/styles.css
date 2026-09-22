@@ -800,3 +800,12 @@ h1.title {
   transform: translateY(0);
   pointer-events: auto;
 }
+
+/* O destaque da home nasce invisível e só aparece quando o js/banner.js
+   monta pelo menos um banner de verdade, vindo do painel — é ele que põe
+   o data-pronto. Enquanto não houver banner cadastrado, a home não tem
+   esta seção: nem buraco, nem imagem de reserva que ninguém escolheu.
+
+   Isto também é a rede contra o JS não carregar. Sem a regra, a seção
+   ficaria na tela com as setas e os pontinhos sem função nenhuma. */
+.destaque:not([data-pronto]) { display: none; }

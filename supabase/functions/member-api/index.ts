@@ -182,7 +182,10 @@ Deno.serve(async (req: Request) => {
       const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';
       const answers = body.answers && typeof body.answers === 'object' ? body.answers : null;
       const allowed = {
-        motherhood_status: ['mother','grandmother','mother_and_grandmother','neither'],
+        // 'father' e companhia entraram quando o formulário passou a falar
+        // com homens. Esta lista tem que casar com a trava do banco
+        // (supabase/perfil-para-irmaos.sql): quem recusa primeiro é ela.
+        motherhood_status: ['mother','grandmother','mother_and_grandmother','neither','father','grandfather','father_and_grandfather'],
         relationship_status: ['married','relationship','single','widowed','prefer_not_to_say'],
         church_frequency: ['weekly','monthly','occasionally','not_attending_but_faithful','reconnecting'],
         primary_prayer_recipient: ['children','grandchildren','partner','whole_family','someone_in_difficulty','self'],

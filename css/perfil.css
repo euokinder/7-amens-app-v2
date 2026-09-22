@@ -12,6 +12,12 @@
 .profile-pill { display: inline-flex; align-items: center; min-height: 34px; padding: 7px 13px; border-radius: 99px; background: var(--surface-alt); color: var(--accent-strong); font-size: 13px; font-weight: 800; letter-spacing: .02em; }
 .profile-screen h1 { max-width: 420px; margin: 0; color: var(--ink); font-size: clamp(26px, 7vw, 32px); line-height: 1.18; letter-spacing: -.025em; }
 .profile-intro > p:not(.profile-reassurance), .profile-finished > p { max-width: 410px; margin: 0; color: var(--ink-muted); font-size: 17px; line-height: 1.65; }
+/* Os dois botões de abertura ficam um debaixo do outro. Lado a lado, em tela
+   de 375px, "Sou irmã" e "Sou irmão" dividiriam a largura e ficariam com
+   área de toque estreita — e o público tem 45+. Empilhados, cada um mantém
+   a largura inteira e a altura de 58px que o resto do formulário já usa. */
+.profile-tratamento { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.profile-tratamento .profile-primary { width: 100%; }
 .profile-primary, .profile-secondary { min-height: 58px; border: 0; border-radius: 14px; padding: 15px 18px; font: 800 17px/1.25 'Manrope', sans-serif; cursor: pointer; }
 .profile-primary { background: var(--accent); color: var(--dark-on-accent); box-shadow: 0 8px 22px oklch(0.58 0.15 82 / .18); }
 .profile-primary:disabled { opacity: .42; box-shadow: none; cursor: not-allowed; }

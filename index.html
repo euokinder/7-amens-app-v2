@@ -27,6 +27,38 @@
 
   <div class="content">
 
+    <!-- SEÇÃO DESTAQUE — o carrossel de banners.
+         NASCE INVISÍVEL e só aparece quando o js/banner.js consegue montar
+         pelo menos um banner de verdade, vindo do painel (regra
+         .destaque:not([data-pronto]) no CSS). Sem banner cadastrado, sem
+         JS, ou com o banco fora do ar, a home simplesmente não tem esta
+         seção — em vez de abrir com um buraco ou com uma imagem de
+         reserva que ninguém escolheu.
+
+         O trilho vai VAZIO de propósito. Ele já teve um slide escrito na
+         mão como rede de segurança, e essa rede virou o problema: com a
+         seção invisível, aquela imagem era baixada à toa; e se ela
+         aparecesse, mostraria um destaque que o Caio não escolheu. -->
+    <section class="destaque" aria-roledescription="carrossel" aria-label="Destaques">
+      <div class="destaque-palco">
+
+        <div class="destaque-trilho" tabindex="0" role="group"
+             aria-label="Imagens em destaque. Use as setas para ver as outras.">
+        </div>
+
+        <button class="destaque-seta anterior" type="button" aria-label="Ver destaque anterior">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <button class="destaque-seta proxima" type="button" aria-label="Ver próximo destaque">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+
+      </div>
+
+      <div class="destaque-pontos"></div>
+      <p class="destaque-status" role="status"></p>
+    </section>
+
     <div class="heading-block">
       <!-- O nome entra aqui pelo js/member.js, assim que a sessao confirma
            quem e a cliente. O texto abaixo, sem nome, e o que fica no ar se
@@ -161,5 +193,6 @@
   }
 </script>
 <script src="js/app.js?v=4"></script>
+<script src="js/banner.js?v=1"></script>
 </body>
 </html>

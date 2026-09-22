@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ver o banner no celular — 7 Améns</title>
+<!--
+  PÁGINA DE PROVA, SÓ PARA OLHAR NO CELULAR. Ela não pede login, não fala
+  com o Supabase e não faz parte do app.
+
+  Ela mora em scripts/ de propósito: o scripts/build.mjs copia para dist/
+  apenas os *.html da RAIZ e as pastas assets/, css/ e js/ — então este
+  arquivo nunca chega perto da produção, por mais distraído que alguém
+  esteja no dia do deploy.
+
+  Para vê-la no celular, depois de rodar o build:
+      cp scripts/ver-no-celular.html dist/
+  e abrir http://<ip-do-computador>:3000/ver-no-celular.html no aparelho,
+  com ele no mesmo Wi-Fi.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=12">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<style>
+  .prova-barra {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 50;
+    background: oklch(0.20 0.02 50);
+    color: oklch(0.97 0.01 85);
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 -8px 24px -10px rgba(0,0,0,.6);
+  }
+  .prova-botoes { display: flex; gap: 8px; }
+  .prova-botoes button {
+    flex: 1 1 0;
+    height: 52px;
+    border-radius: 12px;
+    border: 2px solid oklch(0.45 0.03 60);
+    background: transparent;
+    color: oklch(0.90 0.01 80);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .prova-botoes button[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--dark-on-accent);
+  }
+  .prova-leitura {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: oklch(0.86 0.01 80);
+    text-align: center;
+  }
+  .prova-leitura b { color: var(--accent); }
+  .content { padding-bottom: 180px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header" style="justify-content:flex-end;">
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <section class="destaque" aria-roledescription="carrossel" aria-label="Destaques">
+      <div class="destaque-palco">
+        <div class="destaque-trilho" tabindex="0" role="group" aria-label="Imagens em destaque">
+          <a class="destaque-slide" href="#" aria-label="Destaque">
+            <img src="assets/images/home-7-oracoes-sagradas.jpg" alt="" fetchpriority="high" decoding="async" draggable="false">
+          </a>
+        </div>
+        <button class="destaque-seta anterior" type="button" aria-label="Ver destaque anterior">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <button class="destaque-seta proxima" type="button" aria-label="Ver próximo destaque">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="destaque-pontos"></div>
+      <p class="destaque-status" role="status"></p>
+    </section>
+
+    <div class="heading-block">
+      <span class="eyebrow" id="saudacao">Olá Maria, que a paz do Senhor esteja com você!</span>
+      <h1 class="title">Escolha um conteúdo</h1>
+      <p class="subtext">Toque em qualquer card para abrir e começar.</p>
+    </div>
+
+    <a href="#" class="card static" style="height:400px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-7-oracoes-sagradas.jpg);">
+      <div class="pill-badge">7 DIAS</div>
+      <div class="card-body">
+        <h3 class="card-title">7 Orações Sagradas</h3>
+        <p class="card-sub">Reze um dia de cada vez, durante as madrugadas...</p>
+        <button class="cta-btn" type="button">Começar Oração!</button>
+      </div>
+    </a>
+
+    <a href="#" class="card static" style="height:340px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-pai-nosso.jpg);">
+      <div class="pill-badge">2 Minutos</div>
+      <div class="card-body">
+        <h3 class="card-title">Oração do Pai Nosso Completa</h3>
+        <p class="card-sub">Veja a versão original do Pai Nosso em Aramaico.</p>
+        <button class="cta-btn" type="button">Acessar Agora!</button>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="prova-barra">
+  <div class="prova-botoes">
+    <button type="button" data-forma="4/3" aria-pressed="true">4:3 ✓</button>
+    <button type="button" data-forma="3/2" aria-pressed="false">3:2</button>
+    <button type="button" data-forma="16/9" aria-pressed="false">16:9</button>
+  </div>
+  <p class="prova-leitura" id="leitura">carregando…</p>
+</div>
+
+<script>
+  // A terceira imagem é a arte que o Caio mandou, que é 16:9. Ela está aqui
+  // DE PROPÓSITO, para ele ver com os próprios olhos o que a moldura 4:3 faz
+  // com ela enquanto a arte não for reexportada em 1200×900.
+  window.DESTAQUES = [
+    { href: '#', img: 'assets/images/home-7-oracoes-sagradas.jpg', titulo: '7 Orações Sagradas' },
+    { href: '#', img: 'assets/images/home-pai-nosso.jpg', titulo: 'Pai Nosso completo' },
+    { href: '#', img: 'assets/images/banner-novena-desatadora.jpg', titulo: 'Novena Maria Desatadora de Nós (arte 16:9, ainda não reexportada)' },
+  ];
+</script>
+<script src="js/banner.js?v=1"></script>
+<script>
+  const trilho = document.querySelector('.destaque-trilho');
+  const leitura = document.getElementById('leitura');
+  const botoes = [...document.querySelectorAll('.prova-botoes button')];
+
+  // A arte do Caio é 1672×941. Molduras mais altas que isso cortam as
+  // laterais dela, então a conta de quanto some é feita e mostrada na tela.
+  const FORMA_DA_ARTE = 1672 / 941;
+
+  function aplicar(forma) {
+    const [a, b] = forma.split('/').map(Number);
+    trilho.style.aspectRatio = forma;
+    // Nesta página quem manda é só a proporção, para a comparação entre as
+    // três ser honesta. No app de verdade o piso e o teto em svh continuam.
+    trilho.style.minHeight = '0';
+    trilho.style.maxHeight = 'none';
+    botoes.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.forma === forma)));
+    setTimeout(() => medir(forma, a / b), 120);
+  }
+
+  function medir(forma, proporcao) {
+    const r = trilho.getBoundingClientRect();
+    const pct = Math.round(r.height / window.innerHeight * 100);
+    const corte = Math.max(0, (FORMA_DA_ARTE / proporcao - 1) / 2 * 100);
+    const aviso = corte < 0.5
+      ? 'a arte 16:9 aparece <b>inteira</b>'
+      : `corta <b>${corte.toFixed(0)}% de cada lado</b> da arte 16:9`;
+    leitura.innerHTML = `Moldura <b>${forma.replace('/', ':')}</b> · banner de ${Math.round(r.width)}×${Math.round(r.height)} · ocupa <b>${pct}%</b> da tela · ${aviso}`;
+  }
+
+  botoes.forEach(b => b.addEventListener('click', () => aplicar(b.dataset.forma)));
+  window.addEventListener('resize', () => {
+    const atual = botoes.find(b => b.getAttribute('aria-pressed') === 'true');
+    if (atual) aplicar(atual.dataset.forma);
+  });
+  aplicar('4/3');
+</script>
+</body>
+</html>

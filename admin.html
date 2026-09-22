@@ -63,6 +63,17 @@
         <div class="admin-campaigns" id="admin-campaigns"></div>
       </section>
 
+      <section class="admin-section" id="banner-section" hidden>
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Home</span><h2>Banners do destaque</h2></div>
+          <span class="admin-count" id="banner-count">0</span>
+        </div>
+        <div class="admin-banners" id="admin-banners"></div>
+        <button class="admin-banner-add" id="banner-add" type="button">+ Adicionar banner</button>
+        <p class="admin-form-hint">É o carrossel no alto da home. A imagem precisa ser <strong>1200×900</strong> (proporção 4:3) — mais larga que isso e as laterais são cortadas. Os dois endereços têm que começar com <strong>https://</strong>. O nome não aparece para a cliente: serve para você se achar aqui e para quem usa leitor de tela. A troca vale para todo mundo em até 5 minutos, sem publicar nada.</p>
+        <p class="admin-form-status" id="banner-status" role="status" hidden></p>
+      </section>
+
       <section class="admin-section">
         <div class="admin-section-heading">
           <div><span class="admin-kicker">Operação</span><h2>Liberar acesso na mão</h2></div>
@@ -84,6 +95,14 @@
           <span class="admin-count" id="customer-count">0</span>
         </div>
         <input class="admin-search" id="customer-search" type="search" placeholder="Buscar por nome ou e-mail…" autocomplete="off" aria-label="Buscar cliente">
+        <div class="admin-filters" id="admin-filters">
+          <div class="admin-filter-group"><span class="admin-filter-label">Produto</span><div class="admin-filter-chips" id="filter-produto"></div></div>
+          <div class="admin-filter-group"><span class="admin-filter-label">Dias de acesso</span><div class="admin-filter-chips" id="filter-dias"></div></div>
+          <div class="admin-filter-group"><span class="admin-filter-label">Orações concluídas</span><div class="admin-filter-chips" id="filter-oracoes"></div></div>
+          <div class="admin-filter-group"><span class="admin-filter-label">Formulário de perfil</span><div class="admin-filter-chips" id="filter-formulario"></div></div>
+          <button class="admin-filter-clear" id="filter-clear" type="button" hidden>Limpar filtros</button>
+        </div>
+        <section class="admin-perfil" id="admin-perfil" hidden></section>
         <div class="admin-customers" id="admin-customers"></div>
       </section>
     </section>

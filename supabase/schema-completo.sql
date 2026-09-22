@@ -165,7 +165,12 @@ create table if not exists public.admin_actions (
   target_email text not null default '',
   details jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  constraint admin_actions_action_check check (action in ('grant_access','revoke_access','update_email'))
+  -- As três últimas são as trocas de banner da home (seção 6B). Sem
+  -- elas na lista, trocar um banner pelo painel falha ao registrar quem
+  -- trocou — e a troca inteira volta atrás.
+  constraint admin_actions_action_check check (action in (
+    'grant_access','revoke_access','update_email',
+    'save_banner','delete_banner','move_banner'))
 );
 
 
@@ -313,7 +318,8 @@ create table if not exists public.member_survey_responses (
   constraint member_survey_responses_survey_key_check check (survey_key ~ '^[a-z0-9_-]+$'),
   constraint member_survey_responses_survey_version_check check (survey_version > 0),
   constraint member_survey_responses_motherhood_check check (
-    motherhood_status in ('mother','grandmother','mother_and_grandmother','neither')),
+    motherhood_status in ('mother','grandmother','mother_and_grandmother','neither',
+                          'father','grandfather','father_and_grandfather')),
   constraint member_survey_responses_relationship_check check (
     relationship_status in ('married','relationship','single','widowed','prefer_not_to_say')),
   constraint member_survey_responses_church_check check (
@@ -326,6 +332,37 @@ create table if not exists public.member_survey_responses (
   constraint member_survey_responses_devotion_check check (
     favorite_devotion in ('saint_michael','saint_benedict','our_lady','saint_joseph','saint_rita',
                           'saint_jude','sacred_heart_or_divine_mercy','no_specific_devotion'))
+);
+
+
+-- =====================================================================
+-- 6B. BANNERS DA HOME — a seção DESTAQUE, o carrossel do topo
+-- =====================================================================
+-- Numerada "6B" e não "7" de propósito: renumerar as seções seguintes
+-- quebraria toda referência escrita a elas por aí.
+
+-- Os banners que aparecem no alto da home, trocáveis pelo painel sem
+-- deploy nenhum. `key` é só o nome interno; `title` não aparece na
+-- tela da cliente — serve para o Caio se achar no painel e para o
+-- leitor de tela de quem não enxerga a imagem.
+--
+-- `image_url` e `target_url` guardam o endereço COMPLETO com https://,
+-- mesma regra do `member_offer_campaigns.target_url`. Quando o endereço
+-- é uma página do próprio app, o js/banner.js troca o domínio pelo de
+-- agora — sem isso, clicar num banner em localhost jogaria quem está
+-- testando direto no site das clientes reais.
+create table if not exists public.member_home_banners (
+  key text primary key,
+  title text not null default '',
+  image_url text not null,
+  target_url text not null,
+  enabled boolean not null default false,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint member_home_banners_key_check check (key ~ '^[a-z0-9_-]+$'),
+  constraint member_home_banners_image_url_check check (image_url ~ '^https://'),
+  constraint member_home_banners_target_url_check check (target_url ~ '^https://')
 );
 
 
@@ -346,6 +383,7 @@ create index if not exists hubla_events_type_idx on public.hubla_events (event_t
 create index if not exists hubla_events_user_idx on public.hubla_events (hubla_user_id);
 create index if not exists hubla_product_map_product_key_idx on public.hubla_product_map (product_key);
 create index if not exists member_offer_campaigns_source_idx on public.member_offer_campaigns (source_campaign_key);
+create index if not exists member_home_banners_ordem_idx on public.member_home_banners (enabled, sort_order);
 create index if not exists member_offer_events_campaign_idx on public.member_offer_events (campaign_key);
 create index if not exists member_survey_events_campaign_idx on public.member_survey_events (campaign_key);
 
@@ -369,7 +407,8 @@ begin
     'customers','products','entitlements','member_sessions','member_login_limits',
     'prayer_progress','member_visit_days','member_admins','admin_actions',
     'hubla_events','hubla_product_map','member_offer_campaigns','member_offer_events',
-    'member_survey_campaigns','member_survey_events','member_survey_responses'
+    'member_survey_campaigns','member_survey_events','member_survey_responses',
+    'member_home_banners'
   ] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists backend_only on public.%I', t);

@@ -1,6 +1,6 @@
 # 7 Améns da Madrugada — Contexto do Projeto
 
-> Fonte de verdade das regras do projeto. Atualizado: 2026-09-18
+> Fonte de verdade das regras do projeto. Atualizado: 2026-09-20
 > Contexto histórico completo em `docs/contexto-completo.md`. Leia sob demanda, não sempre.
 
 ## 🧭 Comece pelo diário
@@ -80,6 +80,26 @@ Jornada de 7 madrugadas, **1 oração por dia**, na ordem:
 - **Se perder um dia: NÃO reinicia e NÃO faz duas no mesmo dia.** Continua de onde parou, no dia seguinte.
 - Depois dos 7 dias, materiais como o Pai Nosso seguem utilizáveis à parte.
 
+## ⏳ O app libera UMA oração por dia (no ar desde 2026-09-20)
+Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto com a cliente. A conta mora em **`js/trava.js`**; a `member-api` manda os dois campos que ela usa (`hoje` e `primeiroAcesso`), em **todo** snapshot.
+
+**A regra, decidida pelo Caio em 2026-09-20:**
+- No dia em que ela **entra no app pela primeira vez**, ela tem a Introdução (Dia 0) e o **Dia 1**.
+- Cada meia-noite de **Brasília** abre a próxima, até o Dia 7. Quem manda a data é o servidor (`Intl` com `America/Sao_Paulo`), nunca o relógio do celular dela.
+- **Não depende de ela marcar "Concluí esta oração".** É calendário, não botão — quem reza e esquece de marcar não fica presa.
+- Quem já tinha entrado no app **antes de 20/09** abriu com o Dia 3 pronto e segue de um em um (`ENTROU_NO_AR` e `PISO_DAS_ANTIGAS`, em `js/trava.js`).
+- Oração já concluída **nunca** volta a ficar trancada.
+
+⚠️ **A âncora é o primeiro ACESSO, não a data da compra.** Quem comprou em agosto e só abre o app hoje começa pelo Dia 1 hoje. É de propósito: ancorar na compra faria quem demorou a entrar cair direto no Dia 6 e perder as cinco primeiras orações para sempre.
+
+⚠️ **O "primeiro acesso" só enxerga a partir de 2026-09-18**, que é quando `member_visit_days` nasceu. Quem usou o app antes disso e não voltou desde então conta como estreante.
+
+⚠️ **Rede de segurança embutida: sem o campo `hoje`, nada tranca.** Se o site subir antes da função — ou a função voltar para uma versão anterior — aparecem as sete, como antes da trava existir. O contrário (centenas de clientes pagantes vendo só o Dia 1 por um deploy fora de ordem) seria invisível na tela.
+
+⚠️ **É trava de experiência, não de segurança** — mesmo desenho já decidido para o login. Os textos estão em `js/dias.js`, arquivo público. **Não prometer "liberado aos poucos" como se fosse cadeado em peça de venda.**
+
+⚠️ **Ao mexer na lista de `novena.html`, AJUSTE os cartões — não redesenhe com `innerHTML`.** O `js/app.js` guarda referências a esses cartões para o efeito de foco ao rolar (o único que tira o cartão de `opacity: 0.5`) e para o pop-up "Antes de continuar, confirme" dos dias 2 a 4. Trocar o `innerHTML` joga os dois fora **em silêncio**: a lista fica inteira desbotada e a confirmação some, sem derrubar a tela.
+
 ## Stack
 | Camada | Ferramenta | Papel |
 |---|---|---|
@@ -137,7 +157,7 @@ Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catál
 **Já existe e está rodando:** `hubla_events` e a Edge Function `supabase/functions/hubla-webhook/index.ts`, que recebe a venda da Hubla e libera o acesso sozinha.
 
 ### ✅ A receita do banco existe: `supabase/schema-completo.sql`
-**Resolvido em 2026-09-18.** Este é o arquivo que constrói o banco inteiro do zero — 16 tabelas, 2 visões, 3 funções, 33 índices, 61 travas e a configuração de produtos e campanhas. Sem nenhum dado de cliente.
+**Resolvido em 2026-09-18.** Este é o arquivo que constrói o banco inteiro do zero — 16 tabelas, **3 visões** (`admin_customer_overview`, `admin_offer_overview`, `admin_payment_overview`), 3 funções, 33 índices, 61 travas e a configuração de produtos e campanhas. Sem nenhum dado de cliente.
 
 **Ele foi testado de verdade, não só escrito.** Rodou num banco vazio e o resultado bateu com a produção campo por campo (152 colunas de cada lado). Depois um teste funcional confirmou que a segmentação dos pop-ups funciona num banco construído só a partir dele: cliente nova recebeu `front_novas_1`, cliente da base antiga recebeu `front_antigas_1`.
 
@@ -171,20 +191,26 @@ Sintoma número um para conferir: se `hubla_events` parar de receber linhas depo
 
 O mapeamento vive em `hubla_product_map` (vários IDs da Hubla podem apontar para o mesmo produto). Situação em 2026-09-18:
 
-| Produto | ID confirmado? |
-|---|---|
-| principal | ✅ `bniYICXEzykgw1PzEyme` |
-| upsell_01 | ✅ `ODOZxlF1tfhee2TkZikI` |
-| upsell_03 | ✅ `nMyLP4oFcIWiJ77UIbsu` |
-| upsell_02 | ✅ `vRuLDZ1avAMG2LllTWAu` |
+| Produto | IDs mapeados | Quantos eventos REAIS chegaram com cada um (20/09) |
+|---|---|---|
+| principal | `bniYICXEzykgw1PzEyme` · `EnCFJKb2OJLinZYUy1MC` (oferta de R$ 97) | **2.265** · 0 |
+| upsell_01 | `5pUr8toveL5R5zR3zyaT` · `ODOZxlF1tfhee2TkZikI` | **436** · 5 |
+| upsell_02 | `gTLhMYXqRjFeNlyc7FlH` · `vRuLDZ1avAMG2LllTWAu` | **125** · 5 |
+| upsell_03 | `nMyLP4oFcIWiJ77UIbsu` | **73** |
 
-⚠️ **Armadilha comprovada: o slug da página `hub.la/g/...` quase nunca é o `event.product.id`.** Dos três slugs desse formato, **dois estavam errados** — só Comunidade da Fé coincidiu por acaso. Só o payload real confirma; nunca deduzir por analogia. ID desconhecido cai em `needs_reconciliation` e **nunca** libera acesso errado — é para isso que o mapeamento é tabela e não coluna.
+🔴 **Cada upsell precisa dos DOIS IDs mapeados, e o que mais chega é o que "parece slug".** O sandbox confirmou em 18/09 que o `event.product.id` real dos Arcanjos é `ODOZxlF1tfhee2TkZikI` — mas nas vendas de verdade quem chega, 436 vezes contra 5, é `5pUr8toveL5R5zR3zyaT`. **Apagar o "slug" do `hubla_product_map` por parecer errado derrubaria a liberação de quase todas as vendas daquele upsell.** Os dois ficam.
+
+⚠️ **A lição de verdade: só o evento real confirma um ID, nunca a analogia — e nem mesmo o sandbox.** Em 18/09 o sandbox disse que o slug de `hub.la/g/...` não era o `event.product.id`, e por isso os IDs "reais" foram mapeados. Em 20/09 a produção desmentiu: **são os slugs que chegam nas vendas de verdade**, centenas de vezes contra meia dúzia. Nenhum dos dois lados estava mentindo — a Hubla manda formatos diferentes em situações diferentes, e é por isso que o mapeamento é **tabela** e não coluna. ID desconhecido cai em `needs_reconciliation` e **nunca** libera acesso errado.
 
 A Novena Desatadora dos Nós **não é addon** — está incluída no produto principal.
 
 ## Hubla
 Plataforma de vendas da operação. **Documentação oficial: https://hubla.gitbook.io/docs**
 Tudo sobre Hubla — webhook, payload, evento, status, reembolso, produto — sai exclusivamente de lá. Nunca inferir por analogia com Kiwify, Hotmart ou Stripe.
+
+⚠️ **Duas formas do payload que já enganaram:**
+- `invoice.amount` é um **objeto**, não um número. O valor está em `invoice.amount.totalCents` (centavos).
+- O e-mail vem em `event.user.email` (conta na Hubla). O export de faturas traz o e-mail de **quem pagou**, que pode ser outro. Ao inserir cliente vinda de export, cruzar sempre pelo `hubla_user_id`, nunca só pelo e-mail.
 
 **Especificação de integração aprovada: [docs/hubla-integracao-spec.md](docs/hubla-integracao-spec.md).** É a referência para o webhook. Decisão: adotar 100% da lógica dela, mas **manter os nomes de tabela atuais** (`customers`, `prayer_progress`, `products.key`) em vez dos propostos no documento (`profiles`, `progress`, `slug`) — renomear quebraria a `member-api`, o admin e o perfil num app já em produção.
 
@@ -196,6 +222,8 @@ Mostra: KPIs, campanhas do funil, lista de clientes com busca, e a ficha complet
 Age: liberar acesso na mão (aceita e-mail que ainda não existe), revogar produto específico, corrigir e-mail (derruba as sessões abertas).
 
 **Toda ação fica registrada em `admin_actions` com o admin responsável.**
+
+⚠️ **`funnel_stage` não pode ser fonte de número nenhum.** Ele classifica errado quem pula degrau (compra o upsell_02 sem o upsell_01, por exemplo). Serve de rótulo na ficha de uma cliente; para contagem, somar os `active_products` — é o que o painel faz.
 
 ## ✅ Teste local fala com o banco de TESTE
 **Mudou em 2026-09-18.** Antes, `localhost:3000` usava o Supabase das clientes reais — liberar ou revogar acesso no painel local alterava dados de verdade.
@@ -212,6 +240,15 @@ Produção não muda: o site no ar nunca é "localhost". O desvio só existe na 
 ⚠️ **Isso só vale se a `member-api` estiver publicada no projeto de teste.** Se não estiver, o site local não conecta em nada e mostra erro. Publicar a função lá não exige segredo nenhum: `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` são injetados pelo próprio Supabase. Só o `hubla-webhook` precisaria de `HUBLA_WEBHOOK_TOKEN`, e só se alguém for testar webhook.
 
 Para popular o banco de teste do zero: rodar `supabase/schema-completo.sql` nele.
+
+🔴 **O banco de TESTE tem coisas que a produção NÃO tem — e isso não se adivinha olhando o repositório.** Conferido em 2026-09-20:
+
+| | Teste (`wyiqwsgfictcfkytldnu`) | Produção (`lbaudlocfbjunnaoyrtz`) |
+|---|---|---|
+| Tabela `member_home_banners` | ✅ existe | ❌ não existe |
+| Trava `admin_actions_action_check` | 6 ações (inclui `save_banner`, `delete_banner`, `move_banner`) | 3 ações |
+
+⛔ **Nunca publicar na produção a `member-api` que está no projeto de teste.** A de lá lê `member_home_banners` e levaria o banner-carrossel junto, que o Caio pediu para segurar. Quando for publicar, extrair a função **do commit**, não do disco nem do outro projeto.
 
 ## Prioridades atuais (decididas em 2026-09-18)
 1. ✅ **Webhook da Hubla** — entregue e rodando em produção desde 2026-09-18.
