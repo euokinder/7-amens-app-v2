@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-09-20
+> Atualizado: 2026-09-21
 
 ---
 
@@ -15,12 +15,14 @@ Nada anda nestes pontos até ele responder.
 | # | Assunto | A pergunta |
 |---|---|---|
 | ~~1~~ | ~~**Publicar o webhook no Supabase**~~ | ✅ **RESOLVIDO em 20/09.** O Caio autorizou, e o `hubla-webhook` foi publicado na produção como **versão 5**, conferido byte a byte contra o arquivo do repositório. O buraco que engoliu a venda de R$ 197 está fechado. A `member-api` subiu junto, como **versão 13**. Ver a entrada de 20/09. |
-| 6 | **A arte do banner precisa ser reexportada em 1200×900** ⏰ **trava o banner** | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
+| 6 | **A arte do banner precisa ser reexportada em 1200×900** (⏰ deixou de ser urgente em 21/09: o banner agora nasce desligado e não aparece para ninguém, então nada fica feio esperando a arte) | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
 | 3 | **Topologia de branches** (achado #5 da auditoria) | Hoje teste e produção saem os dois da `main`. Isso precisa ser separado, mas envolve mexer em configuração da Netlify — e ele pediu para não mexer no que está no ar sem perguntar. |
-| 5 | **Atualizar o `CLAUDE.md`?** | Perguntei duas vezes em 19/09 e o Caio não respondeu — então **nada foi tocado lá**. Quatro coisas que este chat descobriu pertencem ao `CLAUDE.md`, não ao diário, porque são "como as coisas são": (a) o `schema-completo.sql` passou a ter **3 visões**, não 2; (b) o código de produto que chega no evento **não é** o do link de checkout (Arcanjos: link `ODOZxlF1tfhee2TkZikI`, evento `5pUr8toveL5R5zR3zyaT`) — é a armadilha do slug, agora comprovada dentro do próprio evento; (c) `invoice.amount` é um **objeto** (`totalCents`), não um número; (d) `funnel_stage` classifica errado quem pula degrau e não deve ser fonte de número nenhum. **Somaram-se em 20/09, e estas são mais urgentes porque enganam quem abrir o projeto:** (e) o `CLAUDE.md` diz que a base tem **577 clientes** — hoje são **663**; (f) o banco de **TESTE** passou a ter coisas que a produção NÃO tem (a tabela `member_home_banners` e a trava `admin_actions_action_check` alargada), e ninguém adivinha isso olhando o repositório; (g) a `member-api` do teste é a **v7 com o banner dentro**, a da produção é a **v13 sem** — publicar a de teste na produção levaria o banner junto. |
+| ~~5~~ | ~~**Atualizar o `CLAUDE.md`?**~~ ✅ **RESOLVIDO em 21/09.** O `CLAUDE.md` já estava atualizado no disco (por outro chat) mas **nunca tinha sido commitado** — vivia só na máquina. Entrou no commit `1a25dbe`. Texto antigo: | Perguntei duas vezes em 19/09 e o Caio não respondeu — então **nada foi tocado lá**. Quatro coisas que este chat descobriu pertencem ao `CLAUDE.md`, não ao diário, porque são "como as coisas são": (a) o `schema-completo.sql` passou a ter **3 visões**, não 2; (b) o código de produto que chega no evento **não é** o do link de checkout (Arcanjos: link `ODOZxlF1tfhee2TkZikI`, evento `5pUr8toveL5R5zR3zyaT`) — é a armadilha do slug, agora comprovada dentro do próprio evento; (c) `invoice.amount` é um **objeto** (`totalCents`), não um número; (d) `funnel_stage` classifica errado quem pula degrau e não deve ser fonte de número nenhum. **Somaram-se em 20/09, e estas são mais urgentes porque enganam quem abrir o projeto:** (e) o `CLAUDE.md` diz que a base tem **577 clientes** — hoje são **663**; (f) o banco de **TESTE** passou a ter coisas que a produção NÃO tem (a tabela `member_home_banners` e a trava `admin_actions_action_check` alargada), e ninguém adivinha isso olhando o repositório; (g) a `member-api` do teste é a **v7 com o banner dentro**, a da produção é a **v13 sem** — publicar a de teste na produção levaria o banner junto. |
+| 8 | **PUBLICAR O SITE — está tudo pronto e parado esperando um clique seu** 🔥 | O banco e a `member-api` **já foram aplicados na produção em 21/09**. Falta só o site, que sai da `main`. O hook desta máquina barra qualquer push para a `main` (e está certo). Caminho de 3 cliques: abrir `https://github.com/euokinder/7-amens-app-v2/compare/main...development` → "Create pull request" → "Merge pull request". ⚠️ Antes: anotar na Netlify, projeto `7madrugadas`, aba Deploys, a data do deploy que está no ar — é o ponto de retorno. Publicar gasta **2 builds** (os dois sites saem da `main`). |
+| 9 | **Quer que o agente consiga publicar sozinho?** | Ele pediu que a trava passasse a liberar "quando eu permitir". A conclusão honesta: **qualquer autorização que o agente consiga escrever, ele consegue se dar sozinho** — arquivo, variável, o que for. A única permissão infalsificável é o clique do Caio na hora. As duas saídas reais: **(A)** continuar clicando no GitHub, ou **(B)** o Caio mesmo editar `.claude/hooks/protege-producao.py` e trocar `BRANCH_DE_TRABALHO = 'development'` por `'main'` — uma palavra, e depois disso o agente publica sem perguntar. O agente recomendou **A** e não tocou no arquivo. |
 | 4 | **Qual e-mail vale quando a cliente tem dois** | Três clientes têm um e-mail na fatura e outro na conta da Hubla (ver entrada de 18/09 sobre a janela cega). Elas vão tentar entrar com o do recibo, que o app não conhece. Dá para corrigir no painel, mas a pergunta é qual dos dois passa a valer: o do recibo é o que ela lembra; o da conta Hubla é o que o webhook vai continuar mandando nas próximas compras dela. |
-| 6 | **Travar as orações e liberar 1 por dia — três perguntas** | Ele perguntou o tamanho disso em 20/09. A resposta: **a trava já existe construída**, falta só uma conta (ver a entrada de 20/09). Mas três coisas são decisão dele, e sem elas nada anda: **(a)** quando vira "o dia seguinte" — meia-noite ou 4h da manhã? A jornada é de madrugada, e à meia-noite quem rezou 23h libera o dia seguinte em 1 hora; **(b)** e se ela rezar e **esquecer de marcar "Concluí"**? Hoje é botão manual. Se a liberação depender dele, quem esquecer fica presa e liga no WhatsApp — com senhoras 45+ isso vai acontecer; **(c)** vale para quem já começou? ⏳ **Esta terceira tem prazo:** hoje só **71 de 664** clientes têm algum progresso e ninguém passou do dia 3 — travar agora quase não incomoda ninguém. A cada dia de vendas essa janela fecha. |
+| ~~6~~ | ~~**Travar as orações e liberar 1 por dia — três perguntas**~~ ✅ **RESOLVIDO.** O Caio respondeu as três e a trava **está no ar desde 20/09** (commit `d182423`, `js/trava.js`): vira à **meia-noite de Brasília**, **não** depende de marcar "Concluí", e quem já tinha entrado abriu no Dia 3. As regras estão escritas no `CLAUDE.md`. ⚠️ Este item ficou marcado como pendente no diário por um dia inteiro depois de resolvido — quem lesse só o diário acharia que nada tinha andado. Texto antigo: | Ele perguntou o tamanho disso em 20/09. A resposta: **a trava já existe construída**, falta só uma conta (ver a entrada de 20/09). Mas três coisas são decisão dele, e sem elas nada anda: **(a)** quando vira "o dia seguinte" — meia-noite ou 4h da manhã? A jornada é de madrugada, e à meia-noite quem rezou 23h libera o dia seguinte em 1 hora; **(b)** e se ela rezar e **esquecer de marcar "Concluí"**? Hoje é botão manual. Se a liberação depender dele, quem esquecer fica presa e liga no WhatsApp — com senhoras 45+ isso vai acontecer; **(c)** vale para quem já começou? ⏳ **Esta terceira tem prazo:** hoje só **71 de 664** clientes têm algum progresso e ninguém passou do dia 3 — travar agora quase não incomoda ninguém. A cada dia de vendas essa janela fecha. |
 | 7 | **A saudação pode chamar a cliente pelo nome do marido** | Medido em 19/09: **~40% dos cadastros estão em nome masculino** (244 de 604 nomes utilizáveis). Para um produto vendido a mulheres 45+, quase certamente é marido/filho/neto que comprou — o diário já tem três casos comprovados de cadastro no nome de outra pessoa da família. A saudação nova lê esse mesmo campo (`js/member.js`, `state.customer.name`), então ~4 em cada 10 abririam o app lendo *"Olá Luiz, que a paz do Senhor esteja com você!"* sendo ela Maria. **Isso está na fila para publicar.** Saídas possíveis: aceitar, saudar só quando o nome for reconhecidamente feminino, ou perguntar o nome dela uma vez dentro do app. ⚠️ O Caio pediu essa análise **só no chat, sem gravar em arquivo** — aqui ficou apenas a consequência operacional, porque ela afeta trabalho que já está esperando deploy. Se ele preferir, é só apagar esta linha. |
 | ~~5~~ | ~~**Ligar o conserto do formulário de perfil na produção**~~ | ✅ **RESOLVIDO em 20/09 às 00:35.** O Caio autorizou e o conserto foi aplicado na produção, com conferência. Ver a entrada de 20/09. |
 
@@ -92,10 +94,14 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕🔥 **O banner da home está no repositório, mas NÃO funciona — faltam três peças** (21/09). Hoje ele nasce invisível e só apareceria se houvesse banner cadastrado no painel. Mas mesmo cadastrando, **nada apareceria**, porque: (a) o `js/member.js` não entrega os banners para a home — a chamada saiu na limpeza de 20/09 e nunca voltou, embora o próprio `js/banner.js` diga que é o `member.js` quem preenche; (b) **não existe CSS nenhum do carrossel** (palco, trilho, setas, pontinhos); (c) a produção não tem a tabela `member_home_banners` nem a `member-api` que a lê. O painel de banners grava, a home não lê. É trabalho de verdade, não ajuste.
+- 🆕 **O resumo do perfil no painel nunca foi visto com base de verdade** (21/09). O banco de teste tem **1 respondente só**, então as porcentagens não apareceram — a regra de base pequena as escondeu, corretamente. Como fica com 105 respostas reais, ninguém viu. Basta abrir o painel da produção depois de publicar.
+- 🆕 **Filtros, resumo do perfil e formulário novo não foram abertos num celular de verdade** (21/09). Tudo foi conferido no navegador em 375px e medido, mas ninguém tocou com o dedo.
+- 🆕 **A `development` ficou 1 commit atrás da `main` durante todo o dia 21/09** (21/09). A `main` recebeu `8e3d067` (as doações do Dia 03, feitas pelo Caio com o ChatGPT de madrugada) e a `development` não tem esse commit. O merge foi simulado e **não dá conflito** — o bloco de doações sobrevive intacto. Mas enquanto as duas não forem juntadas, quem trabalhar aqui está em cima de uma versão que não é a que está no ar.
 - 🆕 **Não conclua nada sobre "quantos dias ela volta" antes de 24/09** (20/09). A contagem de visitas só existe desde **18/09**. Qualquer pergunta do tipo "quantas vieram 4 dias?" vai responder **zero** — e isso **não é abandono, é a régua sendo mais curta que a pergunta**. Para a jornada de 7 madrugadas virar número confiável, a medição precisa de 7 dias corridos, ou seja, a partir de **24/09**.
 - ✅ ~~**16 arquivos alterados e nenhum commitado**~~ **RESOLVIDO em 20/09.** Viraram o commit `c5d3a82` e já estão na `main` e no ar. Os quatro trabalhos foram separados do banner um por um. Ver a entrada de 20/09.
 
-- 🆕🔴 **O banner de destaque está SÓ na máquina do Caio** (20/09). Cinco arquivos fora do commit, por decisão dele — ele quer trabalhar mais nele antes de publicar: `js/banner.js`, `supabase/banners-da-home.sql`, `assets/images/banner-novena-desatadora.jpg`, `scripts/ver-no-celular.html` e o PNG original na raiz. **Se a máquina pifar, some.** Mais oito arquivos rastreados têm o banner por cima (`index.html`, `css/styles.css`, `admin.html`, `js/admin.js`, `css/admin.css`, `js/member.js`, `member-api`, `schema-completo.sql`) — quem for commitar qualquer coisa nesses arquivos vai levar o banner junto sem querer.
+- ✅ ~~**O banner de destaque está SÓ na máquina do Caio**~~ **RESOLVIDO em 21/09:** foi commitado (`1a25dbe`) e enviado ao GitHub, e entrou **desligado**. Não some mais se a máquina pifar. Texto antigo (20/09): Cinco arquivos fora do commit, por decisão dele — ele quer trabalhar mais nele antes de publicar: `js/banner.js`, `supabase/banners-da-home.sql`, `assets/images/banner-novena-desatadora.jpg`, `scripts/ver-no-celular.html` e o PNG original na raiz. **Se a máquina pifar, some.** Mais oito arquivos rastreados têm o banner por cima (`index.html`, `css/styles.css`, `admin.html`, `js/admin.js`, `css/admin.css`, `js/member.js`, `member-api`, `schema-completo.sql`) — quem for commitar qualquer coisa nesses arquivos vai levar o banner junto sem querer.
 - 🆕 **Ver o banner num celular de verdade** (20/09). Foi medido em cinco tamanhos de tela no navegador e o deslizar foi testado em sete comportamentos, mas **ninguém arrastou com o dedo num aparelho real** — e é o dedo que decide se a inércia e o pouso ficaram bons. A página para isso está pronta em `scripts/ver-no-celular.html`: rodar o build, copiar para `dist/`, e abrir `http://<ip-do-pc>:3000/ver-no-celular.html` no celular, no mesmo Wi-Fi. Ela tem três botões que trocam a moldura e mostram os números do próprio aparelho na tela.
 - 🆕 **Abrir o painel da produção e olhar o funil com os olhos** (20/09, substitui o item de 19/09). Agora há mais o que conferir: o número de clientes deve mostrar **663**, a escada UP01→UP02→UP03 deve desenhar, a coluna "Compras" do pop-up deve mostrar **6** (saiu do zero), e deve aparecer o bloco novo de **Pix × cartão**. Nada disso foi visto na tela da produção — só o caminho dos dados foi conferido.
 - 🆕 **Olhar a taxa de resposta do formulário de perfil com tempo de estrada** (20/09). Ele estreou hoje à 00:01 e na primeira meia hora foram **4 entregas e 0 respostas completas** — número que não significa nada ainda, porque duas pessoas estavam respondendo naquele instante. A consulta: contar `member_survey_events` contra `member_survey_responses` no banco de produção. Se a taxa ficar baixa de verdade depois de uns dias, o suspeito número um é a pergunta 4 (item abaixo).
@@ -123,6 +129,63 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ---
 
+## 2026-09-21 — Filtros no painel, formulário para homens, e o banner que ia quebrar a home
+
+**Chat:** o Caio pediu três otimizações. **Faixa autorizada:** começou em "só leitura", passou por "pode mexer local", depois "pode enviar pro GitHub", e terminou autorizando os dois passos de Supabase da publicação.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO HOJE
+
+| O quê | De | Para |
+|---|---|---|
+| Trava do banco que aceita as respostas do perfil | 4 valores (só femininos) | **7 valores** (aceita `father`, `grandfather`, `father_and_grandfather`) |
+| `member-api` | v14 | **v15**, com `verify_jwt` = false |
+| Site | — | **NÃO mudou.** Continua a versão antiga. |
+
+As 105 respostas de perfil já gravadas continuam intactas. A função foi **baixada de volta e comparada** com o arquivo do repositório: idêntica. Teste ao vivo no endereço de produção respondeu certo, com os acentos corretos.
+
+⚠️ **A `member-api` estava na v14, e o diário registrava v13.** Alguém publicou uma versão entre 20/09 e hoje sem registrar. A v14 foi baixada e comparada antes de sobrescrever — não tinha nada que o repositório não tivesse. **Conferir antes de publicar por cima virou regra, não zelo.**
+
+### O que foi construído
+
+| O quê | Onde | Testado? |
+|---|---|---|
+| **Filtros de clientes** — produto, dias de acesso, orações, formulário respondido | `admin.html`, `js/admin.js`, `css/admin.css` | ✅ na tela, contra o banco de teste |
+| **Resumo do perfil** — as 6 perguntas com quantidade, % e barra | `js/admin.js` | ⚠️ só com 1 respondente |
+| **Formulário para homens e mulheres** | `perfil.html`, `js/perfil.js`, `css/perfil.css` | ✅ os dois caminhos percorridos |
+| **Banner desligado** | `index.html`, `js/banner.js`, `css/styles.css` | ✅ altura zero conferida |
+
+Tudo está no commit `1a25dbe`, mais o `3c734f2`. **Enviados para a `development`, que não publica nada.**
+
+**Filtros:** dentro de "Produto" a soma é **E**, não OU — marcar UP01 e UP02 mostra quem tem os dois (regra pedida pelo Caio). Cada chip carrega o número que entrega, e o contador virou "3 de 15". Tudo acontece no navegador, em cima da lista que o painel já carregava: **nenhuma consulta nova ao banco, nenhum custo a mais.**
+
+**Formulário:** a escolha ficou na **tela de abertura**, em dois botões — "Sou irmã" e "Sou irmão" — em vez de virar uma 7ª pergunta. Continua com 6 perguntas e sem cara de formulário. Só a pergunta 1 troca o valor gravado (pai não é mãe); nas outras muda apenas o rótulo. Os rótulos do painel deixaram de ser femininos ("Casada" virou "Casado(a)"), senão o painel mentiria sobre metade das pessoas.
+
+### Quatro coisas que enganam — e três quase passaram
+
+**1. O nome da trava no banco não é o que o repositório diz.** O SQL escrito para liberar "Pai" e "Avô" mandava derrubar `member_survey_responses_motherhood_check`. O nome real na produção é `member_survey_responses_motherhood_status_check` — com "status" no meio. Rodando como estava escrito, o `drop` não acharia nada, o `add` criaria uma trava nova e permissiva, **e a velha continuaria de pé ao lado**. O SQL diria "sucesso" e os homens continuariam bloqueados. Só não aconteceu porque o banco vivo foi consultado antes. O arquivo `supabase/perfil-para-irmaos.sql` agora derruba **os dois nomes**.
+
+**2. Duas funções com o mesmo nome não dão erro — a de baixo engole a de cima.** Já existia um `chip()` no `js/admin.js`, do funil, e este chat criou outro. O funil passou a imprimir **"UP01 undefined"** no lugar dos códigos, sem derrubar tela nenhuma. Só apareceu abrindo o painel no navegador. A função nova virou `chipDeFiltro`.
+
+**3. O banner ia abrir a home com 2220px de parede.** Medido no navegador, em tela de 355px: como **não existe CSS nenhum do carrossel**, as três imagens empilhavam e a cliente rolaria seis telas antes de chegar nas orações. Nada no console, nada quebrado. Consertado: a seção agora nasce invisível e só aparece com banner de verdade cadastrado. Saíram também a lista de reserva escrita dentro do `js/banner.js` (que mostrava um destaque que ninguém escolheu) e o slide-âncora do `index.html` (que baixava uma imagem à toa).
+
+**4. O contador de orações mistura as duas jornadas.** `prayer_key` aceita `principal:0-7` **e** `desatadora:1-9`, e o painel soma tudo. Por isso a última faixa do filtro se chama "7 ou mais", e **não** "as 7 madrugadas". Separar exigiria mexer na visão do banco.
+
+### O bloco de doações do Dia 03 (feito pelo Caio com o ChatGPT, 21/09 às 05:34)
+
+Foi revisado a pedido dele. **Não quebrou nada** — é puramente aditivo e a trava de 1 oração por dia continua inteira. Contraste entre 5,1 e 14,4 (o mínimo é 4,5), botões de 102 a 136px de altura, e a revelação aos 10:30 é bem construída (quem comanda é o vídeo; o cronômetro comum é só rede de segurança, devidamente cancelada).
+
+Três apontamentos, que o **Caio viu e decidiu deixar como está**: a página inteira pula **510px** quando o bloco aparece (conferido que o dedo não cai em botão de pagamento — o lugar vira o título); a letra que promete o objeto físico é a **menor da página** (13px, contra 16 da oração); e os três botões abrem **na mesma aba**, tirando a cliente da oração.
+
+⚠️ Esse commit reescreveu o `js/dias.js` em **CRLF**. O Git mostra 759 linhas alteradas, mas só **5** são mudança real.
+
+### O que NÃO foi conferido
+
+- O painel da produção **não foi aberto na tela** depois das mudanças — nem podia, o site ainda não subiu.
+- O resumo do perfil nunca mostrou porcentagem, porque o banco de teste tem 1 respondente.
+- Nada foi aberto num celular de verdade.
+- O formulário novo **nunca foi enviado de verdade** — o caminho completo (escolher "Sou irmão", responder as 6 e gravar) só será provado quando o site subir.
+
+---
 ## 2026-09-20 — O banner de destaque nasceu, e tudo que estava parado foi publicado
 
 **Chat:** o Caio pediu um banner em carrossel no alto da home, trocável pelo painel. No meio do caminho ele mandou commitar e publicar todo o resto que estava parado. **Faixa autorizada:** começou em "pode mexer local" e terminou em "pode publicar".
