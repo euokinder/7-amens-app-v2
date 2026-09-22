@@ -258,7 +258,7 @@ Para popular o banco de teste do zero: rodar `supabase/schema-completo.sql` nele
 ## Infraestrutura — identificadores
 - Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo.**
 - ⚠️ Em 2026-09-18 a `main` recebeu tudo o que estava na `development` e foi enviada ao GitHub. Hoje as duas branches são idênticas — não existe mais uma versão antiga guardada na `main` para servir de rede de segurança. A rede de segurança é o deploy antigo na Netlify (ver rollback, abaixo).
-- O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`. Teste de regressão: `python .claude/hooks/testa-protege-producao.py`. Ele só enxerga comandos rodados nesta máquina — as travas de verdade são branch protection na `main` (GitHub) e "Stop auto publishing" no projeto `7madrugadas` (Netlify).
+- O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`. Teste de regressão: `python .claude/hooks/testa-protege-producao.py`. Ele só enxerga comandos rodados **pelo agente** nesta máquina — o Caio rodando no próprio terminal passa por fora, e é por isso que o caminho de publicar é o clique dele (ver "Como publicar", acima). As travas de verdade são branch protection na `main` (GitHub) e "Stop auto publishing" no projeto `7madrugadas` (Netlify).
 - Supabase em uso: projeto **`7-amens-app-v2`**, ref `lbaudlocfbjunnaoyrtz`, região sa-east-1.
 - Supabase de **TESTE**: projeto `7 Orações da Madrugada`, ref `wyiqwsgfictcfkytldnu`, região us-west-2. Desde 2026-09-18 ele tem o schema completo e é o banco que o `localhost` usa. Região diferente da produção não atrapalha teste. **Nenhuma cliente real aqui** — as contas `teste.novas@exemplo.com` e `teste.antigas@exemplo.com` são cobaias de propósito.
 
@@ -276,6 +276,31 @@ Abre em http://localhost:3000. Deploy de produção não é ferramenta de teste.
 "C:\Program Files\nodejs\node.exe" scripts/build.mjs
 ```
 O build apaga `dist/` antes de copiar, então o que você vê no preview é exatamente o que vai ao ar.
+
+## ✅ Como publicar — o agente prepara, o Caio publica (combinado de 2026-09-21)
+**Quem publica este site é o Caio. O agente nunca publica.** Isso não muda, e encerra a pergunta que ficou dias em aberto no diário ("dá para o agente publicar sozinho?"): não dá, e **não precisa** — o trabalho todo pode ficar pronto de antemão, e sobra para ele um comando só.
+
+O agente deixa tudo montado e conferido, e escreve o comando final num bloco marcado como `bash`. O aplicativo põe um botão **Run** nesse bloco, e **é o Caio quem executa, no terminal dele**. Antes disso, o agente diz o que vai ao ar e quanto custa — que é justamente a conferência que o hook pede.
+
+**A decisão de publicar é dele, e continua sendo dele em cada publicação.** É a única autorização que o agente não consegue produzir sozinho — a mesma conclusão a que o diário já tinha chegado.
+
+### A ordem, quando o Caio disser "pode subir isso no site principal"
+
+| Quem | O quê |
+|---|---|
+| agente | junta `origin/main` na `development` — as duas divergem com frequência, porque o Caio commita direto na `main` |
+| agente | roda o build local; **é a única rede antes das clientes**, já que os dois sites saem da `main` |
+| agente | confere o que muda na tela da cliente e faz `git push origin development` |
+| agente | `git checkout main` e `git merge --ff-only development` — deixa a `main` local pronta, **sem enviar** |
+| agente | diz **o que vai ao ar**, avisa que custa **2 builds** e lembra de anotar o ponto de retorno na Netlify |
+| **Caio** | **1 clique** no bloco ` ```bash git push origin main ``` ` |
+| agente | lê o terminal, confirma que o push entrou e confere o site no ar |
+
+⛔ **O hook barra o agente se ele tentar publicar — e está certo.** Não é defeito, é o desenho, e o combinado acima existe justamente para o hook nunca precisar ser tocado. **Não editar `.claude/hooks/protege-producao.py`**, nem "só desta vez": trava que o agente abre sozinho não é trava. Se um dia a regra precisar mudar, quem muda é o Caio, no arquivo, de propósito.
+
+⚠️ Existe uma **segunda camada de proteção**, do próprio Claude Code, que também recusa quando o agente tenta publicar ("Production Deploy"). Ela não está no repositório e não se desliga por aqui — e também não deve ser contornada.
+
+⚠️ O hook barra `git push` **junto com qualquer outro comando** (`|`, `&&`, `;`). Até um `| tail -6` derruba. Push roda sozinho, sem nada depois.
 
 ## Se a produção quebrar depois de publicar (rollback)
 Nesta ordem, e sem mexer em código:
