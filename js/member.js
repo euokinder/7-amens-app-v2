@@ -1,6 +1,9 @@
 (() => {
   'use strict';
   const storageKey = '7amens.member.session.v2';
+  // A Terceira Madrugada e a unica que conclui pela contribuicao, nao pelo
+  // botao. Ver o bloco de doacao em dia.html e a decisao de 22/09/2026.
+  const CHAVE_DIA_03 = 'principal:3';
   const AJUDA = 'https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.';
   const readToken = () => { try { return localStorage.getItem(storageKey) || ''; } catch { return ''; } };
   let token = readToken();
@@ -337,6 +340,23 @@
       const button = node('button', 'member-button', ''); button.type = 'button';
       const message = node('p', '', ''); message.setAttribute('role', 'status');
       button.addEventListener('click', async () => {
+        // No Dia 03 quem conclui e a contribuicao. Enquanto ela nao escolher,
+        // este botao nao salva nada: so aponta o caminho.
+        //
+        // ATENCAO: isto NAO tranca o Dia 04. Quem abre os dias e o calendario
+        // (js/trava.js), e concluir serve so de piso. Quem nunca contribuir
+        // continua recebendo a Quarta Madrugada na meia-noite seguinte.
+        if (key === CHAVE_DIA_03 && !completed(key)) {
+          const bloco = document.getElementById('doacoes-dia-03');
+          const aparecendo = Boolean(bloco) && !bloco.classList.contains('doacao-dia-03--oculta');
+          // Sem esta segunda frase o botao seria um beco: antes de o video
+          // chegar la, nao existe contribuicao nenhuma na tela para escolher.
+          message.textContent = aparecendo
+            ? 'Escolha uma contribuição para concluir a oração.'
+            : 'Escolha uma contribuição para concluir a oração. As opções aparecem aqui embaixo conforme o vídeo.';
+          if (aparecendo) bloco.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          return;
+        }
         button.disabled = true; message.textContent = 'Salvando sua oração…';
         try { state = await api('progress', { prayer_key: key, completed: !completed(key) }); render(); message.textContent = 'Seu progresso foi salvo.'; }
         catch (error) { if ([401, 403].includes(error.status)) return toLogin(error.message); message.textContent = 'Não conseguimos salvar agora. Confira sua conexão e toque de novo — se continuar, fale com a gente no WhatsApp.'; }
@@ -347,7 +367,11 @@
     const progressAnchor = document.getElementById('member-progress-anchor') || content.querySelector('.banner');
     if (progressAnchor) progressAnchor.before(progress);
     else if (!progress.isConnected) content.append(progress);
-    progress.querySelector('button').textContent = completed(key) ? '✓ Oração concluída · desfazer' : 'Concluí esta oração';
+    // Concluida, o Dia 03 volta ao rotulo normal: ela pode desfazer como nos
+    // outros dias.
+    progress.querySelector('button').textContent = completed(key)
+      ? '✓ Oração concluída · desfazer'
+      : (key === CHAVE_DIA_03 ? 'Escolha uma contribuição para concluir a oração' : 'Concluí esta oração');
   }
   let ultimaVerificacao = 0;
   // Voltar para a aba, reconectar e destravar o celular disparam quase juntos.
@@ -407,6 +431,33 @@
       return;
     }
     if (!token) return toLogin();
+    // Clicar em qualquer das tres contribuicoes conclui a Terceira Madrugada.
+    // Decisao do Caio em 22/09/2026: quem contribui concluiu, mesmo que nao
+    // termine o pagamento do outro lado.
+    //
+    // `keepalive` e OBRIGATORIO aqui: o checkout abre na MESMA aba, e sem ele
+    // o navegador cancela a gravacao no meio do caminho. A oracao nao ficaria
+    // marcada e ninguem veria erro nenhum -- nem ela, nem o log.
+    //
+    // Na fase de captura e sem `await`: nada nesta marcacao pode atrasar nem
+    // impedir a ida dela para o checkout, que e o que de fato importa.
+    //
+    // Delegado no documento porque o bloco de doacao nasce escondido e so
+    // aparece quando o video chega aos 9:14 -- prender o ouvinte no elemento
+    // exigiria saber a hora em que ele nasce.
+    document.addEventListener('click', (evento) => {
+      const alvo = evento.target;
+      if (!(alvo instanceof Element) || !alvo.closest('.doacao-dia-03__botao')) return;
+      if (!token || completed(CHAVE_DIA_03)) return;
+      try {
+        fetch(window.MEMBER_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-member-session': token },
+          body: JSON.stringify({ action: 'progress', prayer_key: CHAVE_DIA_03, completed: true }),
+          keepalive: true,
+        }).catch(() => {});
+      } catch { /* o checkout dela importa mais que a marcacao */ }
+    }, true);
     // O aviso de espera já vem escrito no HTML, então existe mesmo que este
     // arquivo falhe. Aqui só garantimos que ele exista em página antiga.
     if (!document.getElementById('member-gate')) {
