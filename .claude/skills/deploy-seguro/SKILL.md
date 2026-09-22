@@ -39,7 +39,8 @@ Vale para: `member_offer_campaigns.enabled`, `member_survey_campaigns.enabled`, 
 ## Nunca fazer sem confirmação explícita
 - `git push origin main` ou qualquer push que atinja a branch de produção
 - Mudar plano, billing ou método de pagamento na Netlify
-- Criar site novo na Netlify — já existem DOIS projetos e essa é a conta fechada: `7madrugadas` (produção, https://setemadrugadas.com.br) e `7-amens-app-v2` (validação, https://7-amens-app-v2.netlify.app)
+- Criar site novo na Netlify — já existem TRÊS projetos e essa é a conta fechada: `7madrugadas` (produção, https://setemadrugadas.com.br), `7-amens-app-v2` (congelado desde 21/09, **não constrói mais**) e `7sacredprayers` (versão americana)
+- **Religar os builds do `7-amens-app-v2`** (*Build status → Active builds*). Ele foi desligado em 21/09 de propósito: era uma cópia idêntica da produção e dobrava o custo de cada publicação. Publicar custa **1 build** hoje; religar volta a custar 2.
 - Alterar `netlify.toml` em `main`
 - Habilitar build automático em branch que não tinha
 
@@ -50,7 +51,7 @@ Não sugerir criar conta nova nem site novo para contornar. As saídas legítima
 1. Projeto **`7madrugadas`** na Netlify → aba **Deploys**.
 2. Achar o último deploy que estava bom (pela data/hora).
 3. **"Publish deploy"** nele. Volta em segundos, sem build novo, sem consumir crédito.
-4. Investigar a causa depois, na validação.
+4. Investigar a causa depois, **no teste local** — não existe mais ambiente de validação na Netlify.
 
 Anotar a data e o ID do deploy bom **antes** de promover. O ponto de retorno não é um commit: `6c90670` já contém o login.
 

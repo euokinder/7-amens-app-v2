@@ -1,6 +1,6 @@
 # 7 Améns da Madrugada — Contexto do Projeto
 
-> Fonte de verdade das regras do projeto. Atualizado: 2026-09-20
+> Fonte de verdade das regras do projeto. Atualizado: 2026-09-21
 > Contexto histórico completo em `docs/contexto-completo.md`. Leia sob demanda, não sempre.
 
 ## 🧭 Comece pelo diário
@@ -15,40 +15,40 @@ Antes de qualquer coisa, leia `docs/DIARIO.md`. Ele diz **onde a gente parou** �
 ## Em uma frase
 Um app católico extremamente simples para a cliente, com infraestrutura por trás capaz de saber quem ela é, o que comprou, o que pode acessar e onde parou — tudo automaticamente.
 
-## ⚠️ São DOIS sites na Netlify, não um
-Confundir os dois é o erro mais caro possível aqui: dá para testar no endereço errado e declarar "está funcionando" olhando para um site que a cliente não usa.
+## ⚠️ Só UM site publica hoje — e são TRÊS projetos na conta
+Desde **2026-09-21** existe um único site que constrói sozinho. Antes eram dois, e cada publicação gastava dois builds por nada.
 
-| Papel | Endereço | Projeto na Netlify | O que nunca fazer |
+| Papel | Endereço | Projeto na Netlify | Constrói sozinho? |
 |---|---|---|---|
-| **PRODUÇÃO** (clientes que pagaram) | https://setemadrugadas.com.br | `7madrugadas` | publicar sem conferir antes na validação |
-| **VALIDAÇÃO** (conferir antes de promover) | https://7-amens-app-v2.netlify.app | `7-amens-app-v2` | ligar campanha de verdade durante um teste |
+| **PRODUÇÃO** (clientes que pagaram) | https://setemadrugadas.com.br | `7madrugadas` | ✅ **sim** — segue a `main` |
+| **CONGELADO** (era "validação") | https://7-amens-app-v2.netlify.app | `7-amens-app-v2` | ⛔ **não** — *Stopped builds* desde 21/09 |
+| **Versão americana** (operação à parte) | https://7sacredprayers.netlify.app | `7sacredprayers` | não entra na conta do dia a dia |
+
+**Publicar custa 1 build.** Era 2 até 21/09.
 
 O endereço antigo `https://7madrugadas.netlify.app` é o MESMO site de produção. Ele está sendo redirecionado para o domínio pelo `netlify.toml`, e a `member-api` também o aceita — mas não use esse endereço para nada.
 
-🔴 **OS DOIS SITES SEGUEM A MESMA BRANCH: `main`.** Verificado na API da Netlify em 2026-09-18, não deduzido:
+### Por que a "validação" foi desligada
+Ela **nunca validou nada**. Seguia a mesma branch da produção (`main`, conferido na API em 18/09), então mudava no mesmo instante — e apontava para o **mesmo banco das clientes reais**. A única diferença entre os dois sites era um "não indexe no Google", escrito pelo `scripts/build.mjs`. Era uma cópia idêntica da produção, cobrada à parte.
 
-| Projeto | Branch de produção | Endereço |
-|---|---|---|
-| `7madrugadas` | **`main`** | setemadrugadas.com.br |
-| `7-amens-app-v2` | **`main`** | 7-amens-app-v2.netlify.app |
+⚠️ **Ela continua no ar, congelada na versão de 21/09, e vai envelhecer.** Quem cair naquele endereço daqui a um mês vê um app velho conversando com o **banco vivo** — poderia, por exemplo, mostrar as 7 orações de uma vez, porque a trava do `js/trava.js` não estaria na versão congelada. O acabamento certo é fazer aquele endereço redirecionar para o site de verdade, como já se faz com o `7madrugadas.netlify.app`. **Não foi feito ainda.**
 
-O deploy atual da validação traz, literalmente, `"branch": "main"` e `"context": "production"`.
+### O que continua valendo
+1. **Push na `main` é publicar para as clientes**, direto, sem ensaio. Antes dele, anotar data e ID do último deploy bom na Netlify: é a única forma de voltar atrás.
+2. **Push na `development` não muda site nenhum.** Não gasta build e não publica nada — serve só para guardar o trabalho no GitHub. Foi o que aconteceu no commit `c83eb29`: o push saiu, os sites continuaram na versão antiga.
+3. **O único ensaio real é o teste local** (`node scripts/build.mjs && node scripts/preview.mjs`). Não é "boa prática": é a única rede antes das clientes.
+4. O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`, então a `main` não sai daqui por acidente.
 
-**O que isso significa na prática — e é grave:**
-1. **Não existe conferir na validação antes de publicar.** Um push na `main` atualiza os DOIS sites ao mesmo tempo. A validação não é ensaio: ela muda junto com a produção.
-2. **Push na `development` não muda site nenhum.** Não gasta build e não publica nada — serve só para guardar o trabalho no GitHub. Foi o que aconteceu no commit `c83eb29`: o push saiu, os dois sites continuaram na versão antiga.
-3. **Então o único ensaio real é o teste local** (`node scripts/build.mjs && node scripts/preview.mjs`). Ele deixa de ser "boa prática" e passa a ser a única rede antes das clientes.
-4. **Push na `main` é publicar para as clientes.** Antes dele, anotar data e ID do último deploy bom na Netlify: é a única forma de voltar atrás.
-5. O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`, então a `main` não sai daqui por acidente.
+⚠️ **O achado #5 da auditoria mudou de resposta.** Ele sugeria apontar o `7-amens-app-v2` para a `development`, para recuperar o ensaio. **Isso sairia mais caro:** hoje `git push origin development` custa zero, e com a validação seguindo essa branch cada envio viraria um build — e envia-se para a `development` muito mais vezes do que se publica. Por isso a escolha de 21/09 foi **desligar**, não redirecionar.
 
-⚠️ Isto é o achado #5 da auditoria, que o diário lista como **esperando decisão do Caio**: separar as duas topologias (ex.: apontar `7-amens-app-v2` para `development`) devolveria o ensaio antes da produção. Enquanto não for feito, publicar é sempre direto no alvo.
+⚠️ **Ligar os builds de volta é um clique** (*Site configuration → Build & deploy → Build status → Active builds*) — e volta a custar 2. Não fazer isso sem o Caio pedir.
 
 ## Status atual
-- **Validação:** https://7-amens-app-v2.netlify.app/ (versão com login e sistema de membros)
-- **Produção:** https://setemadrugadas.com.br (ainda rodando versão antiga, sem login)
+- **Produção:** https://setemadrugadas.com.br — **com login e sistema de membros no ar desde 20/09**. (Este item dizia "ainda rodando versão antiga, sem login" até 21/09, quando já fazia dias que não era verdade.)
+- **Congelado:** https://7-amens-app-v2.netlify.app/ — parado na versão de 21/09, não constrói mais (ver a seção acima).
 - É um site HTML/CSS/JS puro desenhado para parecer app. **Não está em loja nenhuma.**
 - Desafio NÃO é criar do zero — é **otimizar e completar** o que existe.
-- Em andamento: login por e-mail (incompleto — próxima tarefa).
+- O login por e-mail está **pronto e em uso pelas clientes**. Não é mais "a próxima tarefa".
 
 ## Quem é o dono do projeto
 Caio — copywriter da operação, à frente do desenvolvimento como **idealizador**, não como dev.
@@ -289,10 +289,10 @@ O agente deixa tudo montado e conferido, e escreve o comando final num bloco mar
 | Quem | O quê |
 |---|---|
 | agente | junta `origin/main` na `development` — as duas divergem com frequência, porque o Caio commita direto na `main` |
-| agente | roda o build local; **é a única rede antes das clientes**, já que os dois sites saem da `main` |
+| agente | roda o build local; **é a única rede antes das clientes**, porque não existe ensaio na Netlify |
 | agente | confere o que muda na tela da cliente e faz `git push origin development` |
 | agente | `git checkout main` e `git merge --ff-only development` — deixa a `main` local pronta, **sem enviar** |
-| agente | diz **o que vai ao ar**, avisa que custa **2 builds** e lembra de anotar o ponto de retorno na Netlify |
+| agente | diz **o que vai ao ar**, avisa que custa **1 build** e lembra de anotar o ponto de retorno na Netlify |
 | **Caio** | **1 clique** no bloco ` ```bash git push origin main ``` ` |
 | agente | lê o terminal, confirma que o push entrou e confere o site no ar |
 
@@ -307,7 +307,7 @@ Nesta ordem, e sem mexer em código:
 1. Abrir o projeto **`7madrugadas`** na Netlify → aba **Deploys**.
 2. Achar na lista o último deploy que estava bom (pela data/hora).
 3. Clicar nele e usar **"Publish deploy"**. Volta em segundos, **não roda build novo** e portanto **não consome crédito**.
-4. Só depois investigar a causa, com calma, no ambiente de validação.
+4. Só depois investigar a causa, com calma, **no teste local** — não existe mais ambiente de validação na Netlify.
 
 As páginas HTML são servidas com `Cache-Control: no-cache`, então a volta atrás aparece na hora para as clientes.
 
@@ -336,7 +336,7 @@ cliente entra com e-mail → sistema a encontra → sabe o que comprou → mostr
 - **Créditos do Netlify Free já foram zerados uma vez.** Plano pago ~US$9/mês em avaliação.
 - **Nunca gastar deploy de produção em alteração pequena.** Desenvolver e testar localmente (inclusive Supabase, login, regras, progresso).
 - Deploy externo só quando precisar de URL alcançável (teste real de webhook).
-- **Dois sites na Netlify** (ver a tabela no topo deste arquivo): `7madrugadas` = produção, `7-amens-app-v2` = validação. Não criar sites novos para fugir de créditos.
+- **Três projetos na conta da Netlify, só um constrói** (ver a tabela no topo deste arquivo): `7madrugadas` = produção; `7-amens-app-v2` = congelado desde 21/09; `7sacredprayers` = versão americana. Publicar custa **1 build**, não 2. Não criar sites novos para fugir de créditos.
 - Cada verificação de sessão do app grava no banco. O intervalo é de **5 minutos** (`js/member.js`); baixar esse número multiplica o consumo da Supabase.
 - Alertar sobre qualquer risco de cobrança automática no cartão antes de acontecer.
 
