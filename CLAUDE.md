@@ -115,7 +115,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos (`arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`) e o Cântico Angelical (`cantico.html`, `cantico-dia.html`, `oferta-cantico.html`, `cantico.js`). Todo áudio do app toca pelo **tocador único**, `js/tocador.js` (24/09): recomeçar, voltar e avançar 10 s, velocidade 1x/1,5x/2x e controle pela tela bloqueada do celular. Quem usa: `dia.html`, `oracao-arcanjo.html` e `cantico-dia.html`. Tocador novo numa tela = `TOCADOR.html(...)` + `TOCADOR.ligar(...)`, nunca uma cópia.
 
 ## Regras de negócio (inegociáveis)
-1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público.
+1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público. **Segunda porta, para quem não consegue nem digitar o e-mail: o link de entrada** (ver a seção própria, abaixo).
 2. **Só quem comprou o produto principal entra no app.** A compra principal libera todo o conteúdo base e o acesso é **vitalício**.
 3. **Extras são entitlements individuais.** Cliente pode ter principal + extra A sem ter extra B.
 4. **Reembolso do principal → perde o app inteiro.** **Reembolso de um extra → mantém o app, perde só aquele extra.**
@@ -123,6 +123,27 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 6. **Progresso vive na nuvem (Supabase), não em `localStorage`.** Trocou de aparelho, o progresso continua.
 7. **Webhooks da Hubla devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
+
+## 🔗 Link de entrada — para quem não consegue digitar o e-mail (⏳ pronto, ainda NÃO publicado)
+Pedido do Caio em **2026-09-24**: há clientes que não conseguem digitar o e-mail nem com o suporte ajudando. A resposta **não** é uma versão do app sem login: é um link pessoal que já entra.
+
+- O suporte abre a ficha dela no painel → bloco **"Link de entrada"** → "Copiar link" ou "Copiar mensagem pronta" → manda no WhatsApp.
+- O link é `setemadrugadas.com.br/entrar#<16 letras e números>`. Ela toca e cai na home, com o nome, o progresso e **só os acessos que ela tem** (os mesmos do login por e-mail: a trava de 1 oração por dia, os Arcanjos e o Cântico só para quem comprou).
+- **O link não vence.** Se o celular "esquecer" a entrada, ela toca de novo. Copiar outra vez devolve o **mesmo** link.
+- **O que tira o acesso é o mesmo do login:** sem o `principal` ativo (reembolso, revogação), o link para de abrir. E o botão **"Trocar link"** mata o antigo na hora, para quando o link foi parar onde não devia.
+- O código vem depois do `#` de propósito: essa parte nunca sai do celular — não vai para o servidor da Netlify nem para o "de onde veio" da página seguinte.
+
+Onde mora: tabela `member_entry_links` (`supabase/link-de-entrada.sql`); ações `entry` e `admin_entry_link` na `member-api`; `entrar.html` + `entrarPeloLink()` em `js/member.js`; `renderEntryLink()` em `js/admin.js`.
+
+⚠️ **O código fica guardado COMO É no banco, e não só a impressão digital (como nas sessões). É de propósito**, para o suporte poder copiar o mesmo link de novo. Não "consertar" guardando só o hash: copiar passaria a matar o link já mandado. O risco é o mesmo já aceito para o e-mail, que também fica guardado como é.
+
+⚠️ **Criar ou trocar o link não entra em `admin_actions`.** Quem criou fica em `member_entry_links.created_by`. A trava `admin_actions_action_check` é diferente no banco de teste e na produção (ver a seção do teste local), e mexer nela exigiria duas versões do SQL.
+
+⚠️ **A mensagem pronta não usa o nome dela**: ~40% dos cadastros estão no nome do marido ou do filho que pagou (decisão nº 7 do diário).
+
+**Ordem de publicar: banco → função → site.** Qualquer ordem é inofensiva para o link: sem a tabela, a ficha abre sem o bloco; sem a função, o bloco não aparece; sem o site, ninguém tem link para tocar. ⚠️ **Mas a `member-api` do repositório leva junto o "cancelou continua" e o "Concluí" do Cântico**, e esse segundo **exige `supabase/cantico-angelical.sql` no banco antes** (ver a seção do Cântico).
+
+No projeto de **teste** existe uma cópia da função com outro nome, **`member-api-link`**, publicada em 24/09 só para provar o link, sem encostar na `member-api` de lá (que tem o banner). Ela pode ser apagada no painel do Supabase quando não servir mais.
 
 ## ⚠️ Só DOIS conteúdos são trancados por produto: a Central dos Arcanjos e o Cântico Angelical
 **Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ✅ **As duas estão no ar desde 24/09/2026**, por enquanto só com o áudio: os textos e as artes definitivas ainda vêm.
@@ -203,6 +224,7 @@ O backend está bem mais adiantado do que o desenho original sugeria. Nomes reai
 | `entitlements` | o que cada cliente possui; `status` = `active` / `refunded` / `revoked` |
 | `prayer_progress` | onde ela parou; `prayer_key` = `principal:0-7`, `desatadora:1-9` ou `cantico:0-7` (esta última ⏳ só depois de rodar `supabase/cantico-angelical.sql`) |
 | `member_sessions` | sessões opacas de 90 dias, **só o hash do token é guardado** |
+| `member_entry_links` | o link de entrada de cada cliente (um por cliente); o código fica guardado como é, de propósito (ver a seção do link) · ⏳ só no banco de teste até publicar |
 | `member_login_limits` | anti-abuso: 20 tentativas por janela de 10 min |
 | `member_offer_campaigns` | campanhas de oferta dentro do app |
 | `member_offer_events` | registro servidor de exibição/clique, para não repetir oferta em outro aparelho |
