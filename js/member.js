@@ -11,6 +11,7 @@
   let refreshing = false;
   let surveyRedirecting = false;
   const login = /\/login(?:\.html)?\/?$/.test(location.pathname);
+  const entrada = /\/entrar(?:\.html)?\/?$/.test(location.pathname);
   function remember(value) { token = value; try { value ? localStorage.setItem(storageKey, value) : localStorage.removeItem(storageKey); } catch {} }
   // AbortSignal.timeout não existe em iPhone com iOS 15 ou anterior, aparelho
   // comum no público do app. Com ele, a chamada quebrava antes de sair do
@@ -577,7 +578,49 @@
       const status = document.querySelector('.member-sync'); if (status) status.textContent = 'Sem conexão. Seus acessos serão atualizados ao reconectar.';
     } finally { refreshing = false; }
   }
+  // O LINK DE ENTRADA (24/09/2026): para a cliente que não consegue digitar o
+  // e-mail. O suporte copia o link na ficha dela, no painel, e manda no
+  // WhatsApp: setemadrugadas.com.br/entrar#<código>. Ela toca e já entra.
+  //
+  // O código vem depois do "#" de propósito: essa parte do endereço nunca sai
+  // do celular dela. Não vai para o servidor da Netlify, não fica no registro
+  // de acessos e não aparece no "de onde veio" da página seguinte.
+  //
+  // Mora aqui, e não num arquivo à parte, pelo mesmo motivo da recuperação
+  // por CPF: a sessão tem que ser guardada exatamente como o login guarda.
+  async function entrarPeloLink() {
+    const titulo = document.getElementById('entrar-titulo');
+    const texto = document.getElementById('entrar-texto');
+    const saidas = document.getElementById('entrar-saidas');
+    const tentar = document.getElementById('entrar-tentar');
+    const whatsapp = document.getElementById('entrar-whatsapp');
+    let codigo = '';
+    try { codigo = decodeURIComponent(location.hash.slice(1)).trim(); } catch {}
+    const falhou = (mensagem, podeTentarDeNovo) => {
+      titulo.textContent = 'Não conseguimos abrir pelo link';
+      texto.textContent = mensagem;
+      tentar.hidden = !podeTentarDeNovo;
+      // Um botão dourado por vez: quando dá para tentar de novo, ele é o
+      // primeiro caminho, e o WhatsApp fica como segunda opção.
+      whatsapp.classList.toggle('secondary', podeTentarDeNovo);
+      saidas.hidden = false;
+    };
+    tentar.onclick = () => { location.reload(); };
+    if (!codigo) return falhou('Este link está incompleto. Peça um link novo para a gente no WhatsApp.', false);
+    try {
+      const data = await api('entry', { code: codigo });
+      remember(data.token);
+      // replace, e não um link comum: o endereço com o código sai do
+      // histórico, e o botão "voltar" não leva de novo a esta tela.
+      location.replace('index.html');
+    } catch (erro) {
+      // Sem status, a chamada nem chegou: internet fraca ou sistema fora.
+      // Aí vale tentar de novo. Com status, o servidor já disse o que houve.
+      falhou(erro.status ? erro.message : 'Não conseguimos abrir agora. Confira se a internet está ligada e toque em "Tentar de novo".', !erro.status || erro.status >= 429);
+    }
+  }
   document.addEventListener('DOMContentLoaded', () => {
+    if (entrada) { entrarPeloLink(); return; }
     if (login) {
       const form = document.getElementById('member-login-form');
       const error = document.getElementById('member-login-error');

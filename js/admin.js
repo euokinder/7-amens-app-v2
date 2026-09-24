@@ -370,6 +370,90 @@
     return block('Acessos', nodes, 'Nenhum produto.');
   }
 
+  // --- link de entrada ---------------------------------------------------
+  // Para a cliente que não consegue digitar o e-mail (24/09/2026). O suporte
+  // copia o link e manda no WhatsApp; ela toca e entra direto no app dela.
+  // Copiar de novo devolve o MESMO link: só "Trocar link" mata o antigo.
+  // A mensagem pronta não usa o nome dela de propósito: boa parte dos
+  // cadastros está no nome do marido ou do filho que pagou.
+  const mensagemDoLink = endereco => 'Olá! Este é o seu link para entrar no aplicativo 7 Améns da Madrugada. É só tocar nele:\n\n'
+    + `${endereco}\n\n`
+    + 'Guarde esta mensagem. Sempre que o aplicativo pedir o seu e-mail, é só tocar no link de novo.';
+
+  async function copiar(texto, botao) {
+    const original = botao.textContent;
+    let copiou = false;
+    try { await navigator.clipboard.writeText(texto); copiou = true; } catch {}
+    if (!copiou) {
+      // Navegador antigo, ou página sem permissão para a área de
+      // transferência. A caixa precisa nascer DENTRO da ficha: com a ficha
+      // aberta, o resto da página não aceita seleção.
+      const caixa = element('textarea');
+      caixa.value = texto; caixa.readOnly = true; caixa.style.position = 'fixed'; caixa.style.opacity = '0';
+      detailBody.append(caixa);
+      caixa.select();
+      try { copiou = document.execCommand('copy'); } catch {}
+      caixa.remove();
+    }
+    botao.textContent = copiou ? 'Copiado!' : 'Não copiou: selecione o link e copie';
+    setTimeout(() => { botao.textContent = original; }, 2500);
+  }
+
+  async function pedirLink(customerId, renew) {
+    try {
+      await api({ action: 'admin_entry_link', customer_id: customerId, renew });
+      await openDetail(customerId);
+    } catch (error) {
+      window.alert(error.message);
+    }
+  }
+
+  function renderEntryLink(data) {
+    const customer = data.customer;
+    const link = data.entry_link;
+    const nodes = [];
+    const temPrincipal = data.entitlements.some(item => item.product_key === 'principal' && item.status === 'active');
+    if (!temPrincipal) nodes.push(element('p', 'admin-status is-error', 'Ela não tem o produto principal ativo. O link só abre o app depois que o acesso for liberado.'));
+    if (!link) {
+      nodes.push(element('p', 'admin-empty', 'Para quem não consegue digitar o e-mail: ela toca no link e entra direto no app dela.'));
+      const criar = element('button', 'admin-mini-btn', 'Criar link de entrada');
+      criar.type = 'button';
+      criar.addEventListener('click', () => pedirLink(customer.id, false));
+      nodes.push(criar);
+      return block('Link de entrada', nodes, '');
+    }
+
+    const endereco = `${location.origin}/entrar#${link.token}`;
+    const campo = element('input');
+    campo.readOnly = true; campo.value = endereco; campo.setAttribute('aria-label', 'Link de entrada');
+    campo.addEventListener('focus', () => campo.select());
+    const copiarLink = element('button', '', 'Copiar link');
+    copiarLink.type = 'button';
+    copiarLink.addEventListener('click', () => copiar(endereco, copiarLink));
+    const copiarMensagem = element('button', '', 'Copiar mensagem pronta');
+    copiarMensagem.type = 'button';
+    copiarMensagem.addEventListener('click', () => copiar(mensagemDoLink(endereco), copiarMensagem));
+    const linha = element('div', 'admin-form admin-form-inline');
+    linha.append(campo, copiarLink, copiarMensagem);
+
+    const trocar = element('button', 'admin-mini-btn', 'Trocar link');
+    trocar.type = 'button';
+    trocar.addEventListener('click', () => {
+      if (window.confirm(`Trocar o link de ${customer.email}? O link antigo para de funcionar na hora, inclusive o que já foi mandado para ela.`)) pedirLink(customer.id, true);
+    });
+
+    nodes.push(
+      linha,
+      line('Criado em', moment(link.created_at)),
+      line('Ela já tocou no link?', link.uses
+        ? `Sim · ${link.uses} ${link.uses === 1 ? 'vez' : 'vezes'} · a última em ${moment(link.last_used_at)}`
+        : 'Ainda não'),
+      trocar,
+    );
+    return block('Link de entrada', nodes, '');
+  }
+  // --- fim do link de entrada -------------------------------------------
+
   function renderDetail(data) {
     const customer = data.customer;
     document.getElementById('detail-name').textContent = customer.name?.trim() || customer.email.split('@')[0];
@@ -431,6 +515,9 @@
     detailBody.replaceChildren(
       resume,
       renderAccess(data),
+      // Sem o campo, a member-api no ar é anterior ao link, ou o banco ainda
+      // não tem a tabela: o bloco some em vez de oferecer um botão que falha.
+      ...('entry_link' in data ? [renderEntryLink(data)] : []),
       block('Corrigir e-mail', [emailForm], ''),
       block('Orações concluídas', prayers, 'Ainda não concluiu nenhuma oração.'),
       block('Perfil respondido', profile, 'Ainda não respondeu a pesquisa de perfil.'),

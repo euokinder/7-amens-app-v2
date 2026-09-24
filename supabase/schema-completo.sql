@@ -3,7 +3,7 @@
 -- =====================================================================
 --
 -- O QUE É ESTE ARQUIVO
--- Ele constrói o banco inteiro do zero: as 16 tabelas, as travas de
+-- Ele constrói o banco inteiro do zero: as 18 tabelas, as travas de
 -- segurança, os índices, as 3 funções, as 3 visões do painel e a
 -- configuração de produtos e campanhas. Rodando este arquivo num banco vazio, você tem um sistema
 -- funcionando — só sem clientes.
@@ -108,6 +108,22 @@ create table if not exists public.member_sessions (
   created_at timestamptz not null default now(),
   expires_at timestamptz not null,
   constraint member_sessions_token_hash_check check (token_hash ~ '^[a-f0-9]{64}$')
+);
+
+-- Link de entrada (24/09/2026): para a cliente que não consegue digitar o
+-- e-mail. O suporte copia o link no painel e manda no WhatsApp; ela toca e
+-- entra. Aqui o código fica guardado COMO É, e não só a impressão digital:
+-- o suporte precisa copiar o mesmo link de novo sem matar o que já mandou.
+-- Não abre nada que o e-mail dela já não abrisse. Ver supabase/link-de-entrada.sql.
+create table if not exists public.member_entry_links (
+  customer_id uuid primary key references public.customers(id) on delete cascade,
+  token text not null,
+  created_by uuid references public.customers(id) on delete set null,
+  created_at timestamptz not null default now(),
+  last_used_at timestamptz,
+  uses integer not null default 0,
+  constraint member_entry_links_token_key unique (token),
+  constraint member_entry_links_token_check check (token ~ '^[A-Za-z0-9]{16}$')
 );
 
 -- Freio contra tentativa em massa de login.
@@ -406,7 +422,7 @@ do $trava$
 declare t text;
 begin
   foreach t in array array[
-    'customers','products','entitlements','member_sessions','member_login_limits',
+    'customers','products','entitlements','member_sessions','member_entry_links','member_login_limits',
     'prayer_progress','member_visit_days','member_admins','admin_actions',
     'hubla_events','hubla_product_map','member_offer_campaigns','member_offer_events',
     'member_survey_campaigns','member_survey_events','member_survey_responses',

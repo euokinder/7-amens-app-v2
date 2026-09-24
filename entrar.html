@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrando — 7 Améns da Madrugada</title>
+<!--
+  O LINK DE ENTRADA (24/09/2026). A cliente chega aqui pelo link que o
+  suporte manda no WhatsApp: setemadrugadas.com.br/entrar#<código>.
+  Quem faz o trabalho é o js/member.js (entrarPeloLink): lê o código, abre a
+  sessão e leva para a home. Esta página só aparece de verdade se der errado.
+
+  O que o WhatsApp mostra no cartão do link sai destas três linhas. O
+  "Toque para entrar" é a instrução, para quem não sabe que link se toca.
+-->
+<meta property="og:title" content="7 Améns da Madrugada">
+<meta property="og:description" content="Toque aqui para entrar no seu aplicativo de orações.">
+<meta property="og:image" content="https://setemadrugadas.com.br/assets/images/icon-512.png">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="css/styles.css?v=14">
+<link rel="stylesheet" href="css/member.css?v=3">
+<link rel="icon" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<style>
+  .entrar h1, .entrar p { text-align: center; }
+  .entrar-mensagem { display: flex; flex-direction: column; gap: 16px; }
+  .entrar-saidas { display: flex; flex-direction: column; gap: 14px; }
+  .entrar-saidas[hidden], .entrar-saidas [hidden] { display: none; }
+  /* O link com cara de botão: o .member-button foi feito para <button>. */
+  .entrar-saidas a.member-button { display: flex; align-items: center; justify-content: center; text-align: center; color: var(--dark-on-accent); }
+</style>
+</head>
+<body>
+<main class="app member-login entrar">
+  <img class="brand" src="assets/images/icon-180.png" alt="7 Améns da Madrugada" width="88" height="88">
+  <div class="entrar-mensagem" aria-live="polite">
+    <h1 id="entrar-titulo">Abrindo o seu aplicativo…</h1>
+    <p id="entrar-texto">Só um instantinho.</p>
+  </div>
+  <div id="entrar-saidas" class="entrar-saidas" hidden>
+    <button id="entrar-tentar" class="member-button" type="button" hidden>Tentar de novo</button>
+    <a id="entrar-whatsapp" class="member-button" href="https://wa.me/5591980159224?text=Meu%20link%20de%20entrada%20no%20app%207%20Am%C3%A9ns%20n%C3%A3o%20abriu." target="_blank" rel="noopener">Falar com a gente no WhatsApp</a>
+    <a class="member-button secondary" href="login.html">Entrar com meu e-mail</a>
+  </div>
+  <noscript>
+    <p>Para abrir o aplicativo, o seu navegador precisa estar com o JavaScript ligado. Fale com a gente no WhatsApp que ajudamos.</p>
+  </noscript>
+</main>
+
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</body>
+</html>

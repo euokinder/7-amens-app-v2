@@ -58,6 +58,21 @@ async function dbTodas(path: string) {
   return todas;
 }
 const eq = (value: string) => encodeURIComponent(value);
+// O código do LINK DE ENTRADA (ver a ação 'entry'): 16 letras e números
+// sorteados. Só letras e números porque o WhatsApp transforma _sublinhado_
+// em itálico e quebraria o link. O byte acima de 247 é descartado para que
+// nenhuma letra saia mais vezes que as outras (248 = 62 × 4).
+const LETRAS_DO_LINK = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const CODIGO_DO_LINK = /^[A-Za-z0-9]{16}$/;
+function novoCodigoDeEntrada() {
+  let codigo = '';
+  while (codigo.length < 16) {
+    for (const byte of crypto.getRandomValues(new Uint8Array(24))) {
+      if (byte < 248 && codigo.length < 16) codigo += LETRAS_DO_LINK[byte % 62];
+    }
+  }
+  return codigo;
+}
 async function access(customerId: string) {
   const rows = await db(`entitlements?customer_id=eq.${customerId}&status=eq.active&select=product_key`);
   return rows.map((row: {product_key: string}) => row.product_key);
@@ -224,6 +239,36 @@ Deno.serve(async (req: Request) => {
       await db('member_sessions', 'POST', { token_hash: await hash(sessao), customer_id: escolhida.id, expires_at: new Date(Date.now() + lifetime).toISOString() });
       return respond({ token: sessao, email: escolhida.email, ...await snapshot(escolhida, produtos) });
     }
+    // O LINK DE ENTRADA (24/09/2026) — para a cliente que não consegue
+    // digitar o e-mail, mesmo com o suporte ajudando. O suporte copia o link
+    // na ficha dela, no painel (ação admin_entry_link), e manda no WhatsApp.
+    // Ela toca e entra: a mesma sessão de 90 dias do login, com os mesmos
+    // acessos. Roda SEM sessão, como o `login` e o `recover`.
+    //
+    // O link não vence: se o celular dela "esquecer" a entrada, ela toca de
+    // novo. O que tira o acesso é o mesmo que tira no login — sem o
+    // principal ativo (reembolso, revogação), o link para de abrir. E o
+    // suporte pode trocar o link, o que mata o antigo na hora.
+    if (body.action === 'entry') {
+      const codigo = typeof body.code === 'string' ? body.code.trim() : '';
+      if (!CODIGO_DO_LINK.test(codigo)) return respond({ error: 'Este link está incompleto. Peça um link novo para a gente no WhatsApp.' }, 400);
+      // O balde é por endereço de internet E por código, como no login: assim
+      // uma vizinha de operadora nunca trava a outra. Adivinhar código não é
+      // o risco aqui — com 62^16 combinações, não há tentativa que chegue.
+      const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '';
+      const permitido = await db('rpc/allow_member_login', 'POST', { bucket_key: await hash(`entrada:${ip}|${codigo}`) });
+      if (!permitido) return respond({ error: 'Você tentou várias vezes seguidas. Espere uns minutinhos e toque no link de novo.' }, 429);
+      const [link] = await db(`member_entry_links?token=eq.${codigo}&select=customer_id,uses&limit=1`);
+      if (!link) return respond({ error: 'Este link não funciona mais. Peça um link novo para a gente no WhatsApp.' }, 404);
+      const [dona] = await db(`customers?id=eq.${link.customer_id}&select=id,email,name&limit=1`);
+      const produtos = dona ? await access(dona.id) : [];
+      if (!dona || !produtos.includes('principal')) return respond({ error: 'Seu acesso não está ativo no momento. Fale com a gente no WhatsApp.' }, 403);
+      const sessao = `${crypto.randomUUID()}${crypto.randomUUID()}`;
+      await db('member_sessions', 'POST', { token_hash: await hash(sessao), customer_id: dona.id, expires_at: new Date(Date.now() + lifetime).toISOString() });
+      // Só para o suporte saber, na ficha, se ela já tocou no link.
+      await db(`member_entry_links?customer_id=eq.${dona.id}`, 'PATCH', { last_used_at: new Date().toISOString(), uses: (link.uses || 0) + 1 });
+      return respond({ token: sessao, ...await snapshot(dona, produtos) });
+    }
     const token = req.headers.get('x-member-session') || '';
     if (!/^[a-f0-9-]{72}$/.test(token)) return respond({ error: 'Entre novamente com seu e-mail.' }, 401);
     const tokenHash = await hash(token);
@@ -315,7 +360,7 @@ Deno.serve(async (req: Request) => {
       // Hubla keys its events by e-mail, not by our customer id, and the address
       // may arrive in any case, so the match is deliberately case-insensitive.
       const address = String(profile.email || '');
-      const [entitlements, progress, visits, offers, surveys, events, history] = await Promise.all([
+      const [entitlements, progress, visits, offers, surveys, events, history, entryLinks] = await Promise.all([
         db(`entitlements?customer_id=eq.${target}&select=product_key,status,source,granted_at,revoked_at,updated_at&order=product_key.asc`),
         db(`prayer_progress?customer_id=eq.${target}&select=prayer_key,completed,updated_at&order=prayer_key.asc`),
         db(`member_visit_days?customer_id=eq.${target}&select=visited_on,first_seen_at,last_seen_at&order=visited_on.desc&limit=60`),
@@ -323,13 +368,38 @@ Deno.serve(async (req: Request) => {
         db(`member_survey_responses?customer_id=eq.${target}&select=*`),
         db(`hubla_events?payload->event->user->>email=ilike.${eq(address)}&select=event_type,processing_status,sandbox,received_at,payload&order=received_at.desc&limit=40`),
         db(`admin_actions?target_customer_id=eq.${target}&select=action,details,created_at&order=created_at.desc&limit=30`),
+        // Se o banco ainda não recebeu o supabase/link-de-entrada.sql, a
+        // tabela não existe — e a ficha inteira não pode cair por isso. Sem
+        // ela, o bloco do link some da tela e o resto continua de pé.
+        db(`member_entry_links?customer_id=eq.${target}&select=token,created_at,last_used_at,uses&limit=1`).catch(() => null),
       ]);
       const hubla = events.map((row: Record<string, any>) => ({
         event_type: row.event_type, processing_status: row.processing_status, sandbox: row.sandbox,
         received_at: row.received_at, product: row.payload?.event?.product?.name || null,
         invoice_status: row.payload?.event?.invoice?.status || null,
       }));
-      return respond({ customer: profile, entitlements, progress, visits, offers, survey: surveys[0] || null, hubla, history });
+      // `entry_link`: undefined = o banco ainda não tem a tabela (o painel
+      // esconde o bloco); null = ela ainda não tem link.
+      return respond({ customer: profile, entitlements, progress, visits, offers, survey: surveys[0] || null, hubla, history, entry_link: entryLinks ? entryLinks[0] || null : undefined });
+    } else if (body.action === 'admin_entry_link') {
+      // Cria o link de entrada da cliente, ou devolve o que já existe: copiar
+      // de novo não pode matar o link que o suporte mandou semana passada.
+      // Com `renew: true`, sorteia um código novo e o antigo para na hora —
+      // é para quando o link foi parar onde não devia.
+      if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
+      const target = typeof body.customer_id === 'string' ? body.customer_id : '';
+      if (!/^[0-9a-f-]{36}$/.test(target)) return respond({ error: 'Cliente inválida.' }, 400);
+      const [dona] = await db(`customers?id=eq.${target}&select=id`);
+      if (!dona) return respond({ error: 'Cliente não encontrada.' }, 404);
+      if (body.renew !== true) {
+        const [existente] = await db(`member_entry_links?customer_id=eq.${target}&select=token,created_at,last_used_at,uses&limit=1`);
+        if (existente) return respond({ entry_link: existente });
+      }
+      const [criado] = await db('member_entry_links?on_conflict=customer_id', 'POST', {
+        customer_id: target, token: novoCodigoDeEntrada(), created_by: customerId,
+        created_at: new Date().toISOString(), last_used_at: null, uses: 0,
+      });
+      return respond({ entry_link: { token: criado.token, created_at: criado.created_at, last_used_at: criado.last_used_at, uses: criado.uses } });
     } else if (body.action === 'admin_grant_access' || body.action === 'admin_revoke_access') {
       if (!await isAdmin(customerId)) return respond({ error: 'Acesso administrativo não autorizado.' }, 403);
       const granting = body.action === 'admin_grant_access';

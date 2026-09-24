@@ -129,6 +129,11 @@
 .admin-detail-line strong { flex: 1 1 auto; text-align: right; overflow-wrap: anywhere; }
 .admin-detail-line.is-active { border-color: color-mix(in oklch, #28562d 35%, white); background: #f2f8f0; }
 .admin-detail-line.is-off { background: var(--surface-alt); color: var(--ink-muted); }
+/* Link de entrada: a caixa do link e o "Trocar link" com respiro das linhas. */
+.admin-detail-block > .admin-form-inline + .admin-detail-line { margin-top: 10px; }
+.admin-detail-block > .admin-detail-line + .admin-mini-btn { margin-top: 12px; }
+.admin-detail-block > .admin-status + .admin-empty, .admin-detail-block > .admin-status + .admin-form-inline { margin-top: 8px; }
+.admin-detail-block > .admin-empty + .admin-mini-btn { margin-top: 10px; }
 .admin-mini-btn { flex: 0 0 auto; padding: 7px 13px; border: 1px solid var(--hairline); border-radius: 99px; background: var(--bg); color: var(--ink); font: 800 12px/1 'Manrope', sans-serif; cursor: pointer; }
 .admin-mini-btn:hover { border-color: var(--accent); background: var(--accent); color: var(--dark-on-accent); }
 /* Banners do destaque da home. Segue o figurino da .admin-campaign
