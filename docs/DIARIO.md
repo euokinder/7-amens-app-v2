@@ -100,7 +100,8 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- ⏳🔥 **Publicação de 24/09 preparada: home nova, Arcanjos e Cântico (só áudio) e Dia 03** (ver a entrada). Depende do clique do Caio. Depois do clique: conferir o site no ar (home, Central, Cântico, Dia 03) e tirar as marcas "⏳ só no local" do `CLAUDE.md` e da regra de acesso. Os itens dos Arcanjos e do Cântico, abaixo, continuam valendo para o que falta: textos, artes, e a `member-api` + SQL.
+- ⏳ **Publicar o botão do Cântico aos 9:00 e o tocador novo** (24/09). Botão enviado ao Caio; depois do clique, conferir no ar como na publicação anterior.
+- ✅ ~~Publicação de 24/09: home nova, Arcanjos e Cântico (só áudio) e Dia 03~~ — **no ar e conferida às 03:53** (ver a entrada "PUBLICADO"). As marcas "⏳ só no local" saíram do `CLAUDE.md` e da regra de acesso. Os itens dos Arcanjos e do Cântico, abaixo, continuam valendo para o que falta: textos, artes, e a `member-api` + SQL.
 - 🆕🔥 **Os valores novos das doações do Dia 03 estão commitados, mas NÃO publicados** (24/09). Commit `acdee0f`, que mexe **só** no `dia.html`: R$ 950 / R$ 300 / R$ 197, com os mesmos links. Os checkouts da Hubla **já cobram** R$ 300,00 e R$ 197,00: hoje o botão no ar diz R$ 130 e R$ 97 e o checkout mostra outro valor. Ela vê o valor certo antes de pagar, mas a diferença assusta e pode derrubar a doação. Dá para subir sozinho (1 build): levar para a `main` só este commit (`cherry-pick`), sem os Arcanjos, o Cântico e a home nova, que estão no meio do caminho. ✅ O Caio pediu para subir tudo: vai no botão da publicação de 24/09.
 - 🆕 **A home nova está pronta no teste local, fora do ar** (24/09). Falta o Caio olhar as escolhas da decisão nº 14 e decidir quando sobe. ⚠️ **Ela traz os cards dos Arcanjos e do Cântico**, que ainda são provisórios por dentro. Publicar a home antes deles exige tirar os dois cards dessa versão, ou esperar o material. ⚠️ **A Novena Desatadora dos Nós fica sem caminho** quando a home nova subir: `desatadora.html` só abria pelo card da home, e quem começou a novena só volta a ela pelo link direto. Foi decisão do Caio, avisado antes.
 - 🆕🔥 **O Cântico Angelical (upsell_02) está montado no teste local, fora do ar** (24/09). **96 clientes pagam e não recebem nada.** A venda em vídeo e o link de compra já estão na página. Falta, nesta ordem: (1) o Caio mandar o material, que vem por último (decisão nº 12); (2) trocar os provisórios (procurar `PROVISORIO` em `js/cantico.js` e `oferta-cantico.html`; arte definitiva com **nome novo**); (3) provar no servidor de teste (decisão nº 10a); (4) publicar **nesta ordem**: `supabase/cantico-angelical.sql` no banco → `member-api` (`verify_jwt` = false; antes, baixar a que está no ar e comparar) → site (1 build); (5) tirar as marcas "⏳ só no local" do `CLAUDE.md` e da regra de acesso. O site pode subir antes do banco e da função sem trancar quem pagou: o card segue a lista de produtos ativos, a trava usa campos que a função de hoje já manda, e o "Concluí" só aparece quando a função nova estiver no ar.
@@ -154,9 +155,51 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ---
 
-## 2026-09-24 (madrugada) — Publicação preparada: home nova, Arcanjos, Cântico e Dia 03
+## 2026-09-24 (madrugada) — Botão do Cântico aos 9:00 e o tocador novo, em todos os áudios
 
-**Chat:** o mesmo, nas entradas logo abaixo. **O Caio pediu:** "me envie o botão de commit para subir tudo no ar". ⏳ **Depende do clique dele; a conferência no ar vem depois.**
+**Chat:** o mesmo. **Faixa:** o Caio pediu o botão de commit para subir no ar de novo. ⏳ **Depende do clique dele; a conferência no ar vem depois.** Ponto de retorno: o deploy `6ab4c8def9041400081c98e3` (24/09, 03:53, commit `c29da69`). Custo: 1 build.
+
+### Os pedidos
+1. **"Precisamos só colocar um delay no botão com CTA do upsell 02 para comprar... Vamos seguir a lógica de delay do botão da vturb colocando a classe para vturb trackear os cliques nele também. O delay deve ser de 540 segundos."**
+2. **"Melhore os controles de todos os áudios também, permita voltar, acelerar e etc..."**
+
+### O que foi feito
+| Arquivo | O quê |
+|---|---|
+| `oferta-cantico.html` | o botão "Quero o Cântico Angelical" nasce com a classe `esconder` e o player da VTurb o revela aos **540 s** (`SEGUNDOS_DO_BOTAO`), o mesmo relógio das cartas dos Arcanjos (`displayHiddenElements`, com `persist: true`). A classe `smartplayer-click-event`, que faz a VTurb contar o clique, ele já tinha. Também copiado dos Arcanjos: a rede de segurança (se o player nunca carregar, o botão aparece com 11 minutos de página aberta) e o atalho `?previa=1`. Quando o botão aparece fora da tela, a página desce só o necessário |
+| `js/tocador.js` (novo) | o tocador único: recomeçar, voltar 10 s, tocar/pausar, avançar 10 s e velocidade 1x → 1,5x → 2x (a do WhatsApp), guardada no aparelho. A barra continua arrastável, e responde às setas do teclado. Na tela bloqueada do celular, aparecem o nome da oração e os botões (Media Session) |
+| `dia.html`, `oracao-arcanjo.html`, `cantico-dia.html` | cada uma tinha uma cópia do tocador antigo (só play e barra). Agora as três usam o tocador único: saíram umas 90 linhas de cada |
+| `css/styles.css` | botões de 48px, o de tocar com 60px, a barra mais grossa (8px, bolinha de 20px) e com área de toque maior que o desenho |
+
+### A prova (teste local)
+| Conferência | Resultado |
+|---|---|
+| Botão do Cântico no começo | escondido, já com o link da Hubla e a etiqueta de origem |
+| O player assumiu o relógio | `player:ready` chegou e `displayHiddenElements` existe |
+| O botão aos 9:00 | o vídeo foi pulado para 8:50 pelo próprio player (sem som): **escondido em 539,7 s, visível em 540,7 s**. O vídeo tem 584 s (9:44): o botão fica na tela nos últimos 44 segundos |
+| Quem volta à página | encontra o botão na hora: a VTurb lembrou |
+| Tocador, nas quatro telas com áudio (Cântico, Arcanjos, Primeira Madrugada e Pai Nosso) | os cinco botões aparecem, toca, pausa, e o ícone acompanha |
+| Velocidade | 1x → 1,5x → 2x → 1x, e a escolha fica guardada |
+| Voltar, avançar, recomeçar, tocar no meio da barra | 1,4 s → 11,9 → 22,4 → voltar 12,9 → recomeçar 0,5; o meio da barra levou a 177,6 s de 354. Avançar perto do fim termina o áudio e volta ao começo |
+| Tela bloqueada | recebe o nome certo ("Primeiro Dia — Entregue aquilo que mais pesa", "Oração de São Gabriel Por Trabalho e Boas Notícias", "Primeira Madrugada — Pai Nosso Completo") |
+| Dia 03 | vídeo, os três botões de doação e o texto, como antes |
+| Console | zero erros |
+
+### Armadilhas desta vez
+1. 🪤 **No teste local, voltar e avançar pareciam não funcionar: o áudio sempre voltava a 0,3 s.** Não era o tocador: o servidor local (`scripts/preview.mjs`) não deixa pular para o meio do arquivo (`audio.seekable` = 0-0). A Netlify deixa. Para testar, o mesmo áudio foi carregado do site no ar, e aí tudo funcionou.
+2. 🪤 **O `sed` do Git Bash apaga o `\r` também na hora de LER**, então conferir fim de linha com ele engana. A conferência certa foi com o `node`, lendo byte a byte.
+3. 🪤 **O player da VTurb não mostra o `<video>`** para quem procura na página, mas tem os comandos `mute()`, `play()`, `seek(segundos)` e `currentTime`. Com eles dá para testar um atraso de 9 minutos em 20 segundos.
+
+### O que NÃO foi conferido
+- Ninguém **ouviu** nada: o teste toca sem som.
+- A tela bloqueada foi vista só pelo que o navegador recebeu, não num celular de verdade.
+- O botão do Cântico aparecendo num celular de verdade, com o vídeo assistido até os 9:00.
+
+---
+
+## 2026-09-24 (madrugada) — PUBLICADO: home nova, Arcanjos, Cântico e Dia 03
+
+**Chat:** o mesmo, nas entradas logo abaixo. **O Caio pediu:** "me envie o botão de commit para subir tudo no ar". ✅ **Ele clicou, e às 03:53 estava no ar, conferido** (ver "A conferência no ar", no fim desta entrada).
 
 ### O que vai ao ar no botão
 | O quê | Para quem |
@@ -174,6 +217,18 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - A `main` do GitHub não tinha nada que a `development` não tivesse (conferido com `git fetch`): o push é só avanço, sem juntar nada.
 - **Custo: 1 build.**
 - 🔴 **O repositório do GitHub é PÚBLICO** (conferido na API do GitHub, sem login). Tudo o que vai no push fica visível e baixável lá, inclusive os áudios pagos. Ver a decisão nº 15.
+
+### A conferência no ar
+| O quê | Resultado |
+|---|---|
+| Commits | `6c39666` home · `99eb515` Arcanjos · `2eb1843` Cântico · `c29da69` documentação, clicados pelo Caio num botão só |
+| GitHub | `development` e `main` no mesmo ponto (`c29da69`) |
+| Netlify | deploy `6ab4c8def9041400081c98e3`, `ready`, publicado às 03:53 (Brasília), 49 arquivos novos |
+| Arquivos servidos | as 3 fotos e os 19 áudios **idênticos, byte a byte**, ao build testado; o CSS e os JS idênticos ao repositório (a diferença para o build local era só o fim de linha do Windows) |
+| Páginas | iguais ao repositório, a não ser por duas coisas que a própria Netlify faz em todo HTML: os endereços curtos (`novena.html` vira `/novena`) e o script de medição de velocidade dela, no fim |
+| Textos na tela | a home com "Conteúdos Exclusivos" e a frase dos 🔒, sem Novena nem Lojinha; o Dia 03 com R$ 950 / R$ 300 / R$ 197; Arcanjos e Cântico apontando para os áudios, sem vídeo nem texto provisório |
+| Respostas | `/`, `/login`, `/novena`, `/arcanjos`, `/cantico`, `/oferta-cantico`, `/oferta-arcanjos` e `/desatadora` respondem 200 |
+| O que não foi visto | a tela logada, no ar: seria preciso entrar com o e-mail de uma cliente real |
 
 ---
 

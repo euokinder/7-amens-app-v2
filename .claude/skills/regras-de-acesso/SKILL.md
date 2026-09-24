@@ -38,7 +38,7 @@ Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva h
 
 ## ⚠️ Só DOIS conteúdos são trancados por produto
 
-Os dois pedidos pelo Caio em **2026-09-24**. ⏳ Construídos no teste local, **ainda NÃO publicados** — conferir o CLAUDE.md antes de supor que estão no ar.
+Os dois pedidos pelo Caio em **2026-09-24**, e **no ar desde a mesma data**, por enquanto só com o áudio.
 
 | Conteúdo | Produto | Páginas |
 |---|---|---|
@@ -65,7 +65,7 @@ Verificado no código em 2026-09-18:
 ## Cards da Home — o "Adquirir" (antes, "Desbloquear")
 
 A ideia registrada: tem direito → entra; não tem → um botão de compra, transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. **Desde 2026-09-24 ela existe em dois cards, o da Central dos Quatro Arcanjos e o do Cântico Angelical** — escritos direto no `index.html` e comandados pelo `js/member.js`, **não** pelo catálogo. No desenho novo da home (24/09): tem direito → selo "LIBERADO" e "Acessar conteúdo"; não tem → selo "🔒 EXTRA" e "Adquirir". ⚠️ Não ativar `products.enabled` do `upsell_01` nem do `upsell_02`: o código antigo do catálogo (`member-extras`) criaria um segundo card, genérico, no fim da home.
-Cards da home nova, na ordem (⏳ só no local): **"Escolha um conteúdo"** — 7 Orações Sagradas · Grupo no WhatsApp · Mensagem do Dia; **"Conteúdos Exclusivos"** — Central dos Quatro Arcanjos · Cântico Angelical · Fale Conosco. Saíram da home a pedido do Caio: Novena Desatadora dos Nós, Pai Nosso e Lojinha (as páginas continuam existindo).
+Cards da home (no ar desde 24/09), na ordem: **"Escolha um conteúdo"** — 7 Orações Sagradas · Grupo no WhatsApp · Mensagem do Dia; **"Conteúdos Exclusivos"** — Central dos Quatro Arcanjos · Cântico Angelical · Fale Conosco. Saíram da home a pedido do Caio: Novena Desatadora dos Nós, Pai Nosso e Lojinha (as páginas continuam existindo).
 
 ## Ofertas dentro do app
 

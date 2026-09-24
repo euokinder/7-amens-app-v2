@@ -112,7 +112,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 
 **Decisão firmada: NÃO reescrever em React/Next.** Preserva-se o frontend vanilla e adiciona-se backend por trás.
 
-Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos (`arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`) e o Cântico Angelical (`cantico.html`, `cantico-dia.html`, `oferta-cantico.html`, `cantico.js`).
+Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos (`arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`) e o Cântico Angelical (`cantico.html`, `cantico-dia.html`, `oferta-cantico.html`, `cantico.js`). Todo áudio do app toca pelo **tocador único**, `js/tocador.js` (24/09): recomeçar, voltar e avançar 10 s, velocidade 1x/1,5x/2x e controle pela tela bloqueada do celular. Quem usa: `dia.html`, `oracao-arcanjo.html` e `cantico-dia.html`. Tocador novo numa tela = `TOCADOR.html(...)` + `TOCADOR.ligar(...)`, nunca uma cópia.
 
 ## Regras de negócio (inegociáveis)
 1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público.
@@ -125,7 +125,7 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
 
 ## ⚠️ Só DOIS conteúdos são trancados por produto: a Central dos Arcanjos e o Cântico Angelical
-**Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ⏳ **As duas estão construídas no teste local e ainda NÃO publicadas** (versões MVP, com conteúdo provisório). Quando cada uma subir, apagar a menção a ela nesta frase.
+**Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ✅ **As duas estão no ar desde 24/09/2026**, por enquanto só com o áudio: os textos e as artes definitivas ainda vêm.
 
 Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para publicar, mexer ou desfazer um sem encostar no outro.
 
@@ -149,7 +149,7 @@ Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **me
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
 | Comprou o Cântico | selo "LIBERADO", "Acessar conteúdo" (2º dos Conteúdos Exclusivos) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=1…7`: por enquanto, só o áudio) |
-| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`) |
+| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`). O botão só aparece aos **9:00 do vídeo** (`SEGUNDOS_DO_BOTAO = 540`, pedido do Caio em 24/09), pelo mesmo relógio da VTurb das cartas dos Arcanjos |
 
 **Regras decididas pelo Caio em 24/09:**
 - **Introdução + 7 dias, um por dia**, com a mesma âncora das madrugadas (ver a seção da trava, acima).
@@ -170,7 +170,7 @@ A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPag
 **Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
 
 ## Home como hub
-⏳ **Home nova, desenhada em 24/09 e ainda só no local.** Dois blocos, na ordem pedida pelo Caio:
+**Home nova, no ar desde 24/09.** Dois blocos, na ordem pedida pelo Caio:
 1. **"Escolha um conteúdo"**: 7 Orações Sagradas · Grupo no WhatsApp · Mensagem do Dia
 2. **"Conteúdos Exclusivos"**: Central dos Quatro Arcanjos · Cântico Angelical · Fale Conosco
 
@@ -191,7 +191,7 @@ Nos dois extras, quem tem direito vê o selo "LIBERADO" e "Acessar conteúdo". Q
 - **Pai Nosso.** Continua dentro das 7 Orações, em "Material Complementar".
 - **Lojinha.**
 
-As páginas continuam existindo. Até a home nova ser publicada, a que está no ar é a antiga: 7 Orações · Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora · Lojinha · Fale Conosco.
+As páginas continuam existindo.
 
 ## Modelo de dados — JÁ IMPLEMENTADO (`supabase/schema.sql`)
 O backend está bem mais adiantado do que o desenho original sugeria. Nomes reais das tabelas:
