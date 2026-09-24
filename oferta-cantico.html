@@ -15,19 +15,20 @@
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
 <!-- =====================================================================
-     ⚠️ PÁGINA PROVISÓRIA (24/09/2026). O Caio ainda vai decidir o formato
-     da venda do Cântico: vídeo (VSL), só texto, ou direto para o checkout.
-     Até lá, esta é a forma mais simples — texto e um botão. Procure por
-     PROVISORIO. Se a escolha for "direto para o checkout", esta página sai
-     e o card da home passa a apontar para a Hubla (js/member.js,
-     ofertaDoCantico).
+     A VENDA DO CÂNTICO É EM VÍDEO — decisão do Caio em 24/09/2026: a VSL
+     da VTurb e um botão para o checkout da Hubla. Ainda PROVISÓRIOS: a
+     chamada acima do vídeo e o texto do botão (a copy é do Caio). Procure
+     por PROVISORIO.
 
      DE ONDE ELA VEIO — a mesma etiqueta de oferta-arcanjos.html
      O card da home e o convite mandam a cliente para cá com utm_* no
      endereço, dizendo de onde ela veio. Guardamos isso aqui em cima, antes
      de qualquer outro script, e colamos no link da Hubla lá embaixo: é o
-     único jeito de saber, na venda, se foi o card que vendeu. (Se um dia
-     entrar um vídeo da VTurb, a ordem importa: ela mexe no endereço.)
+     único jeito de saber, na venda, se foi o card que vendeu.
+     ⚠️ A ordem importa: a VTurb mexe no endereço da página para escrever a
+     etiqueta DELA. Guardada antes de o player carregar, a nossa já está
+     salva, aconteça o que acontecer depois. E por isso os campos são utm_*,
+     que a VTurb só lê: o "src" ela sobrescreve.
      ===================================================================== -->
 <script>
 window.ETIQUETAS_DE_ORIGEM = (function () {
@@ -68,23 +69,39 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 
     <span class="kicker">Cântico Angelical · Sua jornada de 7 dias</span>
 
-    <!-- PROVISORIO: título e texto de venda. A copy é do Caio. -->
+    <!-- PROVISORIO: a chamada acima do vídeo. A copy é do Caio. -->
     <div class="section-heading" style="margin-top:-8px;">
       <div class="bar"></div>
       <div class="heading-block">
         <h1 class="title oferta-headline">Cântico Angelical</h1>
-        <p class="subtext">[TEXTO PROVISÓRIO — a apresentação do Cântico Angelical entra aqui.]</p>
       </div>
     </div>
+
+    <!-- ================= VÍDEO (VSL) =================
+         Código de incorporação da VTurb, exatamente como o Caio mandou em
+         24/09/2026, na mesma moldura de cantos arredondados dos outros
+         vídeos do app. -->
+    <div class="video-wrap-embed">
+      <vturb-smartplayer id="vid-6ab4a340c48cfa940452f7df" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
+      <div class="corner-mask bl"></div><div class="corner-mask br"></div>
+    </div>
+    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab4a340c48cfa940452f7df/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+
+    <!-- O botão de compra. O link da Hubla mora em LINK_DE_COMPRA, lá embaixo.
+         A classe "smartplayer-click-event" é o que faz a VTurb contar o toque
+         como "Clique no Botão" no Analytics dela — o nome exato da
+         documentação oficial, o mesmo das cartas de oferta-arcanjos.html. Sem
+         ela o Analytics mostra ZERO cliques.
+         Ele aparece desde o começo do vídeo. Para só aparecer num minuto
+         certo, o relógio é o mesmo das cartas dos Arcanjos
+         (displayHiddenElements, da VTurb). PROVISORIO: o texto do botão. -->
+    <a class="member-button smartplayer-click-event" id="oferta-comprar" style="text-align:center;">Quero o Cântico Angelical</a>
 
     <div>
       <h2 class="section-label" style="margin-bottom:14px;">Sua jornada, dia a dia</h2>
       <div class="modal-checklist" id="oferta-dias"></div>
     </div>
-
-    <!-- O link da Hubla entra em LINK_DE_COMPRA, lá embaixo. Enquanto estiver
-         vazio, o botão aparece apagado e não leva a lugar nenhum. -->
-    <a class="member-button" id="oferta-comprar" style="text-align:center;">Quero o Cântico Angelical</a>
 
   </div>
 </div>
@@ -107,14 +124,19 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   }
   document.getElementById('oferta-dias').innerHTML = dias;
 
-  // PROVISORIO: o link de compra do Cântico na Hubla.
+  // O link de compra do Cântico na Hubla, mandado pelo Caio em 24/09/2026.
   //
-  // ⚠️ ANTES DA PRIMEIRA VENDA por este link: o código do produto que chega
-  // no evento da Hubla precisa estar em hubla_product_map apontando para
-  // upsell_02. Hoje estão lá vRuLDZ1avAMG2LllTWAu e gTLhMYXqRjFeNlyc7FlH. Se
-  // este link for uma oferta NOVA na Hubla, com código novo, a cliente paga
-  // e o app não libera: o evento cai em needs_reconciliation.
-  const LINK_DE_COMPRA = '';
+  // É a compra em um clique (/upsell), o mesmo tipo de checkout que a
+  // oferta dos Arcanjos alcança pelo hub.la/r/...
+  //
+  // O código no meio do endereço, gTLhMYXqRjFeNlyc7FlH, JÁ está em
+  // hubla_product_map apontando para upsell_02, e é o que chega nas vendas
+  // de verdade: 314 eventos reais com ele até 24/09 (conferido no banco).
+  // Por isso a venda por aqui libera o Cântico sozinha. ⚠️ Se um dia este
+  // link for trocado por uma oferta NOVA, com código novo, o código precisa
+  // entrar no hubla_product_map ANTES da primeira venda — senão a cliente
+  // paga e o app não libera (o evento cai em needs_reconciliation).
+  const LINK_DE_COMPRA = 'https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell';
 
   // Quando ela chega SEM etiqueta nenhuma (digitou o endereço, ou um link
   // novo esqueceu de etiquetar), mandamos "sem-etiqueta" de propósito: campo

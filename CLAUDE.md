@@ -149,7 +149,7 @@ Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **me
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
 | Comprou o Cântico | card aberto, "7 DIAS", "Acessar Agora!" (3º card) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=0…7`: vídeo da VTurb + texto) |
-| Não comprou | card com cadeado, "Exclusivo", "Desbloquear" | página de oferta (`oferta-cantico.html`, etiqueta `utm_campaign=cantico`). ⏳ Provisória: o Caio ainda decide entre vídeo, só texto ou direto para o checkout |
+| Não comprou | card com cadeado, "Exclusivo", "Desbloquear" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`) |
 
 **Regras decididas pelo Caio em 24/09:**
 - **Introdução + 7 dias, um por dia**, com a mesma âncora das madrugadas (ver a seção da trava, acima).
@@ -160,7 +160,7 @@ A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPag
 
 ⚠️ **O "Concluí este dia" depende de uma alteração no banco, ⏳ ainda não aplicada:** `supabase/cantico-angelical.sql`. A ordem de publicar é **banco → função → site**. Se a função subir antes do banco, o botão dá erro na tela dela. O site pode subir antes dos dois: sem o campo `jornadas` no snapshot, o botão do Cântico simplesmente não aparece.
 
-⚠️ **Antes da primeira venda pelo app:** o link de compra da oferta ainda está vazio (`LINK_DE_COMPRA`, em `oferta-cantico.html`). Se for uma oferta NOVA na Hubla, o código dela precisa entrar em `hubla_product_map` apontando para `upsell_02` antes — senão a cliente paga e o app não libera.
+**O link de compra** (Caio, 24/09) é `https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell` — `LINK_DE_COMPRA`, em `oferta-cantico.html`. O código do meio, `gTLhMYXqRjFeNlyc7FlH`, **já está** em `hubla_product_map` → `upsell_02`, e é o que chega nas vendas de verdade (314 eventos até 24/09): a venda por ali libera o Cântico sozinha. ⚠️ Trocar por uma oferta NOVA, com código novo, exige mapear o código **antes** da primeira venda — senão a cliente paga e o app não libera.
 
 ### Vale para os dois
 ⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js` e `js/cantico.js`, arquivos públicos. **Não prometer "conteúdo protegido"** na venda.
