@@ -14,10 +14,11 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
-| 10 | 🆕🔥 **Arcanjos e Cântico: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, e rodar `supabase/cantico-angelical.sql` no banco de **teste**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai" (dos dois produtos) e o "Concluí este dia" do Cântico. Não tem cliente e não custa nada. **(b)** Enviar ao GitHub (`development`), que não muda o site e custa zero. ✅ *Guardar em commit* ficou resolvido em 24/09: os commits são feitos na máquina e **quem clica é o Caio** (Arcanjos: `ceefce6`; Cântico: o commit seguinte). Mas, enquanto não forem enviados ao GitHub, **se a máquina pifar, somem.** |
-| 12 | 🆕🔥 **Cântico Angelical: o que só o Caio pode mandar** (24/09) | ✅ ~~(a) o formato da venda~~ — **em vídeo**, com a VSL `vid-6ab4a340c48cfa940452f7df` (já na página). ✅ ~~(b) o link de compra~~ — `pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell`, com o código **já mapeado** para `upsell_02` (314 vendas reais chegaram com ele). **Falta (c):** os **8 vídeos da VTurb dos dias, os 8 textos e as 8 artes dos cartões** (✅ a arte do card da home chegou em 24/09, junto com a home nova). O Caio avisou que manda **por último de tudo**. **E (d):** se o texto de cada dia é oração para rezar junto (quadro "A oração") ou reflexão — dá para responder junto com o material. |
-| 13 | 🆕 **Cântico Angelical: escolhas provisórias do agente** (24/09) | Nada disso trava o trabalho, mas precisa do olho do Caio antes de publicar: os títulos "Primeiro Dia" a "Sétimo Dia" nos cartões, com o tema embaixo (como "Primeira Madrugada"); "Concluí este dia" e "✓ Dia concluído", no lugar de "oração"; a faixa "Um dia de cada vez, na ordem da jornada"; o "Em seguida:" na Introdução (ela abre junto com o Dia 1); o botão "Ver todos os dias" no fim do dia; e **sem** o pop-up "Antes de continuar, confirme" das madrugadas. Na página de venda: a chamada "Cântico Angelical" acima do vídeo, o texto do botão "Quero o Cântico Angelical", o botão **visível desde o começo** do vídeo (dá para fazê-lo aparecer só num minuto certo, como as cartas dos Arcanjos) e a lista dos 7 dias embaixo do botão. |
+| 10 | 🆕🔥 **Arcanjos e Cântico: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, e rodar `supabase/cantico-angelical.sql` no banco de **teste**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai" (dos dois produtos) e o "Concluí este dia" do Cântico. Não tem cliente e não custa nada. **(b)** ~~Enviar ao GitHub (`development`)~~ — vai junto no botão da publicação de 24/09 (ver a entrada). ✅ *Guardar em commit* ficou resolvido em 24/09: os commits são feitos na máquina e **quem clica é o Caio** (Arcanjos: `ceefce6`; Cântico: o commit seguinte). Mas, enquanto não forem enviados ao GitHub, **se a máquina pifar, somem.** |
+| 12 | 🆕🔥 **Cântico Angelical: o que só o Caio pode mandar** (24/09) | ✅ ~~(a) o formato da venda~~ — **em vídeo**, com a VSL `vid-6ab4a340c48cfa940452f7df` (já na página). ✅ ~~(b) o link de compra~~ — `pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell`, com o código **já mapeado** para `upsell_02` (314 vendas reais chegaram com ele). **Falta (c):** as **7 artes dos cartões** e, quando houver, os **textos** (✅ os 7 áudios chegaram em 24/09, e a arte do card da home também; ✅ **(e)** vídeo: o áudio tomou o lugar dele, e por enquanto a entrega é só o áudio — Caio, 24/09). O Caio avisou que manda **por último de tudo**. **E (d):** se o texto de cada dia é oração para rezar junto (quadro "A oração") ou reflexão — dá para responder junto com o material. |
+| 13 | 🆕 **Cântico Angelical: escolhas provisórias do agente** (24/09) | Nada disso trava o trabalho, mas precisa do olho do Caio antes de publicar: os títulos "Primeiro Dia" a "Sétimo Dia" nos cartões, com o tema embaixo (como "Primeira Madrugada"); "Concluí este dia" e "✓ Dia concluído", no lugar de "oração"; a faixa "Um dia de cada vez, na ordem da jornada"; o "Em seguida:" na Introdução (ela abre junto com o Dia 1); o botão "Ver todos os dias" no fim do dia; e **sem** o pop-up "Antes de continuar, confirme" das madrugadas. Na página de venda: a chamada "Cântico Angelical" acima do vídeo, o texto do botão "Quero o Cântico Angelical", o botão **visível desde o começo** do vídeo (dá para fazê-lo aparecer só num minuto certo, como as cartas dos Arcanjos) e a lista dos 7 dias embaixo do botão. No dia: o rótulo do tocador, "Ouça o Áudio do Dia". |
 | 14 | 🆕 **Home nova: escolhas do agente** (24/09) | Nada disso trava o trabalho, mas precisa do olho do Caio antes de publicar. **(a)** A **Mensagem do Dia ficou.** Ela não estava na ordem que ele passou, mas também não entrou na lista do que retirar (Novena, Lojinha, Pai Nosso). Está no primeiro bloco, depois do WhatsApp, no desenho limpo. Para tirar, é um bloco do `index.html`. **(b)** As descrições dos cards foram escritas pelo agente, no padrão "Acesse..." da referência (os textos estão na entrada de 24/09 sobre a home). **(c)** No WhatsApp, o texto diz **"mensagens diárias"**, no lugar das "orações diárias" da referência. É o que o card antigo prometia, e ninguém confirmou que o grupo manda oração todo dia. **(d)** O selo de quem não tem o extra diz **"🔒 EXTRA"**, ecoando o "extras" da frase dele (a outra opção era "🔒 EXCLUSIVO"). **(e)** O botão verde tem texto **escuro**, e não branco como na referência: branco sobre aquele verde fica abaixo de 3:1 de contraste. **(f)** A frase dos 🔒 some para quem já tem os dois extras. |
+| 15 | 🆕🔥 **O repositório do GitHub é PÚBLICO** (24/09) | Qualquer pessoa, sem login, abre `github.com/euokinder/7-amens-app-v2` e baixa tudo: o conteúdo pago (textos, PDFs e, depois da publicação de 24/09, os áudios dos Arcanjos e do Cântico), este diário (números de venda, decisões) e os SQL. Havia o e-mail de uma cliente neste diário: saiu do texto em 24/09, mas **continua no histórico** do repositório. Há também o e-mail de uma pessoa da equipe num arquivo de `supabase/migrations/`. **Recomendado: tornar o repositório privado** (GitHub → Settings → General → Danger Zone → Change visibility); a Netlify continua construindo com repositório privado. Só o Caio pode fazer. |
 | 11 | 🆕 **Central dos Arcanjos: três escolhas provisórias do agente** (24/09) | **(a)** A copy escrita pelo agente: resumos dos 4 Arcanjos, botões, frase no fim da oração e tela de convite. (O selo e o botão do card da home saíram desta lista: desde a home nova de 24/09, seguem a referência do Caio, "🔒 EXTRA" e "Adquirir".) **(b)** As **6 descrições dele adaptadas** da 3ª para a 2ª pessoa (Gabriel 3, Rafael 1, 2 e 3, Uriel 1 e 3; a tabela está na entrada de 24/09). **(c)** Quem pedir **reembolso de um mês só**, depois de ter pago vários, perde a Central inteira. Nada disso trava o trabalho, mas precisa do olho dele antes de publicar. |
 | ~~1~~ | ~~**Publicar o webhook no Supabase**~~ | ✅ **RESOLVIDO em 20/09.** O Caio autorizou, e o `hubla-webhook` foi publicado na produção como **versão 5**, conferido byte a byte contra o arquivo do repositório. O buraco que engoliu a venda de R$ 197 está fechado. A `member-api` subiu junto, como **versão 13**. Ver a entrada de 20/09. |
 | 6 | **A arte do banner precisa ser reexportada em 1200×900** (⏰ deixou de ser urgente em 21/09: o banner agora nasce desligado e não aparece para ninguém, então nada fica feio esperando a arte) | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
@@ -99,11 +100,12 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- 🆕🔥 **Os valores novos das doações do Dia 03 estão commitados, mas NÃO publicados** (24/09). Commit `acdee0f`, que mexe **só** no `dia.html`: R$ 950 / R$ 300 / R$ 197, com os mesmos links. Os checkouts da Hubla **já cobram** R$ 300,00 e R$ 197,00: hoje o botão no ar diz R$ 130 e R$ 97 e o checkout mostra outro valor. Ela vê o valor certo antes de pagar, mas a diferença assusta e pode derrubar a doação. Dá para subir sozinho (1 build): levar para a `main` só este commit (`cherry-pick`), sem os Arcanjos, o Cântico e a home nova, que estão no meio do caminho. Esperando o "pode publicar" do Caio.
+- ⏳🔥 **Publicação de 24/09 preparada: home nova, Arcanjos e Cântico (só áudio) e Dia 03** (ver a entrada). Depende do clique do Caio. Depois do clique: conferir o site no ar (home, Central, Cântico, Dia 03) e tirar as marcas "⏳ só no local" do `CLAUDE.md` e da regra de acesso. Os itens dos Arcanjos e do Cântico, abaixo, continuam valendo para o que falta: textos, artes, e a `member-api` + SQL.
+- 🆕🔥 **Os valores novos das doações do Dia 03 estão commitados, mas NÃO publicados** (24/09). Commit `acdee0f`, que mexe **só** no `dia.html`: R$ 950 / R$ 300 / R$ 197, com os mesmos links. Os checkouts da Hubla **já cobram** R$ 300,00 e R$ 197,00: hoje o botão no ar diz R$ 130 e R$ 97 e o checkout mostra outro valor. Ela vê o valor certo antes de pagar, mas a diferença assusta e pode derrubar a doação. Dá para subir sozinho (1 build): levar para a `main` só este commit (`cherry-pick`), sem os Arcanjos, o Cântico e a home nova, que estão no meio do caminho. ✅ O Caio pediu para subir tudo: vai no botão da publicação de 24/09.
 - 🆕 **A home nova está pronta no teste local, fora do ar** (24/09). Falta o Caio olhar as escolhas da decisão nº 14 e decidir quando sobe. ⚠️ **Ela traz os cards dos Arcanjos e do Cântico**, que ainda são provisórios por dentro. Publicar a home antes deles exige tirar os dois cards dessa versão, ou esperar o material. ⚠️ **A Novena Desatadora dos Nós fica sem caminho** quando a home nova subir: `desatadora.html` só abria pelo card da home, e quem começou a novena só volta a ela pelo link direto. Foi decisão do Caio, avisado antes.
 - 🆕🔥 **O Cântico Angelical (upsell_02) está montado no teste local, fora do ar** (24/09). **96 clientes pagam e não recebem nada.** A venda em vídeo e o link de compra já estão na página. Falta, nesta ordem: (1) o Caio mandar o material, que vem por último (decisão nº 12); (2) trocar os provisórios (procurar `PROVISORIO` em `js/cantico.js` e `oferta-cantico.html`; arte definitiva com **nome novo**); (3) provar no servidor de teste (decisão nº 10a); (4) publicar **nesta ordem**: `supabase/cantico-angelical.sql` no banco → `member-api` (`verify_jwt` = false; antes, baixar a que está no ar e comparar) → site (1 build); (5) tirar as marcas "⏳ só no local" do `CLAUDE.md` e da regra de acesso. O site pode subir antes do banco e da função sem trancar quem pagou: o card segue a lista de produtos ativos, a trava usa campos que a função de hoje já manda, e o "Concluí" só aparece quando a função nova estiver no ar.
 - 🆕🔥 **A Central dos Quatro Arcanjos está pronta no teste local, num commit só dela (`ceefce6`), fora do ar** (24/09). São 16 arquivos novos ou alterados, no computador do Caio e ainda não enviados ao GitHub (lista na entrada de 24/09). **371 clientes pagam os Arcanjos e não recebem nada**, então esta é a tarefa mais urgente do projeto. Falta, nesta ordem:
-  1. o Caio mandar 12 textos, 12 áudios e 4 artes (✅ a do card da home chegou em 24/09);
+  1. o Caio mandar 12 textos e 4 artes (✅ os 12 áudios e a arte do card da home chegaram em 24/09);
   2. trocar os provisórios (procurar `PROVISORIO` em `js/arcanjos.js`: 20 marcas; arte e áudio definitivos com **nome novo** de arquivo);
   3. provar a `member-api` nova no projeto de teste (decisão nº 10);
   4. publicar a `member-api` na produção, com autorização dele: `verify_jwt` = false, e antes baixar a **v16** que está no ar e comparar com o arquivo;
@@ -143,12 +145,87 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - **Conferir a etiqueta numa venda de verdade.** Depois que o rastreamento do pop-up estiver ligado, abrir a primeira venda dos Arcanjos na Hubla e ver se o campo "Parâmetros de UTM" traz o nome do pop-up. A documentação oficial da Hubla diz que traz, e o nosso webhook já guarda o evento inteiro — mas **nenhuma venda real passou por esse caminho ainda**.
 - **Opcional, economia de peso:** `assets/audio/dia-01-oracao.mp3` está em estéreo 192kbps (4,98 MB). Em mono 64kbps cai para 1,66 MB. Voz falada não perde nada audível. São ~3,3 MB a menos para cada cliente baixar.
 - **Avisar as três clientes de e-mail duplo.** `cliente A · e-mail da fatura`, `cliente B · e-mail da fatura` e `cliente C · e-mail da fatura` **não conseguem entrar** — o app as conhece por outro endereço. Não é bug, é a diferença entre o e-mail do recibo e o da conta Hubla. Depende da decisão nº 4 acima para saber qual e-mail gravar.
-- 🆕 **Consertar a corrida do 409 ao criar cliente** (19/09). Achado olhando os eventos reais: `gsampaio13@icloud.com` teve o evento marcado como falho às 03:14 com `Database operation failed (409) on customers` — dois eventos da mesma pessoa chegaram juntos e os dois tentaram criar o cadastro; um ganhou, o outro bateu na trava do banco. **Ela está com acesso ativo, ninguém ficou no prejuízo**, porque a compra entrou pelo outro evento. Mas a retentativa que escrevi hoje **não resolve este caso**: ela repete o mesmo pedido, que vai bater no mesmo 409. O conserto certo é outro — ao levar 409 criando cliente, reler o cadastro que o outro evento acabou de criar em vez de desistir. Ofereci ao Caio e ele não respondeu.
+- 🆕 **Consertar a corrida do 409 ao criar cliente** (19/09). Achado olhando os eventos reais: uma cliente (e-mail tirado em 24/09: o repositório é público) teve o evento marcado como falho às 03:14 com `Database operation failed (409) on customers` — dois eventos da mesma pessoa chegaram juntos e os dois tentaram criar o cadastro; um ganhou, o outro bateu na trava do banco. **Ela está com acesso ativo, ninguém ficou no prejuízo**, porque a compra entrou pelo outro evento. Mas a retentativa que escrevi hoje **não resolve este caso**: ela repete o mesmo pedido, que vai bater no mesmo 409. O conserto certo é outro — ao levar 409 criando cliente, reler o cadastro que o outro evento acabou de criar em vez de desistir. Ofereci ao Caio e ele não respondeu.
 - **Conferir o resgate do webhook contra um Supabase de verdade.** A correção foi testada num banco de mentira, escrito por mim a partir do que eu *acredito* que o PostgREST faz. O ponto exato que precisa de confirmação é o comando que grava a linha de falha (`on_conflict=idempotency_key` com `resolution=merge-duplicates`). Se o banco real se comportar diferente, a rede de segurança não abre — e só se descobre na próxima falha. O jeito de confirmar: publicar a função no projeto de **teste** e disparar um evento de mentira. Não depende de decisão nenhuma.
 - ✅ **O painel foi visto funcionando, com dados.** Esta linha dizia que o banco de teste não tinha admin nem cliente com visitas. Tem agora: `supabase/dados-de-teste.sql` cria 12 clientes falsas e a operadora `admin.teste@exemplo.com`. Abrir http://localhost:3000, entrar com esse e-mail, e o painel inteiro aparece. Continua sem conferir: as datas na ficha de uma cliente **real**, na produção.
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-24 (madrugada) — Publicação preparada: home nova, Arcanjos, Cântico e Dia 03
+
+**Chat:** o mesmo, nas entradas logo abaixo. **O Caio pediu:** "me envie o botão de commit para subir tudo no ar". ⏳ **Depende do clique dele; a conferência no ar vem depois.**
+
+### O que vai ao ar no botão
+| O quê | Para quem |
+|---|---|
+| Home nova: cards da referência, luz de fundo, WhatsApp transparente; Novena, Pai Nosso e Lojinha fora da home | todas |
+| Central dos Quatro Arcanjos: 12 orações **só com o áudio**, artes provisórias nos cartões | quem tem o `upsell_01` (371 em 24/09). Quem não tem vê o 🔒 e a página de oferta, que já estava no ar |
+| Cântico Angelical: Dias 1 a 7 **só com o áudio**, um por dia desde o primeiro acesso ao app, artes provisórias | quem tem o `upsell_02` (96). Quem não tem vê o 🔒 e a venda em vídeo |
+| Dia 03: R$ 950 / R$ 300 / R$ 197 | todas |
+
+### O que NÃO vai (o site funciona sem)
+`supabase/cantico-angelical.sql` e a `member-api` nova. Enquanto não subirem, "cancelou continua" ainda não vale (vale a lista de produtos ativos, que em 24/09 dava no mesmo) e o "Concluí este dia" do Cântico não aparece. Ordem de publicar: banco → função. Decisão nº 10(a).
+
+### Antes do clique
+- **Ponto de retorno:** deploy `6ab486981dd55f00089a9eed`, publicado em 23/09 às 23:10 (Brasília), commit `3aa51e2`. Se algo quebrar: Netlify → projeto `7madrugadas` → Deploys → esse deploy → "Publish deploy". Volta em segundos e não gasta build.
+- A `main` do GitHub não tinha nada que a `development` não tivesse (conferido com `git fetch`): o push é só avanço, sem juntar nada.
+- **Custo: 1 build.**
+- 🔴 **O repositório do GitHub é PÚBLICO** (conferido na API do GitHub, sem login). Tudo o que vai no push fica visível e baixável lá, inclusive os áudios pagos. Ver a decisão nº 15.
+
+---
+
+## 2026-09-24 (madrugada) — Os áudios dos Arcanjos e do Cântico, ligados no teste local
+
+**Chat:** o mesmo da home nova, logo abaixo. **Faixa:** "pode mexer local"; commit só com o clique dele.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+**Nada.** Tudo só na máquina.
+
+### O pedido
+O Caio deixou os entregáveis em `D:\Downloads Certos\PkScale\UPSELL 1` (Arcanjos: uma pasta por Arcanjo, 3 áudios em cada) e `UPSELL 2` (Cântico: `DIA 1` a `DIA 7`). **"Coloque primeiramente somente o áudio e na sequência te envio os textos de cada um deles."**
+
+### O que foi feito
+| O quê | Como |
+|---|---|
+| 12 áudios dos Arcanjos | `assets/audio/arcanjos/miguel-1.mp3` … `uriel-3.mp3`, ligados no `js/arcanjos.js` na ordem das orações, com o título conferido um a um contra o nome do arquivo. O áudio provisório (o do Dia 1 das madrugadas) saiu |
+| 7 áudios do Cântico | `assets/audio/cantico/dia-1.mp3` … `dia-7.mp3`, no `js/cantico.js` (`audioUrl`). A Introdução não tem áudio, então o tocador não aparece nela |
+| Tocador no dia do Cântico | o `cantico-dia.html` ganhou o mesmo tocador dos Arcanjos e das madrugadas, entre o vídeo e o texto, com o rótulo "Ouça o Áudio do Dia" (provisório) |
+| Conversão | os originais vêm em MP3 de 192 kbps. Os dos Arcanjos são **mono de verdade** (os dois lados idênticos, medido) e foram para **mono 96 kbps**: de 98 MB para 49 MB. Os do Cântico usam o estéreo (música) e foram para **estéreo 128 kbps**: de 59 MB para 40 MB. A duração não mudou. Os originais continuam intactos nas pastas do Caio, fora do repositório |
+
+### Por que converter
+Cada cliente baixa cada áudio pelo menos uma vez, e quem paga a banda é a Netlify. Uma conta grosseira, só com a primeira escuta: 371 clientes dos Arcanjos × os 12 áudios passam de ~36 GB para ~18 GB; as 96 do Cântico × os 7, de ~5,7 GB para ~3,8 GB. E é menos internet gasta no celular dela. ⚠️ **Ninguém comparou de ouvido** o original com o convertido.
+
+### A prova (teste local)
+| Conferência | Resultado |
+|---|---|
+| Os 19 arquivos no servidor | todos respondem 200, `audio/mpeg` |
+| Arcanjos, `uriel-3` | o tocador aparece, com "Ouça a Oração em Áudio", e tocou (sem som, no teste) |
+| Cântico, Dia 1 e Dia 7 | o tocador aparece depois do vídeo e antes do texto; tocou; o botão alterna entre play e pausa; a duração aparece (5:54) |
+| Cântico, Introdução | sem tocador, como planejado |
+| Console | zero erros |
+
+### Achados para o Caio
+1. **Dia 1, Dia 4 e Dia 7 têm a mesma duração até o último quadro (5:54), e Dia 3 e Dia 6 também (6:25).** Não são cópias: o som de cada um é diferente. Mas a diferença entre o 1 e o 4 é bem menor que entre dias vizinhos (medido com o `ffmpeg`: −29 dB, contra −13 dB entre o 1 e o 2), como se fosse **a mesma música de fundo com outra coisa por cima**. Se foi de propósito, está certo; se não, vale ouvir os três.
+2. **A Introdução do Cântico não veio com áudio.** Depois do "só áudio" (abaixo), ela saiu da lista até ter áudio ou texto.
+3. ✅ ~~O quadro vazio do vídeo continua em cima do tocador~~ — o Caio respondeu que **o áudio tomou o lugar do vídeo**, e o quadro saiu (abaixo).
+
+### Depois: só o áudio
+O Caio respondeu: **"O áudio tomou o lugar deles, retire o texto por enquanto... Vamos deixar só áudio nas entregas do upsell."**
+
+| Onde | O que mudou |
+|---|---|
+| Arcanjos (`oracao-arcanjo.html`) | a oração mostra só o áudio. O texto provisório saiu do `js/arcanjos.js` (`oracao: null`); quando o texto chegar, entra no mesmo campo e a tela volta a mostrá-lo |
+| Cântico (`cantico-dia.html`) | o dia mostra só o áudio. Saíram o quadro do vídeo (o código do vídeo saiu inteiro do dia) e o texto provisório (`oracao: null`) |
+| Introdução do Cântico | sem áudio e sem texto, não tem o que entregar: o cartão some da lista (`cantico.html`) e, aberta pelo link, ela diz "Conteúdo indisponível". Volta sozinha quando tiver áudio ou texto |
+
+Conferido no teste local: a lista com os Dias 1 a 7 e a Introdução escondida; Dia 2 e Miguel 1 só com o tocador, que tocou; a Introdução pelo link diz "Conteúdo indisponível"; zero erros no console.
+
+### O que NÃO foi conferido
+- Ninguém **ouviu** os áudios dentro do app: o teste toca sem som.
+- Nada foi aberto num celular de verdade.
 
 ---
 

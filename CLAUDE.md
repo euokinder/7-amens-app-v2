@@ -141,14 +141,14 @@ Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para
 - **Retirada pelo painel também tira** — o painel passou a gravar `source = 'manual'` ao revogar.
 - Quem compra com o app aberto vê a Central abrir sozinha na verificação seguinte (até 5 min).
 
-A conta mora em `js/member.js` (`temArcanjos`, `desenharCardArcanjos`, `trancarPaginaDosArcanjos`); o conteúdo, em `js/arcanjos.js`. Sem o campo `conteudos` (função antiga no ar), vale a lista de produtos ativos — rede de segurança igual à da trava.
+A conta mora em `js/member.js` (`temArcanjos`, `desenharCardArcanjos`, `trancarPaginaDosArcanjos`); o conteúdo, em `js/arcanjos.js`. **Os 12 áudios já são os definitivos** (chegaram em 24/09), em `assets/audio/arcanjos/` (`miguel-1.mp3` … `uriel-3.mp3`). Por enquanto a entrega é **só o áudio** (Caio, 24/09): o texto não aparece na tela (`oracao: null`) até chegar. As artes continuam provisórias. Sem o campo `conteudos` (função antiga no ar), vale a lista de produtos ativos — rede de segurança igual à da trava.
 
 ### Cântico Angelical (`upsell_02`)
 Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **mesmo produto, com nome novo** (Caio, 24/09). Quem comprou "Músicas dos Anjos" recebe o Cântico — eram **96 clientes ativas** em 24/09, sem receber nada até então.
 
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
-| Comprou o Cântico | selo "LIBERADO", "Acessar conteúdo" (2º dos Conteúdos Exclusivos) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=0…7`: vídeo da VTurb + texto) |
+| Comprou o Cântico | selo "LIBERADO", "Acessar conteúdo" (2º dos Conteúdos Exclusivos) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=1…7`: por enquanto, só o áudio) |
 | Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`) |
 
 **Regras decididas pelo Caio em 24/09:**
@@ -156,7 +156,7 @@ Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **me
 - **Também é assinatura mensal, e cancelar também NÃO tira.** Só reembolso ou estorno. O `upsell_02` entrou em `FICA_DEPOIS_DE_CANCELAR`, na `member-api`.
 - **Tem "Concluí este dia", mas só para ela se achar na jornada** — nas palavras dele, "ele não muda nada pra gente aqui". Por isso a visão do painel **não conta** os dias do Cântico no número "Orações".
 
-A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPaginaDoCantico`, `bloquearDiaDoCanticoTravado`); o conteúdo, em `js/cantico.js`.
+A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPaginaDoCantico`, `bloquearDiaDoCanticoTravado`); o conteúdo, em `js/cantico.js`. **O áudio tomou o lugar do vídeo** (Caio, 24/09), e por enquanto a entrega é **só o áudio**. Os 7 áudios definitivos estão em `assets/audio/cantico/dia-1.mp3` … `dia-7.mp3`; o texto não aparece até chegar (`oracao: null`). A Introdução, sem áudio e sem texto, fica fora da lista até ter um dos dois. As artes continuam provisórias.
 
 ⚠️ **O "Concluí este dia" depende de uma alteração no banco, ⏳ ainda não aplicada:** `supabase/cantico-angelical.sql`. A ordem de publicar é **banco → função → site**. Se a função subir antes do banco, o botão dá erro na tela dela. O site pode subir antes dos dois: sem o campo `jornadas` no snapshot, o botão do Cântico simplesmente não aparece.
 
@@ -318,7 +318,7 @@ Para popular o banco de teste do zero: rodar `supabase/schema-completo.sql` nele
 3. ✅ **Carga inicial das clientes antigas** — executada em 2026-09-18, registrada em `docs/migracao-base-historica.md`.
 
 ## Infraestrutura — identificadores
-- Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo.**
+- Repositório: `euokinder/7-amens-app-v2` (branches `main` = produção, `development` = trabalho). **Não criar repositório novo.** ⚠️ **Ele é PÚBLICO** (conferido em 24/09, na API do GitHub, sem login): qualquer pessoa vê e baixa tudo o que entra nele — diário, SQL, conteúdo pago. **Nunca escrever e-mail, telefone ou nome de cliente em arquivo do repositório.** Tornar privado é decisão do Caio (decisão nº 15 do diário).
 - ⚠️ Em 2026-09-18 a `main` recebeu tudo o que estava na `development` e foi enviada ao GitHub. Hoje as duas branches são idênticas — não existe mais uma versão antiga guardada na `main` para servir de rede de segurança. A rede de segurança é o deploy antigo na Netlify (ver rollback, abaixo).
 - O hook `.claude/hooks/protege-producao.sh` nega push por padrão e só libera `git push origin development`. Teste de regressão: `python .claude/hooks/testa-protege-producao.py`. Ele só enxerga comandos rodados **pelo agente** nesta máquina — o Caio rodando no próprio terminal passa por fora, e é por isso que o caminho de publicar é o clique dele (ver "Como publicar", acima). As travas de verdade são branch protection na `main` (GitHub) e "Stop auto publishing" no projeto `7madrugadas` (Netlify).
 - Supabase em uso: projeto **`7-amens-app-v2`**, ref `lbaudlocfbjunnaoyrtz`, região sa-east-1.
@@ -401,6 +401,7 @@ cliente entra com e-mail → sistema a encontra → sabe o que comprou → mostr
 - **Três projetos na conta da Netlify, só um constrói** (ver a tabela no topo deste arquivo): `7madrugadas` = produção; `7-amens-app-v2` = congelado desde 21/09; `7sacredprayers` = versão americana. Publicar custa **1 build**, não 2. Não criar sites novos para fugir de créditos.
 - Cada verificação de sessão do app grava no banco. O intervalo é de **5 minutos** (`js/member.js`); baixar esse número multiplica o consumo da Supabase.
 - Alertar sobre qualquer risco de cobrança automática no cartão antes de acontecer.
+- **Áudio novo é convertido antes de entrar no site.** Os originais do Caio vêm em MP3 de 192 kbps. Voz que é mono de verdade vai em **mono 96 kbps**, e música em **estéreo 128 kbps** — metade do peso, ou perto disso, e cada cliente baixa cada áudio pelo menos uma vez. O `ffmpeg` já está instalado nesta máquina (pelo winget). Os originais ficam nas pastas dele, **fora** do repositório: arquivo grande que entra num commit fica no histórico para sempre, mesmo se trocado depois.
 
 ## Segurança — calibragem
 Site simples, superfície de ataque pequena, **não é a prioridade**. Exceções que importam de verdade: RLS no Supabase e não vazar chave de service_role no frontend.
