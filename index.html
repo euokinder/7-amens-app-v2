@@ -6,7 +6,7 @@
 <title>Início — 7 Améns da Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=12">
+<link rel="stylesheet" href="css/styles.css?v=13">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
@@ -25,7 +25,7 @@
     <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
   </div>
 
-  <div class="content">
+  <div class="content home">
 
     <!-- SEÇÃO DESTAQUE — o carrossel de banners.
          NASCE INVISÍVEL e só aparece quando o js/banner.js consegue montar
@@ -59,7 +59,7 @@
       <p class="destaque-status" role="status"></p>
     </section>
 
-    <div class="heading-block">
+    <div class="heading-block heading-home">
       <!-- O nome entra aqui pelo js/member.js, assim que a sessao confirma
            quem e a cliente. O texto abaixo, sem nome, e o que fica no ar se
            o nome nao vier do cadastro: ele se sustenta sozinho e nao parece
@@ -70,36 +70,76 @@
       <p class="subtext">Toque em qualquer card para abrir e começar.</p>
     </div>
 
-    <a href="novena.html" class="card" style="height:400px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-7-oracoes-sagradas.jpg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8.5" r="5" stroke-dasharray="1.8 2.6"/><line x1="12" y1="13.5" x2="12" y2="20" stroke-linecap="round"/><line x1="9.3" y1="16.7" x2="14.7" y2="16.7" stroke-linecap="round"/></svg>
-      </div>
-      <div class="pill-badge">7 DIAS</div>
-      <div class="card-body">
-        <h3 class="card-title">7 Orações Sagradas</h3>
-        <p class="card-sub">Reze um dia de cada vez, durante as madrugadas...</p>
-        <button class="cta-btn" type="button">Começar Oração!</button>
+    <!-- OS CARDS DA HOME — desenho de 24/09/2026, pedido pelo Caio a partir
+         de uma referência que ele mandou. Dois modelos:
+         - card-produto: foto em cima e o texto num painel separado, embaixo
+           (selo, título, descrição e botão). Para os conteúdos.
+         - card-contato: "limpo", sem foto, com um ícone. Para o Grupo no
+           WhatsApp, a Mensagem do Dia e o Fale Conosco.
+         A ordem também é a dele: primeiro o que ela já tem; depois, os
+         Conteúdos Exclusivos.
+         Saíram da home a pedido dele, na mesma data: Novena Desatadora dos
+         Nós, Pai Nosso (que continua dentro das 7 Orações, em "Material
+         Complementar") e Lojinha. As páginas continuam existindo; só o card
+         saiu.
+         Classes próprias, e não a .card: aquela veste as listas de dias, que
+         nascem apagadas para o efeito de foco do js/app.js. Estes ficam
+         sempre nítidos.
+         Foto nova = arquivo com NOME novo: o netlify.toml manda o celular
+         guardar as imagens por um ano. -->
+    <a href="novena.html" class="card-produto">
+      <img class="card-produto-foto" src="assets/images/home/7-oracoes.jpg" alt="" width="960" height="960" fetchpriority="high" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo">LIBERADO</span>
+        <h3 class="card-produto-titulo">7 Orações Sagradas</h3>
+        <p class="card-produto-descricao">Acesse a introdução, as 7 orações da madrugada e o material complementar.</p>
+        <span class="card-produto-botao"><span>Acessar conteúdo</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
       </div>
     </a>
+
+    <a href="https://chat.whatsapp.com/FIUtX62TOWH0xIyb51NqHr?s=cl&p=i&mlu=4&ilr=4" target="_blank" rel="noopener" class="card-contato whatsapp">
+      <span class="card-contato-icone">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Junte-se ao nosso Grupo no WhatsApp</h3>
+      <p class="card-contato-descricao">Receba novidades, mensagens diárias e participe da nossa comunidade de fé.</p>
+      <span class="card-contato-botao"><span>Entrar no Grupo</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+    <a href="javascript:void(0)" onclick="abrirMensagemDoDia()" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Mensagem do Dia</h3>
+      <p class="card-contato-descricao">Receba agora sua mensagem do dia, em 2 minutos.</p>
+      <span class="card-contato-botao"><span>Acessar sua mensagem</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+    <div class="heading-block heading-home secao">
+      <h2 class="title">Conteúdos Exclusivos</h2>
+      <!-- A frase some sozinha quando não há nenhum 🔒 na tela, isto é, para
+           quem já tem os dois extras. Quem esconde é o js/member.js
+           (desenharAvisoDosExtras). -->
+      <p class="subtext" id="aviso-extras">Os itens com 🔒 são extras... Toque em “Adquirir” para entender mais...</p>
+    </div>
 
     <!-- CENTRAL DOS QUATRO ARCANJOS — o que a cliente recebe com o upsell_01.
          É o primeiro card do app trancado por produto extra (decisão do Caio,
          24/09/2026). Quem decide é o js/member.js (desenharCardArcanjos): quem
          comprou entra na Central; quem não comprou vê o cadeado e vai para a
          página de oferta.
-         Os textos das duas situações moram nos data-liberado / data-trancado:
-         é aqui que se troca a copy.
+         Os textos das duas situações moram nos data-liberado / data-trancado
+         (do selo e do botão): é aqui que se troca a copy. O 🔒 vem escrito no
+         próprio selo, porque é o sinal que a frase acima explica.
          O endereço escrito é o de quem comprou, de propósito: se o JS falhar,
          o card abre a Central em vez de trancar uma cliente que pagou. -->
-    <a href="arcanjos.html" id="card-arcanjos" class="card" style="height:340px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/arcanjos/provisorio-home.svg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="4.5" rx="5" ry="1.6"/><path d="M12 8.5l1.7 4.3 4.3 1.7-4.3 1.7L12 20.5l-1.7-4.3-4.3-1.7 4.3-1.7Z"/></svg>
-      </div>
-      <div class="pill-badge" data-liberado="12 ORAÇÕES" data-trancado="Exclusivo">12 ORAÇÕES</div>
-      <div class="card-body">
-        <h3 class="card-title">Central dos Quatro Arcanjos</h3>
-        <p class="card-sub">Proteção, caminhos, cura e sabedoria em 12 orações.</p>
-        <button class="cta-btn" type="button" data-liberado="Acessar Agora!" data-trancado="Desbloquear">Acessar Agora!</button>
+    <a href="arcanjos.html" id="card-arcanjos" class="card-produto">
+      <img class="card-produto-foto" src="assets/images/home/arcanjos.jpg" alt="" width="960" height="960" loading="lazy" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo" data-liberado="LIBERADO" data-trancado="🔒 EXTRA">LIBERADO</span>
+        <h3 class="card-produto-titulo">Central dos Quatro Arcanjos</h3>
+        <p class="card-produto-descricao">Acesse as 12 orações dos Quatro Arcanjos: proteção, caminhos, cura e sabedoria.</p>
+        <span class="card-produto-botao"><span data-liberado="Acessar conteúdo" data-trancado="Adquirir">Acessar conteúdo</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
       </div>
     </a>
 
@@ -111,92 +151,24 @@
          Os textos das duas situações moram nos data-liberado / data-trancado.
          O endereço escrito é o de quem comprou, de propósito: se o JS falhar,
          o card abre a jornada em vez de trancar uma cliente que pagou. -->
-    <a href="cantico.html" id="card-cantico" class="card" style="height:340px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/cantico/provisorio-home.svg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-      </div>
-      <div class="pill-badge" data-liberado="7 DIAS" data-trancado="Exclusivo">7 DIAS</div>
-      <div class="card-body">
-        <h3 class="card-title">Cântico Angelical</h3>
-        <p class="card-sub">Sua jornada de 7 dias</p>
-        <button class="cta-btn" type="button" data-liberado="Acessar Agora!" data-trancado="Desbloquear">Acessar Agora!</button>
+    <a href="cantico.html" id="card-cantico" class="card-produto">
+      <img class="card-produto-foto" src="assets/images/home/cantico.jpg" alt="" width="960" height="960" loading="lazy" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo" data-liberado="LIBERADO" data-trancado="🔒 EXTRA">LIBERADO</span>
+        <h3 class="card-produto-titulo">Cântico Angelical</h3>
+        <p class="card-produto-descricao">Sua jornada de 7 dias, com um vídeo e uma oração para cada dia.</p>
+        <span class="card-produto-botao"><span data-liberado="Acessar conteúdo" data-trancado="Adquirir">Acessar conteúdo</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
       </div>
     </a>
 
-    <a href="https://chat.whatsapp.com/FIUtX62TOWH0xIyb51NqHr?s=cl&p=i&mlu=4&ilr=4" target="_blank" rel="noopener" class="card" style="height:200px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-canal-oficial.jpg);">
-      <div class="icon-badge" style="background:oklch(0.70 0.15 152 / 0.18);color:var(--whatsapp);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 1 3.2 6.4L4 20l1.3-3.6A7.96 7.96 0 0 1 4 12Z"/><line x1="8.5" y1="11" x2="15.5" y2="11"/><line x1="8.5" y1="14" x2="13" y2="14"/></svg>
-      </div>
-      <div class="card-body row">
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <h3 class="card-title" style="font-size:19px;">Entre No Nosso Canal Oficial</h3>
-          <p class="card-sub">Faça parte da nossa comunidade e receba mensagens diárias...</p>
-        </div>
-        <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </div>
+    <a href="https://wa.me/5591980159224?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20app%207%20Am%C3%A9ns%20da%20Madrugada." target="_blank" rel="noopener" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Fale Conosco</h3>
+      <p class="card-contato-descricao">Dúvidas, reclamações ou reembolso? Nossa equipe atende você pelo WhatsApp.</p>
+      <span class="card-contato-botao"><span>Falar com a equipe</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
     </a>
-
-    <a href="javascript:void(0)" onclick="abrirMensagemDoDia()" class="card" style="height:340px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-mensagem-do-dia.jpg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-      </div>
-      <div class="pill-badge">2 Minutos</div>
-      <div class="card-body">
-        <h3 class="card-title">Mensagem do Dia</h3>
-        <p class="card-sub">Receba agora sua mensagem do dia.</p>
-        <button class="cta-btn" type="button">Acessar sua mensagem</button>
-      </div>
-    </a>
-
-    <a href="dia.html?material=pai-nosso" class="card" style="height:340px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-pai-nosso.jpg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="6" y1="9" x2="18" y2="9"/></svg>
-      </div>
-      <div class="pill-badge">2 Minutos</div>
-      <div class="card-body">
-        <h3 class="card-title">Oração do Pai Nosso Completa</h3>
-        <p class="card-sub">Veja a versão original do Pai Nosso em Aramaico.</p>
-        <button class="cta-btn" type="button">Acessar Agora!</button>
-      </div>
-    </a>
-
-    <a href="desatadora.html" class="card" style="height:340px;background-image:linear-gradient(to top, oklch(0.06 0.02 260 / 0.25) 0%, transparent 45%), url(assets/images/desatadora/home.svg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7L4 12l6 5V7Z"/><path d="M14 7l6 5-6 5V7Z"/><circle cx="12" cy="12" r="1.8"/></svg>
-      </div>
-      <div class="pill-badge">9 DIAS</div>
-      <div class="card-body">
-        <h3 class="card-title">Novena Desatadora dos Nós</h3>
-        <p class="card-sub">Um nó desfeito a cada dia, com Nossa Senhora...</p>
-        <button class="cta-btn" type="button">Começar Novena!</button>
-      </div>
-    </a>
-
-    <div class="card static" style="height:340px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-lojinha.jpg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
-      </div>
-      <div class="pill-badge">Disponível em breve</div>
-      <div class="card-body">
-        <h3 class="card-title">Lojinha Oficial Adoração Ao Senhor</h3>
-        <p class="card-sub">Seu lugar para se aproximar ainda mais de Deus...</p>
-        <button class="cta-btn muted" type="button" disabled>Indisponível</button>
-      </div>
-    </div>
-
-    <a href="https://wa.me/5591980159224?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20app%207%20Am%C3%A9ns%20da%20Madrugada." target="_blank" rel="noopener" class="card" style="height:200px;background-image:linear-gradient(to top, oklch(0.08 0.01 40 / 0.15) 0%, transparent 40%), url(assets/images/home-fale-conosco.jpg);">
-      <div class="icon-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/></svg>
-      </div>
-      <div class="card-body row">
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <h3 class="card-title" style="font-size:19px;">Fale Conosco!</h3>
-          <p class="card-sub">Dúvidas, reclamações ou reembolso.</p>
-        </div>
-        <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-      </div>
-    </a>
-
   </div>
 </div>
 
@@ -233,7 +205,7 @@
     document.getElementById('msg-modal').classList.add('open');
   }
 </script>
-<script src="js/app.js?v=4"></script>
+<script src="js/app.js?v=5"></script>
 <script src="js/banner.js?v=1"></script>
 </body>
 </html>

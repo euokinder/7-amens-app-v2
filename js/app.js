@@ -73,8 +73,63 @@ function initBackToTop() {
   });
 }
 
+// Luz de fundo nos cards da home (pedido do Caio, 24/09/2026): acende no card
+// que ela está olhando. Rolando a tela, é o mais perto do meio; com o mouse,
+// o que está debaixo dele. Um card aceso por vez. Aqui só se escolhe o card
+// (classe .em-destaque); quem desenha a luz é o css/styles.css.
+function initDestaqueDosCards() {
+  const cards = [...document.querySelectorAll('.card-produto, .card-contato')];
+  if (!cards.length) return;
+  let sobMouse = null;
+  let agendado = false;
+
+  const maisPertoDoMeio = () => {
+    const meio = window.innerHeight / 2;
+    let escolhido = null;
+    let menor = Infinity;
+    cards.forEach((card) => {
+      const caixa = card.getBoundingClientRect();
+      const distancia = Math.abs((caixa.top + caixa.bottom) / 2 - meio);
+      if (distancia < menor) { menor = distancia; escolhido = card; }
+    });
+    return escolhido;
+  };
+  const acender = () => {
+    agendado = false;
+    const alvo = sobMouse || maisPertoDoMeio();
+    cards.forEach((card) => card.classList.toggle('em-destaque', card === alvo));
+  };
+  const agendar = () => {
+    if (agendado) return;
+    agendado = true;
+    requestAnimationFrame(acender);
+  };
+
+  // Rolando, quem manda é o meio da tela, mesmo com o mouse parado em cima.
+  window.addEventListener('scroll', () => { sobMouse = null; agendar(); }, { passive: true });
+  window.addEventListener('resize', agendar);
+  window.addEventListener('pageshow', agendar);
+  // A home nasce escondida até o login ser conferido (js/member.js); quando
+  // ela aparece, a conta precisa ser refeita com os cards já na tela.
+  new MutationObserver(agendar).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  cards.forEach((card) => {
+    card.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || sobMouse === card) return;
+      sobMouse = card;
+      agendar();
+    });
+    card.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse' || sobMouse !== card) return;
+      sobMouse = null;
+      agendar();
+    });
+  });
+  acender();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initScrollFocus();
   initConfirmModal();
   initBackToTop();
+  initDestaqueDosCards();
 });

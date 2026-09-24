@@ -133,8 +133,8 @@ Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para
 
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
-| Comprou os Arcanjos | card aberto, "Acessar Agora!" | entra na Central (`arcanjos.html` → `arcanjo.html?a=…` → `oracao-arcanjo.html?a=…&o=…`) |
-| Não comprou | card com cadeado, "Desbloquear" | página de oferta (`oferta-arcanjos.html`, etiqueta `utm_medium=card`) |
+| Comprou os Arcanjos | selo "LIBERADO", "Acessar conteúdo" | entra na Central (`arcanjos.html` → `arcanjo.html?a=…` → `oracao-arcanjo.html?a=…&o=…`) |
+| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de oferta (`oferta-arcanjos.html`, etiqueta `utm_medium=card`) |
 
 **Regras decididas pelo Caio em 24/09:**
 - **Cancelou a assinatura → CONTINUA com a Central.** Só **reembolso ou estorno** tiram (regra 4). A Hubla manda o mesmo `customer.member_removed` nos dois casos, e o webhook grava `revoked` nos dois. Quem separa é a `member-api` (`conteudosDela`): assinatura com fatura `refunded`/`chargeback` = reembolso. O campo novo `conteudos` do snapshot é o que a Central lê; `products` continua sendo só o que está ativo.
@@ -148,8 +148,8 @@ Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **me
 
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
-| Comprou o Cântico | card aberto, "7 DIAS", "Acessar Agora!" (3º card) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=0…7`: vídeo da VTurb + texto) |
-| Não comprou | card com cadeado, "Exclusivo", "Desbloquear" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`) |
+| Comprou o Cântico | selo "LIBERADO", "Acessar conteúdo" (2º dos Conteúdos Exclusivos) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=0…7`: vídeo da VTurb + texto) |
+| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`) |
 
 **Regras decididas pelo Caio em 24/09:**
 - **Introdução + 7 dias, um por dia**, com a mesma âncora das madrugadas (ver a seção da trava, acima).
@@ -170,8 +170,28 @@ A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPag
 **Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
 
 ## Home como hub
-Cards, na ordem: **7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Cântico Angelical (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco**. (Até 24/09 esta lista esquecia o Canal Oficial e o Fale Conosco.)
-O "Desbloquear" existe desde 24/09 em dois cards, o da Central dos Arcanjos e o do Cântico Angelical: tem direito → entra; não tem → página de oferta.
+⏳ **Home nova, desenhada em 24/09 e ainda só no local.** Dois blocos, na ordem pedida pelo Caio:
+1. **"Escolha um conteúdo"**: 7 Orações Sagradas · Grupo no WhatsApp · Mensagem do Dia
+2. **"Conteúdos Exclusivos"**: Central dos Quatro Arcanjos · Cântico Angelical · Fale Conosco
+
+São dois desenhos de card, tirados de uma referência que ele mandou:
+- **para os conteúdos:** foto em cima e o texto num painel escuro embaixo, com selo, título, descrição e botão dourado;
+- **para os contatos:** um card "limpo", sem foto, com ícone e botão largo. O do WhatsApp nem tem painel: fundo transparente, letras escuras, e verde só na borda, no ícone e no botão (pedido do Caio).
+
+O marrom do painel é `#412E21`. Ele é um pouco mais claro que o da referência (`#322318`), também a pedido do Caio: no creme, o marrom mais escuro parecia preto.
+
+**A luz de fundo** (pedido do Caio): o card que ela está olhando ganha um brilho esfumaçado em volta, dourado nos cards marrons e verde no WhatsApp. Acende um card por vez: rolando a tela, o mais perto do meio; com o mouse, o que está debaixo dele. Quem escolhe o card é o `js/app.js` (`initDestaqueDosCards`), e quem desenha a luz é o `css/styles.css`. ⚠️ A luz fica atrás do card e some calada por dois motivos: `overflow: hidden` no card (corta a luz) ou o `.content` da home sem a classe `home` (sem ela, a luz fica escondida atrás do creme).
+
+As classes são próprias (`card-produto` e `card-contato`, em `css/styles.css`). **Não** usar a `.card` das listas de dias: ela nasce apagada, por causa do efeito de foco do `js/app.js`.
+
+Nos dois extras, quem tem direito vê o selo "LIBERADO" e "Acessar conteúdo". Quem não tem vê o selo "🔒 EXTRA" e "Adquirir", que leva à página de oferta. A frase "Os itens com 🔒 são extras..." some sozinha para quem já tem os dois (`desenharAvisoDosExtras`, em `js/member.js`).
+
+**Saíram da home em 24/09, a pedido dele:**
+- **Novena Desatadora dos Nós.** ⚠️ Ficou sem caminho: `desatadora.html` só abria pelo card da home. Quem começou a novena só volta a ela pelo link direto.
+- **Pai Nosso.** Continua dentro das 7 Orações, em "Material Complementar".
+- **Lojinha.**
+
+As páginas continuam existindo. Até a home nova ser publicada, a que está no ar é a antiga: 7 Orações · Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora · Lojinha · Fale Conosco.
 
 ## Modelo de dados — JÁ IMPLEMENTADO (`supabase/schema.sql`)
 O backend está bem mais adiantado do que o desenho original sugeria. Nomes reais das tabelas:

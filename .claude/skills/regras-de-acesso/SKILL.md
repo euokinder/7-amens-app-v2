@@ -45,7 +45,7 @@ Os dois pedidos pelo Caio em **2026-09-24**. ⏳ Construídos no teste local, **
 | Central dos Quatro Arcanjos | `upsell_01` | `arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html` |
 | Cântico Angelical | `upsell_02` (na Hubla, "Músicas dos Anjos": mesmo produto, nome novo) | `cantico.html`, `cantico-dia.html` |
 
-- Comprou → o card da home abre o conteúdo. Não comprou → cadeado, "Desbloquear" e página de oferta (`oferta-arcanjos.html` / `oferta-cantico.html`).
+- Comprou → o card da home abre o conteúdo. Não comprou → selo "🔒 EXTRA", botão "Adquirir" e página de oferta (`oferta-arcanjos.html` / `oferta-cantico.html`). (Até o desenho novo da home, de 24/09, o botão dizia "Desbloquear".)
 - **Os dois são assinatura mensal, e cancelar NÃO tira.** Só **reembolso ou estorno** tiram. A `member-api` separa os dois casos pelas faturas da assinatura (`conteudosDela`, lista `FICA_DEPOIS_DE_CANCELAR`) e manda o resultado no campo `conteudos` do snapshot.
 - Revogação feita no painel tira (grava `source = 'manual'`).
 - O Cântico abre **um dia por vez**, com a mesma âncora das madrugadas (`calcularCantico`, em `js/trava.js`). Tem "Concluí este dia" só para ela se achar: o número "Orações" do painel não conta esses dias.
@@ -62,10 +62,10 @@ Verificado no código em 2026-09-18:
 
 **Nunca implementar bloqueio de conteúdo por upsell sem o Caio pedir explicitamente.** Liberar ou revogar um upsell hoje não muda nada para a cliente, e isso é intencional.
 
-## Cards da Home — o "Desbloquear"
+## Cards da Home — o "Adquirir" (antes, "Desbloquear")
 
-A ideia registrada: tem direito → entra; não tem → "Desbloquear", transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. **Desde 2026-09-24 ela existe em dois cards, o da Central dos Quatro Arcanjos e o do Cântico Angelical** — escritos direto no `index.html` e comandados pelo `js/member.js`, **não** pelo catálogo. ⚠️ Não ativar `products.enabled` do `upsell_01` nem do `upsell_02`: o código antigo do catálogo (`member-extras`) criaria um segundo card, genérico, no fim da home.
-Cards atuais, na ordem: 7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Cântico Angelical (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco.
+A ideia registrada: tem direito → entra; não tem → um botão de compra, transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. **Desde 2026-09-24 ela existe em dois cards, o da Central dos Quatro Arcanjos e o do Cântico Angelical** — escritos direto no `index.html` e comandados pelo `js/member.js`, **não** pelo catálogo. No desenho novo da home (24/09): tem direito → selo "LIBERADO" e "Acessar conteúdo"; não tem → selo "🔒 EXTRA" e "Adquirir". ⚠️ Não ativar `products.enabled` do `upsell_01` nem do `upsell_02`: o código antigo do catálogo (`member-extras`) criaria um segundo card, genérico, no fim da home.
+Cards da home nova, na ordem (⏳ só no local): **"Escolha um conteúdo"** — 7 Orações Sagradas · Grupo no WhatsApp · Mensagem do Dia; **"Conteúdos Exclusivos"** — Central dos Quatro Arcanjos · Cântico Angelical · Fale Conosco. Saíram da home a pedido do Caio: Novena Desatadora dos Nós, Pai Nosso e Lojinha (as páginas continuam existindo).
 
 ## Ofertas dentro do app
 

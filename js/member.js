@@ -317,7 +317,6 @@
   // veio do pop-up (utm_medium=popup). Ver oferta-arcanjos.html.
   const ofertaDosArcanjos = origem => `oferta-arcanjos.html?utm_source=app&utm_medium=card&utm_campaign=arcanjos&utm_content=${origem}`;
   const temArcanjos = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_ARCANJOS);
-  const CADEADO = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   function desenharCardArcanjos() {
     const card = document.getElementById('card-arcanjos');
     if (!card) return;
@@ -325,13 +324,12 @@
     const situacao = liberado ? 'liberado' : 'trancado';
     card.dataset.situacao = situacao;
     card.href = liberado ? 'arcanjos.html' : ofertaDosArcanjos('card-home');
-    const selo = card.querySelector('.pill-badge');
-    if (selo) {
-      selo.textContent = selo.dataset[situacao] || '';
-      if (!liberado) selo.insertAdjacentHTML('afterbegin', CADEADO);
-    }
-    const botao = card.querySelector('.cta-btn');
-    if (botao) botao.textContent = botao.dataset[situacao] || botao.textContent;
+    // O selo e o botão trazem as duas versões do texto no index.html
+    // ("LIBERADO" / "🔒 EXTRA", "Acessar conteúdo" / "Adquirir"). O 🔒 vem
+    // escrito no próprio texto: é o sinal que a frase acima dos extras explica.
+    card.querySelectorAll('[data-liberado]').forEach(texto => {
+      texto.textContent = texto.dataset[situacao] || texto.textContent;
+    });
   }
   function trancarPaginaDosArcanjos() {
     if (!PAGINA_DOS_ARCANJOS.test(location.pathname)) return false;
@@ -386,13 +384,11 @@
     const situacao = liberado ? 'liberado' : 'trancado';
     card.dataset.situacao = situacao;
     card.href = liberado ? 'cantico.html' : ofertaDoCantico('card-home');
-    const selo = card.querySelector('.pill-badge');
-    if (selo) {
-      selo.textContent = selo.dataset[situacao] || '';
-      if (!liberado) selo.insertAdjacentHTML('afterbegin', CADEADO);
-    }
-    const botao = card.querySelector('.cta-btn');
-    if (botao) botao.textContent = botao.dataset[situacao] || botao.textContent;
+    // Mesmo esquema do card dos Arcanjos: as duas versões do texto moram no
+    // index.html, e o 🔒 vem escrito nelas.
+    card.querySelectorAll('[data-liberado]').forEach(texto => {
+      texto.textContent = texto.dataset[situacao] || texto.textContent;
+    });
   }
   function trancarPaginaDoCantico() {
     if (!PAGINA_DO_CANTICO.test(location.pathname)) return false;
@@ -440,11 +436,19 @@
     content.replaceChildren(bloco, voltar);
     return true;
   }
+  // "Os itens com 🔒 são extras..." — a frase acima dos cards dos extras, na
+  // home. Só faz sentido se houver algum 🔒 na tela: para quem já tem os dois
+  // extras, ela some. Roda depois dos dois cards, que marcam a situação.
+  function desenharAvisoDosExtras() {
+    const aviso = document.getElementById('aviso-extras');
+    if (aviso) aviso.hidden = !document.querySelector('[data-situacao="trancado"]');
+  }
   function render() {
     desenharSaudacao();
     setupMemberMenu();
     desenharCardArcanjos();
     desenharCardCantico();
+    desenharAvisoDosExtras();
     // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
     // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
     // lista continuar com as sete abertas — e o desvio nem sempre acontece.

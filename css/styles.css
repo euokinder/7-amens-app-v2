@@ -16,6 +16,12 @@
   --muted-btn-border: oklch(0.60 0.02 60 / 0.35);
   --muted-btn-ink: oklch(0.78 0.02 70);
   --locked-badge: oklch(0.42 0.01 60 / 0.7);
+  /* O painel marrom dos cards da home (desenho de 24/09/2026). Um pouco mais
+     claro que o da referência (#322318), a pedido do Caio: no creme da
+     página, o marrom mais escuro parecia preto. */
+  --painel: oklch(0.32 0.036 57);
+  --painel-borda: oklch(0.72 0.14 85 / 0.38);
+  --painel-suave: oklch(0.84 0.025 75);
   color-scheme: light;
 }
 
@@ -349,6 +355,206 @@ h1.title {
 }
 
 .chevron { flex: 0 0 auto; color: var(--card-muted); }
+
+/* HOME — os cards no desenho de 24/09/2026, pedido pelo Caio a partir de uma
+   referência: foto em cima e o texto num painel separado, embaixo, para os
+   conteúdos (.card-produto); card "limpo", sem foto, com um ícone, para os
+   contatos (.card-contato).
+   Classes próprias, e não a .card: aquela nasce apagada (opacity 0.5) para o
+   efeito de foco do js/app.js, que só procura ".card". Estes ficam sempre
+   nítidos.
+   Contraste medido no navegador em 24/09/2026 (o mínimo para texto é 4,5).
+   No painel marrom: título 11,8; descrição 7,9; botões 6,9; selo LIBERADO
+   5,2; selo 🔒 EXTRA 8,8. No WhatsApp, sobre o creme: título 14,4;
+   descrição 8,5. O botão tem texto ESCURO também no verde do WhatsApp:
+   branco sobre esse verde daria 2,5, pouco para quem tem 45+. */
+.heading-home .subtext { font-size: 16px; line-height: 1.45; }
+.heading-home.secao { margin-top: 18px; }
+
+h2.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.card-produto,
+.card-contato {
+  flex: 0 0 auto;
+  position: relative;
+  margin-bottom: 10px;
+  border-radius: 22px;
+  background: var(--painel);
+  border: 1px solid var(--painel-borda);
+  color: var(--card-ink);
+  box-shadow: 0 12px 28px -18px oklch(0.2 0.03 50 / 0.6);
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-produto:hover,
+.card-contato:hover { color: var(--card-ink); }
+.card-produto:active,
+.card-contato:active { transform: scale(0.985); }
+.card-produto:focus-visible,
+.card-contato:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 3px; }
+
+.card-produto { display: block; }
+
+/* A foto arredonda os próprios cantos de cima (22px do card menos 1px de
+   borda), em vez de o card cortar com overflow: hidden, que cortaria
+   também a luz de fundo, mais abaixo. */
+.card-produto-foto {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 21px 21px 0 0;
+  background: oklch(0.2 0.02 55);
+}
+
+.card-produto-texto {
+  padding: 22px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-produto-selo {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: oklch(0.72 0.14 85 / 0.16);
+  /* Dourado mais claro que o --accent: no painel marrom, o --accent ficaria
+     abaixo do mínimo de contraste (3,9). */
+  color: oklch(0.80 0.13 85);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+
+/* "🔒 EXTRA": quem pôs o 🔒 foi o js/member.js, lendo o data-trancado. */
+.card-produto[data-situacao="trancado"] .card-produto-selo {
+  background: oklch(0.97 0.01 85 / 0.10);
+  color: var(--card-ink);
+}
+
+.card-produto-titulo,
+.card-contato-titulo {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--card-ink);
+}
+.card-produto-titulo { font-size: 22px; }
+.card-contato-titulo { font-size: 19px; }
+
+.card-produto-descricao,
+.card-contato-descricao {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--painel-suave);
+}
+
+.card-produto-botao,
+.card-contato-botao {
+  margin-top: 6px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--dark-on-accent);
+  font-size: 17px;
+  font-weight: 700;
+}
+.card-produto-botao { padding: 0 22px 0 26px; }
+.card-contato-botao { align-self: stretch; padding: 0 20px; }
+
+.card-contato {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px 22px;
+}
+
+.card-contato-icone {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 4px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--dark-on-accent);
+}
+
+/* O Grupo no WhatsApp não tem painel (pedido do Caio, 24/09/2026): o creme
+   da página aparece por trás, as letras são escuras, e a borda, o ícone e o
+   botão são verdes. A borda usa um verde mais fundo que o do botão, para
+   aparecer no creme (3,1:1; o verde do botão daria 2,3). */
+.card-contato.whatsapp {
+  background: transparent;
+  border: 1.5px solid oklch(0.62 0.15 152);
+  box-shadow: none;
+}
+.card-contato.whatsapp .card-contato-titulo { color: var(--ink); }
+.card-contato.whatsapp .card-contato-descricao { color: oklch(0.40 0.015 55); }
+.card-contato.whatsapp .card-contato-icone { background: var(--whatsapp); color: oklch(0.99 0 0); }
+.card-contato.whatsapp .card-contato-botao { background: var(--whatsapp); }
+
+/* A LUZ DE FUNDO (pedido do Caio, 24/09/2026): o card que ela está olhando
+   ganha um brilho esfumaçado em volta, dourado (verde, no WhatsApp). Um card
+   aceso por vez: rolando a tela, o mais perto do meio; com o mouse, o que
+   está debaixo dele. Quem escolhe o card é o js/app.js
+   (initDestaqueDosCards), com a classe .em-destaque.
+   A luz é a sombra de um ::before atrás do card, e só a opacidade e o
+   tamanho animam: o celular não redesenha a sombra a cada quadro.
+   ⚠️ Duas peças seguram isto: o card não tem overflow: hidden (cortaria a
+   luz) e o .content da home isola as camadas (sem isso, a luz ficaria
+   escondida atrás do creme da página). */
+.content.home { isolation: isolate; }
+
+.card-produto::before,
+.card-contato::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow:
+    0 0 22px 2px oklch(0.78 0.15 80 / 0.55),
+    -18px -14px 56px 6px oklch(0.84 0.13 88 / 0.45),
+    18px 20px 64px 8px oklch(0.70 0.16 65 / 0.40);
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+.card-contato.whatsapp::before {
+  box-shadow:
+    0 0 22px 2px oklch(0.72 0.16 152 / 0.50),
+    -18px -14px 56px 6px oklch(0.80 0.13 150 / 0.40),
+    18px 20px 64px 8px oklch(0.64 0.15 160 / 0.35);
+}
+.card-produto.em-destaque::before,
+.card-contato.em-destaque::before,
+.card-produto:focus-visible::before,
+.card-contato:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-produto::before,
+  .card-contato::before { transition: none; }
+}
 
 .section-label {
   margin: 8px 0 -6px;

@@ -15,9 +15,10 @@ Nada anda nestes pontos até ele responder.
 | # | Assunto | A pergunta |
 |---|---|---|
 | 10 | 🆕🔥 **Arcanjos e Cântico: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, e rodar `supabase/cantico-angelical.sql` no banco de **teste**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai" (dos dois produtos) e o "Concluí este dia" do Cântico. Não tem cliente e não custa nada. **(b)** Enviar ao GitHub (`development`), que não muda o site e custa zero. ✅ *Guardar em commit* ficou resolvido em 24/09: os commits são feitos na máquina e **quem clica é o Caio** (Arcanjos: `ceefce6`; Cântico: o commit seguinte). Mas, enquanto não forem enviados ao GitHub, **se a máquina pifar, somem.** |
-| 12 | 🆕🔥 **Cântico Angelical: o que só o Caio pode mandar** (24/09) | ✅ ~~(a) o formato da venda~~ — **em vídeo**, com a VSL `vid-6ab4a340c48cfa940452f7df` (já na página). ✅ ~~(b) o link de compra~~ — `pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell`, com o código **já mapeado** para `upsell_02` (314 vendas reais chegaram com ele). **Falta (c):** os **8 vídeos da VTurb dos dias, os 8 textos e as 9 artes** (1 do card da home + 8 dos cartões). O Caio avisou que manda **por último de tudo**. **E (d):** se o texto de cada dia é oração para rezar junto (quadro "A oração") ou reflexão — dá para responder junto com o material. |
+| 12 | 🆕🔥 **Cântico Angelical: o que só o Caio pode mandar** (24/09) | ✅ ~~(a) o formato da venda~~ — **em vídeo**, com a VSL `vid-6ab4a340c48cfa940452f7df` (já na página). ✅ ~~(b) o link de compra~~ — `pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell`, com o código **já mapeado** para `upsell_02` (314 vendas reais chegaram com ele). **Falta (c):** os **8 vídeos da VTurb dos dias, os 8 textos e as 8 artes dos cartões** (✅ a arte do card da home chegou em 24/09, junto com a home nova). O Caio avisou que manda **por último de tudo**. **E (d):** se o texto de cada dia é oração para rezar junto (quadro "A oração") ou reflexão — dá para responder junto com o material. |
 | 13 | 🆕 **Cântico Angelical: escolhas provisórias do agente** (24/09) | Nada disso trava o trabalho, mas precisa do olho do Caio antes de publicar: os títulos "Primeiro Dia" a "Sétimo Dia" nos cartões, com o tema embaixo (como "Primeira Madrugada"); "Concluí este dia" e "✓ Dia concluído", no lugar de "oração"; a faixa "Um dia de cada vez, na ordem da jornada"; o "Em seguida:" na Introdução (ela abre junto com o Dia 1); o botão "Ver todos os dias" no fim do dia; e **sem** o pop-up "Antes de continuar, confirme" das madrugadas. Na página de venda: a chamada "Cântico Angelical" acima do vídeo, o texto do botão "Quero o Cântico Angelical", o botão **visível desde o começo** do vídeo (dá para fazê-lo aparecer só num minuto certo, como as cartas dos Arcanjos) e a lista dos 7 dias embaixo do botão. |
-| 11 | 🆕 **Central dos Arcanjos: três escolhas provisórias do agente** (24/09) | **(a)** A copy escrita pelo agente: resumos dos 4 Arcanjos, selo "Exclusivo", botões, frase no fim da oração e tela de convite. **(b)** As **6 descrições dele adaptadas** da 3ª para a 2ª pessoa (Gabriel 3, Rafael 1, 2 e 3, Uriel 1 e 3; a tabela está na entrada de 24/09). **(c)** Quem pedir **reembolso de um mês só**, depois de ter pago vários, perde a Central inteira. Nada disso trava o trabalho, mas precisa do olho dele antes de publicar. |
+| 14 | 🆕 **Home nova: escolhas do agente** (24/09) | Nada disso trava o trabalho, mas precisa do olho do Caio antes de publicar. **(a)** A **Mensagem do Dia ficou.** Ela não estava na ordem que ele passou, mas também não entrou na lista do que retirar (Novena, Lojinha, Pai Nosso). Está no primeiro bloco, depois do WhatsApp, no desenho limpo. Para tirar, é um bloco do `index.html`. **(b)** As descrições dos cards foram escritas pelo agente, no padrão "Acesse..." da referência (os textos estão na entrada de 24/09 sobre a home). **(c)** No WhatsApp, o texto diz **"mensagens diárias"**, no lugar das "orações diárias" da referência. É o que o card antigo prometia, e ninguém confirmou que o grupo manda oração todo dia. **(d)** O selo de quem não tem o extra diz **"🔒 EXTRA"**, ecoando o "extras" da frase dele (a outra opção era "🔒 EXCLUSIVO"). **(e)** O botão verde tem texto **escuro**, e não branco como na referência: branco sobre aquele verde fica abaixo de 3:1 de contraste. **(f)** A frase dos 🔒 some para quem já tem os dois extras. |
+| 11 | 🆕 **Central dos Arcanjos: três escolhas provisórias do agente** (24/09) | **(a)** A copy escrita pelo agente: resumos dos 4 Arcanjos, botões, frase no fim da oração e tela de convite. (O selo e o botão do card da home saíram desta lista: desde a home nova de 24/09, seguem a referência do Caio, "🔒 EXTRA" e "Adquirir".) **(b)** As **6 descrições dele adaptadas** da 3ª para a 2ª pessoa (Gabriel 3, Rafael 1, 2 e 3, Uriel 1 e 3; a tabela está na entrada de 24/09). **(c)** Quem pedir **reembolso de um mês só**, depois de ter pago vários, perde a Central inteira. Nada disso trava o trabalho, mas precisa do olho dele antes de publicar. |
 | ~~1~~ | ~~**Publicar o webhook no Supabase**~~ | ✅ **RESOLVIDO em 20/09.** O Caio autorizou, e o `hubla-webhook` foi publicado na produção como **versão 5**, conferido byte a byte contra o arquivo do repositório. O buraco que engoliu a venda de R$ 197 está fechado. A `member-api` subiu junto, como **versão 13**. Ver a entrada de 20/09. |
 | 6 | **A arte do banner precisa ser reexportada em 1200×900** (⏰ deixou de ser urgente em 21/09: o banner agora nasce desligado e não aparece para ninguém, então nada fica feio esperando a arte) | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
@@ -98,9 +99,11 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕🔥 **Os valores novos das doações do Dia 03 estão commitados, mas NÃO publicados** (24/09). Commit `acdee0f`, que mexe **só** no `dia.html`: R$ 950 / R$ 300 / R$ 197, com os mesmos links. Os checkouts da Hubla **já cobram** R$ 300,00 e R$ 197,00: hoje o botão no ar diz R$ 130 e R$ 97 e o checkout mostra outro valor. Ela vê o valor certo antes de pagar, mas a diferença assusta e pode derrubar a doação. Dá para subir sozinho (1 build): levar para a `main` só este commit (`cherry-pick`), sem os Arcanjos, o Cântico e a home nova, que estão no meio do caminho. Esperando o "pode publicar" do Caio.
+- 🆕 **A home nova está pronta no teste local, fora do ar** (24/09). Falta o Caio olhar as escolhas da decisão nº 14 e decidir quando sobe. ⚠️ **Ela traz os cards dos Arcanjos e do Cântico**, que ainda são provisórios por dentro. Publicar a home antes deles exige tirar os dois cards dessa versão, ou esperar o material. ⚠️ **A Novena Desatadora dos Nós fica sem caminho** quando a home nova subir: `desatadora.html` só abria pelo card da home, e quem começou a novena só volta a ela pelo link direto. Foi decisão do Caio, avisado antes.
 - 🆕🔥 **O Cântico Angelical (upsell_02) está montado no teste local, fora do ar** (24/09). **96 clientes pagam e não recebem nada.** A venda em vídeo e o link de compra já estão na página. Falta, nesta ordem: (1) o Caio mandar o material, que vem por último (decisão nº 12); (2) trocar os provisórios (procurar `PROVISORIO` em `js/cantico.js` e `oferta-cantico.html`; arte definitiva com **nome novo**); (3) provar no servidor de teste (decisão nº 10a); (4) publicar **nesta ordem**: `supabase/cantico-angelical.sql` no banco → `member-api` (`verify_jwt` = false; antes, baixar a que está no ar e comparar) → site (1 build); (5) tirar as marcas "⏳ só no local" do `CLAUDE.md` e da regra de acesso. O site pode subir antes do banco e da função sem trancar quem pagou: o card segue a lista de produtos ativos, a trava usa campos que a função de hoje já manda, e o "Concluí" só aparece quando a função nova estiver no ar.
 - 🆕🔥 **A Central dos Quatro Arcanjos está pronta no teste local, num commit só dela (`ceefce6`), fora do ar** (24/09). São 16 arquivos novos ou alterados, no computador do Caio e ainda não enviados ao GitHub (lista na entrada de 24/09). **371 clientes pagam os Arcanjos e não recebem nada**, então esta é a tarefa mais urgente do projeto. Falta, nesta ordem:
-  1. o Caio mandar 12 textos, 12 áudios e 5 artes;
+  1. o Caio mandar 12 textos, 12 áudios e 4 artes (✅ a do card da home chegou em 24/09);
   2. trocar os provisórios (procurar `PROVISORIO` em `js/arcanjos.js`: 20 marcas; arte e áudio definitivos com **nome novo** de arquivo);
   3. provar a `member-api` nova no projeto de teste (decisão nº 10);
   4. publicar a `member-api` na produção, com autorização dele: `verify_jwt` = false, e antes baixar a **v16** que está no ar e comparar com o arquivo;
@@ -146,6 +149,72 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-24 (madrugada) — Home nova no estilo da referência do Caio, e os valores do Dia 03
+
+**Chat:** o mesmo do Cântico, na entrada logo abaixo. **Faixa:** "pode mexer local"; commit só com o clique dele. ⏳ **O chat continua aberto.**
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+**Nada.** A home nova está só na máquina. Os valores do Dia 03 foram commitados (`acdee0f`) e **não** publicados.
+Leitura, sem clicar em nada: os dois checkouts das doações do Dia 03, na Hubla.
+
+### Os valores do Dia 03
+Pedido do Caio: as contribuições da basílica passam de R$ 950 / R$ 130 / R$ 97 para **R$ 950 / R$ 300 / R$ 197**, com os mesmos três links. Só o texto dos botões muda. Antes de trocar, os checkouts foram abertos só para leitura: `KVOgmVu5VyF04JUgitat` já cobra **R$ 300,00** e `SBLUP4swsvhsHvTo4HqY`, **R$ 197,00**. O `dia.html` tem fim de linha misturado (481 linhas CRLF e 65 LF). A troca foi feita byte a byte a partir da versão guardada, e o commit tem só as 2 linhas. Ele mexe **só** no `dia.html`, de propósito: dá para publicar sozinho.
+
+### As decisões do Caio (home)
+| Pergunta | Resposta dele |
+|---|---|
+| Como ficam os cards? | O desenho da referência: **foto em cima e texto separado embaixo** para a 7 Orações e para qualquer produto; o WhatsApp **"mais clean"**; o Fale Conosco no mesmo desenho limpo. **"Bem parecidos com a referência, principalmente nos textos, disposição dos elementos"** |
+| A ordem | Headline, subheadline, 7 Orações, WhatsApp; headline, subheadline, Up01, Up02, Fale Conosco |
+| Novena, Pai Nosso, Mensagem do Dia e Lojinha, que não estavam na ordem | **Retirar a Novena, a Lojinha e o Pai Nosso Completo.** A Mensagem do Dia não entrou na lista (decisão nº 14) |
+| A segunda headline e subheadline | **"Conteúdos Exclusivos"** e **"Os itens com 🔒 são extras... Toque em “Adquirir” para entender mais..."** |
+| As fotos | três PNG em `D:\Downloads Certos\PkScale\imagens-home` (7 Orações, Arcanjos e Cântico) |
+| Depois de ver a primeira versão | **"Deixe o card do WhatsApp com fundo transparente e letras em preto para ficar com contraste funcionando"**. E perguntou se um marrom um pouco mais claro funcionaria melhor no fundo dos cards. O agente concordou (no creme, o marrom da referência parece preto) e aplicou `#412E21`: era `#2C1E15`, e o da referência é `#322318` |
+| A animação | **"Quando tiver passando o scroll ou mouse por cima, os cards ficarem destacados com uma luz de fundo esfumaçada."** Ficou uma luz dourada em volta do card (verde, no WhatsApp), que acende em meio segundo. Um card aceso por vez: rolando, o mais perto do meio da tela; com o mouse, o que está debaixo dele |
+
+### O que foi construído — só na máquina
+| Arquivo | O que é |
+|---|---|
+| `index.html` | os dois blocos, os cards novos e a frase dos extras. Saíram os cards da Novena, do Pai Nosso e da Lojinha |
+| `css/styles.css` | `card-produto` e `card-contato`, com classes próprias. A `.card` das listas de dias ficou intacta. O WhatsApp sem painel (fundo transparente, letras escuras, borda verde mais funda para aparecer no creme); o marrom `#412E21`; o dourado do selo "LIBERADO" um pouco mais claro, para não perder contraste no marrom novo. A luz de fundo: a sombra de um `::before` atrás do card, que só muda de opacidade e de tamanho (o celular não redesenha sombra a cada quadro da rolagem) |
+| `js/app.js` | `initDestaqueDosCards`: escolhe o card aceso (o mais perto do meio da tela, ou o que está debaixo do mouse) |
+| `js/member.js` | o selo e o botão dos extras leem o texto novo do `index.html` ("🔒 EXTRA" / "Adquirir"); `desenharAvisoDosExtras` esconde a frase para quem tem os dois. O cadeado desenhado (`CADEADO`) saiu: o 🔒 agora vem escrito no próprio selo, o mesmo da frase |
+| `assets/images/home/` (3 novas) | as fotos do Caio, recortadas em quadrado e comprimidas: 960×960, com 146, 181 e 122 KB (os PNG tinham 2 MB cada). Na 7 Orações, que era 4:3, o recorte tirou só as nuvens das laterais |
+| `assets/images/arcanjos/provisorio-home.svg` e `cantico/provisorio-home.svg` | **apagadas**: as fotos definitivas tomaram o lugar delas |
+
+Os textos escritos pelo agente, no padrão da referência (decisão nº 14):
+| Card | Descrição | Botão |
+|---|---|---|
+| 7 Orações Sagradas | "Acesse a introdução, as 7 orações da madrugada e o material complementar." | Acessar conteúdo |
+| Grupo no WhatsApp | "Receba novidades, mensagens diárias e participe da nossa comunidade de fé." (título "Junte-se ao nosso Grupo no WhatsApp", da referência) | Entrar no Grupo |
+| Mensagem do Dia | "Receba agora sua mensagem do dia, em 2 minutos." | Acessar sua mensagem |
+| Central dos Quatro Arcanjos | "Acesse as 12 orações dos Quatro Arcanjos: proteção, caminhos, cura e sabedoria." | Acessar conteúdo / Adquirir |
+| Cântico Angelical | "Sua jornada de 7 dias, com um vídeo e uma oração para cada dia." | Acessar conteúdo / Adquirir |
+| Fale Conosco | "Dúvidas, reclamações ou reembolso? Nossa equipe atende você pelo WhatsApp." | Falar com a equipe |
+
+### A prova (navegador em 390px, banco de teste)
+| Conferência | Resultado |
+|---|---|
+| Conta de teste com os dois extras | os dois cards com "LIBERADO" e "Acessar conteúdo", levando à Central e à jornada; a frase dos 🔒 **some** |
+| Conta sem nenhum extra (simulada só na cópia `dist/`, desfeita pelo build seguinte) | "🔒 EXTRA" e "Adquirir"; os links vão para `oferta-arcanjos.html` e `oferta-cantico.html` com `utm_content=card-home`; a frase aparece |
+| Mensagem do Dia | o card abre e fecha o pop-up da mensagem |
+| Luz de fundo | rolando a página de cima a baixo, acendeu um card por vez, sempre o do meio da tela: 7 Orações → WhatsApp → Mensagem → Arcanjos → Fale Conosco. Na foto, o halo dourado e o verde aparecem em volta do card. Com o mouse, simulado no painel: passar sobre o Cântico acendeu o Cântico e apagou o outro; ao sair, a luz voltou para o do meio; o dedo não muda nada. Um mouse de verdade não foi testado |
+| Contraste, medido no navegador nos próprios elementos (o mínimo é 4,5) | no marrom novo: título 11,8; descrição 7,9; botões 6,9; selo LIBERADO 5,2 (com o dourado antigo daria 3,9); selo 🔒 EXTRA 8,8. No WhatsApp, sobre o creme: título 14,4; descrição 8,5; borda 3,1. Frase dos extras no creme: 5,1. Branco sobre o verde do botão daria 2,5 — por isso o botão verde tem texto escuro |
+| Lista das 7 Orações | igual: 10 cartões, mesmo desenho |
+| Console | zero erros, na home e na lista |
+| Rolagem para o lado | nenhuma, em 390px |
+| Fim de linha | o diff é o mesmo com e sem contar o fim de linha |
+
+### Armadilhas desta vez
+1. 🪤 **A foto do navegador sai encolhida num canto quando a tela emulada é mais alta que o painel.** Em 390×844, a página aparecia a 70%, no canto de cima, com o resto em branco. Em 390×600, que cabe no painel, a foto sai em tamanho real e a rolagem funciona.
+2. 🪤 **Imagem nova precisa de nome novo**, porque o `netlify.toml` manda o celular guardar `assets/` por um ano. As fotos foram para uma pasta nova (`assets/images/home/`), em vez de substituir `home-7-oracoes-sagradas.jpg`.
+3. 🪤 **Luz desenhada atrás do card some por dois motivos, sem dar erro.** Se o card tiver `overflow: hidden`, ela é cortada; se o `.content` não isolar as camadas (`isolation: isolate`), ela fica atrás do creme da página. Por isso a foto arredonda os próprios cantos, e o `.content` da home tem a classe `home`.
+
+### O que NÃO foi conferido
+- Nada foi aberto num **celular de verdade**.
+- A cliente com **um** extra só (a frase aparece e só um dos cards tem 🔒) não foi vista na tela. A conta é a mesma dos dois casos conferidos.
 
 ---
 
