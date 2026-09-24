@@ -37,8 +37,10 @@
 
 <script src="js/arcanjos.js?v=1"></script>
 <script>
-  // oracao-arcanjo.html?a=miguel&o=1 — uma oração: áudio guiado e texto.
-  // O tocador e o quadro da oração são os mesmos das 7 madrugadas (dia.html).
+  // oracao-arcanjo.html?a=miguel&o=1 — uma oração: o áudio guiado, e o texto
+  // quando ele chegar. Por enquanto a entrega é só o áudio (decisão do Caio,
+  // 24/09/2026). O tocador e o quadro da oração são os mesmos das 7 madrugadas
+  // (dia.html).
   const params = new URLSearchParams(location.search);
   const arcanjo = arcanjoPelaChave(params.get('a'));
   const numero = parseInt(params.get('o'), 10);
@@ -83,9 +85,17 @@
          </div>`
       : '';
 
-    const blocos = item.oracao.blocos
-      .map((bloco) => `<p>${bloco.replace(/\n/g, '<br>')}</p>`)
-      .join('');
+    // Sem texto (oracao nula), a tela fica só com o áudio.
+    const textoHtml = item.oracao
+      ? `<div style="display:flex;flex-direction:column;gap:14px;">
+          <h2 class="section-label" style="margin:0;">A oração</h2>
+          <div class="prayer-card">
+            <p class="opening">${item.oracao.abertura}</p>
+            ${item.oracao.blocos.map((bloco) => `<p>${bloco.replace(/\n/g, '<br>')}</p>`).join('')}
+            <p class="closing">${item.oracao.fechamento}</p>
+          </div>
+        </div>`
+      : '';
 
     content.innerHTML = `
       <span class="kicker">${tituloDoArcanjo(arcanjo)}</span>
@@ -99,14 +109,7 @@
 
       ${audioHtml}
 
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <h2 class="section-label" style="margin:0;">A oração</h2>
-        <div class="prayer-card">
-          <p class="opening">${item.oracao.abertura}</p>
-          ${blocos}
-          <p class="closing">${item.oracao.fechamento}</p>
-        </div>
-      </div>
+      ${textoHtml}
 
       <div class="banner">
         <span>Reze com fé e em voz alta, sempre que precisar</span>
