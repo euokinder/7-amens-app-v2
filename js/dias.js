@@ -10,8 +10,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Comece Aqui',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aaad90b2ceec980432f7750" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aaad90b2ceec980432f7750/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6ab44f89ac874a7093a78b24" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab44f89ac874a7093a78b24/v4/player.js'
     },
     materialPdf: 'assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf',
     materialLabel: 'Acessar Material de Apoio',
