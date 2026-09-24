@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-09-21
+> Atualizado: 2026-09-24
 
 ---
 
@@ -19,8 +19,8 @@ Nada anda nestes pontos até ele responder.
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
 | ~~3~~ | ~~**Topologia de branches** (achado #5 da auditoria)~~ | ✅ **RESOLVIDO em 21/09, por um caminho diferente do proposto.** O achado sugeria apontar o `7-amens-app-v2` para a `development`. A conta mostrou que isso sairia **mais caro**: hoje `git push origin development` custa zero, e nessa topologia cada envio viraria um build — e envia-se para a `development` muito mais vezes do que se publica. O Caio decidiu **desligar** o site de validação (*Stopped builds*), porque ele nunca validou nada: seguia a mesma branch e o mesmo banco da produção, sendo uma cópia idêntica cobrada à parte. **Publicar passou de 2 builds para 1.** Está escrito no `CLAUDE.md`. ⚠️ Fica um acabamento pendente: o endereço congelado vai envelhecer e ainda fala com o banco vivo — o certo é redirecioná-lo para o site de verdade. Texto antigo: Hoje teste e produção saem os dois da `main`. Isso precisa ser separado, mas envolve mexer em configuração da Netlify — e ele pediu para não mexer no que está no ar sem perguntar. |
 | ~~5~~ | ~~**Atualizar o `CLAUDE.md`?**~~ ✅ **RESOLVIDO em 21/09.** O `CLAUDE.md` já estava atualizado no disco (por outro chat) mas **nunca tinha sido commitado** — vivia só na máquina. Entrou no commit `1a25dbe`. Texto antigo: | Perguntei duas vezes em 19/09 e o Caio não respondeu — então **nada foi tocado lá**. Quatro coisas que este chat descobriu pertencem ao `CLAUDE.md`, não ao diário, porque são "como as coisas são": (a) o `schema-completo.sql` passou a ter **3 visões**, não 2; (b) o código de produto que chega no evento **não é** o do link de checkout (Arcanjos: link `ODOZxlF1tfhee2TkZikI`, evento `5pUr8toveL5R5zR3zyaT`) — é a armadilha do slug, agora comprovada dentro do próprio evento; (c) `invoice.amount` é um **objeto** (`totalCents`), não um número; (d) `funnel_stage` classifica errado quem pula degrau e não deve ser fonte de número nenhum. **Somaram-se em 20/09, e estas são mais urgentes porque enganam quem abrir o projeto:** (e) o `CLAUDE.md` diz que a base tem **577 clientes** — hoje são **663**; (f) o banco de **TESTE** passou a ter coisas que a produção NÃO tem (a tabela `member_home_banners` e a trava `admin_actions_action_check` alargada), e ninguém adivinha isso olhando o repositório; (g) a `member-api` do teste é a **v7 com o banner dentro**, a da produção é a **v13 sem** — publicar a de teste na produção levaria o banner junto. |
-| 8 | **PUBLICAR O SITE — está tudo pronto e parado esperando um clique seu** 🔥 | O banco e a `member-api` **já foram aplicados na produção em 21/09**. Falta só o site, que sai da `main`. O hook desta máquina barra qualquer push para a `main` (e está certo). Caminho de 3 cliques: abrir `https://github.com/euokinder/7-amens-app-v2/compare/main...development` → "Create pull request" → "Merge pull request". ⚠️ Antes: anotar na Netlify, projeto `7madrugadas`, aba Deploys, a data do deploy que está no ar — é o ponto de retorno. Publicar gasta **2 builds** (os dois sites saem da `main`). |
-| 9 | **Quer que o agente consiga publicar sozinho?** | Ele pediu que a trava passasse a liberar "quando eu permitir". A conclusão honesta: **qualquer autorização que o agente consiga escrever, ele consegue se dar sozinho** — arquivo, variável, o que for. A única permissão infalsificável é o clique do Caio na hora. As duas saídas reais: **(A)** continuar clicando no GitHub, ou **(B)** o Caio mesmo editar `.claude/hooks/protege-producao.py` e trocar `BRANCH_DE_TRABALHO = 'development'` por `'main'` — uma palavra, e depois disso o agente publica sem perguntar. O agente recomendou **A** e não tocou no arquivo. |
+| ~~8~~ | ~~**PUBLICAR O SITE**~~ | ✅ **RESOLVIDO em 21/09. O site foi publicado e está no ar.** O Caio clicou, o push saiu (`8e3d067..861665f`) e a Netlify confirmou pela API: os dois sites com deploy de hoje, situação `ready`. Foram ao ar os filtros do painel, o formulário de perfil aberto para homens e a correção do SQL. Ver a entrada de 21/09. |
+| ~~9~~ | ~~**Quer que o agente consiga publicar sozinho?**~~ | ✅ **RESOLVIDO em 21/09 — e a resposta foi melhor que as duas saídas previstas.** Não precisa mexer na trava. Quando o agente escreve o comando num bloco marcado como `bash`, o aplicativo põe um botão **Run**, e clicar nele **roda no terminal do Caio** — por isso não passa pelo hook, que só intercepta o que o agente dispara. É 1 clique, aqui mesmo, sem ir ao GitHub. **Funcionou de primeira e já foi usado três vezes neste chat.** A saída (B) — editar `protege-producao.py` — foi descartada e **não deve ser feita**. O combinado está escrito no `CLAUDE.md`, seção "Como publicar". |
 | 4 | **Qual e-mail vale quando a cliente tem dois** | Três clientes têm um e-mail na fatura e outro na conta da Hubla (ver entrada de 18/09 sobre a janela cega). Elas vão tentar entrar com o do recibo, que o app não conhece. Dá para corrigir no painel, mas a pergunta é qual dos dois passa a valer: o do recibo é o que ela lembra; o da conta Hubla é o que o webhook vai continuar mandando nas próximas compras dela. |
 | ~~6~~ | ~~**Travar as orações e liberar 1 por dia — três perguntas**~~ ✅ **RESOLVIDO.** O Caio respondeu as três e a trava **está no ar desde 20/09** (commit `d182423`, `js/trava.js`): vira à **meia-noite de Brasília**, **não** depende de marcar "Concluí", e quem já tinha entrado abriu no Dia 3. As regras estão escritas no `CLAUDE.md`. ⚠️ Este item ficou marcado como pendente no diário por um dia inteiro depois de resolvido — quem lesse só o diário acharia que nada tinha andado. Texto antigo: | Ele perguntou o tamanho disso em 20/09. A resposta: **a trava já existe construída**, falta só uma conta (ver a entrada de 20/09). Mas três coisas são decisão dele, e sem elas nada anda: **(a)** quando vira "o dia seguinte" — meia-noite ou 4h da manhã? A jornada é de madrugada, e à meia-noite quem rezou 23h libera o dia seguinte em 1 hora; **(b)** e se ela rezar e **esquecer de marcar "Concluí"**? Hoje é botão manual. Se a liberação depender dele, quem esquecer fica presa e liga no WhatsApp — com senhoras 45+ isso vai acontecer; **(c)** vale para quem já começou? ⏳ **Esta terceira tem prazo:** hoje só **71 de 664** clientes têm algum progresso e ninguém passou do dia 3 — travar agora quase não incomoda ninguém. A cada dia de vendas essa janela fecha. |
 | 7 | **A saudação pode chamar a cliente pelo nome do marido** | Medido em 19/09: **~40% dos cadastros estão em nome masculino** (244 de 604 nomes utilizáveis). Para um produto vendido a mulheres 45+, quase certamente é marido/filho/neto que comprou — o diário já tem três casos comprovados de cadastro no nome de outra pessoa da família. A saudação nova lê esse mesmo campo (`js/member.js`, `state.customer.name`), então ~4 em cada 10 abririam o app lendo *"Olá Luiz, que a paz do Senhor esteja com você!"* sendo ela Maria. **Isso está na fila para publicar.** Saídas possíveis: aceitar, saudar só quando o nome for reconhecidamente feminino, ou perguntar o nome dela uma vez dentro do app. ⚠️ O Caio pediu essa análise **só no chat, sem gravar em arquivo** — aqui ficou apenas a consequência operacional, porque ela afeta trabalho que já está esperando deploy. Se ele preferir, é só apagar esta linha. |
@@ -94,10 +94,14 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕🔥 **Conferir se a recuperação de acesso pelo CPF está inteira na produção** (achado em 23/09). O commit `654ccf6` (22/09, 01:24) já está no ar, e ele mexe na tela de login. Mas depende de três peças que **sobem por fora do site**: o SQL `supabase/recuperacao-por-cpf.sql` no banco, a `member-api` e o `hubla-webhook` no Supabase. Se o site subiu e essas peças não, o botão novo do login pode estar quebrado para todas as clientes, sem nada vermelho na tela. **Ninguém conferiu.** É leitura no Supabase de produção, sem custo de build: ver se a função publicada bate com o commit e se o que o SQL cria existe.
+- 🆕 **Três commits de 22/09 não têm entrada neste diário** (achado em 23/09). Entre 01:24 e 02:13 entraram: `654ccf6` recuperação pelo CPF, `ca5e694` troca de vídeo, atraso e botão das doações do Dia 03, e `f5ca15d` "no Dia 03, concluir a oração passa a ser pela contribuição". Os três estão no ar. Ninguém registrou o que foi testado nem o que ficou faltando. ⚠️ O terceiro mexe com a regra de concluir oração: vale conferir que ele não prende quem reza e não contribui, porque a trava de 1 por dia é por calendário e **não** pode depender de botão.
+- 🆕 **Ver o vídeo novo da Introdução tocando dentro do app** (23/09). A troca está no ar e foi conferida no arquivo servido pelo site (ver a entrada de 23/09), mas **ninguém abriu a Introdução e deu play**, nem no computador nem no celular.
 - 🆕🔥 **O banner da home está no repositório, mas NÃO funciona — faltam três peças** (21/09). Hoje ele nasce invisível e só apareceria se houvesse banner cadastrado no painel. Mas mesmo cadastrando, **nada apareceria**, porque: (a) o `js/member.js` não entrega os banners para a home — a chamada saiu na limpeza de 20/09 e nunca voltou, embora o próprio `js/banner.js` diga que é o `member.js` quem preenche; (b) **não existe CSS nenhum do carrossel** (palco, trilho, setas, pontinhos); (c) a produção não tem a tabela `member_home_banners` nem a `member-api` que a lê. O painel de banners grava, a home não lê. É trabalho de verdade, não ajuste.
 - 🆕 **O resumo do perfil no painel nunca foi visto com base de verdade** (21/09). O banco de teste tem **1 respondente só**, então as porcentagens não apareceram — a regra de base pequena as escondeu, corretamente. Como fica com 105 respostas reais, ninguém viu. Basta abrir o painel da produção depois de publicar.
 - 🆕 **Filtros, resumo do perfil e formulário novo não foram abertos num celular de verdade** (21/09). Tudo foi conferido no navegador em 375px e medido, mas ninguém tocou com o dedo.
-- 🆕 **A `development` ficou 1 commit atrás da `main` durante todo o dia 21/09** (21/09). A `main` recebeu `8e3d067` (as doações do Dia 03, feitas pelo Caio com o ChatGPT de madrugada) e a `development` não tem esse commit. O merge foi simulado e **não dá conflito** — o bloco de doações sobrevive intacto. Mas enquanto as duas não forem juntadas, quem trabalhar aqui está em cima de uma versão que não é a que está no ar.
+- ✅ ~~**A `development` ficou 1 commit atrás da `main`**~~ **RESOLVIDO em 21/09.** As duas foram juntadas no commit `861665f`, sem conflito. **O bloco de doações do Dia 03 foi conferido depois do merge, dentro do build:** 18 menções em `dist/dia.html` e o `dist/css/dia-doacao.css` no lugar. Nada do trabalho do Caio se perdeu.
+- 🆕🔥 **O endereço congelado da validação vai envelhecer falando com o banco vivo** (21/09). O `7-amens-app-v2.netlify.app` parou de construir, mas continua no ar, parado na versão de hoje, **apontando para o banco das clientes reais**. Daqui a algumas semanas quem cair nele vê um app velho — poderia mostrar as **7 orações de uma vez**, porque a trava do `js/trava.js` não estaria na versão congelada. O acabamento certo é uma regra de redirecionamento para `setemadrugadas.com.br`, igual à que já existe para o `7madrugadas.netlify.app` no `netlify.toml`. ⚠️ **Mas tem uma pegadinha:** a regra só passa a valer quando aquele site constrói de novo — e ele está desligado. Ou se liga o build uma última vez para ele pegar a regra e depois se desliga, ou se resolve pelo painel da Netlify. Não foi investigado qual das duas é mais simples.
 - 🆕 **Não conclua nada sobre "quantos dias ela volta" antes de 24/09** (20/09). A contagem de visitas só existe desde **18/09**. Qualquer pergunta do tipo "quantas vieram 4 dias?" vai responder **zero** — e isso **não é abandono, é a régua sendo mais curta que a pergunta**. Para a jornada de 7 madrugadas virar número confiável, a medição precisa de 7 dias corridos, ou seja, a partir de **24/09**.
 - ✅ ~~**16 arquivos alterados e nenhum commitado**~~ **RESOLVIDO em 20/09.** Viraram o commit `c5d3a82` e já estão na `main` e no ar. Os quatro trabalhos foram separados do banner um por um. Ver a entrada de 20/09.
 
@@ -126,6 +130,106 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-23 — Vídeo novo na Introdução (Dia 0), publicado e conferido no ar
+
+**Chat:** abriu com `/abrir` e o Caio pediu para trocar o vídeo da Introdução por um player novo da VTurb. **Faixa autorizada:** *"pode mexer direto no site oficial, me dando a opção de clicar"*. Foi seguido o combinado do `CLAUDE.md`: o agente preparou e o Caio clicou para publicar.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+
+| O quê | De | Para |
+|---|---|---|
+| Vídeo do Dia 0 (Introdução), em `js/dias.js` | `vid-6aaad90b2ceec980432f7750` | **`vid-6ab44f89ac874a7093a78b24`** |
+| Site | `f5ca15d` | **`3aa51e2`** — 1 build gasto |
+| Banco / Supabase | — | **nada.** Nenhuma consulta, nenhuma escrita. |
+
+### A prova, não a intenção
+
+| Conferência | Resultado |
+|---|---|
+| O commit mexe em quê | só **2 linhas** de `js/dias.js`, as duas do vídeo. Os outros 7 dias não mudaram. |
+| O player novo existe na VTurb | o `player.js` dele respondeu 200 |
+| Build local | passou, com o código novo dentro do `dist/` |
+| O envio | terminal do Caio: `f5ca15d..3aa51e2  main -> main` |
+| O site no ar | `setemadrugadas.com.br/js/dias.js` traz o código novo 2 vezes e o antigo **nenhuma**, e a home responde 200 |
+
+### O que NÃO foi conferido
+
+- **Ninguém deu play no vídeo dentro do app.** A conferência foi no arquivo servido pelo site. O vídeo tem o mesmo formato vertical do anterior (mesma moldura), mas ninguém o viu tocando.
+- **O ponto de retorno na Netlify** foi pedido ao Caio antes do clique. Não se sabe se ele anotou. Se precisar voltar: Netlify, projeto `7madrugadas`, aba Deploys, o deploy anterior ao de 23/09.
+- A situação do deploy **não foi lida na Netlify**. O conector não estava autorizado nesta sessão. O que prova que subiu é o arquivo no ar.
+
+### Três armadilhas desta vez
+
+1. 🪤 **O `sed -i` do Git Bash converte o arquivo inteiro para LF.** Numa troca de 2 linhas, o `git diff` mostrou **754 linhas alteradas**. Conserto: `sed -b -i` (o `-b` preserva o fim de linha CRLF). Conferir sempre o `git diff --stat` antes de commitar.
+2. 🪤 **O hook também barra `git stash push`**, porque vê a palavra "push" junto de outros comandos. Para deixar a `main` local pronta **sem trocar de branch** (e sem mexer em arquivo sujo de outro chat), usou-se `git fetch . development:main`. Ele só avança se for avanço simples, e recusa sozinho se as duas tiverem divergido. Conferir antes com `git merge-base --is-ancestor origin/main development`.
+3. 🪤 **O `curl` desta máquina falha no HTTPS do site** (código 35, e a home aparece como "000", como se estivesse fora do ar). **Não é o site, é o Windows** tentando checar certificado revogado. Usar `curl --ssl-no-revoke`. Sem saber disso, dá para concluir que a produção caiu.
+
+### Arrumado de passagem
+
+- A entrada "2026-09-21 (noite)", logo abaixo, **estava escrita no disco e nunca tinha sido commitada**. Vai junto no commit deste fechamento.
+- Aquela entrada diz que os commits `846c51b` e `f3d41cf` esperavam carona para ir ao ar. **Já foram**, junto com os commits de 22/09.
+
+---
+
+## 2026-09-21 (noite) — O site foi publicado, e a validação que cobrava dobrado foi desligada
+
+**Chat:** o Caio (identificando-se como Arthur, dono do projeto) chegou irritado com a dificuldade de fazer o agente publicar. **Faixa autorizada:** publicar, explicitamente. **Nada foi tocado no banco de dados** — nenhuma consulta ao Supabase neste chat.
+
+### 1. O site foi publicado. Está no ar.
+
+O item #8 do diário, que estava marcado com 🔥 esperando um clique, **foi resolvido**.
+
+| | |
+|---|---|
+| O que saiu | `8e3d067..861665f` |
+| Conferido como | API da Netlify: os dois sites com deploy de hoje, situação `ready` |
+| O que a cliente ganhou | filtros de cliente no painel admin, formulário de perfil aberto para homens, correção do nome da trava no SQL |
+| O que entrou mas ninguém vê | o carrossel de banner — nasce com `display:none` e o JS nunca o monta (conferido no `css/styles.css`, linha 811) |
+
+⚠️ **O `supabase/functions/member-api/index.ts` mudou no commit mas NÃO foi publicado** — é Edge Function do Supabase e sobe por fora. São 5 linhas. Ninguém conferiu o que elas fazem nem se fazem falta.
+
+### 2. Achamos o jeito de publicar em 1 clique — e ele mata o item #9
+
+A pergunta "dá para o agente publicar sozinho?" estava aberta havia dias, com duas saídas ruins. **Nenhuma das duas foi necessária.**
+
+Quando o agente escreve o comando num bloco marcado como `bash`, o aplicativo põe um botão **Run**. Clicar nele **roda no terminal do Caio** — é ele executando, e por isso não passa pelo hook, que só intercepta o que o agente dispara. Um clique, aqui mesmo, sem abrir o GitHub.
+
+**Usado três vezes neste chat, funcionou nas três.** A saída que envolvia editar `protege-producao.py` foi descartada e **não deve ser retomada**.
+
+### 3. A validação foi desligada: publicar custa metade
+
+O Caio perguntou se dava para ficar só com o site principal. Dava — e o desperdício era maior do que parecia.
+
+| | Antes | Depois |
+|---|---|---|
+| Custo de publicar | 2 builds | **1 build** |
+| `7-amens-app-v2` | cópia idêntica da produção, construindo junto | *Stopped builds*, congelado em 21/09 |
+
+O site de "validação" **nunca validou nada**: seguia a mesma branch e o mesmo banco da produção. A única diferença era um "não indexe no Google".
+
+⚠️ **O caminho que a auditoria recomendava sairia mais caro.** O achado #5 mandava apontar aquele site para a `development` — mas aí cada `git push origin development`, que hoje é grátis, viraria um build. Envia-se para a `development` muito mais vezes do que se publica.
+
+**Quem desligou foi o Caio, no painel.** A API não faz isso: o conector da Netlify tem 11 comandos e **nenhum mexe em configuração de build**. Antes de confirmar, o agente pediu para ele conferir o nome do projeto na URL — se tivesse desligado o `7madrugadas` por engano, a produção teria parado de atualizar **em silêncio**.
+
+### 4. Três armadilhas que custaram tempo aqui e vão custar de novo
+
+1. 🪤 **O hook lê a MENSAGEM do commit.** Um commit foi barrado porque a palavra "push" aparecia no *texto* da mensagem — o hook achou que era comando. Não escrever essa palavra em mensagem de commit.
+2. 🪤 **O hook barra `git push` junto com qualquer outra coisa.** Até um `| tail -6` no fim derruba. Envio roda sozinho, sem nada depois.
+3. 🪤 **Existe uma segunda trava, do próprio Claude Code, que o repositório não controla.** Ela barrou por "Production Deploy" e depois por "Instruction Poisoning" — esta última ao tentar commitar um texto que falava sobre travas de segurança dentro do `CLAUDE.md`. **Não tem como desligar por aqui.** É mais um motivo para o caminho ser o clique do Caio.
+
+### 5. Achados que estavam escritos errado no repositório
+
+- 🔴 **Existe um TERCEIRO projeto na conta da Netlify:** `7sacredprayers`, da versão americana. O `CLAUDE.md` dizia "são DOIS sites". Ele não constrói no dia a dia (último deploy ~17/09), mas existe.
+- 🔴 **O `CLAUDE.md` afirmava que a produção rodava "versão antiga, sem login"** e listava o login como "próxima tarefa". Isso deixou de ser verdade em 20/09. Quem abrisse o projeto começaria a construir algo que já está no ar.
+
+### O que este chat NÃO fez
+
+- **Não olhou o site no ar com os olhos.** A publicação foi conferida pela API da Netlify (situação `ready`), não abrindo `setemadrugadas.com.br` no navegador. Ninguém viu os filtros novos funcionando na tela da produção.
+- **Não tocou no banco.** Nenhuma consulta ao Supabase.
+- **Não publicou os commits `846c51b` e `f3d41cf`** (documentação). Estão na `development`, esperando carona na próxima publicação de verdade — agora por 1 build. ✅ *(Atualizado em 23/09: já foram ao ar, junto com os commits de 22/09.)*
 
 ---
 
