@@ -124,7 +124,9 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 7. **Webhooks da Hubla devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
 
-## 🔗 Link de entrada — para quem não consegue digitar o e-mail (⏳ pronto, ainda NÃO publicado)
+## 🔗 Link de entrada — para quem não consegue digitar o e-mail
+**Situação em 24/09 à noite:** banco de produção ✅ (tabela criada) · função `member-api` ⏳ esperando o Caio publicar pelo painel do Supabase (a trava do Claude Code barrou o agente, ver "Quem publica a função", abaixo) · site: no botão de publicar entregue ao Caio. Até a função subir, o bloco do link não aparece no painel e ninguém tem link para tocar.
+
 Pedido do Caio em **2026-09-24**: há clientes que não conseguem digitar o e-mail nem com o suporte ajudando. A resposta **não** é uma versão do app sem login: é um link pessoal que já entra.
 
 - O suporte abre a ficha dela no painel → bloco **"Link de entrada"** → "Copiar link" ou "Copiar mensagem pronta" → manda no WhatsApp.
@@ -142,6 +144,11 @@ Onde mora: tabela `member_entry_links` (`supabase/link-de-entrada.sql`); ações
 ⚠️ **A mensagem pronta não usa o nome dela**: ~40% dos cadastros estão no nome do marido ou do filho que pagou (decisão nº 7 do diário).
 
 **Ordem de publicar: banco → função → site.** Qualquer ordem é inofensiva para o link: sem a tabela, a ficha abre sem o bloco; sem a função, o bloco não aparece; sem o site, ninguém tem link para tocar. ⚠️ **Mas a `member-api` do repositório leva junto o "cancelou continua" e o "Concluí" do Cântico**, e esse segundo **exige `supabase/cantico-angelical.sql` no banco antes** (ver a seção do Cântico).
+
+### Quem publica a função na produção
+⛔ **Em 24/09 a trava do próprio Claude Code ("Production Deploy") recusou o agente publicando a `member-api` na produção**, mesmo com o sim do Caio no chat. É a mesma camada descrita em "Como publicar": não se contorna. **SQL na produção passou; publicar Edge Function na produção, não.** O caminho é o Caio, pelo painel do Supabase: *Edge Functions → member-api → Code*, colar o conteúdo de `supabase/functions/member-api/index.ts`, publicar, e conferir que **"Verify JWT" continua DESLIGADO** (ligado, todo login das clientes dá 401). O agente prepara (um comando que copia o arquivo para a área de transferência) e confere depois.
+
+**Ponto de retorno da função:** a v16 que estava no ar até 24/09 é **idêntica, byte a byte, ao commit `654ccf6`** (conferido em 24/09). Para voltar: `git show 654ccf6:supabase/functions/member-api/index.ts` e colar no mesmo lugar.
 
 No projeto de **teste** existe uma cópia da função com outro nome, **`member-api-link`**, publicada em 24/09 só para provar o link, sem encostar na `member-api` de lá (que tem o banner). Ela pode ser apagada no painel do Supabase quando não servir mais.
 
@@ -179,7 +186,7 @@ Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **me
 
 A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPaginaDoCantico`, `bloquearDiaDoCanticoTravado`); o conteúdo, em `js/cantico.js`. **O áudio tomou o lugar do vídeo** (Caio, 24/09), e por enquanto a entrega é **só o áudio**. Os 7 áudios definitivos estão em `assets/audio/cantico/dia-1.mp3` … `dia-7.mp3`; o texto não aparece até chegar (`oracao: null`). A Introdução, sem áudio e sem texto, fica fora da lista até ter um dos dois. As artes continuam provisórias.
 
-⚠️ **O "Concluí este dia" depende de uma alteração no banco, ⏳ ainda não aplicada na produção:** `supabase/cantico-angelical.sql`. (No banco de teste, aplicada e provada em 24/09 à noite, junto com o "cancelou continua" dos dois upsells.) A ordem de publicar é **banco → função → site**. Se a função subir antes do banco, o botão dá erro na tela dela. O site pode subir antes dos dois: sem o campo `jornadas` no snapshot, o botão do Cântico simplesmente não aparece.
+⚠️ **O "Concluí este dia" depende de uma alteração no banco:** `supabase/cantico-angelical.sql`. ✅ **Aplicada na produção em 24/09 à noite** (e antes no teste, onde foi provada junto com o "cancelou continua"). Falta só a função nova subir (ver a seção do link de entrada: quem publica a função é o Caio). A ordem de publicar é **banco → função → site**. Se a função subir antes do banco, o botão dá erro na tela dela. O site pode subir antes dos dois: sem o campo `jornadas` no snapshot, o botão do Cântico simplesmente não aparece.
 
 **O link de compra** (Caio, 24/09) é `https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell` — `LINK_DE_COMPRA`, em `oferta-cantico.html`. O código do meio, `gTLhMYXqRjFeNlyc7FlH`, **já está** em `hubla_product_map` → `upsell_02`, e é o que chega nas vendas de verdade (314 eventos até 24/09): a venda por ali libera o Cântico sozinha. ⚠️ Trocar por uma oferta NOVA, com código novo, exige mapear o código **antes** da primeira venda — senão a cliente paga e o app não libera.
 
@@ -224,7 +231,7 @@ O backend está bem mais adiantado do que o desenho original sugeria. Nomes reai
 | `entitlements` | o que cada cliente possui; `status` = `active` / `refunded` / `revoked` |
 | `prayer_progress` | onde ela parou; `prayer_key` = `principal:0-7`, `desatadora:1-9` ou `cantico:0-7` (esta última ⏳ só depois de rodar `supabase/cantico-angelical.sql`) |
 | `member_sessions` | sessões opacas de 90 dias, **só o hash do token é guardado** |
-| `member_entry_links` | o link de entrada de cada cliente (um por cliente); o código fica guardado como é, de propósito (ver a seção do link) · ⏳ só no banco de teste até publicar |
+| `member_entry_links` | o link de entrada de cada cliente (um por cliente); o código fica guardado como é, de propósito (ver a seção do link) · existe na produção desde 24/09 |
 | `member_login_limits` | anti-abuso: 20 tentativas por janela de 10 min |
 | `member_offer_campaigns` | campanhas de oferta dentro do app |
 | `member_offer_events` | registro servidor de exibição/clique, para não repetir oferta em outro aparelho |

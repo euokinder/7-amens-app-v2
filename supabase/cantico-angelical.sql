@@ -1,7 +1,9 @@
 -- CÂNTICO ANGELICAL (upsell_02) — o que o banco precisa para o "Concluí
 -- este dia" funcionar. Escrito em 24/09/2026.
 -- ✅ Aplicado no banco de TESTE em 24/09/2026 (noite) e provado com a
---    member-api nova. ⏳ Na PRODUÇÃO, ainda não.
+--    member-api nova. ✅ Aplicado na PRODUÇÃO na mesma noite, com a trava
+--    de conferência da visão (md5) na frente, e as conferências do fim
+--    deram verdadeiro. Não precisa rodar de novo.
 -- Na mesma noite, a visão da produção foi conferida de novo: sem o filtro
 -- do Cântico, a definição abaixo é idêntica à que está no ar (mesma
 -- assinatura md5 do pg_get_viewdef). Se passar muito tempo, confira outra vez.
