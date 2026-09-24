@@ -1,6 +1,10 @@
 -- CÂNTICO ANGELICAL (upsell_02) — o que o banco precisa para o "Concluí
 -- este dia" funcionar. Escrito em 24/09/2026.
--- ⏳ AINDA NÃO APLICADO em banco nenhum: nem na produção, nem no teste.
+-- ✅ Aplicado no banco de TESTE em 24/09/2026 (noite) e provado com a
+--    member-api nova. ⏳ Na PRODUÇÃO, ainda não.
+-- Na mesma noite, a visão da produção foi conferida de novo: sem o filtro
+-- do Cântico, a definição abaixo é idêntica à que está no ar (mesma
+-- assinatura md5 do pg_get_viewdef). Se passar muito tempo, confira outra vez.
 --
 -- ORDEM DE PUBLICAÇÃO (não inverter):
 --   1. este arquivo, no banco (SQL Editor do Supabase);
