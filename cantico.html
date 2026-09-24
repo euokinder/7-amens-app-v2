@@ -68,9 +68,14 @@
     const dia = CANTICO[i];
     const travado = !dia.disponivel;
     destinos[i] = `cantico-dia.html?dia=${i}`;
+    // Dia sem áudio e sem texto (hoje, a Introdução) não tem o que entregar:
+    // o cartão nasce escondido. Ele continua na lista, escondido, para a
+    // posição de cada cartão seguir batendo com o número do dia na função
+    // desenharDiasDoCantico(), logo abaixo.
+    const vazio = !dia.audioUrl && !dia.oracao;
 
     html += `
-      <a ${travado ? '' : `href="${destinos[i]}"`} class="card${travado ? ' locked' : ''}" style="height:320px;background-image:${OVERLAY}, url(${dia.imagem});">
+      <a ${travado ? '' : `href="${destinos[i]}"`} class="card${travado ? ' locked' : ''}" style="${vazio ? 'display:none;' : ''}height:320px;background-image:${OVERLAY}, url(${dia.imagem});">
         <div class="num-badge">${dia.numero}</div>
         ${travado ? '<div class="pill-badge">Indisponível</div>' : ''}
         <div class="play-btn">${travado ? lockIcon : playIcon}</div>

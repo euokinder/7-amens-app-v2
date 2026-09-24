@@ -3,38 +3,30 @@
 // é o MESMO produto, só com nome novo (Caio, 24/09/2026).
 //
 // Introdução + 7 dias, um por dia. As duas telas leem daqui:
-//   cantico.html              a lista, com os oito cartões
-//   cantico-dia.html?dia=1    o dia: vídeo da VTurb e texto
+//   cantico.html              a lista dos dias
+//   cantico-dia.html?dia=1    o dia: o áudio (e o texto, quando chegar)
 //
 // Quem pode abrir (e quem vê o cadeado) é decidido no js/member.js. Quando
 // cada dia abre é decidido no js/trava.js (calcularCantico). Não aqui.
 // ⚠️ Não é cadeado de verdade: este arquivo é público, como o js/dias.js.
 // Guia a cliente; não protege o texto. Não prometer "conteúdo protegido".
 //
-// ⚠️ VERSÃO MVP (24/09/2026): vídeos, textos e artes são PROVISÓRIOS — o Caio
-// envia os definitivos. Procure por PROVISORIO.
+// ⚠️ VERSÃO MVP (24/09/2026): as artes são PROVISÓRIAS — procure por
+// PROVISORIO. Os 7 áudios são os definitivos, em assets/audio/cantico/.
+// O áudio tomou o lugar do vídeo, e por enquanto a entrega é SÓ o áudio
+// (decisões do Caio, 24/09): o texto de cada dia ainda não entrou.
 //
 // ⚠️ Ao trocar uma arte, use um NOME NOVO de arquivo. Tudo em assets/ fica
 // guardado no celular da cliente por um ano (netlify.toml): com o mesmo nome,
 // ela continuaria vendo a provisória.
 //
-// videoEmbed nulo = ainda sem vídeo (a tela mostra o quadro vazio, com o
-// botão de play). Para colocar o vídeo, cole os dois pedaços do código da
-// VTurb, exatamente como no js/dias.js: o <vturb-smartplayer ...> inteiro em
-// `html` e o endereço do player.js em `scriptSrc`.
-
-// PROVISORIO: o mesmo texto de mentira nos oito, no tamanho de um texto de
-// verdade, para ver como a tela fica com ele inteiro.
-const TEXTO_PROVISORIO_DO_CANTICO = {
-  abertura: 'Em nome do Pai, do Filho e do Espírito Santo. Amém.',
-  blocos: [
-    '[TEXTO PROVISÓRIO — o texto definitivo deste dia ainda vai ser enviado.]',
-    'Este espaço mostra como o texto vai aparecer na tela: em letras grandes, com respiro entre os parágrafos, para ser lido com calma e em voz alta.',
-    'Cada parágrafo do texto verdadeiro entra aqui, um depois do outro, na ordem em que deve ser lido.',
-    'As linhas que pedem uma pausa podem ser quebradas assim,\ne continuam no mesmo parágrafo,\numa embaixo da outra.'
-  ],
-  fechamento: 'Amém.'
-};
+// audioUrl vazio = sem áudio (o tocador some da tela).
+//
+// oracao nula = sem texto na tela. Quando o texto chegar, ele entra no campo
+// oracao, no formato { abertura, blocos: [...], fechamento }.
+//
+// Dia sem áudio e sem texto (hoje, a Introdução) não tem o que entregar: o
+// cartão some da lista, e o dia aberto pelo link diz "Conteúdo indisponível".
 
 const CANTICO = {
   0: {
@@ -43,8 +35,8 @@ const CANTICO = {
     subtitulo: 'Comece aqui antes do 1º dia',
     kicker: 'Cântico Angelical · Comece Aqui',
     imagem: 'assets/images/cantico/provisorio-introducao.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: '', // a Introdução não tem áudio
+    oracao: null,
     // A Introdução abre junto com o Dia 1, no mesmo dia: por isso "em
     // seguida", e não "amanhã".
     proximo: 'Em seguida: Primeiro Dia — Entregue aquilo que mais pesa.',
@@ -56,8 +48,8 @@ const CANTICO = {
     subtitulo: 'Entregue aquilo que mais pesa',
     kicker: 'Cântico Angelical · Dia 01',
     imagem: 'assets/images/cantico/provisorio-dia-1.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-1.mp3',
+    oracao: null,
     proximo: 'Amanhã: Segundo Dia — Paz para o coração.',
     disponivel: true
   },
@@ -67,8 +59,8 @@ const CANTICO = {
     subtitulo: 'Paz para o coração',
     kicker: 'Cântico Angelical · Dia 02',
     imagem: 'assets/images/cantico/provisorio-dia-2.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-2.mp3',
+    oracao: null,
     proximo: 'Amanhã: Terceiro Dia — Saúde.',
     disponivel: true
   },
@@ -78,8 +70,8 @@ const CANTICO = {
     subtitulo: 'Saúde',
     kicker: 'Cântico Angelical · Dia 03',
     imagem: 'assets/images/cantico/provisorio-dia-3.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-3.mp3',
+    oracao: null,
     proximo: 'Amanhã: Quarto Dia — Trabalho e finanças.',
     disponivel: true
   },
@@ -89,8 +81,8 @@ const CANTICO = {
     subtitulo: 'Trabalho e finanças',
     kicker: 'Cântico Angelical · Dia 04',
     imagem: 'assets/images/cantico/provisorio-dia-4.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-4.mp3',
+    oracao: null,
     proximo: 'Amanhã: Quinto Dia — Família.',
     disponivel: true
   },
@@ -100,8 +92,8 @@ const CANTICO = {
     subtitulo: 'Família',
     kicker: 'Cântico Angelical · Dia 05',
     imagem: 'assets/images/cantico/provisorio-dia-5.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-5.mp3',
+    oracao: null,
     proximo: 'Amanhã: Sexto Dia — Novos caminhos.',
     disponivel: true
   },
@@ -111,8 +103,8 @@ const CANTICO = {
     subtitulo: 'Novos caminhos',
     kicker: 'Cântico Angelical · Dia 06',
     imagem: 'assets/images/cantico/provisorio-dia-6.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-6.mp3',
+    oracao: null,
     proximo: 'Amanhã: Sétimo Dia — Gratidão e entrega.',
     disponivel: true
   },
@@ -122,8 +114,8 @@ const CANTICO = {
     subtitulo: 'Gratidão e entrega',
     kicker: 'Cântico Angelical · Dia 07',
     imagem: 'assets/images/cantico/provisorio-dia-7.svg', // PROVISORIO
-    videoEmbed: null, // PROVISORIO
-    oracao: TEXTO_PROVISORIO_DO_CANTICO, // PROVISORIO
+    audioUrl: 'assets/audio/cantico/dia-7.mp3',
+    oracao: null,
     proximo: '',
     disponivel: true
   }

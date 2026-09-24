@@ -38,16 +38,19 @@
 <script src="js/cantico.js?v=1"></script>
 <script src="js/trava.js?v=2"></script>
 <script>
-  // cantico-dia.html?dia=1 — um dia do Cântico Angelical: vídeo e texto.
-  // A moldura do vídeo e o quadro do texto são os mesmos das 7 madrugadas
-  // (dia.html). Quem ainda não comprou, ou abriu um dia que ainda não chegou,
-  // não vê esta tela: o js/member.js a troca por um aviso.
+  // cantico-dia.html?dia=1 — um dia do Cântico Angelical: o áudio, e o texto
+  // quando ele chegar. O áudio tomou o lugar do vídeo, e por enquanto a entrega
+  // é só o áudio (decisões do Caio, 24/09/2026). O tocador e o quadro do texto
+  // são os mesmos das 7 madrugadas (dia.html) e dos Arcanjos
+  // (oracao-arcanjo.html). Quem ainda não comprou, ou abriu um dia que ainda
+  // não chegou, não vê esta tela: o js/member.js a troca por um aviso.
   const params = new URLSearchParams(location.search);
   const numero = params.get('dia');
   const dia = /^[0-7]$/.test(numero || '') ? CANTICO[numero] : null;
   const content = document.getElementById('content');
 
-  if (!dia || !dia.disponivel) {
+  // Dia sem áudio e sem texto (hoje, a Introdução) não tem o que entregar.
+  if (!dia || !dia.disponivel || (!dia.audioUrl && !dia.oracao)) {
     // "Conteúdo indisponível" é também o sinal para o js/member.js não pôr o
     // botão de concluir numa página vazia.
     content.innerHTML = `
@@ -59,17 +62,44 @@
     `;
   } else {
     document.title = `${dia.titulo} — Cântico Angelical`;
-    const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
 
-    // Com vídeo: o código da VTurb dentro da moldura de cantos arredondados,
-    // como no dia.html. Sem vídeo ainda: o quadro vazio com o botão de play.
-    const videoHtml = dia.videoEmbed
-      ? `<div class="video-wrap-embed">${dia.videoEmbed.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>`
-      : `<div class="video-wrap"><div class="play-btn">${playIcon}</div></div>`;
+    // Sem audioUrl, o tocador não aparece.
+    const audioHtml = dia.audioUrl
+      ? `<div class="audio-card">
+           <div class="audio-card-label">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+             <span>Ouça o Áudio do Dia</span>
+           </div>
+           <div class="audio-controls">
+             <button class="audio-play-btn" id="audio-play-btn" type="button" aria-label="Reproduzir">
+               <svg id="audio-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>
+             </button>
+             <div class="audio-progress-wrap">
+               <div class="audio-progress-track" id="audio-progress-track">
+                 <div class="audio-progress-fill" id="audio-progress-fill"></div>
+                 <div class="audio-progress-thumb" id="audio-progress-thumb"></div>
+               </div>
+               <div class="audio-time-row">
+                 <span id="audio-time-current">0:00</span>
+                 <span id="audio-time-duration">0:00</span>
+               </div>
+             </div>
+           </div>
+           <audio id="audio-el" preload="metadata" src="${dia.audioUrl}"></audio>
+         </div>`
+      : '';
 
-    const blocos = dia.oracao.blocos
-      .map((bloco) => `<p>${bloco.replace(/\n/g, '<br>')}</p>`)
-      .join('');
+    // Sem texto (oracao nula), a tela fica só com o áudio.
+    const textoHtml = dia.oracao
+      ? `<div style="display:flex;flex-direction:column;gap:14px;">
+          <h2 class="section-label" style="margin:0;">A oração</h2>
+          <div class="prayer-card">
+            <p class="opening">${dia.oracao.abertura}</p>
+            ${dia.oracao.blocos.map((bloco) => `<p>${bloco.replace(/\n/g, '<br>')}</p>`).join('')}
+            <p class="closing">${dia.oracao.fechamento}</p>
+          </div>
+        </div>`
+      : '';
 
     // O botão "Concluí este dia" (js/member.js) entra logo ANTES do elemento
     // marcado como member-progress-anchor: aqui, a frase do dia seguinte. Um
@@ -89,16 +119,9 @@
         </div>
       </div>
 
-      ${videoHtml}
+      ${audioHtml}
 
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <h2 class="section-label" style="margin:0;">A oração</h2>
-        <div class="prayer-card">
-          <p class="opening">${dia.oracao.abertura}</p>
-          ${blocos}
-          <p class="closing">${dia.oracao.fechamento}</p>
-        </div>
-      </div>
+      ${textoHtml}
 
       ${proximoHtml}
 
@@ -109,11 +132,77 @@
       <a class="member-button" href="cantico.html" style="text-align:center;">Ver todos os dias</a>
     `;
 
-    if (dia.videoEmbed) {
-      const playerScript = document.createElement('script');
-      playerScript.src = dia.videoEmbed.scriptSrc;
-      playerScript.async = true;
-      document.head.appendChild(playerScript);
+    if (dia.audioUrl) {
+      const audio = document.getElementById('audio-el');
+      const playBtn = document.getElementById('audio-play-btn');
+      const playIcon = document.getElementById('audio-play-icon');
+      const track = document.getElementById('audio-progress-track');
+      const fill = document.getElementById('audio-progress-fill');
+      const thumb = document.getElementById('audio-progress-thumb');
+      const currentEl = document.getElementById('audio-time-current');
+      const durationEl = document.getElementById('audio-time-duration');
+
+      const playPath = '<path d="M8 5.5v13l11-6.5-11-6.5Z"/>';
+      const pausePath = '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>';
+
+      const formatTime = (s) => {
+        if (!isFinite(s)) return '0:00';
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60).toString().padStart(2, '0');
+        return `${m}:${sec}`;
+      };
+
+      const updateProgress = () => {
+        const ratio = audio.duration ? audio.currentTime / audio.duration : 0;
+        fill.style.width = (ratio * 100) + '%';
+        thumb.style.left = (ratio * 100) + '%';
+        currentEl.textContent = formatTime(audio.currentTime);
+      };
+
+      audio.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', updateProgress);
+
+      audio.addEventListener('ended', () => {
+        audio.currentTime = 0;
+        playIcon.innerHTML = playPath;
+        playBtn.setAttribute('aria-label', 'Reproduzir');
+        updateProgress();
+      });
+
+      playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+          playIcon.innerHTML = pausePath;
+          playBtn.setAttribute('aria-label', 'Pausar');
+        } else {
+          audio.pause();
+          playIcon.innerHTML = playPath;
+          playBtn.setAttribute('aria-label', 'Reproduzir');
+        }
+      });
+
+      let isDragging = false;
+      const seekFromEvent = (e) => {
+        const rect = track.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const ratio = Math.min(1, Math.max(0, x / rect.width));
+        if (audio.duration) {
+          audio.currentTime = ratio * audio.duration;
+          updateProgress();
+        }
+      };
+      track.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        track.setPointerCapture(e.pointerId);
+        seekFromEvent(e);
+      });
+      track.addEventListener('pointermove', (e) => {
+        if (isDragging) seekFromEvent(e);
+      });
+      track.addEventListener('pointerup', () => { isDragging = false; });
     }
   }
 </script>
