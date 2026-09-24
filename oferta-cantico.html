@@ -93,10 +93,12 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
          como "Clique no Botão" no Analytics dela — o nome exato da
          documentação oficial, o mesmo das cartas de oferta-arcanjos.html. Sem
          ela o Analytics mostra ZERO cliques.
-         Ele aparece desde o começo do vídeo. Para só aparecer num minuto
-         certo, o relógio é o mesmo das cartas dos Arcanjos
-         (displayHiddenElements, da VTurb). PROVISORIO: o texto do botão. -->
-    <a class="member-button smartplayer-click-event" id="oferta-comprar" style="text-align:center;">Quero o Cântico Angelical</a>
+         Ele só aparece aos 9:00 do vídeo (540 segundos, pedido do Caio em
+         24/09/2026), pelo mesmo relógio das cartas dos Arcanjos: a classe
+         "esconder" (css/oferta.css) o deixa invisível, e o player da VTurb o
+         revela na hora certa (displayHiddenElements). O número mora no
+         script, lá embaixo: SEGUNDOS_DO_BOTAO. PROVISORIO: o texto do botão. -->
+    <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;">Quero o Cântico Angelical</a>
 
     <div>
       <h2 class="section-label" style="margin-bottom:14px;">Sua jornada, dia a dia</h2>
@@ -149,6 +151,53 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   };
 
   const botao = document.getElementById('oferta-comprar');
+
+  // O BOTÃO SÓ APARECE AOS 9:00 DO VÍDEO (pedido do Caio, 24/09/2026). É o
+  // mesmo relógio das cartas de oferta-arcanjos.html: o próprio player da
+  // VTurb revela o que tem a classe "esconder" quando o vídeo chega nesse
+  // ponto. Com persist: true a VTurb lembra, e quem volta à página já
+  // encontra o botão. Para mudar a hora, mude só este número.
+  const SEGUNDOS_DO_BOTAO = 540; // 9:00
+  const player = document.querySelector('vturb-smartplayer');
+
+  // ATALHO PARA CONFERIR A TELA: ?previa=1 no fim do endereço mostra o botão
+  // na hora, sem esperar os 9 minutos. A cliente nunca chega aqui com ele: o
+  // card e o convite mandam só as etiquetas utm_*.
+  if (new URLSearchParams(location.search).get('previa') === '1') {
+    botao.classList.remove('esconder');
+  } else {
+    // Rede de segurança, a mesma dos Arcanjos: se o script da VTurb não
+    // carregar (internet ruim, bloqueador de anúncio, serviço fora do ar), o
+    // botão não apareceria NUNCA e a venda se perderia calada.
+    // ⚠️ Este relógio conta o tempo de PÁGINA ABERTA, não de vídeo assistido.
+    // Por isso ele é desligado assim que o player dá sinal de vida: dali em
+    // diante quem conta é o player, que conta certo.
+    const redeDeSeguranca = setTimeout(() => {
+      if (botao.offsetHeight === 0) botao.classList.remove('esconder');
+    }, (SEGUNDOS_DO_BOTAO + 120) * 1000);
+
+    if (player) {
+      player.addEventListener('player:ready', () => {
+        if (typeof player.displayHiddenElements === 'function') {
+          player.displayHiddenElements(SEGUNDOS_DO_BOTAO, ['.esconder'], { persist: true });
+          clearTimeout(redeDeSeguranca); // o player assumiu o relógio
+        }
+      });
+    }
+
+    // Quando o botão aparece, ele pode nascer logo abaixo da tela (celular
+    // pequeno, vídeo em pé). Então, no instante em que ele ganha altura, a
+    // página desce só o necessário para mostrá-lo — e não mexe em nada se ele
+    // já estiver à vista.
+    const olho = setInterval(() => {
+      if (botao.offsetHeight === 0) return;
+      clearInterval(olho);
+      const caixa = botao.getBoundingClientRect();
+      if (caixa.bottom <= window.innerHeight && caixa.top >= 0) return;
+      try { botao.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { botao.scrollIntoView(false); }
+    }, 1000);
+  }
+
   let destino;
   try { destino = new URL(LINK_DE_COMPRA); } catch (e) { destino = null; }
   if (!destino) {
