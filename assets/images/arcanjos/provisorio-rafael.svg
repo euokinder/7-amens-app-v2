@@ -1,0 +1,35 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+<!-- PROVISORIO: arte temporaria da Central dos Quatro Arcanjos (MVP de 24/09/2026). A definitiva vem com NOME NOVO de arquivo: assets/ fica guardado no celular por um ano. -->
+<defs>
+<linearGradient id="ceu" x1="0" y1="0" x2="0.3" y2="1">
+<stop offset="0%" stop-color="#07130f"/>
+<stop offset="60%" stop-color="#173a30"/>
+<stop offset="100%" stop-color="#3f6f5c"/>
+</linearGradient>
+<radialGradient id="luz" cx="50%" cy="37%" r="55%">
+<stop offset="0%" stop-color="#fbe7b0" stop-opacity="0.85"/>
+<stop offset="100%" stop-color="#fbe7b0" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<rect width="400" height="300" fill="url(#ceu)"/>
+<circle cx="200" cy="112" r="165" fill="url(#luz)"/>
+<circle cx="200" cy="112" r="92" fill="none" stroke="#f7e3b5" stroke-width="1.5" opacity="0.35"/>
+<circle cx="200" cy="112" r="120" fill="none" stroke="#f7e3b5" stroke-width="1" opacity="0.2"/>
+<g fill="#ffffff">
+<circle cx="40" cy="40" r="2" opacity="0.85"/>
+<circle cx="355" cy="55" r="1.6" opacity="0.7"/>
+<circle cx="65" cy="225" r="2" opacity="0.6"/>
+<circle cx="335" cy="245" r="1.8" opacity="0.75"/>
+<circle cx="28" cy="150" r="1.5" opacity="0.6"/>
+<circle cx="372" cy="150" r="2" opacity="0.7"/>
+<circle cx="252" cy="30" r="1.3" opacity="0.5"/>
+<circle cx="150" cy="268" r="1.4" opacity="0.5"/>
+</g>
+<g transform="translate(200 80) scale(0.6) translate(-200 -112)">
+<g fill="#fff6dc">
+<path d="M142 116 Q186 70 236 116 Q186 162 142 116 Z"/>
+<path d="M232 116 L268 92 L260 116 L268 140 Z"/>
+</g>
+<circle cx="165" cy="110" r="4.5" fill="#173a30"/>
+</g>
+</svg>

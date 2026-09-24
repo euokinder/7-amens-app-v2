@@ -36,7 +36,16 @@ Modelo: `products` (catálogo) + `entitlements` (o que cada cliente possui). **N
 
 Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva histórico e mantém o webhook idempotente.
 
-## ⚠️ HOJE o app NÃO bloqueia nada por produto
+## ⚠️ Só UM conteúdo é trancado por produto: a Central dos Quatro Arcanjos (`upsell_01`)
+
+Pedida pelo Caio em **2026-09-24**. ⏳ Construída no teste local, **ainda NÃO publicada** — conferir o CLAUDE.md antes de supor que está no ar.
+
+- Comprou os Arcanjos → o card da home abre a Central. Não comprou → cadeado, "Desbloquear" e página de oferta.
+- **Cancelou a assinatura → continua com a Central.** Só **reembolso ou estorno** tiram. A `member-api` separa os dois casos pelas faturas da assinatura (`conteudosDela`) e manda o resultado no campo `conteudos` do snapshot.
+- Revogação feita no painel tira (grava `source = 'manual'`).
+- Tudo o mais continua como descrito abaixo: **nenhum outro conteúdo é trancado por produto**, e não trancar outro sem o Caio pedir.
+
+O texto abaixo é o registro de 2026-09-18 e continua valendo para todo o resto do app.
 
 **Quem compra o produto principal tem acesso total ao aplicativo.** Os entitlements de upsell existem hoje apenas para a operação **saber quem comprou o quê** — não gateiam conteúdo.
 
@@ -47,10 +56,10 @@ Verificado no código em 2026-09-18:
 
 **Nunca implementar bloqueio de conteúdo por upsell sem o Caio pedir explicitamente.** Liberar ou revogar um upsell hoje não muda nada para a cliente, e isso é intencional.
 
-## Cards da Home — desenho FUTURO, não implementado
+## Cards da Home — o "Desbloquear"
 
-Quando o Caio decidir ativar, a ideia registrada é: tem direito → entra; não tem → "Desbloquear", transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. Depende de ativar o produto e preencher `checkout_url` e `content_url`.
-Cards atuais: 7 Orações Sagradas · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha.
+A ideia registrada: tem direito → entra; não tem → "Desbloquear", transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. **Desde 2026-09-24 ela existe num card só, o da Central dos Quatro Arcanjos** — escrito direto no `index.html` e comandado pelo `js/member.js`, **não** pelo catálogo. ⚠️ Não ativar `products.enabled` do `upsell_01`: o código antigo do catálogo (`member-extras`) criaria um segundo card, genérico, no fim da home.
+Cards atuais, na ordem: 7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco.
 
 ## Ofertas dentro do app
 

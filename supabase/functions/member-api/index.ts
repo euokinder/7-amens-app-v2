@@ -62,6 +62,36 @@ async function access(customerId: string) {
   const rows = await db(`entitlements?customer_id=eq.${customerId}&status=eq.active&select=product_key`);
   return rows.map((row: {product_key: string}) => row.product_key);
 }
+
+// A CENTRAL DOS QUATRO ARCANJOS (upsell_01) é assinatura mensal, mas quem
+// cancela NÃO perde o conteúdo — decisão do Caio em 24/09/2026. Só reembolso
+// e estorno tiram, como em qualquer extra (CLAUDE.md, regra 4).
+//
+// A Hubla manda o mesmo customer.member_removed nos dois casos, e o webhook
+// grava 'revoked' nos dois. A diferença fica nas faturas da assinatura: o
+// reembolso deixa uma fatura 'refunded' ('chargeback', no estorno), ligada
+// pelo invoice.subscriptionId. Conferido nos 4 reembolsos reais que existiam
+// em 24/09 (todos do principal): os quatro tinham a fatura reembolsada ligada
+// assim. Nenhuma assinatura dos Arcanjos tinha sido encerrada ainda.
+//
+// Retirada feita no painel também tira: o painel grava source = 'manual'.
+//
+// `products` continua sendo só o que está ATIVO — login, ofertas, painel.
+// `conteudos` é o que ela pode ABRIR, e só a Central lê este campo.
+const FICA_DEPOIS_DE_CANCELAR = ['upsell_01'];
+async function conteudosDela(customerId: string, products: string[]) {
+  const faltando = FICA_DEPOIS_DE_CANCELAR.filter(key => !products.includes(key));
+  if (!faltando.length) return products;
+  const encerrados = await db(`entitlements?customer_id=eq.${customerId}&product_key=in.(${faltando.map(eq).join(',')})&status=eq.revoked&source=eq.hubla&select=product_key,hubla_subscription_id`);
+  const ficam: string[] = [];
+  for (const { product_key, hubla_subscription_id } of encerrados) {
+    // Sem a assinatura não há como provar que não houve reembolso.
+    if (!hubla_subscription_id) continue;
+    const devolvida = await db(`hubla_events?sandbox=is.false&event_type=eq.invoice.status_updated&payload->event->invoice->>subscriptionId=eq.${eq(hubla_subscription_id)}&payload->event->invoice->>status=in.(refunded,chargeback)&select=id&limit=1`);
+    if (!devolvida.length) ficam.push(product_key);
+  }
+  return [...products, ...ficam];
+}
 const isAdmin = async (customerId: string) =>
   (await db(`member_admins?customer_id=eq.${customerId}&select=customer_id&limit=1`)).length > 0;
 // Every manual change to access is recorded: more than one operator can grant
@@ -84,7 +114,7 @@ const hojeEmBrasilia = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
 
 async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
-  const [progress, catalog, offers, surveys, admin, primeiraVisita] = await Promise.all([
+  const [progress, catalog, offers, surveys, admin, primeiraVisita, conteudos] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
     db('products?enabled=eq.true&select=key,title,description,checkout_url,content_url&order=sort_order.asc'),
     includeCampaigns ? db('rpc/claim_member_offer', 'POST', { p_customer_id: customer.id, p_trigger_type: 'entry', p_source_campaign_key: null }) : Promise.resolve([]),
@@ -100,12 +130,18 @@ async function snapshot(customer: { id: string; email: string; name: string }, p
     // Custo: uma leitura direta na chave primária (customer_id, visited_on),
     // devolvendo uma linha. É das consultas mais baratas que existem aqui.
     db(`member_visit_days?customer_id=eq.${customer.id}&select=visited_on&order=visited_on.asc&limit=1`),
+    // Também em TODO snapshot, pelo mesmo motivo do primeiro acesso: se
+    // faltasse na resposta de "salvar progresso", a Central trancaria na tela
+    // de quem cancelou no instante em que ela marca uma oração.
+    // Custo para quem tem os Arcanjos ativos: zero consultas. Para as outras:
+    // uma leitura na chave primária, que quase sempre volta vazia.
+    conteudosDela(customer.id, products),
   ]);
   // `primeiroAcesso` vem vazio na primeiríssima verificação de sessão de uma
   // cliente nova: a gravação do dia de visita acontece na mesma leva de
   // consultas e pode chegar depois desta. Não é problema — sem âncora, o
   // js/trava.js usa `hoje`, que é exatamente o dia em que ela está entrando.
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null };
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null, conteudos };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
@@ -307,7 +343,10 @@ Deno.serve(async (req: Request) => {
       const [existing] = await db(`entitlements?customer_id=eq.${target}&product_key=eq.${eq(productKey)}&select=product_key`);
       const fields = granting
         ? { status: 'active', source: 'manual', granted_at: stamp, revoked_at: null, updated_at: stamp }
-        : { status: 'revoked', revoked_at: stamp, updated_at: stamp };
+        // source = 'manual' também ao revogar: é o que diz à Central dos
+        // Arcanjos que a retirada foi decisão do painel, e não um cancelamento
+        // de assinatura (que não tira o conteúdo). Ver conteudosDela().
+        : { status: 'revoked', source: 'manual', revoked_at: stamp, updated_at: stamp };
       if (existing) await db(`entitlements?customer_id=eq.${target}&product_key=eq.${eq(productKey)}`, 'PATCH', fields);
       else if (granting) await db('entitlements', 'POST', { customer_id: target, product_key: productKey, ...fields });
       else return respond({ error: 'Esta cliente não possui esse produto.' }, 404);

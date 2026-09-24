@@ -110,7 +110,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 
 **Decisão firmada: NÃO reescrever em React/Next.** Preserva-se o frontend vanilla e adiciona-se backend por trás.
 
-Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js`.
+Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos: `arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`.
 
 ## Regras de negócio (inegociáveis)
 1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público.
@@ -122,16 +122,30 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 7. **Webhooks da Hubla devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
 
-## ⚠️ Hoje o app não bloqueia nada por produto
-**Comprou o principal = acesso total ao aplicativo.** Os entitlements de upsell servem hoje só para a operação **saber quem comprou o quê**. Liberar ou revogar um upsell não muda nada para a cliente — e isso é intencional.
+## ⚠️ Só UM conteúdo é trancado por produto: a Central dos Quatro Arcanjos
+**Comprou o principal = acesso a todo o resto do aplicativo.** A única exceção é a **Central dos Quatro Arcanjos**, que entrega o `upsell_01` — pedida pelo Caio em **2026-09-24**. ⏳ **Construída no teste local, ainda NÃO publicada** (versão MVP, com textos, áudios e imagens provisórios). Quando subir, apagar esta frase.
 
-O único bloqueio existente é o login (`products.includes('principal')`). Os três upsells estão `enabled = false` e sem URLs, então nem renderizam.
+| Quem | Vê na home | Ao tocar |
+|---|---|---|
+| Comprou os Arcanjos | card aberto, "Acessar Agora!" | entra na Central (`arcanjos.html` → `arcanjo.html?a=…` → `oracao-arcanjo.html?a=…&o=…`) |
+| Não comprou | card com cadeado, "Desbloquear" | página de oferta (`oferta-arcanjos.html`, etiqueta `utm_medium=card`) |
 
-**Não implementar bloqueio por upsell sem o Caio pedir.**
+**Regras decididas pelo Caio em 24/09:**
+- **Cancelou a assinatura → CONTINUA com a Central.** Só **reembolso ou estorno** tiram (regra 4). A Hubla manda o mesmo `customer.member_removed` nos dois casos, e o webhook grava `revoked` nos dois. Quem separa é a `member-api` (`conteudosDela`): assinatura com fatura `refunded`/`chargeback` = reembolso. O campo novo `conteudos` do snapshot é o que a Central lê; `products` continua sendo só o que está ativo.
+- **Retirada pelo painel também tira** — o painel passou a gravar `source = 'manual'` ao revogar.
+- Quem compra com o app aberto vê a Central abrir sozinha na verificação seguinte (até 5 min).
 
-## Home como hub (o "Desbloquear" é planejado, não existe)
-Cards: **7 Orações Sagradas · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha**.
-Desenho futuro: tem direito → entra; não tem → "Desbloquear". Depende de ativar o produto e preencher `checkout_url` e `content_url`.
+A conta mora em `js/member.js` (`temArcanjos`, `desenharCardArcanjos`, `trancarPaginaDosArcanjos`); o conteúdo, em `js/arcanjos.js`. Sem o campo `conteudos` (função antiga no ar), vale a lista de produtos ativos — rede de segurança igual à da trava.
+
+⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js`, arquivo público. **Não prometer "conteúdo protegido"** na venda.
+
+⚠️ **Não ativar o `upsell_01` no catálogo** (`products.enabled`). Ativado e com link preenchido, um código antigo de `js/member.js` (a seção `member-extras`) cria sozinho um segundo card, genérico, no fim da home.
+
+**Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_02` e `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
+
+## Home como hub
+Cards, na ordem: **7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco**. (Até 24/09 esta lista esquecia o Canal Oficial e o Fale Conosco.)
+O "Desbloquear" existe desde 24/09 só na Central dos Arcanjos: tem direito → entra; não tem → página de oferta.
 
 ## Modelo de dados — JÁ IMPLEMENTADO (`supabase/schema.sql`)
 O backend está bem mais adiantado do que o desenho original sugeria. Nomes reais das tabelas:
@@ -185,7 +199,7 @@ Sintoma número um para conferir: se `hubla_events` parar de receber linhas depo
 | `products.key` | Nome comercial | Tipo |
 |---|---|---|
 | `principal` | **Os 7 Améns da Madrugada** | main — libera o app inteiro |
-| `upsell_01` | **Oração Celestial dos Quatro Arcanjos** | addon — ⚠️ **assinatura MENSAL de R$ 137**, não pagamento único |
+| `upsell_01` | **Oração Celestial dos Quatro Arcanjos** (no app: "Central dos Quatro Arcanjos") | addon — ⚠️ **assinatura MENSAL de R$ 137**, não pagamento único. Cancelar **não** tira o conteúdo; reembolso tira |
 | `upsell_02` | **Músicas dos Anjos** | addon |
 | `upsell_03` | **Comunidade da Fé** | addon |
 

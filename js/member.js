@@ -33,7 +33,7 @@
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -295,14 +295,81 @@
     content.replaceChildren(bloco, voltar);
     return true;
   }
+  // A CENTRAL DOS QUATRO ARCANJOS — o que a cliente recebe com o upsell_01
+  //
+  // O primeiro conteúdo do app trancado por produto extra (decisão do Caio,
+  // 24/09/2026): quem comprou os Arcanjos entra; quem não comprou vê o card
+  // com cadeado, que leva à página de oferta. Duas telas obedecem: o card da
+  // home (index.html) e as três páginas da Central, para quem chega por link.
+  //
+  // Cancelar a assinatura NÃO tranca — quem pagou continua com a Central
+  // (decisão de 24/09). Só reembolso tira. Quem sabe separar um caso do outro
+  // é a member-api, no campo `conteudos`. Enquanto a função publicada não
+  // mandar esse campo, vale a lista de produtos ativos — que hoje dá no mesmo,
+  // porque nenhuma assinatura dos Arcanjos tinha sido encerrada até 24/09.
+  //
+  // ⚠️ Não é cadeado de verdade: os textos estão em js/arcanjos.js, arquivo
+  // público. Guia a cliente; não protege conteúdo.
+  const PRODUTO_ARCANJOS = 'upsell_01';
+  const PAGINA_DOS_ARCANJOS = /\/(arcanjos|arcanjo|oracao-arcanjo)(?:\.html)?$/;
+  // A etiqueta separa, no evento da Hubla, a venda que veio do card da que
+  // veio do pop-up (utm_medium=popup). Ver oferta-arcanjos.html.
+  const ofertaDosArcanjos = origem => `oferta-arcanjos.html?utm_source=app&utm_medium=card&utm_campaign=arcanjos&utm_content=${origem}`;
+  const temArcanjos = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_ARCANJOS);
+  const CADEADO = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  function desenharCardArcanjos() {
+    const card = document.getElementById('card-arcanjos');
+    if (!card) return;
+    const liberado = temArcanjos();
+    const situacao = liberado ? 'liberado' : 'trancado';
+    card.dataset.situacao = situacao;
+    card.href = liberado ? 'arcanjos.html' : ofertaDosArcanjos('card-home');
+    const selo = card.querySelector('.pill-badge');
+    if (selo) {
+      selo.textContent = selo.dataset[situacao] || '';
+      if (!liberado) selo.insertAdjacentHTML('afterbegin', CADEADO);
+    }
+    const botao = card.querySelector('.cta-btn');
+    if (botao) botao.textContent = botao.dataset[situacao] || botao.textContent;
+  }
+  function trancarPaginaDosArcanjos() {
+    if (!PAGINA_DOS_ARCANJOS.test(location.pathname)) return false;
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    if (temArcanjos()) {
+      // Comprou com a tela trancada aberta: a verificação seguinte a encontra
+      // aqui, e só recarregando a Central volta a aparecer.
+      if (content.dataset.trancada) location.reload();
+      return false;
+    }
+    if (content.dataset.trancada) return true;
+    content.dataset.trancada = '1';
+    const titulo = node('h1', 'title', 'Central dos Quatro Arcanjos');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', 'Estas orações fazem parte da Oração Celestial dos Quatro Arcanjos, que ainda não está no seu acesso. Toque abaixo para conhecer.'));
+    const conhecer = node('a', 'member-button', 'Conhecer os Quatro Arcanjos');
+    conhecer.href = ofertaDosArcanjos('link-direto');
+    conhecer.style.textAlign = 'center';
+    const voltar = node('a', 'member-gate-help', 'Voltar para o início');
+    voltar.href = 'index.html';
+    voltar.style.textAlign = 'center';
+    content.replaceChildren(bloco, conhecer, voltar);
+    return true;
+  }
   function render() {
     desenharSaudacao();
     setupMemberMenu();
+    desenharCardArcanjos();
     // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
     // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
     // lista continuar com as sete abertas — e o desvio nem sempre acontece.
     const trava = window.TRAVA ? window.TRAVA.calcular(state) : null;
     if (trava && typeof window.desenharDias === 'function') window.desenharDias(trava);
+    // Antes do formulário de perfil pelo mesmo motivo: se o desvio para o
+    // perfil acontecesse primeiro, a Central apareceria inteira, por um
+    // instante, para quem não comprou.
+    if (trancarPaginaDosArcanjos()) return;
     if (setupMemberSurvey()) return;
     if (bloquearDiaTravado(trava)) return;
     if (previaDaOferta) mostrarPreviaDaOferta(); else setupMemberOffer();

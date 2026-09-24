@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central dos Quatro Arcanjos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=12">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">Central dos Quatro Arcanjos</h1>
+        <p class="subtext">Toque em um Arcanjo para ver as três orações dele.</p>
+      </div>
+    </div>
+
+    <div id="arcanjos-lista" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+  </div>
+</div>
+
+<!-- Quem não comprou os Arcanjos não vê esta lista: o js/member.js troca a
+     tela por um convite para conhecer o produto. -->
+<script src="js/arcanjos.js?v=1"></script>
+<script>
+  const OVERLAY = "linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)";
+  let html = '';
+
+  ARCANJOS.forEach((arcanjo) => {
+    html += `
+      <a href="arcanjo.html?a=${arcanjo.chave}" class="card" style="height:300px;background-image:${OVERLAY}, url(${arcanjo.imagem});">
+        <div class="pill-badge">${arcanjo.oracoes.length} ORAÇÕES</div>
+        <div class="card-body">
+          <h3 class="card-title">${tituloDoArcanjo(arcanjo)}</h3>
+          <p class="card-sub">${arcanjo.resumo}</p>
+          <button class="cta-btn" type="button" tabindex="-1">Ver as orações</button>
+        </div>
+      </a>
+    `;
+  });
+
+  // Desenhado ANTES do js/app.js carregar: o efeito de foco ao rolar só
+  // enxerga os cartões que já existem quando a página termina de abrir.
+  document.getElementById('arcanjos-lista').innerHTML = html;
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>

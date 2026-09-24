@@ -14,6 +14,8 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
+| 10 | 🆕🔥 **Central dos Arcanjos: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai". Não tem cliente e não custa nada. **(b)** Guardar o trabalho no GitHub (`development`), que não muda o site e custa zero. As duas foram perguntadas em 24/09 e ele ainda não respondeu. **Enquanto isso, o MVP inteiro existe só na máquina dele.** |
+| 11 | 🆕 **Central dos Arcanjos: três escolhas provisórias do agente** (24/09) | **(a)** A copy escrita pelo agente: resumos dos 4 Arcanjos, selo "Exclusivo", botões, frase no fim da oração e tela de convite. **(b)** As **6 descrições dele adaptadas** da 3ª para a 2ª pessoa (Gabriel 3, Rafael 1, 2 e 3, Uriel 1 e 3; a tabela está na entrada de 24/09). **(c)** Quem pedir **reembolso de um mês só**, depois de ter pago vários, perde a Central inteira. Nada disso trava o trabalho, mas precisa do olho dele antes de publicar. |
 | ~~1~~ | ~~**Publicar o webhook no Supabase**~~ | ✅ **RESOLVIDO em 20/09.** O Caio autorizou, e o `hubla-webhook` foi publicado na produção como **versão 5**, conferido byte a byte contra o arquivo do repositório. O buraco que engoliu a venda de R$ 197 está fechado. A `member-api` subiu junto, como **versão 13**. Ver a entrada de 20/09. |
 | 6 | **A arte do banner precisa ser reexportada em 1200×900** (⏰ deixou de ser urgente em 21/09: o banner agora nasce desligado e não aparece para ninguém, então nada fica feio esperando a arte) | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
 | 2 | **Conteúdo pago aberto por link direto** (achado #4 da auditoria) | Quem descobrir o endereço de um áudio ou PDF baixa sem ter comprado. Travar isso dá trabalho e muda a experiência. É decisão de negócio, não técnica. |
@@ -94,7 +96,18 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- 🆕🔥 **Conferir se a recuperação de acesso pelo CPF está inteira na produção** (achado em 23/09). O commit `654ccf6` (22/09, 01:24) já está no ar, e ele mexe na tela de login. Mas depende de três peças que **sobem por fora do site**: o SQL `supabase/recuperacao-por-cpf.sql` no banco, a `member-api` e o `hubla-webhook` no Supabase. Se o site subiu e essas peças não, o botão novo do login pode estar quebrado para todas as clientes, sem nada vermelho na tela. **Ninguém conferiu.** É leitura no Supabase de produção, sem custo de build: ver se a função publicada bate com o commit e se o que o SQL cria existe.
+- 🆕🔥 **A Central dos Quatro Arcanjos está pronta no teste local, mas SEM COMMIT** (24/09). São 16 arquivos novos ou alterados, só na máquina do Caio (lista na entrada de 24/09). **371 clientes pagam os Arcanjos e não recebem nada**, então esta é a tarefa mais urgente do projeto. Falta, nesta ordem:
+  1. o Caio mandar 12 textos, 12 áudios e 5 artes;
+  2. trocar os provisórios (procurar `PROVISORIO` em `js/arcanjos.js`: 20 marcas; arte e áudio definitivos com **nome novo** de arquivo);
+  3. provar a `member-api` nova no projeto de teste (decisão nº 10);
+  4. publicar a `member-api` na produção, com autorização dele: `verify_jwt` = false, e antes baixar a **v16** que está no ar e comparar com o arquivo;
+  5. publicar o site (1 build);
+  6. tirar as marcas "⏳ só no local / ainda NÃO publicada" do `CLAUDE.md` e da skill `regras-de-acesso`.
+
+  O site pode subir antes da função sem trancar ninguém que pagou (ver a entrada de 24/09).
+- 🆕 **Quem cancelar os Arcanjos pode voltar a ver o pop-up que vende os Arcanjos** (24/09). O pop-up só enxerga produto ativo (função `claim_member_offer`, no banco), e quem cancelou continua com a Central, mas sai da lista de ativos. É um detalhe, não é urgente, e resolver exige mexer no banco.
+- 🆕 **Abrir a Central num celular de verdade** (24/09). Foi conferida no navegador em 375px, lendo a página. Ninguém tocou com o dedo.
+- 🟡 **Recuperação de acesso pelo CPF: as três peças parecem estar no ar** (achado em 23/09, **conferido pela metade em 24/09**). O commit `654ccf6` (22/09, 01:24) mexe na tela de login e depende de três peças que sobem por fora do site. Em 24/09, só leitura: as colunas `cpf_hash`/`cpf_ultimos3` existem e já guardam o CPF de **1.911** clientes; a `member-api` está na **v16**, publicada às ~01:39 de 22/09; o `hubla-webhook` está na **v6**, publicado às ~01:43 do mesmo dia; e nenhum commit mexeu nas duas depois do `654ccf6`. **Falta:** baixar as duas funções e comparar byte a byte com o commit, e tocar no botão "Não sei qual e-mail usei" no site.
 - 🆕 **Três commits de 22/09 não têm entrada neste diário** (achado em 23/09). Entre 01:24 e 02:13 entraram: `654ccf6` recuperação pelo CPF, `ca5e694` troca de vídeo, atraso e botão das doações do Dia 03, e `f5ca15d` "no Dia 03, concluir a oração passa a ser pela contribuição". Os três estão no ar. Ninguém registrou o que foi testado nem o que ficou faltando. ⚠️ O terceiro mexe com a regra de concluir oração: vale conferir que ele não prende quem reza e não contribui, porque a trava de 1 por dia é por calendário e **não** pode depender de botão.
 - 🆕 **Ver o vídeo novo da Introdução tocando dentro do app** (23/09). A troca está no ar e foi conferida no arquivo servido pelo site (ver a entrada de 23/09), mas **ninguém abriu a Introdução e deu play**, nem no computador nem no celular.
 - 🆕🔥 **O banner da home está no repositório, mas NÃO funciona — faltam três peças** (21/09). Hoje ele nasce invisível e só apareceria se houvesse banner cadastrado no painel. Mas mesmo cadastrando, **nada apareceria**, porque: (a) o `js/member.js` não entrega os banners para a home — a chamada saiu na limpeza de 20/09 e nunca voltou, embora o próprio `js/banner.js` diga que é o `member.js` quem preenche; (b) **não existe CSS nenhum do carrossel** (palco, trilho, setas, pontinhos); (c) a produção não tem a tabela `member_home_banners` nem a `member-api` que a lê. O painel de banners grava, a home não lê. É trabalho de verdade, não ajuste.
@@ -130,6 +143,106 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-09-24 — Central dos Quatro Arcanjos: o MVP está montado no teste local (sem commit, fora do ar)
+
+**Chat:** abriu com `/abrir`, e o Caio trouxe a tarefa: entregar dentro do app o `upsell_01`, a Oração Celestial dos Quatro Arcanjos. **Faixa autorizada:** "pode mexer local" (nas palavras dele: "vamos trabalhar primeiro localmente"). **Nada foi commitado, enviado ou publicado.** ⏳ **O chat continua aberto**: ele volta com os textos, os áudios e as imagens, e esta entrada é uma atualização parcial, pedida por ele.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+**Nada.** Nenhuma escrita no banco de produção, nenhuma função publicada, nenhum build. Foram só leituras: contagens e a lista de funções.
+No banco de **teste**, uma liberação dos Arcanjos para `teste.novas@exemplo.com` entrou e saiu (foi a "compra de mentira", já desfeita), além dos logins das contas de teste.
+
+### As decisões do Caio
+| Pergunta | Resposta dele |
+|---|---|
+| Quem vê a Central aberta? | **Só quem comprou.** Quem não comprou vê o cadeado e o botão "Desbloquear", que leva à página de oferta |
+| Quem cancelar a assinatura perde a Central? | **"Não perde, vai continuar tendo acesso."** O reembolso continua tirando (regra 4 do `CLAUDE.md`) |
+| Quem já paga recebe o conteúdo hoje? | **"Não recebem nada, é super urgente isso."** |
+| O que tem em cada oração? | **Áudio e texto.** Ele já tem tudo pronto e vai mandar |
+| Imagens? | Ainda não tem, vai criar todas. **Primeiro o MVP, com provisórios** |
+
+### O que foi construído — 9 arquivos novos e 7 alterados, todos só na máquina
+| Arquivo | O que é |
+|---|---|
+| `js/arcanjos.js` (novo) | o conteúdo: 4 Arcanjos × 3 orações, com os títulos e as descrições do Caio |
+| `arcanjos.html` (novo) | a Central, com 4 cartões grandes |
+| `arcanjo.html?a=miguel` (novo) | as 3 orações de um Arcanjo, em cartões retangulares, um embaixo do outro |
+| `oracao-arcanjo.html?a=miguel&o=1` (novo) | a oração, com o mesmo tocador e o mesmo quadro de texto das 7 madrugadas |
+| `assets/images/arcanjos/provisorio-*.svg` (5 novos) | artes provisórias: espada, lírio, peixe, chama e raios |
+| `index.html` | o card novo, o 2º da home, logo abaixo de "7 Orações Sagradas" |
+| `js/member.js` | quem vê o quê: o card trancado ou aberto; a tela de convite para quem abre a Central pelo link sem ter comprado; e a volta para a página certa depois do login |
+| `supabase/functions/member-api/index.ts` | ⚠️ **escrito, NÃO publicado e NÃO testado em servidor.** Traz o campo novo `conteudos`, que separa quem cancelou (fica com a Central) de quem pediu reembolso (perde), e faz o painel gravar `source = 'manual'` ao revogar |
+| `js/admin.js` | 1 linha: a origem do acesso na ficha passa a dizer "pela Hubla", "liberado na mão" ou, para o que foi revogado no painel, "no painel" |
+| `CLAUDE.md` e `.claude/skills/regras-de-acesso/SKILL.md` | as decisões de hoje, marcadas "⏳ ainda não publicado". Também passaram a listar os 8 cards da home |
+| `docs/DIARIO.md` | esta entrada |
+
+### A prova (navegador em 375px, banco de teste)
+| Conferência | Resultado |
+|---|---|
+| Home de cliente sem os Arcanjos | card em 2º lugar, com cadeado, "Exclusivo" e "Desbloquear". O link vai para `oferta-arcanjos.html` com `utm_medium=card&utm_content=card-home` |
+| A mesma cliente abrindo a Central pelo link | tela de convite, com link de oferta etiquetado `utm_content=link-direto` |
+| "Compra de mentira" com a página trancada aberta | na verificação seguinte, a página **recarregou sozinha** e mostrou os 4 Arcanjos |
+| Página de um Arcanjo | 3 cartões com títulos de 2 linhas; todo o texto cabe dentro do cartão |
+| Página da oração | o tocador **tocou** (o tempo do áudio andou), aparecem 6 parágrafos, o "Voltar" leva ao Arcanjo, e não há botão "Concluí" (de propósito) |
+| Home de cliente com os Arcanjos | "12 ORAÇÕES", "Acessar Agora!", link para a Central |
+| Painel admin | abre sem erro no console, e a ficha mostra "Ativo · pela Hubla" |
+| Build local | passa, e as páginas novas entram no `dist/` sozinhas |
+| O que mudou nos arquivos | só as linhas pretendidas; o fim de linha continuou LF |
+
+### Os números que mudaram a urgência (leitura na produção, 24/09)
+| | |
+|---|---|
+| Clientes com os Arcanjos **ativos** | **371** (350 pela Hubla e 21 da carga antiga). O diário falava em ~90, mas era a contagem de 19/09 |
+| Arcanjos revogados | 1, pelo painel |
+| Avisos de saída (`customer.member_removed`) dos Arcanjos | **zero**: ninguém cancelou nem pediu reembolso ainda |
+| Eventos de fatura dos Arcanjos | 524 "não paga", 359 "paga" e 113 "vencida" (são eventos, não pessoas) |
+
+### Como a regra "cancelou continua, reembolsou sai" foi desenhada
+A Hubla manda o **mesmo** aviso de saída (`customer.member_removed`) para quem cancelou e para quem pediu reembolso, e o webhook grava `revoked` nos dois casos. A diferença está nas faturas. Nos **4 reembolsos reais** que existiam (todos do principal), sempre havia uma fatura `refunded` ligada à assinatura pelo `invoice.subscriptionId`. A `member-api` nova faz essa conferência na hora de montar a tela. Ela só lê: não mexe no webhook e **vale também para o passado**. Se alguém cancelar antes de a função subir, recupera a Central quando ela subir.
+
+Enquanto a função nova não estiver no ar, o site usa a lista de produtos ativos. **Hoje isso dá exatamente o mesmo resultado**, porque ninguém cancelou. Por isso o site pode subir antes da função sem trancar ninguém que pagou.
+
+### As 6 descrições adaptadas (esperando o olho do Caio, decisão nº 11)
+| Oração | Ele escreveu | Ficou |
+|---|---|---|
+| Gabriel 3 | "…em que a pessoa não sabe…" | "Para os momentos em que você não sabe qual caminho seguir." |
+| Rafael 1 | "A pessoa apresenta a Deus…" | "Apresente a Deus a sua enfermidade, a sua dor ou a sua preocupação com a saúde." |
+| Rafael 2 | "Aqui ela pode mentalizar…" | "Mentalize ou diga o nome de quem você ama: um filho, o marido, um neto." |
+| Rafael 3 | "Mais ampla: cansaço…" | "Para o cansaço, o abatimento e a fraqueza, do corpo e da alma." |
+| Uriel 1 | "…e a pessoa não sabe…" | "Quando existem dois caminhos e você não sabe o que fazer." |
+| Uriel 3 | "Uma oração mais geral…" | "Para pedir sabedoria, clareza e discernimento." |
+
+As outras 6 descrições ficaram exatamente como ele escreveu. "Uriel" continua sem "São", de propósito, também como ele escreveu.
+
+### Achado de passagem: a recuperação pelo CPF parece completa no ar
+| Peça | Situação em 24/09 |
+|---|---|
+| Colunas `cpf_hash` e `cpf_ultimos3` | existem, com **1.911** clientes com CPF guardado |
+| `member-api` | **v16**, publicada às ~01:39 de 22/09 (o diário só conhecia a v15) |
+| `hubla-webhook` | **v6**, publicado às ~01:43 de 22/09 |
+| Último commit que mexe nas duas | `654ccf6`, às 01:24 de 22/09 |
+
+Ainda não foi feita a comparação arquivo a arquivo, e ninguém tocou no botão no site.
+
+### Armadilhas desta vez
+1. 🪤 **A `member-api` do projeto de TESTE tem código do banner que não existe no repositório.** Publicar lá qualquer versão do repositório **apaga** o banner do teste. Para provar a função nova, publicar com outro nome de função.
+2. 🪤 **Os eventos de fatura não trazem `event.subscription.id`.** A coluna `subscription_id` de `hubla_events` vem vazia nos 996 eventos de fatura dos Arcanjos. A ligação com a assinatura fica **dentro** da fatura, em `invoice.subscriptionId`.
+3. 🪤 **A classe `.card.locked` desliga o toque** (`pointer-events: none`). Ela serve para dia travado, mas **não** para um card que precisa levar à oferta. O card dos Arcanjos não a usa.
+4. 🪤 **No teste local, o tocador mostra "0:00" como duração.** O servidor local (`scripts/preview.mjs`) não informa o tamanho do arquivo; não é defeito da página. O mesmo tocador, no `dia.html`, mostra a duração no site.
+5. 🪤 **No navegador automatizado, todos os cartões ficam apagados (opacidade 0,5)**, porque o efeito de foco ao rolar não roda ali. Para fotografar, forçar opacidade 1. E a foto **trava** quando a janela do app está atrás de outra: nesse caso, ler a página como texto.
+6. 🪤 **`node --check` não entende TypeScript.** Para conferir a sintaxe da `member-api`, rodar `node arquivo.ts`: se o erro for "Deno is not defined", a sintaxe está certa.
+7. 🪤 De quebra: a ficha do painel mostrava "liberado na mão" para as 21 clientes da carga antiga (`hubla_import`), que vieram da Hubla. A linha que foi mudada já corrige isso.
+
+### O que NÃO foi conferido
+- A `member-api` nova **nunca rodou** em servidor nenhum.
+- A foto da home **com os Arcanjos liberados** não saiu; aquela tela foi conferida lendo a página como texto.
+- Nada foi aberto num **celular de verdade**.
+- O rótulo "Revogado · no painel" nunca apareceu na tela, porque depende da função nova.
+
+### O que o Caio vai mandar
+12 textos (abertura, parágrafos e fechamento), 12 áudios em MP3, 1 arte para o card da home, 4 artes dos Arcanjos e, opcionalmente, 12 artes das orações. As artes vão **sem texto na imagem**, com o desenho principal na metade de cima. Todo arquivo definitivo precisa de **nome novo**, porque o `assets/` fica guardado no celular por um ano; o agente cuida disso.
 
 ---
 

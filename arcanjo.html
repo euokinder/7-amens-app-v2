@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central dos Quatro Arcanjos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=12">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='arcanjos.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+</div>
+
+<script src="js/arcanjos.js?v=1"></script>
+<script>
+  // arcanjo.html?a=miguel — as três orações de um Arcanjo, uma embaixo da outra.
+  const chave = new URLSearchParams(location.search).get('a');
+  const arcanjo = arcanjoPelaChave(chave);
+  const content = document.getElementById('content');
+  const OVERLAY = "linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)";
+  const seta = '<svg class="chevron" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+
+  if (!arcanjo) {
+    content.innerHTML = `
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
+        <p class="subtext">Não encontramos este Arcanjo. Volte para a Central dos Quatro Arcanjos.</p>
+      </div>
+      <a class="member-button" href="arcanjos.html" style="text-align:center;">Voltar para a Central</a>
+    `;
+  } else {
+    document.title = `${tituloDoArcanjo(arcanjo)} — Central dos Quatro Arcanjos`;
+
+    const cartoes = arcanjo.oracoes.map((item, indice) => `
+      <a href="oracao-arcanjo.html?a=${arcanjo.chave}&o=${indice + 1}" class="card" style="height:240px;background-image:${OVERLAY}, url(${item.imagem || arcanjo.imagem});">
+        <div class="card-body row">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <h3 class="card-title">${item.titulo}</h3>
+            <p class="card-sub">${item.descricao}</p>
+          </div>
+          ${seta}
+        </div>
+      </a>
+    `).join('');
+
+    content.innerHTML = `
+      <span class="kicker">Central dos Quatro Arcanjos</span>
+      <div class="section-heading" style="margin-top:-8px;">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;">${tituloDoArcanjo(arcanjo)}</h1>
+          <p class="subtext">Escolha a oração que você precisa neste momento.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        ${cartoes}
+      </div>
+    `;
+  }
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>

@@ -328,7 +328,9 @@
       const product = catalog.find(entry => entry.key === item.product_key);
       const active = item.status === 'active';
       const row = element('div', `admin-detail-line${active ? ' is-active' : ' is-off'}`);
-      const origin = item.source === 'hubla' ? 'pela Hubla' : 'liberado na mão';
+      // 'manual' é quem mexeu por último pelo painel — liberando ou, desde
+      // 24/09/2026, revogando. 'hubla' e 'hubla_import' vieram da Hubla.
+      const origin = item.source !== 'manual' ? 'pela Hubla' : active ? 'liberado na mão' : 'no painel';
       row.append(element('span', '', product?.title || item.product_key));
       row.append(element('strong', '', `${active ? 'Ativo' : item.status === 'refunded' ? 'Reembolsado' : 'Revogado'} · ${origin}`));
       const button = element('button', 'admin-mini-btn', active ? 'Revogar' : 'Liberar');
