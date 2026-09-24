@@ -36,13 +36,19 @@ Modelo: `products` (catálogo) + `entitlements` (o que cada cliente possui). **N
 
 Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva histórico e mantém o webhook idempotente.
 
-## ⚠️ Só UM conteúdo é trancado por produto: a Central dos Quatro Arcanjos (`upsell_01`)
+## ⚠️ Só DOIS conteúdos são trancados por produto
 
-Pedida pelo Caio em **2026-09-24**. ⏳ Construída no teste local, **ainda NÃO publicada** — conferir o CLAUDE.md antes de supor que está no ar.
+Os dois pedidos pelo Caio em **2026-09-24**. ⏳ Construídos no teste local, **ainda NÃO publicados** — conferir o CLAUDE.md antes de supor que estão no ar.
 
-- Comprou os Arcanjos → o card da home abre a Central. Não comprou → cadeado, "Desbloquear" e página de oferta.
-- **Cancelou a assinatura → continua com a Central.** Só **reembolso ou estorno** tiram. A `member-api` separa os dois casos pelas faturas da assinatura (`conteudosDela`) e manda o resultado no campo `conteudos` do snapshot.
+| Conteúdo | Produto | Páginas |
+|---|---|---|
+| Central dos Quatro Arcanjos | `upsell_01` | `arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html` |
+| Cântico Angelical | `upsell_02` (na Hubla, "Músicas dos Anjos": mesmo produto, nome novo) | `cantico.html`, `cantico-dia.html` |
+
+- Comprou → o card da home abre o conteúdo. Não comprou → cadeado, "Desbloquear" e página de oferta (`oferta-arcanjos.html` / `oferta-cantico.html`).
+- **Os dois são assinatura mensal, e cancelar NÃO tira.** Só **reembolso ou estorno** tiram. A `member-api` separa os dois casos pelas faturas da assinatura (`conteudosDela`, lista `FICA_DEPOIS_DE_CANCELAR`) e manda o resultado no campo `conteudos` do snapshot.
 - Revogação feita no painel tira (grava `source = 'manual'`).
+- O Cântico abre **um dia por vez**, com a mesma âncora das madrugadas (`calcularCantico`, em `js/trava.js`). Tem "Concluí este dia" só para ela se achar: o número "Orações" do painel não conta esses dias.
 - Tudo o mais continua como descrito abaixo: **nenhum outro conteúdo é trancado por produto**, e não trancar outro sem o Caio pedir.
 
 O texto abaixo é o registro de 2026-09-18 e continua valendo para todo o resto do app.
@@ -58,8 +64,8 @@ Verificado no código em 2026-09-18:
 
 ## Cards da Home — o "Desbloquear"
 
-A ideia registrada: tem direito → entra; não tem → "Desbloquear", transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. **Desde 2026-09-24 ela existe num card só, o da Central dos Quatro Arcanjos** — escrito direto no `index.html` e comandado pelo `js/member.js`, **não** pelo catálogo. ⚠️ Não ativar `products.enabled` do `upsell_01`: o código antigo do catálogo (`member-extras`) criaria um segundo card, genérico, no fim da home.
-Cards atuais, na ordem: 7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco.
+A ideia registrada: tem direito → entra; não tem → "Desbloquear", transformando o app em consumo **e** venda de complementos sem mandar a cliente para fora. **Desde 2026-09-24 ela existe em dois cards, o da Central dos Quatro Arcanjos e o do Cântico Angelical** — escritos direto no `index.html` e comandados pelo `js/member.js`, **não** pelo catálogo. ⚠️ Não ativar `products.enabled` do `upsell_01` nem do `upsell_02`: o código antigo do catálogo (`member-extras`) criaria um segundo card, genérico, no fim da home.
+Cards atuais, na ordem: 7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Cântico Angelical (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco.
 
 ## Ofertas dentro do app
 
@@ -68,7 +74,7 @@ Uma campanha só aparece se estiver `enabled`, tiver `target_url` https, a clien
 
 ## Progresso
 
-`prayer_progress`, chave `(customer_id, prayer_key)`. Formato de `prayer_key` validado por regex: `principal:0-7` ou `desatadora:1-9`.
+`prayer_progress`, chave `(customer_id, prayer_key)`. Formato de `prayer_key` validado por regex, **no banco e na `member-api`**: `principal:0-7` ou `desatadora:1-9` — e `cantico:0-7`, ⏳ só depois de rodar `supabase/cantico-angelical.sql` (a ordem é banco → função → site).
 
 **Progresso vive na nuvem, não em `localStorage`.** Trocou de aparelho, continua de onde parou.
 

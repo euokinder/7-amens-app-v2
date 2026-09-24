@@ -70,12 +70,14 @@
   }
 
   // A maior madrugada que ela já marcou como concluída. Serve de piso: oração
-  // que ela já rezou nunca volta a ficar trancada.
-  function maiorDiaConcluido(progresso) {
+  // que ela já rezou nunca volta a ficar trancada. `jornada` é o começo da
+  // chave no banco: 'principal' para as madrugadas, 'cantico' para o Cântico.
+  function maiorDiaConcluido(progresso, jornada = 'principal') {
+    const chave = new RegExp(`^${jornada}:([0-7])$`);
     let maior = 0;
     for (const item of Array.isArray(progresso) ? progresso : []) {
       if (!item || !item.completed) continue;
-      const numero = /^principal:([0-7])$/.exec(String(item.prayer_key || ''));
+      const numero = chave.exec(String(item.prayer_key || ''));
       if (numero) maior = Math.max(maior, Number(numero[1]));
     }
     return maior;
@@ -134,11 +136,40 @@
     return { liberados, abreAmanha };
   }
 
+  // O CÂNTICO ANGELICAL (upsell_02) — a mesma regra, sem a história das antigas
+  //
+  // Decidido pelo Caio em 24/09/2026: um dia por vez, contando do dia em que
+  // ela entrou no app pela primeira vez — a MESMA âncora das madrugadas. Quem
+  // comprou o Cântico junto com o principal faz as duas jornadas lado a lado.
+  //
+  // Consequência que vem junto com a âncora: quem compra o Cântico depois de
+  // já estar no app há uma semana encontra os sete dias abertos. A conta é do
+  // primeiro acesso, não da compra.
+  //
+  // Sem ENTROU_NO_AR nem piso das antigas: aquilo existe porque a trava das
+  // madrugadas subiu com gente no meio do caminho. O Cântico já nasce com a
+  // trava, e ninguém estava no meio dele.
+  //
+  // Mesma rede de segurança de calcular(): sem `state.hoje`, nada tranca.
+  function calcularCantico(state) {
+    if (!state || !state.hoje) return { liberados: TOTAL_DE_DIAS, abreAmanha: false };
+
+    const decorridos = diasEntre(state.primeiroAcesso || state.hoje, state.hoje);
+    if (Number.isNaN(decorridos)) return { liberados: TOTAL_DE_DIAS, abreAmanha: false };
+
+    const porCalendario = 1 + Math.max(0, decorridos);
+    // Dia que ela já marcou como concluído nunca volta a ficar trancado.
+    const liberados = Math.min(TOTAL_DE_DIAS, Math.max(porCalendario, maiorDiaConcluido(state.progress, 'cantico')));
+    const abreAmanha = liberados < TOTAL_DE_DIAS && liberados === porCalendario;
+
+    return { liberados, abreAmanha };
+  }
+
   // O que o selo do card diz. "Indisponível" é palavra de sistema fora do ar;
   // aqui a oração não está quebrada, está esperando a vez dela chegar.
   function selo(numeroDoDia, trava) {
     return numeroDoDia === trava.liberados + 1 && trava.abreAmanha ? 'Abre amanhã' : 'Em breve';
   }
 
-  window.TRAVA = { calcular, selo, TOTAL_DE_DIAS };
+  window.TRAVA = { calcular, calcularCantico, selo, TOTAL_DE_DIAS };
 })();

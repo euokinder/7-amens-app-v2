@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cântico Angelical — 7 Améns da Madrugada</title>
+<!-- Esta página não deve aparecer no Google. Só se chega nela pelo card da
+     home ou pelo convite das páginas do Cântico. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="stylesheet" href="css/oferta.css?v=1">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<!-- =====================================================================
+     ⚠️ PÁGINA PROVISÓRIA (24/09/2026). O Caio ainda vai decidir o formato
+     da venda do Cântico: vídeo (VSL), só texto, ou direto para o checkout.
+     Até lá, esta é a forma mais simples — texto e um botão. Procure por
+     PROVISORIO. Se a escolha for "direto para o checkout", esta página sai
+     e o card da home passa a apontar para a Hubla (js/member.js,
+     ofertaDoCantico).
+
+     DE ONDE ELA VEIO — a mesma etiqueta de oferta-arcanjos.html
+     O card da home e o convite mandam a cliente para cá com utm_* no
+     endereço, dizendo de onde ela veio. Guardamos isso aqui em cima, antes
+     de qualquer outro script, e colamos no link da Hubla lá embaixo: é o
+     único jeito de saber, na venda, se foi o card que vendeu. (Se um dia
+     entrar um vídeo da VTurb, a ordem importa: ela mexe no endereço.)
+     ===================================================================== -->
+<script>
+window.ETIQUETAS_DE_ORIGEM = (function () {
+  var permitidas = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  var chegaram = new URLSearchParams(location.search);
+  var guardadas = {};
+  permitidas.forEach(function (nome) {
+    var valor = (chegaram.get(nome) || '').trim();
+    // Só segue adiante o que tem cara de etiqueta nossa, para nada estranho
+    // entrar no link do checkout.
+    if (valor && valor.length <= 80 && /^[A-Za-z0-9._-]+$/.test(valor)) guardadas[nome] = valor;
+  });
+  return guardadas;
+})();
+</script>
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir esta página.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+
+<div class="app">
+
+  <div class="header">
+    <!-- O X leva direto para a home, sem passar pelo histórico: "voltar"
+         poderia devolvê-la para a tela trancada de onde ela veio. -->
+    <button class="oferta-fechar" type="button" aria-label="Fechar e voltar para o início" onclick="location.href='index.html'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <span class="kicker">Cântico Angelical · Sua jornada de 7 dias</span>
+
+    <!-- PROVISORIO: título e texto de venda. A copy é do Caio. -->
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title oferta-headline">Cântico Angelical</h1>
+        <p class="subtext">[TEXTO PROVISÓRIO — a apresentação do Cântico Angelical entra aqui.]</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="section-label" style="margin-bottom:14px;">Sua jornada, dia a dia</h2>
+      <div class="modal-checklist" id="oferta-dias"></div>
+    </div>
+
+    <!-- O link da Hubla entra em LINK_DE_COMPRA, lá embaixo. Enquanto estiver
+         vazio, o botão aparece apagado e não leva a lugar nenhum. -->
+    <a class="member-button" id="oferta-comprar" style="text-align:center;">Quero o Cântico Angelical</a>
+
+  </div>
+</div>
+
+<script src="js/cantico.js?v=1"></script>
+<script>
+(() => {
+  'use strict';
+
+  // A jornada sai do mesmo arquivo das páginas do Cântico: o que a oferta
+  // promete é, letra por letra, o que ela vai encontrar lá dentro.
+  const numero = (n) => `<div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--dark-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;">${n}</div>`;
+  let dias = '';
+  for (let i = 1; i <= 7; i++) {
+    dias += `
+      <div style="display:flex;gap:12px;align-items:center;">
+        ${numero(i)}
+        <p style="margin:0;font-size:16px;font-weight:700;color:var(--ink);">${CANTICO[i].subtitulo}</p>
+      </div>`;
+  }
+  document.getElementById('oferta-dias').innerHTML = dias;
+
+  // PROVISORIO: o link de compra do Cântico na Hubla.
+  //
+  // ⚠️ ANTES DA PRIMEIRA VENDA por este link: o código do produto que chega
+  // no evento da Hubla precisa estar em hubla_product_map apontando para
+  // upsell_02. Hoje estão lá vRuLDZ1avAMG2LllTWAu e gTLhMYXqRjFeNlyc7FlH. Se
+  // este link for uma oferta NOVA na Hubla, com código novo, a cliente paga
+  // e o app não libera: o evento cai em needs_reconciliation.
+  const LINK_DE_COMPRA = '';
+
+  // Quando ela chega SEM etiqueta nenhuma (digitou o endereço, ou um link
+  // novo esqueceu de etiquetar), mandamos "sem-etiqueta" de propósito: campo
+  // vazio deixaria a dúvida entre "veio direto" e "o rastreamento quebrou".
+  const SEM_ETIQUETA = {
+    utm_source: 'app',
+    utm_medium: 'direto',
+    utm_campaign: 'cantico',
+    utm_content: 'sem-etiqueta'
+  };
+
+  const botao = document.getElementById('oferta-comprar');
+  let destino;
+  try { destino = new URL(LINK_DE_COMPRA); } catch (e) { destino = null; }
+  if (!destino) {
+    botao.style.opacity = '0.5';
+    botao.setAttribute('aria-disabled', 'true');
+    return;
+  }
+  let etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
+  if (!Object.keys(etiquetas).length) etiquetas = SEM_ETIQUETA;
+  Object.keys(etiquetas).forEach((nome) => destino.searchParams.set(nome, etiquetas[nome]));
+  botao.href = destino.href;
+})();
+</script>
+
+</body>
+</html>

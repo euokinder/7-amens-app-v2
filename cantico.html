@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cântico Angelical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">Cântico Angelical</h1>
+        <p class="subtext">Sua jornada de 7 dias. Toque em um dia para abrir.</p>
+      </div>
+    </div>
+
+    <div id="cantico-lista" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+  </div>
+</div>
+
+<!-- Quem não comprou o Cântico não vê esta lista: o js/member.js troca a
+     tela por um convite para conhecer o produto. -->
+<script src="js/cantico.js?v=1"></script>
+<script src="js/trava.js?v=2"></script>
+<script>
+  const OVERLAY = "linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)";
+
+  const lockIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--card-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+  const lista = document.getElementById('cantico-lista');
+
+  // A lista nasce com os oito dias abertos, pelo mesmo motivo do novena.html:
+  // esse instante a cliente não vê (a tela fica atrás do "Verificando seu
+  // acesso…"), e se o js/member.js falhar ela encontra o que comprou em vez
+  // de uma lista de cadeados. Quem fecha o que ainda não chegou é a função
+  // desenharDiasDoCantico(), logo abaixo.
+  const destinos = [];
+  let html = '';
+
+  for (let i = 0; i <= 7; i++) {
+    const dia = CANTICO[i];
+    const travado = !dia.disponivel;
+    destinos[i] = `cantico-dia.html?dia=${i}`;
+
+    html += `
+      <a ${travado ? '' : `href="${destinos[i]}"`} class="card${travado ? ' locked' : ''}" style="height:320px;background-image:${OVERLAY}, url(${dia.imagem});">
+        <div class="num-badge">${dia.numero}</div>
+        ${travado ? '<div class="pill-badge">Indisponível</div>' : ''}
+        <div class="play-btn">${travado ? lockIcon : playIcon}</div>
+        <div class="card-body">
+          <h3 class="card-title">${dia.titulo}</h3>
+          <p class="card-sub">${dia.subtitulo}</p>
+        </div>
+      </a>
+    `;
+  }
+
+  // Desenhado ANTES do js/app.js carregar: o efeito de foco ao rolar só
+  // enxerga os cartões que já existem quando a página termina de abrir.
+  lista.innerHTML = html;
+  const cartoes = [...lista.children];
+
+  // UM DIA POR VEZ — a conta mora em js/trava.js (calcularCantico).
+  //
+  // Esta função AJUSTA os cartões que já estão na tela; NUNCA redesenha a
+  // lista. O js/app.js guarda referências a eles para o efeito de foco ao
+  // rolar, o único que tira o cartão de `opacity: 0.5`. Trocar o innerHTML
+  // deixaria a lista inteira desbotada, sem erro nenhum na tela. É o mesmo
+  // aviso do novena.html, visto no navegador em 20/09/2026.
+  let aplicadoCom = null;
+
+  function desenharDiasDoCantico(trava) {
+    const liberados = trava ? trava.liberados : 7;
+    // De 5 em 5 minutos a sessão é verificada de novo. Sem esta linha, cada
+    // verificação mexeria nos cartões à toa.
+    if (aplicadoCom === liberados) return;
+    aplicadoCom = liberados;
+
+    for (let i = 0; i <= 7; i++) {
+      const cartao = cartoes[i];
+      if (!cartao) continue;
+      // A Introdução (Dia 0) abre junto com o Dia 1, sempre.
+      const aindaNaoAbriu = i > liberados;
+      const travado = !CANTICO[i].disponivel || aindaNaoAbriu;
+
+      cartao.classList.toggle('locked', travado);
+      // Sem href o cartão deixa de ser link: não abre no toque, não abre em
+      // aba nova e sai da navegação por teclado.
+      if (travado) cartao.removeAttribute('href');
+      else cartao.setAttribute('href', destinos[i]);
+
+      const texto = aindaNaoAbriu && window.TRAVA ? window.TRAVA.selo(i, trava) : 'Indisponível';
+      let selo = cartao.querySelector('.pill-badge');
+      if (travado) {
+        if (!selo) {
+          selo = document.createElement('div');
+          selo.className = 'pill-badge';
+          cartao.querySelector('.num-badge').after(selo);
+        }
+        selo.textContent = texto;
+      } else if (selo) {
+        selo.remove();
+      }
+
+      cartao.querySelector('.play-btn').innerHTML = travado ? lockIcon : playIcon;
+    }
+  }
+
+  window.desenharDiasDoCantico = desenharDiasDoCantico;
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>

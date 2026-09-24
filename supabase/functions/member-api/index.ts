@@ -66,19 +66,22 @@ async function access(customerId: string) {
 // A CENTRAL DOS QUATRO ARCANJOS (upsell_01) é assinatura mensal, mas quem
 // cancela NÃO perde o conteúdo — decisão do Caio em 24/09/2026. Só reembolso
 // e estorno tiram, como em qualquer extra (CLAUDE.md, regra 4).
+// O CÂNTICO ANGELICAL (upsell_02, na Hubla "Músicas dos Anjos") segue a
+// mesma regra, decidida no mesmo dia: também é mensal, e também fica.
 //
 // A Hubla manda o mesmo customer.member_removed nos dois casos, e o webhook
 // grava 'revoked' nos dois. A diferença fica nas faturas da assinatura: o
 // reembolso deixa uma fatura 'refunded' ('chargeback', no estorno), ligada
 // pelo invoice.subscriptionId. Conferido nos 4 reembolsos reais que existiam
 // em 24/09 (todos do principal): os quatro tinham a fatura reembolsada ligada
-// assim. Nenhuma assinatura dos Arcanjos tinha sido encerrada ainda.
+// assim. Nenhuma assinatura dos Arcanjos tinha sido encerrada ainda, nem do
+// Cântico (96 ativas em 24/09, todas com a assinatura gravada).
 //
 // Retirada feita no painel também tira: o painel grava source = 'manual'.
 //
 // `products` continua sendo só o que está ATIVO — login, ofertas, painel.
-// `conteudos` é o que ela pode ABRIR, e só a Central lê este campo.
-const FICA_DEPOIS_DE_CANCELAR = ['upsell_01'];
+// `conteudos` é o que ela pode ABRIR; só a Central e o Cântico leem este campo.
+const FICA_DEPOIS_DE_CANCELAR = ['upsell_01', 'upsell_02'];
 async function conteudosDela(customerId: string, products: string[]) {
   const faltando = FICA_DEPOIS_DE_CANCELAR.filter(key => !products.includes(key));
   if (!faltando.length) return products;
@@ -113,6 +116,16 @@ const validEmail = (value: unknown) => {
 const hojeEmBrasilia = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
 
+// As jornadas em que ela pode marcar "Concluí", e com que números. Os dias
+// do Cântico Angelical (upsell_02) entraram em 24/09/2026.
+// ⚠️ A MESMA lista está travada no banco (prayer_progress_prayer_key_check):
+// jornada nova precisa entrar lá ANTES de esta função subir, senão o
+// "Concluí" dela falha (supabase/cantico-angelical.sql).
+// `jornadas` vai em todo snapshot como aviso para a tela: o botão do Cântico
+// só aparece quando a função que aceita a chave dele já está no ar.
+const CHAVE_DE_PROGRESSO = /^(principal:[0-7]|desatadora:[1-9]|cantico:[0-7])$/;
+const JORNADAS = ['principal', 'desatadora', 'cantico'];
+
 async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
   const [progress, catalog, offers, surveys, admin, primeiraVisita, conteudos] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
@@ -141,7 +154,7 @@ async function snapshot(customer: { id: string; email: string; name: string }, p
   // cliente nova: a gravação do dia de visita acontece na mesma leva de
   // consultas e pode chegar depois desta. Não é problema — sem âncora, o
   // js/trava.js usa `hoje`, que é exatamente o dia em que ela está entrando.
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null, conteudos };
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null, conteudos, jornadas: JORNADAS };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
@@ -224,7 +237,7 @@ Deno.serve(async (req: Request) => {
     const products = await access(customerId);
     if (!products.includes('principal')) return respond({ error: 'Seu acesso não está ativo. Fale conosco para receber ajuda.' }, 403);
     if (body.action === 'progress') {
-      if (typeof body.prayer_key !== 'string' || !/^(principal:[0-7]|desatadora:[1-9])$/.test(body.prayer_key) || typeof body.completed !== 'boolean') return respond({ error: 'Progresso inválido.' }, 400);
+      if (typeof body.prayer_key !== 'string' || !CHAVE_DE_PROGRESSO.test(body.prayer_key) || typeof body.completed !== 'boolean') return respond({ error: 'Progresso inválido.' }, 400);
       await db('prayer_progress?on_conflict=customer_id,prayer_key', 'POST', { customer_id: customerId, prayer_key: body.prayer_key, completed: body.completed, updated_at: new Date().toISOString() });
     } else if (body.action === 'offer_event') {
       const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';

@@ -1,6 +1,6 @@
 # 7 Améns da Madrugada — Contexto do Projeto
 
-> Fonte de verdade das regras do projeto. Atualizado: 2026-09-21
+> Fonte de verdade das regras do projeto. Atualizado: 2026-09-24
 > Contexto histórico completo em `docs/contexto-completo.md`. Leia sob demanda, não sempre.
 
 ## 🧭 Comece pelo diário
@@ -98,7 +98,9 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 
 ⚠️ **É trava de experiência, não de segurança** — mesmo desenho já decidido para o login. Os textos estão em `js/dias.js`, arquivo público. **Não prometer "liberado aos poucos" como se fosse cadeado em peça de venda.**
 
-⚠️ **Ao mexer na lista de `novena.html`, AJUSTE os cartões — não redesenhe com `innerHTML`.** O `js/app.js` guarda referências a esses cartões para o efeito de foco ao rolar (o único que tira o cartão de `opacity: 0.5`) e para o pop-up "Antes de continuar, confirme" dos dias 2 a 4. Trocar o `innerHTML` joga os dois fora **em silêncio**: a lista fica inteira desbotada e a confirmação some, sem derrubar a tela.
+⚠️ **Ao mexer na lista de `novena.html`, AJUSTE os cartões — não redesenhe com `innerHTML`.** O `js/app.js` guarda referências a esses cartões para o efeito de foco ao rolar (o único que tira o cartão de `opacity: 0.5`) e para o pop-up "Antes de continuar, confirme" dos dias 2 a 4. Trocar o `innerHTML` joga os dois fora **em silêncio**: a lista fica inteira desbotada e a confirmação some, sem derrubar a tela. (Vale igual para a lista do Cântico, `cantico.html`.)
+
+⚠️ **O Cântico Angelical (`upsell_02`) usa a mesma regra, com conta própria** — `calcularCantico`, no mesmo `js/trava.js`. Decidido pelo Caio em 24/09: um dia por vez, com a **mesma âncora** (o primeiro acesso ao app), mas **sem** o piso das antigas, porque o Cântico já nasce com a trava. Quem comprou junto com o principal faz as duas jornadas lado a lado. Consequência que vem com a âncora: quem compra o Cântico depois de uma semana no app encontra os 7 dias abertos. A conta das madrugadas não mudou — conferido em 41.605 situações, antes e depois.
 
 ## Stack
 | Camada | Ferramenta | Papel |
@@ -110,7 +112,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 
 **Decisão firmada: NÃO reescrever em React/Next.** Preserva-se o frontend vanilla e adiciona-se backend por trás.
 
-Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos: `arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`.
+Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos (`arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`) e o Cântico Angelical (`cantico.html`, `cantico-dia.html`, `oferta-cantico.html`, `cantico.js`).
 
 ## Regras de negócio (inegociáveis)
 1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público.
@@ -122,8 +124,12 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 7. **Webhooks da Hubla devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
 
-## ⚠️ Só UM conteúdo é trancado por produto: a Central dos Quatro Arcanjos
-**Comprou o principal = acesso a todo o resto do aplicativo.** A única exceção é a **Central dos Quatro Arcanjos**, que entrega o `upsell_01` — pedida pelo Caio em **2026-09-24**. ⏳ **Construída no teste local, ainda NÃO publicada** (versão MVP, com textos, áudios e imagens provisórios). Quando subir, apagar esta frase.
+## ⚠️ Só DOIS conteúdos são trancados por produto: a Central dos Arcanjos e o Cântico Angelical
+**Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ⏳ **As duas estão construídas no teste local e ainda NÃO publicadas** (versões MVP, com conteúdo provisório). Quando cada uma subir, apagar a menção a ela nesta frase.
+
+Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para publicar, mexer ou desfazer um sem encostar no outro.
+
+### Central dos Quatro Arcanjos (`upsell_01`)
 
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
@@ -137,15 +143,35 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 
 A conta mora em `js/member.js` (`temArcanjos`, `desenharCardArcanjos`, `trancarPaginaDosArcanjos`); o conteúdo, em `js/arcanjos.js`. Sem o campo `conteudos` (função antiga no ar), vale a lista de produtos ativos — rede de segurança igual à da trava.
 
-⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js`, arquivo público. **Não prometer "conteúdo protegido"** na venda.
+### Cântico Angelical (`upsell_02`)
+Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **mesmo produto, com nome novo** (Caio, 24/09). Quem comprou "Músicas dos Anjos" recebe o Cântico — eram **96 clientes ativas** em 24/09, sem receber nada até então.
 
-⚠️ **Não ativar o `upsell_01` no catálogo** (`products.enabled`). Ativado e com link preenchido, um código antigo de `js/member.js` (a seção `member-extras`) cria sozinho um segundo card, genérico, no fim da home.
+| Quem | Vê na home | Ao tocar |
+|---|---|---|
+| Comprou o Cântico | card aberto, "7 DIAS", "Acessar Agora!" (3º card) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=0…7`: vídeo da VTurb + texto) |
+| Não comprou | card com cadeado, "Exclusivo", "Desbloquear" | página de oferta (`oferta-cantico.html`, etiqueta `utm_campaign=cantico`). ⏳ Provisória: o Caio ainda decide entre vídeo, só texto ou direto para o checkout |
 
-**Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_02` e `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
+**Regras decididas pelo Caio em 24/09:**
+- **Introdução + 7 dias, um por dia**, com a mesma âncora das madrugadas (ver a seção da trava, acima).
+- **Também é assinatura mensal, e cancelar também NÃO tira.** Só reembolso ou estorno. O `upsell_02` entrou em `FICA_DEPOIS_DE_CANCELAR`, na `member-api`.
+- **Tem "Concluí este dia", mas só para ela se achar na jornada** — nas palavras dele, "ele não muda nada pra gente aqui". Por isso a visão do painel **não conta** os dias do Cântico no número "Orações".
+
+A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPaginaDoCantico`, `bloquearDiaDoCanticoTravado`); o conteúdo, em `js/cantico.js`.
+
+⚠️ **O "Concluí este dia" depende de uma alteração no banco, ⏳ ainda não aplicada:** `supabase/cantico-angelical.sql`. A ordem de publicar é **banco → função → site**. Se a função subir antes do banco, o botão dá erro na tela dela. O site pode subir antes dos dois: sem o campo `jornadas` no snapshot, o botão do Cântico simplesmente não aparece.
+
+⚠️ **Antes da primeira venda pelo app:** o link de compra da oferta ainda está vazio (`LINK_DE_COMPRA`, em `oferta-cantico.html`). Se for uma oferta NOVA na Hubla, o código dela precisa entrar em `hubla_product_map` apontando para `upsell_02` antes — senão a cliente paga e o app não libera.
+
+### Vale para os dois
+⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js` e `js/cantico.js`, arquivos públicos. **Não prometer "conteúdo protegido"** na venda.
+
+⚠️ **Não ativar o `upsell_01` nem o `upsell_02` no catálogo** (`products.enabled`). Ativado e com link preenchido, um código antigo de `js/member.js` (a seção `member-extras`) cria sozinho um segundo card, genérico, no fim da home.
+
+**Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
 
 ## Home como hub
-Cards, na ordem: **7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco**. (Até 24/09 esta lista esquecia o Canal Oficial e o Fale Conosco.)
-O "Desbloquear" existe desde 24/09 só na Central dos Arcanjos: tem direito → entra; não tem → página de oferta.
+Cards, na ordem: **7 Orações Sagradas · Central dos Quatro Arcanjos (⏳ só no local) · Cântico Angelical (⏳ só no local) · Entre No Nosso Canal Oficial · Mensagem do Dia · Pai Nosso · Novena Desatadora dos Nós · Lojinha · Fale Conosco**. (Até 24/09 esta lista esquecia o Canal Oficial e o Fale Conosco.)
+O "Desbloquear" existe desde 24/09 em dois cards, o da Central dos Arcanjos e o do Cântico Angelical: tem direito → entra; não tem → página de oferta.
 
 ## Modelo de dados — JÁ IMPLEMENTADO (`supabase/schema.sql`)
 O backend está bem mais adiantado do que o desenho original sugeria. Nomes reais das tabelas:
@@ -155,7 +181,7 @@ O backend está bem mais adiantado do que o desenho original sugeria. Nomes reai
 | `customers` | a cliente; e-mail normalizado, validado e `unique` |
 | `products` | catálogo; semeado com `principal`, `upsell_01`, `upsell_02`, `upsell_03` |
 | `entitlements` | o que cada cliente possui; `status` = `active` / `refunded` / `revoked` |
-| `prayer_progress` | onde ela parou; `prayer_key` = `principal:0-7` ou `desatadora:1-9` |
+| `prayer_progress` | onde ela parou; `prayer_key` = `principal:0-7`, `desatadora:1-9` ou `cantico:0-7` (esta última ⏳ só depois de rodar `supabase/cantico-angelical.sql`) |
 | `member_sessions` | sessões opacas de 90 dias, **só o hash do token é guardado** |
 | `member_login_limits` | anti-abuso: 20 tentativas por janela de 10 min |
 | `member_offer_campaigns` | campanhas de oferta dentro do app |
@@ -176,6 +202,8 @@ Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catál
 **Ele foi testado de verdade, não só escrito.** Rodou num banco vazio e o resultado bateu com a produção campo por campo (152 colunas de cada lado). Depois um teste funcional confirmou que a segmentação dos pop-ups funciona num banco construído só a partir dele: cliente nova recebeu `front_novas_1`, cliente da base antiga recebeu `front_antigas_1`.
 
 A comparação pegou um erro real: na primeira versão faltavam as duas visões do painel (`admin_customer_overview`, `admin_offer_overview`), varridas de fora porque a consulta inicial só olhava tabelas. **Lição: conferir contra o banco vivo, nunca confiar no que parece completo.**
+
+⚠️ **Em 24/09 apareceu mais uma falha do mesmo tipo:** a receita tinha perdido a opção `security_invoker = true` de duas visões (`admin_customer_overview` e `admin_offer_overview`). A comparação de 18/09 olhou as colunas, não as opções das visões. Corrigido na receita. **Ao usar `create or replace view`, conferir as opções da visão no banco vivo (`pg_class.reloptions`) e repeti-las no `with (...)`: sem isso a opção some em silêncio.** A terceira visão, `admin_payment_overview`, não tem a opção nem na produção. Não há vazamento, porque só o servidor (`service_role`) tem permissão de ler as três.
 
 ⛔ **Nunca rodar `schema-completo.sql` na produção.** Ele é todo "se não existir" e não estragaria nada, mas o lugar dele é um banco NOVO.
 
@@ -200,7 +228,7 @@ Sintoma número um para conferir: se `hubla_events` parar de receber linhas depo
 |---|---|---|
 | `principal` | **Os 7 Améns da Madrugada** | main — libera o app inteiro |
 | `upsell_01` | **Oração Celestial dos Quatro Arcanjos** (no app: "Central dos Quatro Arcanjos") | addon — ⚠️ **assinatura MENSAL de R$ 137**, não pagamento único. Cancelar **não** tira o conteúdo; reembolso tira |
-| `upsell_02` | **Músicas dos Anjos** | addon |
+| `upsell_02` | **Músicas dos Anjos** (no app: "Cântico Angelical" — mesmo produto, nome novo) | addon — ⚠️ **assinatura MENSAL** (confirmado pelo Caio em 24/09). Cancelar **não** tira o conteúdo; reembolso tira |
 | `upsell_03` | **Comunidade da Fé** | addon |
 
 O mapeamento vive em `hubla_product_map` (vários IDs da Hubla podem apontar para o mesmo produto). Situação em 2026-09-18:

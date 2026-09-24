@@ -33,7 +33,7 @@
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -232,6 +232,7 @@
     const day = params.get('dia');
     if (/\/dia(?:\.html)?$/.test(path) && !params.has('material') && /^[0-7]$/.test(day || '')) return `principal:${day}`;
     if (/\/dia-desatadora(?:\.html)?$/.test(path) && /^[1-9]$/.test(day || '')) return `desatadora:${day}`;
+    if (/\/cantico-dia(?:\.html)?$/.test(path) && /^[0-7]$/.test(day || '')) return `cantico:${day}`;
     return null;
   }
   // A SAUDACAO DA HOME
@@ -357,27 +358,116 @@
     content.replaceChildren(bloco, conhecer, voltar);
     return true;
   }
+  // O CÂNTICO ANGELICAL — o que a cliente recebe com o upsell_02
+  //
+  // Segundo conteúdo trancado por produto extra (decisão do Caio, 24/09/2026).
+  // Na Hubla e no banco o produto ainda se chama "Músicas dos Anjos": é o
+  // mesmo, só com nome novo. O desenho é o da Central dos Arcanjos, logo
+  // acima: quem comprou entra; quem não comprou vê o cadeado e vai para a
+  // oferta. Fica separado de propósito, para mexer num sem encostar no outro.
+  //
+  // Também é assinatura mensal, e também continua com quem cancela — só
+  // reembolso tira (decisão de 24/09). Quem separa um caso do outro é a
+  // member-api, no campo `conteudos`; sem ele, vale a lista de produtos
+  // ativos, que hoje dá no mesmo (nenhuma assinatura encerrada até 24/09).
+  //
+  // ⚠️ Não é cadeado de verdade: os textos estão em js/cantico.js, arquivo
+  // público. Guia a cliente; não protege conteúdo.
+  const PRODUTO_CANTICO = 'upsell_02';
+  const PAGINA_DO_CANTICO = /\/(cantico|cantico-dia)(?:\.html)?$/;
+  // A mesma etiqueta dos Arcanjos, com campanha própria: na venda, a Hubla
+  // conta se ela veio do card da home ou de um link direto.
+  const ofertaDoCantico = origem => `oferta-cantico.html?utm_source=app&utm_medium=card&utm_campaign=cantico&utm_content=${origem}`;
+  const temCantico = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_CANTICO);
+  function desenharCardCantico() {
+    const card = document.getElementById('card-cantico');
+    if (!card) return;
+    const liberado = temCantico();
+    const situacao = liberado ? 'liberado' : 'trancado';
+    card.dataset.situacao = situacao;
+    card.href = liberado ? 'cantico.html' : ofertaDoCantico('card-home');
+    const selo = card.querySelector('.pill-badge');
+    if (selo) {
+      selo.textContent = selo.dataset[situacao] || '';
+      if (!liberado) selo.insertAdjacentHTML('afterbegin', CADEADO);
+    }
+    const botao = card.querySelector('.cta-btn');
+    if (botao) botao.textContent = botao.dataset[situacao] || botao.textContent;
+  }
+  function trancarPaginaDoCantico() {
+    if (!PAGINA_DO_CANTICO.test(location.pathname)) return false;
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    if (temCantico()) {
+      // Comprou com a tela trancada aberta: a verificação seguinte a encontra
+      // aqui, e só recarregando a jornada volta a aparecer.
+      if (content.dataset.trancada) location.reload();
+      return false;
+    }
+    if (content.dataset.trancada) return true;
+    content.dataset.trancada = '1';
+    const titulo = node('h1', 'title', 'Cântico Angelical');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', 'Esta jornada faz parte do Cântico Angelical, que ainda não está no seu acesso. Toque abaixo para conhecer.'));
+    const conhecer = node('a', 'member-button', 'Conhecer o Cântico Angelical');
+    conhecer.href = ofertaDoCantico('link-direto');
+    conhecer.style.textAlign = 'center';
+    const voltar = node('a', 'member-gate-help', 'Voltar para o início');
+    voltar.href = 'index.html';
+    voltar.style.textAlign = 'center';
+    content.replaceChildren(bloco, conhecer, voltar);
+    return true;
+  }
+  // Um dia do Cântico aberto por link antes da vez dele — o mesmo papel do
+  // bloquearDiaTravado(), mais acima, para as madrugadas.
+  function bloquearDiaDoCanticoTravado(trava) {
+    if (!trava) return false;
+    const dia = /^cantico:([1-7])$/.exec(prayerKey(location.pathname, location.search) || '');
+    if (!dia || Number(dia[1]) <= trava.liberados) return false;
+
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    const titulo = node('h1', 'title', 'Este dia ainda não chegou');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', window.TRAVA.selo(Number(dia[1]), trava) === 'Abre amanhã'
+      ? 'Ele abre amanhã, logo depois da meia-noite. Um dia de cada vez, do jeito que a jornada foi feita.'
+      : 'Cada dia abre o seguinte. Este ainda está esperando a vez dele chegar.'));
+    const voltar = node('a', 'member-button', 'Voltar para o Cântico');
+    voltar.href = 'cantico.html';
+    voltar.style.textAlign = 'center';
+    content.replaceChildren(bloco, voltar);
+    return true;
+  }
   function render() {
     desenharSaudacao();
     setupMemberMenu();
     desenharCardArcanjos();
+    desenharCardCantico();
     // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
     // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
     // lista continuar com as sete abertas — e o desvio nem sempre acontece.
     const trava = window.TRAVA ? window.TRAVA.calcular(state) : null;
     if (trava && typeof window.desenharDias === 'function') window.desenharDias(trava);
+    // O Cântico tem conta própria (mesma âncora, sem o piso das antigas).
+    // calcularCantico só existe no js/trava.js de 24/09/2026 em diante.
+    const travaDoCantico = window.TRAVA?.calcularCantico ? window.TRAVA.calcularCantico(state) : null;
+    if (travaDoCantico && typeof window.desenharDiasDoCantico === 'function') window.desenharDiasDoCantico(travaDoCantico);
     // Antes do formulário de perfil pelo mesmo motivo: se o desvio para o
     // perfil acontecesse primeiro, a Central apareceria inteira, por um
     // instante, para quem não comprou.
     if (trancarPaginaDosArcanjos()) return;
+    if (trancarPaginaDoCantico()) return;
     if (setupMemberSurvey()) return;
     if (bloquearDiaTravado(trava)) return;
+    if (bloquearDiaDoCanticoTravado(travaDoCantico)) return;
     if (previaDaOferta) mostrarPreviaDaOferta(); else setupMemberOffer();
     document.querySelectorAll('a.card[href]').forEach(card => {
       const url = new URL(card.getAttribute('href'), location.href);
       const key = prayerKey(url.pathname, url.search);
       card.querySelector('.member-done')?.remove();
-      if (key && completed(key)) card.append(node('span', 'member-done', '✓ Oração concluída'));
+      if (key && completed(key)) card.append(node('span', 'member-done', key.startsWith('cantico:') ? '✓ Dia concluído' : '✓ Oração concluída'));
     });
     const content = document.querySelector('.content');
     if (!content) return;
@@ -401,6 +491,12 @@
     }
     const key = prayerKey(location.pathname, location.search);
     if (!key || content.textContent.includes('Conteúdo indisponível')) return;
+    // O Cântico só ganha o botão quando o servidor avisa que guarda os dias
+    // dele (campo `jornadas`, da member-api de 24/09/2026 em diante). Antes
+    // disso, tocar em "Concluí" terminaria em erro na tela dela: nem a função
+    // nem o banco (prayer_progress_prayer_key_check) aceitavam a chave.
+    const doCantico = key.startsWith('cantico:');
+    if (doCantico && !(Array.isArray(state.jornadas) && state.jornadas.includes('cantico'))) return;
     let progress = document.getElementById('member-progress');
     if (!progress) {
       progress = node('section', 'member-progress'); progress.id = 'member-progress';
@@ -436,9 +532,10 @@
     else if (!progress.isConnected) content.append(progress);
     // Concluida, o Dia 03 volta ao rotulo normal: ela pode desfazer como nos
     // outros dias.
+    // No Cântico a palavra é "dia": é assim que a jornada dele é contada.
     progress.querySelector('button').textContent = completed(key)
-      ? '✓ Oração concluída · desfazer'
-      : (key === CHAVE_DIA_03 ? 'Escolha uma contribuição para concluir a oração' : 'Concluí esta oração');
+      ? (doCantico ? '✓ Dia concluído · desfazer' : '✓ Oração concluída · desfazer')
+      : (key === CHAVE_DIA_03 ? 'Escolha uma contribuição para concluir a oração' : doCantico ? 'Concluí este dia' : 'Concluí esta oração');
   }
   let ultimaVerificacao = 0;
   // Voltar para a aba, reconectar e destravar o celular disparam quase juntos.

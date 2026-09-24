@@ -14,7 +14,9 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
-| 10 | 🆕🔥 **Central dos Arcanjos: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai". Não tem cliente e não custa nada. **(b)** Guardar o trabalho no GitHub (`development`), que não muda o site e custa zero. As duas foram perguntadas em 24/09 e ele ainda não respondeu. **Enquanto isso, o MVP inteiro existe só na máquina dele.** |
+| 10 | 🆕🔥 **Arcanjos e Cântico: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, e rodar `supabase/cantico-angelical.sql` no banco de **teste**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai" (dos dois produtos) e o "Concluí este dia" do Cântico. Não tem cliente e não custa nada. **(b)** Enviar ao GitHub (`development`), que não muda o site e custa zero. ✅ *Guardar em commit* ficou resolvido em 24/09: os commits são feitos na máquina e **quem clica é o Caio** (Arcanjos: `ceefce6`; Cântico: o commit seguinte). Mas, enquanto não forem enviados ao GitHub, **se a máquina pifar, somem.** |
+| 12 | 🆕🔥 **Cântico Angelical: o que só o Caio pode mandar ou decidir** (24/09) | **(a)** O **formato da venda**: vídeo (VSL), só texto ou direto para o checkout. **(b)** O **link de compra na Hubla**. Se for uma oferta nova, o código dela precisa entrar em `hubla_product_map` antes da 1ª venda, senão a cliente paga e o app não libera. **(c)** Os **8 vídeos da VTurb, os 8 textos e as 9 artes** (1 do card da home + 8 dos cartões). **(d)** Se o texto de cada dia é oração para rezar junto (quadro "A oração") ou reflexão. Sem (a) e (b), o card trancado leva a uma página de venda sem botão de compra. |
+| 13 | 🆕 **Cântico Angelical: escolhas provisórias do agente** (24/09) | Nada disso trava o trabalho, mas precisa do olho do Caio antes de publicar: os títulos "Primeiro Dia" a "Sétimo Dia" nos cartões, com o tema embaixo (como "Primeira Madrugada"); "Concluí este dia" e "✓ Dia concluído", no lugar de "oração"; a faixa "Um dia de cada vez, na ordem da jornada"; o "Em seguida:" na Introdução (ela abre junto com o Dia 1); o botão "Ver todos os dias" no fim do dia; e **sem** o pop-up "Antes de continuar, confirme" das madrugadas. |
 | 11 | 🆕 **Central dos Arcanjos: três escolhas provisórias do agente** (24/09) | **(a)** A copy escrita pelo agente: resumos dos 4 Arcanjos, selo "Exclusivo", botões, frase no fim da oração e tela de convite. **(b)** As **6 descrições dele adaptadas** da 3ª para a 2ª pessoa (Gabriel 3, Rafael 1, 2 e 3, Uriel 1 e 3; a tabela está na entrada de 24/09). **(c)** Quem pedir **reembolso de um mês só**, depois de ter pago vários, perde a Central inteira. Nada disso trava o trabalho, mas precisa do olho dele antes de publicar. |
 | ~~1~~ | ~~**Publicar o webhook no Supabase**~~ | ✅ **RESOLVIDO em 20/09.** O Caio autorizou, e o `hubla-webhook` foi publicado na produção como **versão 5**, conferido byte a byte contra o arquivo do repositório. O buraco que engoliu a venda de R$ 197 está fechado. A `member-api` subiu junto, como **versão 13**. Ver a entrada de 20/09. |
 | 6 | **A arte do banner precisa ser reexportada em 1200×900** (⏰ deixou de ser urgente em 21/09: o banner agora nasce desligado e não aparece para ninguém, então nada fica feio esperando a arte) | O Caio escolheu a moldura **4:3** para a seção DESTAQUE da home. A arte que ele mandou (Novena Maria Desatadora, 1672×941) é **16:9** — nessa moldura ela perde 17% de cada lado e vira "IARIA / ESATADORA DE NÓS". Enquanto a arte não sair em 1200×900, o banner não pode ir ao ar com ela. Só ele pode fazer isso. **O formato vale para toda peça futura.** |
@@ -96,7 +98,8 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- 🆕🔥 **A Central dos Quatro Arcanjos está pronta no teste local, mas SEM COMMIT** (24/09). São 16 arquivos novos ou alterados, só na máquina do Caio (lista na entrada de 24/09). **371 clientes pagam os Arcanjos e não recebem nada**, então esta é a tarefa mais urgente do projeto. Falta, nesta ordem:
+- 🆕🔥 **O Cântico Angelical (upsell_02) está montado no teste local, fora do ar** (24/09). **96 clientes pagam e não recebem nada.** Falta, nesta ordem: (1) o Caio mandar o material e decidir a venda (decisão nº 12); (2) trocar os provisórios (procurar `PROVISORIO` em `js/cantico.js` e `oferta-cantico.html`; arte definitiva com **nome novo**); (3) provar no servidor de teste (decisão nº 10a); (4) publicar **nesta ordem**: `supabase/cantico-angelical.sql` no banco → `member-api` (`verify_jwt` = false; antes, baixar a que está no ar e comparar) → site (1 build); (5) tirar as marcas "⏳ só no local" do `CLAUDE.md` e da regra de acesso. O site pode subir antes do banco e da função sem trancar quem pagou: o card segue a lista de produtos ativos, a trava usa campos que a função de hoje já manda, e o "Concluí" só aparece quando a função nova estiver no ar.
+- 🆕🔥 **A Central dos Quatro Arcanjos está pronta no teste local, num commit só dela (`ceefce6`), fora do ar** (24/09). São 16 arquivos novos ou alterados, no computador do Caio e ainda não enviados ao GitHub (lista na entrada de 24/09). **371 clientes pagam os Arcanjos e não recebem nada**, então esta é a tarefa mais urgente do projeto. Falta, nesta ordem:
   1. o Caio mandar 12 textos, 12 áudios e 5 artes;
   2. trocar os provisórios (procurar `PROVISORIO` em `js/arcanjos.js`: 20 marcas; arte e áudio definitivos com **nome novo** de arquivo);
   3. provar a `member-api` nova no projeto de teste (decisão nº 10);
@@ -146,7 +149,73 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ---
 
+## 2026-09-24 (madrugada) — Cântico Angelical (upsell_02): MVP montado no teste local, e os Arcanjos guardados à parte
+
+**Chat:** abriu com `/abrir`, e o Caio trouxe o entregável do Upsell 02. **Faixa autorizada:** "pode mexer local", e **commit só com o clique dele** ("para commits me avise antes que eu clico"). Ele deixou com este chat o controle de **não embolar** o Cântico com os Arcanjos. ⏳ **O chat continua aberto:** faltam os vídeos, os textos, as artes e o formato da venda.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+**Nada.** Foram só leituras: a contagem do `upsell_02`, a trava de `prayer_key`, e a definição, as opções e as permissões das três visões do painel.
+No banco de **teste**, só os logins das contas de teste. Nenhuma escrita.
+
+### As decisões do Caio
+| Pergunta | Resposta dele |
+|---|---|
+| "Cântico Angelical" é o "Músicas dos Anjos"? | **"Isso é só um nome diferente pro mesmo produto."** As **96** que compraram recebem o Cântico |
+| Pagamento único ou mensal? | **"Mensal, mas mesmo se a pessoa cancelar, pode manter o acesso dela."** Mesma regra dos Arcanjos |
+| Abre um dia por vez? Desde quando? | **"Sim, um dia por vez e começa quando ela entrou no app pela primeira vez."** A mesma âncora das madrugadas |
+| Tem o botão "Concluí"? | **"Tem, mas é apenas pra ela se achar, ele não muda nada pra gente aqui."** |
+
+### Como os dois trabalhos ficaram separados
+1. Os 16 arquivos dos Arcanjos foram separados para um commit só deles **antes** de o Cântico encostar em qualquer arquivo. Virou o commit `ceefce6`, clicado pelo Caio, com os 16 e nada mais (conferido no `git show`). O Cântico veio no commit seguinte, também clicado por ele.
+2. O Cântico tem um bloco **próprio** no `js/member.js`, ao lado do bloco dos Arcanjos, e **nenhuma linha dos Arcanjos mudou**. São umas 50 linhas repetidas, de propósito: dá para publicar, mexer ou desfazer um sem tocar no outro.
+3. Nos arquivos que os dois dividem (`index.html`, `js/member.js`, `member-api`, `js/admin.js`, `CLAUDE.md`, regra de acesso e este diário), o git guarda as duas camadas separadas: a dos Arcanjos no commit dela, a do Cântico por cima.
+
+### O que foi construído — só na máquina
+| Arquivo | O que é |
+|---|---|
+| `js/cantico.js` (novo) | Introdução + 7 dias, com os títulos do Caio; vídeo, texto e arte provisórios |
+| `cantico.html` (novo) | a lista dos 8 cartões, igual à das 7 madrugadas |
+| `cantico-dia.html?dia=N` (novo) | o dia: vídeo da VTurb e texto, no mesmo quadro das madrugadas; "Concluí este dia"; "Ver todos os dias" |
+| `oferta-cantico.html` (novo) | a venda, **provisória** (texto e botão), já levando a etiqueta de origem até a Hubla; o link de compra está vazio |
+| `assets/images/cantico/provisorio-*.svg` (9 novos) | artes provisórias: card da home + 8 cartões, sem texto na imagem |
+| `index.html` | o card, 3º da home, logo abaixo dos Arcanjos |
+| `js/member.js` | card trancado ou aberto; convite para quem abre pelo link sem ter comprado; dia bloqueado para quem abre pelo link antes da vez; volta para a página certa depois do login; "Concluí este dia" |
+| `js/trava.js` | `calcularCantico`, a conta do Cântico. A das madrugadas **não mudou** |
+| `member-api` | ⚠️ **escrita, NÃO publicada**: `upsell_02` continua com quem cancela; aceita as chaves `cantico:0-7`; manda o campo `jornadas` |
+| `supabase/cantico-angelical.sql` (novo) | ⏳ **não aplicado**: a trava de `prayer_key` passa a aceitar o Cântico, e a visão do painel deixa os dias do Cântico fora de "Orações" |
+| `supabase/schema-completo.sql` | a receita, com o Cântico e com o `security_invoker` que ela tinha perdido |
+| `js/admin.js` | os nomes dos dias do Cântico na ficha da cliente |
+
+### A prova
+| Conferência | Resultado |
+|---|---|
+| Madrugadas com o `js/trava.js` novo | **41.605 situações, 0 diferenças** contra a versão anterior |
+| Conta do Cântico | 12 de 12 casos certos: entrou hoje = Dia 1; ontem = Dia 2; há 6 dias = os 7; sem data = nada tranca; relógio torto não adianta nada |
+| Cliente sem o Cântico (`teste.03`) | card em 3º, "🔒 Exclusivo", "Desbloquear", oferta com `utm_content=card-home`. Na lista e no dia abertos pelo link, aparece o convite, sem vazar o texto |
+| Cliente com o Cântico (`teste.01`) | card "7 DIAS", "Acessar Agora!"; a lista com os 8 abertos (ela entrou em 18/09); depois do login, voltou direto para a lista |
+| Cadeados (simulando quem entrou ontem) | Dia 3 "Abre amanhã", 4 a 7 "Em breve", sem link; aberto pelo link, "Este dia ainda não chegou" |
+| "Concluí este dia" | **não aparece** com a função de teste de hoje (é a rede de segurança); com o aviso do servidor simulado, aparece logo depois do texto |
+| Console | zero erros: home, lista, dia, oferta, madrugadas e painel |
+| Build | passa |
+| Fim de linha | cada arquivo manteve o que já tinha no repositório — conferido **byte a byte** (ver a armadilha 5). A mudança é só das linhas pretendidas: 1.239 a mais e 39 a menos, com ou sem contar o fim de linha |
+
+### Armadilhas desta vez
+1. 🪤 **A receita do banco tinha perdido `security_invoker = true`** em duas das três visões do painel. Um `create or replace view` sem repetir o `with (...)` apaga a opção em silêncio. Corrigido na receita, e o SQL do Cântico já repete a opção. Sem vazamento: só o servidor lê as três visões.
+2. 🪤 **O hook barra a palavra "push" até dentro de código JavaScript** (`lista.push(...)`), quando ela vem junto de `&&` no mesmo comando. Script de teste vai num arquivo, não num heredoc.
+3. 🪤 **A função do projeto de TESTE (v10) não tem mais o código do banner.** A armadilha nº 1 da entrada dos Arcanjos, logo abaixo, pode ter envelhecido — conferir antes da decisão 10(a).
+4. 🪤 **Com o painel do navegador escondido, a foto de uma página rolada sai em branco.** Contorno: esconder por um instante o que vem antes e fotografar do topo.
+5. 🪤 **`grep -q $'\r'` no Git Bash NÃO enxerga o fim de linha do Windows** — ele tira o `\r` antes de comparar e responde "LF" para arquivo CRLF. Este chat chegou a escrever "tudo LF" por causa disso, e estava errado. A conta certa é por byte: `tr -cd '\r' < arquivo | wc -c`. E o que importa é o que vai para o commit: `git show :arquivo` (o separado) contra `git show HEAD:arquivo`. Em 24/09: `index.html`, `js/member.js` e `member-api/index.ts` estão guardados em CRLF no repositório; os outros, em LF. A frase "o fim de linha continuou LF" da entrada dos Arcanjos, logo abaixo, vem provavelmente da mesma conferência cega. O commit dela saiu limpo mesmo assim, só com as linhas pretendidas.
+
+### O que NÃO foi conferido
+- O "Concluí este dia" **salvando de verdade**: exige o SQL e a função nova num servidor (decisão 10(a), agora também do Cântico).
+- Nada foi aberto num **celular de verdade**.
+- Um vídeo da VTurb tocando dentro do dia: ainda não existe o vídeo.
+
+---
+
 ## 2026-09-24 — Central dos Quatro Arcanjos: o MVP está montado no teste local (sem commit, fora do ar)
+
+> ✅ **Atualizado no mesmo dia:** este trabalho foi guardado no commit `ceefce6`, clicado pelo Caio, separado do Cântico Angelical (entrada acima). Continua fora do ar e ainda não foi enviado ao GitHub. Onde esta entrada diz "nada foi commitado", leia "commitado em `ceefce6`".
 
 **Chat:** abriu com `/abrir`, e o Caio trouxe a tarefa: entregar dentro do app o `upsell_01`, a Oração Celestial dos Quatro Arcanjos. **Faixa autorizada:** "pode mexer local" (nas palavras dele: "vamos trabalhar primeiro localmente"). **Nada foi commitado, enviado ou publicado.** ⏳ **O chat continua aberto**: ele volta com os textos, os áudios e as imagens, e esta entrada é uma atualização parcial, pedida por ele.
 

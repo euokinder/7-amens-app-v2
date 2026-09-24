@@ -122,14 +122,16 @@ create table if not exists public.member_login_limits (
 -- 2. A JORNADA DELA DENTRO DO APP
 -- =====================================================================
 
--- Quais orações ela já concluiu.
+-- Quais orações ela já concluiu. Os dias do Cântico Angelical (cantico:0-7)
+-- entraram em 24/09/2026 — na produção, só depois de rodar
+-- supabase/cantico-angelical.sql.
 create table if not exists public.prayer_progress (
   customer_id uuid not null references public.customers(id) on delete cascade,
   prayer_key text not null,
   completed boolean not null default true,
   updated_at timestamptz not null default now(),
   primary key (customer_id, prayer_key),
-  constraint prayer_progress_prayer_key_check check (prayer_key ~ '^(principal:[0-7]|desatadora:[1-9])$')
+  constraint prayer_progress_prayer_key_check check (prayer_key ~ '^(principal:[0-7]|desatadora:[1-9]|cantico:[0-7])$')
 );
 
 -- Em quantos DIAS diferentes ela apareceu. Conta dias, não visitas: abrir
@@ -633,7 +635,12 @@ grant execute on function public.claim_member_survey(uuid) to service_role;
 -- A ficha completa de cada cliente numa linha só: o que ela comprou, em
 -- que ponto do funil está, quantos DIAS diferentes apareceu, quantas
 -- orações concluiu e o que respondeu na pesquisa de perfil.
-create or replace view public.admin_customer_overview as
+--
+-- ⚠️ `security_invoker = true` é como a visão está na produção (conferido em
+-- 24/09/2026). Esta receita tinha perdido a opção, nesta e na seguinte.
+-- As "orações" não contam os dias do Cântico Angelical: o "Concluí" dele é
+-- só para a cliente se achar (ver supabase/cantico-angelical.sql).
+create or replace view public.admin_customer_overview with (security_invoker = true) as
  select customer.id,
     customer.name,
     customer.email,
@@ -666,12 +673,12 @@ create or replace view public.admin_customer_overview as
           where visit.customer_id = customer.id) visits on true
      left join lateral ( select count(*)::integer as completed_prayers
            from public.prayer_progress progress
-          where progress.customer_id = customer.id and progress.completed) prayers on true
+          where progress.customer_id = customer.id and progress.completed and progress.prayer_key !~ '^cantico:'::text) prayers on true
      left join public.member_survey_responses response on response.customer_id = customer.id and response.survey_key = 'member_profile_v1'::text;
 
 -- O placar de cada campanha de pop-up: quantas foram reservadas, quantas
 -- apareceram de fato, quantas levaram a clique e quantas viraram compra.
-create or replace view public.admin_offer_overview as
+create or replace view public.admin_offer_overview with (security_invoker = true) as
  select campaign.key,
     campaign.headline,
     campaign.trigger_type,

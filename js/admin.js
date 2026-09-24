@@ -28,6 +28,13 @@
     'principal:1': 'Dia 1 — Pai Nosso', 'principal:2': 'Dia 2 — Perdão', 'principal:3': 'Dia 3 — Cura',
     'principal:4': 'Dia 4 — Libertação', 'principal:5': 'Dia 5 — Prosperidade', 'principal:6': 'Dia 6 — Paz',
     'principal:7': 'Dia 7 — Aliança', 'principal:0': 'Preparação',
+    // Os dias do Cântico Angelical (upsell_02). Aparecem na ficha, mas NÃO
+    // entram na conta de "Orações": a visão do banco os deixa de fora
+    // (supabase/cantico-angelical.sql).
+    'cantico:0': 'Cântico · Introdução', 'cantico:1': 'Cântico · Dia 1 — O que mais pesa',
+    'cantico:2': 'Cântico · Dia 2 — Paz', 'cantico:3': 'Cântico · Dia 3 — Saúde',
+    'cantico:4': 'Cântico · Dia 4 — Trabalho e finanças', 'cantico:5': 'Cântico · Dia 5 — Família',
+    'cantico:6': 'Cântico · Dia 6 — Novos caminhos', 'cantico:7': 'Cântico · Dia 7 — Gratidão',
   };
   const eventLabels = {
     'customer.member_added': 'Acesso concedido',

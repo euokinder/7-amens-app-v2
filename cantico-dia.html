@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cântico Angelical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='cantico.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+
+</div>
+
+<script src="js/cantico.js?v=1"></script>
+<script src="js/trava.js?v=2"></script>
+<script>
+  // cantico-dia.html?dia=1 — um dia do Cântico Angelical: vídeo e texto.
+  // A moldura do vídeo e o quadro do texto são os mesmos das 7 madrugadas
+  // (dia.html). Quem ainda não comprou, ou abriu um dia que ainda não chegou,
+  // não vê esta tela: o js/member.js a troca por um aviso.
+  const params = new URLSearchParams(location.search);
+  const numero = params.get('dia');
+  const dia = /^[0-7]$/.test(numero || '') ? CANTICO[numero] : null;
+  const content = document.getElementById('content');
+
+  if (!dia || !dia.disponivel) {
+    // "Conteúdo indisponível" é também o sinal para o js/member.js não pôr o
+    // botão de concluir numa página vazia.
+    content.innerHTML = `
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
+        <p class="subtext">Não encontramos este dia. Volte para o Cântico Angelical.</p>
+      </div>
+      <a class="member-button" href="cantico.html" style="text-align:center;">Voltar para o Cântico</a>
+    `;
+  } else {
+    document.title = `${dia.titulo} — Cântico Angelical`;
+    const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+    // Com vídeo: o código da VTurb dentro da moldura de cantos arredondados,
+    // como no dia.html. Sem vídeo ainda: o quadro vazio com o botão de play.
+    const videoHtml = dia.videoEmbed
+      ? `<div class="video-wrap-embed">${dia.videoEmbed.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>`
+      : `<div class="video-wrap"><div class="play-btn">${playIcon}</div></div>`;
+
+    const blocos = dia.oracao.blocos
+      .map((bloco) => `<p>${bloco.replace(/\n/g, '<br>')}</p>`)
+      .join('');
+
+    // O botão "Concluí este dia" (js/member.js) entra logo ANTES do elemento
+    // marcado como member-progress-anchor: aqui, a frase do dia seguinte. Um
+    // <div> vazio no lugar dela somaria mais um espaço entre os blocos. No
+    // Sétimo Dia, que não tem frase, ele cai antes da faixa dourada.
+    const proximoHtml = dia.proximo
+      ? `<p class="subtext" id="member-progress-anchor" style="text-align:center;">${dia.proximo}</p>`
+      : '';
+
+    content.innerHTML = `
+      <span class="kicker">${dia.kicker}</span>
+      <div class="section-heading" style="margin-top:-8px;">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;">${dia.titulo}</h1>
+          <p class="subtext">${dia.subtitulo}</p>
+        </div>
+      </div>
+
+      ${videoHtml}
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <h2 class="section-label" style="margin:0;">A oração</h2>
+        <div class="prayer-card">
+          <p class="opening">${dia.oracao.abertura}</p>
+          ${blocos}
+          <p class="closing">${dia.oracao.fechamento}</p>
+        </div>
+      </div>
+
+      ${proximoHtml}
+
+      <div class="banner">
+        <span>Um dia de cada vez, na ordem da jornada</span>
+      </div>
+
+      <a class="member-button" href="cantico.html" style="text-align:center;">Ver todos os dias</a>
+    `;
+
+    if (dia.videoEmbed) {
+      const playerScript = document.createElement('script');
+      playerScript.src = dia.videoEmbed.scriptSrc;
+      playerScript.async = true;
+      document.head.appendChild(playerScript);
+    }
+  }
+</script>
+<script src="js/app.js?v=4"></script>
+</body>
+</html>
