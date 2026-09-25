@@ -13,7 +13,7 @@ Estas regras são decisão de negócio tomada pelo dono do projeto. **Não impro
 
 O risco de compartilhamento de acesso **é conhecido e aceito conscientemente**. O público é mulher católica brasileira 45+, e a fricção de autenticação tradicional foi julgada pior para o negócio do que o compartilhamento. Não propor login com senha, magic link ou 2FA como "correção" — já foi decidido.
 
-**Link de entrada (decidido pelo Caio em 2026-09-24; tabela na produção desde a mesma noite, função e site a publicar).** Não é o "magic link" recusado acima, que mandaria um link para o e-mail dela (mais fricção). É o contrário: o **suporte** copia um link pessoal no painel e manda no **WhatsApp**, e ela entra sem digitar nada. Mesma sessão de 90 dias, mesmos acessos, mesma regra do `principal` ativo. O link não vence; "Trocar link" mata o antigo. O código fica guardado como é em `member_entry_links`, de propósito. Detalhes no `CLAUDE.md`, seção "Link de entrada".
+**Link de entrada (decidido pelo Caio em 2026-09-24; no ar desde 21:14 do mesmo dia).** Não é o "magic link" recusado acima, que mandaria um link para o e-mail dela (mais fricção). É o contrário: o **suporte** copia um link pessoal no painel e manda no **WhatsApp**, e ela entra sem digitar nada. Mesma sessão de 90 dias, mesmos acessos, mesma regra do `principal` ativo. O link não vence; "Trocar link" mata o antigo. O código fica guardado como é em `member_entry_links`, de propósito. Detalhes no `CLAUDE.md`, seção "Link de entrada".
 
 O que já existe no banco para isso:
 - `customers` — e-mail normalizado (minúsculo, sem espaços) e validado por regex. O e-mail é `unique`.
