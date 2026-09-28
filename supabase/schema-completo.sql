@@ -3,7 +3,7 @@
 -- =====================================================================
 --
 -- O QUE É ESTE ARQUIVO
--- Ele constrói o banco inteiro do zero: as 18 tabelas, as travas de
+-- Ele constrói o banco inteiro do zero: as 19 tabelas, as travas de
 -- segurança, os índices, as 3 funções, as 3 visões do painel e a
 -- configuração de produtos e campanhas. Rodando este arquivo num banco vazio, você tem um sistema
 -- funcionando — só sem clientes.
@@ -159,6 +159,20 @@ create table if not exists public.member_visit_days (
   first_seen_at timestamptz not null default now(),
   last_seen_at timestamptz not null default now(),
   primary key (customer_id, visited_on)
+);
+
+-- Pop-up da basílica (27/09/2026): cada toque no pop-up das contribuições
+-- da Terceira Madrugada. opened = abriu, monthly = foi para o mensal,
+-- once = foi para o pagamento único, closed = fechou. Conta quem FOI para o
+-- pagamento, não quem pagou. Ver supabase/popup-da-basilica.sql.
+create table if not exists public.member_donation_events (
+  id bigint generated always as identity primary key,
+  customer_id uuid not null references public.customers(id) on delete cascade,
+  event text not null,
+  amount integer not null,
+  created_at timestamptz not null default now(),
+  constraint member_donation_events_event_check check (event in ('opened', 'monthly', 'once', 'closed')),
+  constraint member_donation_events_amount_check check (amount between 1 and 100000)
 );
 
 
@@ -404,6 +418,7 @@ create index if not exists member_offer_campaigns_source_idx on public.member_of
 create index if not exists member_home_banners_ordem_idx on public.member_home_banners (enabled, sort_order);
 create index if not exists member_offer_events_campaign_idx on public.member_offer_events (campaign_key);
 create index if not exists member_survey_events_campaign_idx on public.member_survey_events (campaign_key);
+create index if not exists member_donation_events_customer_idx on public.member_donation_events (customer_id);
 
 
 -- =====================================================================
@@ -423,7 +438,7 @@ declare t text;
 begin
   foreach t in array array[
     'customers','products','entitlements','member_sessions','member_entry_links','member_login_limits',
-    'prayer_progress','member_visit_days','member_admins','admin_actions',
+    'prayer_progress','member_visit_days','member_donation_events','member_admins','admin_actions',
     'hubla_events','hubla_product_map','member_offer_campaigns','member_offer_events',
     'member_survey_campaigns','member_survey_events','member_survey_responses',
     'member_home_banners'

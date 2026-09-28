@@ -656,18 +656,34 @@
     // Delegado no documento porque o bloco de doacao nasce escondido e so
     // aparece quando o video chega aos 9:14 -- prender o ouvinte no elemento
     // exigiria saber a hora em que ele nasce.
-    document.addEventListener('click', (evento) => {
-      const alvo = evento.target;
-      if (!(alvo instanceof Element) || !alvo.closest('.doacao-dia-03__botao')) return;
-      if (!token || completed(CHAVE_DIA_03)) return;
+    const enviarSemEsperar = (corpo) => {
       try {
-        fetch(window.MEMBER_API, {
+        return fetch(window.MEMBER_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-member-session': token },
-          body: JSON.stringify({ action: 'progress', prayer_key: CHAVE_DIA_03, completed: true }),
+          body: JSON.stringify(corpo),
           keepalive: true,
-        }).catch(() => {});
-      } catch { /* o checkout dela importa mais que a marcacao */ }
+        }).then((resposta) => (resposta.ok ? resposta.json() : null)).catch(() => null);
+      } catch { /* o checkout dela importa mais que a marcacao */ return Promise.resolve(null); }
+    };
+    document.addEventListener('click', (evento) => {
+      const alvo = evento.target;
+      if (!(alvo instanceof Element) || !token) return;
+      // O POP-UP DA BASILICA (27/09/2026, js/doacao-dia-03.js): cada toque
+      // marcado com data-doacao-evento e contado no banco -- abriu, foi para
+      // o mensal, foi para o unico ou fechou. Mesmo envio da conclusao,
+      // pelo mesmo motivo: os dois caminhos saem para o checkout na mesma aba.
+      const marcado = alvo.closest('[data-doacao-evento]');
+      if (marcado) enviarSemEsperar({ action: 'donation_event', event: marcado.dataset.doacaoEvento, amount: Number(marcado.dataset.valor) });
+      if (!alvo.closest('.doacao-dia-03__botao') || completed(CHAVE_DIA_03)) return;
+      // Com o pop-up ela continua na pagina: sem redesenhar, o botao la
+      // embaixo seguiria pedindo "Escolha uma contribuicao" ate a proxima
+      // verificacao. Mesmo caminho do botao "Concluí".
+      enviarSemEsperar({ action: 'progress', prayer_key: CHAVE_DIA_03, completed: true }).then((novo) => {
+        if (!novo || !Array.isArray(novo.progress)) return;
+        state = novo;
+        try { render(); } catch { /* a marcacao ja esta salva no banco */ }
+      });
     }, true);
     // O aviso de espera já vem escrito no HTML, então existe mesmo que este
     // arquivo falhe. Aqui só garantimos que ele exista em página antiga.

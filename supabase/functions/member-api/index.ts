@@ -291,6 +291,17 @@ Deno.serve(async (req: Request) => {
       const column = `${event}_at`;
       await db(`member_offer_events?customer_id=eq.${customerId}&campaign_key=eq.${eq(campaignKey)}`, 'PATCH', { [column]: new Date().toISOString() });
       return respond({ ok: true });
+    } else if (body.action === 'donation_event') {
+      // O POP-UP DA BASÍLICA (27/09/2026): cada toque no pop-up das
+      // contribuições da Terceira Madrugada vira uma linha — abriu, foi para
+      // o mensal, foi para o único ou fechou. Só conta: não muda nada dela.
+      // Volta sem o snapshot de propósito: a tela manda isto sem esperar a
+      // resposta, já a caminho do pagamento. Ver supabase/popup-da-basilica.sql.
+      const event = typeof body.event === 'string' ? body.event : '';
+      const amount = body.amount;
+      if (!['opened', 'monthly', 'once', 'closed'].includes(event) || !Number.isInteger(amount) || amount < 1 || amount > 100000) return respond({ error: 'Evento inválido.' }, 400);
+      await db('member_donation_events', 'POST', { customer_id: customerId, event, amount });
+      return respond({ ok: true });
     } else if (body.action === 'offer_claim') {
       const triggerType = typeof body.trigger_type === 'string' ? body.trigger_type : '';
       const sourceCampaignKey = typeof body.source_campaign_key === 'string' ? body.source_campaign_key : '';
