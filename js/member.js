@@ -516,9 +516,11 @@
         // continua recebendo a Quarta Madrugada na meia-noite seguinte.
         if (key === CHAVE_DIA_03 && !completed(key)) {
           const bloco = document.getElementById('doacoes-dia-03');
-          const aparecendo = Boolean(bloco) && !bloco.classList.contains('doacao-dia-03--oculta');
+          const aparecendo = contribuicoesNaTela();
           // Sem esta segunda frase o botao seria um beco: antes de o video
           // chegar la, nao existe contribuicao nenhuma na tela para escolher.
+          // (Desde 27/09 o botao nem aparece antes disso; ver
+          // esperarAsContribuicoes. A frase fica de rede.)
           message.textContent = aparecendo
             ? 'Escolha uma contribuição para concluir a oração.'
             : 'Escolha uma contribuição para concluir a oração. As opções aparecem aqui embaixo conforme o vídeo.';
@@ -541,6 +543,39 @@
     progress.querySelector('button').textContent = completed(key)
       ? (doCantico ? '✓ Dia concluído · desfazer' : '✓ Oração concluída · desfazer')
       : (key === CHAVE_DIA_03 ? 'Escolha uma contribuição para concluir a oração' : doCantico ? 'Concluí este dia' : 'Concluí esta oração');
+    // No Dia 03 o botao so aparece junto das contribuicoes, aos 9:14 do
+    // video (pedido do Caio em 27/09): "Escolha uma contribuicao" antes da
+    // hora entrega o pitch e derruba a conversao. Concluida, ela ja viu o
+    // pitch, e o botao fica sempre a mostra, como nos outros dias.
+    esperarAsContribuicoes(progress, key === CHAVE_DIA_03 && !completed(key));
+  }
+  // Quem revela o bloco das contribuicoes e o player da VTurb
+  // (displayHiddenElements, em dia.html) ou, se ele nao carregar, a rede de
+  // seguranca de la. Um tira a classe, o outro pode mexer so no estilo: vale
+  // o que a tela de fato mostra, e nao a classe.
+  const contribuicoesNaTela = () => {
+    const bloco = document.getElementById('doacoes-dia-03');
+    return Boolean(bloco) && getComputedStyle(bloco).display !== 'none';
+  };
+  let vigiaDasContribuicoes = null;
+  function esperarAsContribuicoes(progress, esperar) {
+    vigiaDasContribuicoes?.disconnect();
+    vigiaDasContribuicoes = null;
+    const bloco = document.getElementById('doacoes-dia-03');
+    // style.display, e nao o atributo hidden: o .member-progress tem
+    // display: flex no CSS, que passaria por cima do hidden.
+    // Uma vez a mostra, nao some mais: quem ja tinha concluido e toca em
+    // "desfazer" antes dos 9:14 veria o botao sumir debaixo do dedo.
+    const mostrar = () => { progress.style.display = ''; progress.dataset.jaApareceu = '1'; };
+    if (!esperar || !bloco || progress.dataset.jaApareceu || contribuicoesNaTela()) { mostrar(); return; }
+    progress.style.display = 'none';
+    vigiaDasContribuicoes = new MutationObserver(() => {
+      if (!contribuicoesNaTela()) return;
+      mostrar();
+      vigiaDasContribuicoes.disconnect();
+      vigiaDasContribuicoes = null;
+    });
+    vigiaDasContribuicoes.observe(bloco, { attributes: true, attributeFilter: ['class', 'style'] });
   }
   let ultimaVerificacao = 0;
   // Voltar para a aba, reconectar e destravar o celular disparam quase juntos.

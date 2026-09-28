@@ -1,10 +1,13 @@
 /* Bloco de doações da Terceira Madrugada.
    Isolado neste arquivo para não alterar outras telas do aplicativo. */
 
+/* O espaço entre o título e os valores vem da margem de .doacao-dia-03__opcoes,
+   e não de `gap`: a VTurb revela o bloco escrevendo `display: block !important`
+   por cima (e deixa a classe --oculta), e com display: block o gap some e o
+   título cola nos valores. Medido em 27/09: 0 px no ar, 16 px na prévia. */
 .doacao-dia-03 {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   padding: 20px 16px;
   border: 1px solid var(--hairline);
   border-radius: 20px;
@@ -31,6 +34,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 16px;
 }
 
 .doacao-dia-03__botao {
