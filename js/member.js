@@ -704,16 +704,18 @@
     document.addEventListener('click', (evento) => {
       const alvo = evento.target;
       if (!(alvo instanceof Element) || !token) return;
-      // O POP-UP DA BASILICA (27/09/2026, js/doacao-dia-03.js): cada toque
-      // marcado com data-doacao-evento e contado no banco -- abriu, foi para
-      // o mensal, foi para o unico ou fechou. Mesmo envio da conclusao,
-      // pelo mesmo motivo: os dois caminhos saem para o checkout na mesma aba.
+      // Contagem dos toques (tabela member_donation_events): todo elemento
+      // marcado com data-doacao-evento e contado no banco. Nasceu com o pop-up
+      // da basilica (27/09/2026), que saiu em 30/09 a pedido do Caio: hoje
+      // nenhum elemento tem a marca, e isto fica parado, pronto para voltar
+      // (o pop-up inteiro esta no commit 272160a).
       const marcado = alvo.closest('[data-doacao-evento]');
       if (marcado) enviarSemEsperar({ action: 'donation_event', event: marcado.dataset.doacaoEvento, amount: Number(marcado.dataset.valor) });
       if (!alvo.closest('.doacao-dia-03__botao') || completed(CHAVE_DIA_03)) return;
-      // Com o pop-up ela continua na pagina: sem redesenhar, o botao la
-      // embaixo seguiria pedindo "Escolha uma contribuicao" ate a proxima
-      // verificacao. Mesmo caminho do botao "Concluí".
+      // Se ela continuar na pagina (checkout aberto noutra aba, ou o voltar
+      // do celular), sem redesenhar o botao la embaixo seguiria pedindo
+      // "Escolha uma contribuicao" ate a proxima verificacao. Mesmo caminho
+      // do botao "Concluí".
       enviarSemEsperar({ action: 'progress', prayer_key: CHAVE_DIA_03, completed: true }).then((novo) => {
         if (!novo || !Array.isArray(novo.progress)) return;
         state = novo;

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=14">
-<link rel="stylesheet" href="css/dia-doacao.css?v=9">
+<link rel="stylesheet" href="css/dia-doacao.css?v=10">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
@@ -152,22 +152,18 @@
       : '';
 
     // O Dia 03 tem três caminhos de doação sincronizados com o vídeo.
-    // Tocar num valor abre o pop-up da basílica (js/doacao-dia-03.js): mensal
-    // ou só desta vez, com troca de valor ali dentro. Cada botão guarda os dois
-    // links: href = pagamento único (Hubla), que também é para onde o toque leva
-    // se o pop-up não carregar; data-mensal = Pix Automático (Cakto).
     // ?previa-doacao=1 revela o bloco imediatamente para revisão visual.
     const doacaoHtml = !materialKey && diaNum === 3
       ? `<section class="doacao-dia-03${previaDoacao ? '' : ' doacao-dia-03--oculta'}" id="doacoes-dia-03" aria-labelledby="doacao-dia-03-titulo">
            <h2 class="doacao-dia-03__titulo" id="doacao-dia-03-titulo">Faça a sua doação abaixo, vamos juntos nessa missão!</h2>
            <div class="doacao-dia-03__opcoes">
-             <a class="doacao-dia-03__botao doacao-dia-03__botao--destaque smartplayer-click-event" href="https://pay.hub.la/4vSvS89vI3KSJw0BSFdd" data-mensal="https://pay.cakto.com.br/365v974_1141314" data-valor="950" data-doacao-evento="opened">
+             <a class="doacao-dia-03__botao doacao-dia-03__botao--destaque smartplayer-click-event" href="https://pay.hub.la/4vSvS89vI3KSJw0BSFdd">
                <strong>Contribuição de R$950</strong>
              </a>
-             <a class="doacao-dia-03__botao smartplayer-click-event" href="https://pay.hub.la/KVOgmVu5VyF04JUgitat" data-mensal="https://pay.cakto.com.br/7y6eqfi" data-valor="300" data-doacao-evento="opened">
+             <a class="doacao-dia-03__botao smartplayer-click-event" href="https://pay.hub.la/KVOgmVu5VyF04JUgitat">
                <strong>Contribuição de R$300</strong>
              </a>
-             <a class="doacao-dia-03__botao smartplayer-click-event" href="https://pay.hub.la/SBLUP4swsvhsHvTo4HqY" data-mensal="https://pay.cakto.com.br/4tx9dv3" data-valor="197" data-doacao-evento="opened">
+             <a class="doacao-dia-03__botao smartplayer-click-event" href="https://pay.hub.la/SBLUP4swsvhsHvTo4HqY">
                <strong>Contribuição de R$197</strong>
              </a>
            </div>
@@ -453,7 +449,6 @@
     }
   }
 </script>
-<script src="js/doacao-dia-03.js?v=1"></script>
 <script src="js/app.js?v=4"></script>
 </body>
 </html>
