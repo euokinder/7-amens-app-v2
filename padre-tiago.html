@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mensagem do Padre Tiago — 7 Améns da Madrugada</title>
+<!-- =====================================================================
+     A MENSAGEM DO PADRE TIAGO — pedido do Caio em 30/09/2026.
+     Página ABERTA: entra quem tiver o link, sem e-mail e sem login. Por
+     isso ela NÃO carrega o js/member-config.js nem o js/member.js (quem
+     faz o portão "Verificando seu acesso…") e não tem o #member-gate.
+     ⚠️ Não acrescentar os dois "para ficar igual às outras": a página
+     passaria a pedir e-mail, e quem não é cliente cairia no login.
+
+     Estrutura pedida: headline, vídeo da VTurb e o contato com o suporte.
+     Nada aqui leva para dentro do app: a home exige login, então um botão
+     de voltar deixaria quem não entrou presa na tela de e-mail.
+
+     O que o WhatsApp mostra no cartão do link sai das três linhas "og:".
+     PROVISORIO: o "Toque aqui para assistir" (a copy é do Caio).
+     ===================================================================== -->
+<meta property="og:title" content="O Padre Tiago tem uma mensagem urgente pra você!">
+<meta property="og:description" content="Toque aqui para assistir.">
+<meta property="og:image" content="https://setemadrugadas.com.br/assets/images/icon-512.png">
+<!-- Só se chega aqui pelo link. Não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=14">
+<link rel="stylesheet" href="css/oferta.css?v=1">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<style>
+  /* A moldura do vídeo na largura do próprio player (400px, o máximo do
+     código da VTurb). Sem isto, numa tela larga a moldura fica maior que o
+     vídeo e os cantos arredondados caem no vazio, deixando o vídeo quadrado. */
+  .padre-video { width: 100%; max-width: 400px; margin: 0 auto; }
+  /* Linhas do mesmo tamanho: sem isto, o "VOCÊ!" cai sozinho na última. */
+  .oferta-headline { text-wrap: balance; }
+  /* O "voltar ao topo" do js/app.js não tem serventia numa página de três
+     blocos, e no celular baixo ele parava em cima do card do suporte. */
+  .back-to-top { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header" style="justify-content:flex-end;">
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <!-- A classe "home" é o que deixa a luz de fundo do card do suporte
+       aparecer (ver .content.home em css/styles.css). -->
+  <div class="content home">
+
+    <!-- ================= HEADLINE =================
+         Texto exatamente como o Caio mandou, em maiúsculas. -->
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title oferta-headline">O PADRE TIAGO TEM UMA MENSAGEM URGENTE PRA VOCÊ!</h1>
+      </div>
+    </div>
+
+    <!-- ================= VÍDEO =================
+         Código de incorporação da VTurb, exatamente como o Caio mandou em
+         30/09/2026, na mesma moldura de cantos arredondados dos outros
+         vídeos do app. -->
+    <div class="video-wrap-embed padre-video">
+      <vturb-smartplayer id="vid-6abd322be37052a285efd732" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
+      <div class="corner-mask bl"></div><div class="corner-mask br"></div>
+    </div>
+    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abd322be37052a285efd732/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+
+    <!-- ================= CONTATO COM O SUPORTE =================
+         O mesmo card do "Fale Conosco" da home. O link é o que o Caio mandou
+         em 30/09/2026, e não o wa.me das outras páginas.
+         PROVISORIO: o título, a frase e o texto do botão. -->
+    <a href="https://w.app/canaloficial7oracoes" target="_blank" rel="noopener" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/></svg>
+      </span>
+      <h2 class="card-contato-titulo">Precisa de ajuda?</h2>
+      <p class="card-contato-descricao">Nossa equipe de suporte atende você pelo WhatsApp.</p>
+      <span class="card-contato-botao"><span>Falar com o suporte</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+  </div>
+</div>
+
+<script src="js/app.js?v=5"></script>
+</body>
+</html>
