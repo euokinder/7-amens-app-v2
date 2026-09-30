@@ -10,8 +10,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Comece Aqui',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6ab44f89ac874a7093a78b24" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab44f89ac874a7093a78b24/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3b0504eece7be6e9010" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3b0504eece7be6e9010/v4/player.js'
     },
     materialPdf: 'assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf',
     materialLabel: 'Acessar Material de Apoio',
@@ -89,8 +89,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 01',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aab6a53529335352865b504" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aab6a53529335352865b504/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3e2e46f7d51c60f5510" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3e2e46f7d51c60f5510/v4/player.js'
     },
     materialPdf: 'assets/pdfs/dia-01-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
@@ -134,8 +134,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 02',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aac286cd1cf3533caea5880" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aac286cd1cf3533caea5880/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3e5d76b5fcf4180e910" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3e5d76b5fcf4180e910/v4/player.js'
     },
     materialPdf: 'assets/pdfs/dia-02-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
@@ -176,8 +176,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 03',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6ab20824350d2676742e7309" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab20824350d2676742e7309/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3b8e37052a285ef5afa" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3b8e37052a285ef5afa/v4/player.js'
     },
     doacaoDelaySegundos: 554,
     materialPdf: 'assets/pdfs/dia-03-material-apoio.pdf',
@@ -220,8 +220,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 04',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aac359e57fe5864f0f72204" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aac359e57fe5864f0f72204/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3d638fddd9e2e94b56a" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3d638fddd9e2e94b56a/v4/player.js'
     },
     materialPdf: 'assets/pdfs/dia-04-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
@@ -262,8 +262,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 05',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aac291793f4b40dc401d0da" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aac291793f4b40dc401d0da/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3db43c8cc80762da215" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3db43c8cc80762da215/v4/player.js'
     },
     materialPdf: 'assets/pdfs/dia-05-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
@@ -305,8 +305,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 06',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aac35bfeb06d96c9272123e" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aac35bfeb06d96c9272123e/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3c908b80e9782bc1c9a" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3c908b80e9782bc1c9a/v4/player.js'
     },
     materialPdf: 'assets/pdfs/dia-06-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
@@ -344,8 +344,8 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 07',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aac39e6eb06d96c92721e01" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aac39e6eb06d96c92721e01/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3bf88ddc17b615d87f1" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3bf88ddc17b615d87f1/v4/player.js'
     },
     materialPdf: 'assets/pdfs/dia-07-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',

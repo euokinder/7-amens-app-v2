@@ -17,8 +17,8 @@ const MATERIAIS = {
     temVideo: true,
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6aab6a53529335352865b504" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aab6a53529335352865b504/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6abca3e2e46f7d51c60f5510" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3e2e46f7d51c60f5510/v4/player.js'
     },
     materialPdf: 'assets/pdfs/pai-nosso-completo-premium.pdf',
     materialLabel: 'Acessar Material de Apoio',
