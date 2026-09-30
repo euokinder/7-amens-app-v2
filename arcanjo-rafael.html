@@ -1,0 +1,562 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arcanjo Rafael</title>
+<!-- =====================================================================
+     A "LIVE" DO ARCANJO RAFAEL — pedido do Caio em 30/09/2026.
+     Veio pronta de fora (pasta estrutura_live) e foi trazida para cá com a
+     mesma cara e o mesmo funcionamento.
+
+     Página ABERTA: entra quem tiver o link, sem e-mail e sem login. Por
+     isso ela NÃO carrega o js/member-config.js nem o js/member.js.
+     ⚠️ Não acrescentar os dois "para ficar igual às outras": a página
+     passaria a pedir e-mail, e quem não é cliente cairia no login.
+     Também não usa o css/styles.css do app: o visual é todo daqui.
+
+     O que mudou em relação à versão que veio de fora:
+     - Saíram as cópias locais da VTurb (js/player.js e js/smartplayer.js).
+       O smartplayer.js tinha 1 MB, era baixado a cada visita e nunca rodava;
+       o player.js carregava o vídeo uma segunda vez, com a configuração
+       congelada no dia em que a página foi salva. Fica só o código oficial
+       de incorporação, como no padre-tiago.html.
+     - A função esc() estava quebrada (salvar a página pelo navegador trocou
+       &amp; &lt; &gt; &quot; pelos próprios caracteres), e isso derrubava o
+       script inteiro: chat, contador, data e botões ficavam parados.
+     - O chat começava com 6 mensagens escritas no HTML e o script punha
+       mais 6: apareciam repetidas. Agora só o script enche o chat.
+     - Saíram 3 mensagens que falavam de outro vídeo ("Jonathan", "dívidas",
+       "tradução da Bíblia").
+     - As fotos vêm de assets/images/arcanjo-rafael/, e não do site de onde a
+       página foi copiada: aquele site veria cada visita e poderia trocar ou
+       apagar as fotos.
+     - Letras do chat e das linhas de apoio um pouco maiores (público 45+), e
+       a caixa de mensagem com 16px: abaixo disso o iPhone dá zoom na página
+       ao tocar nela.
+
+     O contador de "assistindo agora", as mensagens do chat e o "sairá do ar"
+     são simulados, de propósito (decisão do Caio em 30/09).
+     ===================================================================== -->
+<meta name="description" content="Manuscrito dos Milagres">
+<meta property="og:title" content="Manuscrito dos Milagres">
+<meta property="og:description" content="Manuscrito dos Milagres">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<!-- Só se chega aqui pelo link. Não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+
+<style>
+  :root {
+    --text:        #0f0f0f;
+    --text-2:      #606060;
+    --bg:          #ffffff;
+    --chip:        #f2f2f2;
+    --chip-hover:  #e5e5e5;
+    --border:      #e5e5e5;
+    --live:        #ff0033;
+    --brand-red:   #a4000b;
+    --brand-yellow:#fdd506;
+    --header-h:    56px;
+    --radius:      12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Roboto", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  img { display: block; max-width: 100%; }
+
+  :focus-visible { outline: 2px solid #065fd4; outline-offset: 2px; border-radius: 4px; }
+
+  .icon { width: 24px; height: 24px; fill: none; stroke: currentColor;
+          stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    position: sticky; top: 0; z-index: 30;
+    height: var(--header-h);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .brand-mark {
+    width: 32px; height: 22px; border-radius: 6px;
+    background: var(--brand-red);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand-mark svg { width: 10px; height: 10px; fill: #fff; }
+
+  .search { flex: 1; max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: 8px; }
+  .search-box {
+    flex: 1; display: flex; align-items: center;
+    border: 1px solid #ccc; border-radius: 40px; overflow: hidden;
+    background: #fff;
+  }
+  .search-box input {
+    flex: 1; min-width: 0; border: none; outline: none;
+    padding: 9px 16px; font-size: 16px; background: transparent;
+  }
+  .search-btn {
+    width: 64px; height: 40px; background: var(--chip);
+    border-left: 1px solid #ccc;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+  }
+  .search-btn:hover { background: var(--chip-hover); }
+  .mic {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--chip);
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s; flex-shrink: 0;
+  }
+  .mic:hover { background: var(--chip-hover); }
+
+  .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+  }
+  .icon-btn:hover { background: var(--chip); }
+  .user-av { width: 32px; height: 32px; border-radius: 50%; background: #a4000b;
+             color: #fff; display: flex; align-items: center; justify-content: center;
+             font-size: 14px; font-weight: 500; }
+
+  /* ---------- LAYOUT ---------- */
+  .main {
+    max-width: 1600px; margin: 0 auto; padding: 24px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 402px; gap: 24px;
+    align-items: start;
+  }
+  .primary { min-width: 0; }
+
+  /* ---------- PLAYER ---------- */
+  .player {
+    background: #000; border-radius: var(--radius); overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* O original limitava a 405px, a largura de vídeo em pé. O vídeo desta
+     página é deitado (16:9): com o limite, no computador ele ficava do tamanho
+     de um cartão, perdido numa faixa preta. */
+  .player-inner { width: 100%; margin: 0 auto; }
+  vturb-smartplayer { display: block; margin: 0 auto; width: 100%; }
+
+  /* ---------- TITLE ---------- */
+  .title {
+    font-size: 20px; line-height: 1.3; font-weight: 700;
+    margin: 12px 0 8px;
+  }
+  .title .hl { color: var(--brand-red); }
+
+  .meta-row {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+    font-size: 15px; color: var(--text-2); margin-bottom: 12px;
+  }
+  .live-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--live); color: #fff;
+    font-size: 12px; font-weight: 700; letter-spacing: .3px;
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+
+  /* ---------- CHANNEL ROW ---------- */
+  .channel-row {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+    padding: 12px 0; border-top: 1px solid var(--border);
+  }
+  .channel { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 220px; }
+  .channel-av {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    object-fit: cover; background: var(--chip);
+  }
+  .channel-name { font-size: 16px; font-weight: 500; line-height: 1.2; }
+  .channel-subs { font-size: 13px; color: var(--text-2); }
+  .subscribe {
+    background: var(--text); color: #fff; border-radius: 40px;
+    padding: 10px 16px; font-size: 14px; font-weight: 500;
+    min-height: 40px; transition: background .2s; white-space: nowrap;
+  }
+  .subscribe:hover { background: #272727; }
+  .subscribe[aria-pressed="true"] { background: var(--chip); color: var(--text); }
+  .subscribe[aria-pressed="true"]:hover { background: var(--chip-hover); }
+
+  .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--chip); border-radius: 40px;
+    padding: 0 16px; height: 40px;
+    font-size: 14px; font-weight: 500;
+    transition: background .2s; white-space: nowrap;
+  }
+  .pill:hover { background: var(--chip-hover); }
+  .pill .icon { width: 20px; height: 20px; }
+  .pill-group { display: inline-flex; background: var(--chip); border-radius: 40px; }
+  .pill-group .pill { background: none; }
+  .pill-group .pill:first-child { border-right: 1px solid #d9d9d9; }
+  .pill-group .pill:hover { background: var(--chip-hover); }
+  .pill-group .pill:first-child { border-radius: 40px 0 0 40px; }
+  .pill-group .pill:last-child  { border-radius: 0 40px 40px 0; padding: 0 14px; }
+  .liked { color: #065fd4; }
+
+  /* ---------- WARNING BOX ---------- */
+  .notice {
+    margin-top: 12px; background: var(--chip); border-radius: var(--radius);
+    padding: 12px 14px; font-size: 15px;
+  }
+  .notice-top { font-weight: 500; margin-bottom: 6px; }
+  .notice-warn {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--brand-red); font-weight: 700;
+  }
+  .notice-warn .icon { width: 18px; height: 18px; fill: var(--brand-yellow); stroke: var(--text); }
+
+  /* ---------- CHAT ---------- */
+  .chat {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--bg);
+    height: calc(100vh - var(--header-h) - 48px);
+    max-height: 720px; min-height: 420px;
+    position: sticky; top: calc(var(--header-h) + 24px);
+  }
+  .chat-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .chat-title { font-size: 16px; font-weight: 500; }
+  .chat-count { font-size: 13px; color: var(--text-2); }
+
+  .chat-body {
+    flex: 1; overflow-y: auto; overscroll-behavior: contain;
+    padding: 12px 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .chat-body::-webkit-scrollbar { width: 8px; }
+  .chat-body::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 4px; }
+
+  .msg { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.4; }
+  .msg-av { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 1px; }
+  .msg-body { min-width: 0; word-wrap: break-word; }
+  .msg-name { color: var(--text-2); font-weight: 500; margin-right: 6px; }
+  .msg-name.owner { color: var(--brand-red); }
+  .msg-text { color: var(--text); }
+  .msg-new { animation: fadein .28s ease-out; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .chat-foot {
+    border-top: 1px solid var(--border); padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  .chat-foot .user-av { width: 28px; height: 28px; font-size: 12px; }
+  .chat-input {
+    flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+    border-bottom: 1px solid var(--border); padding: 6px 2px; font-size: 16px;
+  }
+  .chat-input:focus { border-bottom-color: var(--text); }
+  .chat-send {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-2); transition: background .2s, color .2s;
+  }
+  .chat-send:hover { background: var(--chip); color: var(--text); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 1100px) {
+    .main {
+      grid-template-columns: 1fr; gap: 16px; padding: 0 0 32px;
+      max-width: 1000px;
+    }
+    .player { border-radius: 0; }
+    .primary > *:not(.player) { padding-left: 16px; padding-right: 16px; }
+    .chat {
+      position: static; height: 420px; min-height: 0; max-height: none;
+      border-left: none; border-right: none; border-radius: 0;
+      margin: 0;
+    }
+    .title { font-size: 19px; }
+  }
+
+  @media (max-width: 860px) {
+    .search { display: none; }
+    .header { justify-content: space-between; }
+  }
+
+  @media (max-width: 480px) {
+    .header { padding: 0 12px; gap: 8px; }
+    .title { font-size: 18px; }
+    .actions { width: 100%; }
+    .pill { padding: 0 12px; font-size: 13px; }
+    .subscribe { flex: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<link rel="dns-prefetch" href="https://cdn.converteai.net">
+<link rel="dns-prefetch" href="https://scripts.converteai.net">
+<link rel="dns-prefetch" href="https://images.converteai.net">
+<link rel="dns-prefetch" href="https://license.vturb.com">
+</head>
+<body>
+
+<header class="header">
+  <div class="brand">
+    <span class="brand-mark" role="img" aria-label="Corrente de Oração e Milagre">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+    </span>
+  </div>
+
+  <div class="search">
+    <form class="search-box" role="search" onsubmit="return false">
+      <label for="q" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Pesquisar</label>
+      <input id="q" type="text" placeholder="Pesquisar" autocomplete="off">
+      <button class="search-btn" type="submit" aria-label="Pesquisar">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </button>
+    </form>
+    <button class="mic" type="button" aria-label="Pesquisar por voz">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v4"></path></svg>
+    </button>
+  </div>
+
+  <div class="header-actions">
+    <button class="icon-btn" type="button" aria-label="Notificações">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+    </button>
+    <span class="user-av" aria-hidden="true">V</span>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="primary">
+
+    <!-- ================= VÍDEO =================
+         Código de incorporação da VTurb, exatamente como o Caio mandou em
+         30/09/2026 (conta do app, 3fe9f7a6…, vídeo "LIVE").
+         Os botões de compra NÃO moram nesta página: são cadastrados no
+         painel da VTurb, no próprio vídeo, e chegam sozinhos com o player.
+         Trocar botão, horário ou link de checkout é no painel, sem deploy. -->
+    <div class="player">
+      <div class="player-inner">
+        <vturb-smartplayer id="vid-6abd97f5e9893a6b55a855e2" style="display: block; margin: 0 auto; width: 100%; "><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer> <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abd97f5e9893a6b55a855e2/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+      </div>
+    </div>
+
+    <h1 class="title">
+   Oração sagrada do arcanjo rafael: para curar qualquer enfermidade<span class="hl"></span>
+
+      <span class="hl"></span>
+    </h1>
+
+    <div class="meta-row">
+      <span class="live-chip"><span class="live-dot"></span>AO VIVO</span>
+      <span><strong id="viewers">819</strong> assistindo agora</span>
+      <span aria-hidden="true">•</span>
+      <span>Transmissão urgente</span>
+    </div>
+
+    <div class="channel-row">
+      <div class="channel">
+        <img class="channel-av" src="assets/images/arcanjo-rafael/canal.jpg" width="40" height="40" alt="">
+        <div>
+          <div class="channel-name">Corrente de Oração e Milagre</div>
+          <div class="channel-subs">1,2 mi de inscritos</div>
+        </div>
+      </div>
+
+      <button class="subscribe" type="button" id="sub-btn" aria-pressed="false">Inscrever-se</button>
+
+      <div class="actions">
+        <div class="pill-group">
+          <button class="pill" type="button" id="like-btn" aria-label="Gostei">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path><path d="M7 10v12"></path></svg>
+            <span id="like-count">4,2 mil</span>
+          </button>
+          <button class="pill" type="button" aria-label="Não gostei">
+            <svg class="icon" viewBox="0 0 24 24" style="transform:rotate(180deg)"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path><path d="M7 10v12"></path></svg>
+          </button>
+        </div>
+
+        <button class="pill" type="button" id="share-btn">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"></path></svg>
+          <span>Compartilhar</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="notice">
+      <div class="notice-top">Transmitido ao vivo hoje • Corrente de Oração e Milagre</div>
+      <div class="notice-warn">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path>
+          <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+        </svg>
+        <span>ESTE VÍDEO SAIRÁ DO AR DIA <span id="expire-date">01/10/2026</span></span>
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="chat" aria-label="Chat ao vivo">
+    <div class="chat-head">
+      <span class="chat-title">Chat ao vivo</span>
+      <span class="chat-count"><span id="chat-count">663</span> mensagens</span>
+    </div>
+    <div class="chat-body" id="chat-body" role="log" aria-live="polite"></div>
+    <form class="chat-foot" id="chat-form">
+      <span class="user-av" aria-hidden="true">V</span>
+      <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Mensagem</label>
+      <input class="chat-input" id="chat-input" type="text" placeholder="Diga algo..." autocomplete="off" maxlength="200">
+      <button class="chat-send" type="submit" aria-label="Enviar mensagem">
+        <svg class="icon" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+      </button>
+    </form>
+  </aside>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- data de expiração = hoje ---------- */
+  var d = new Date();
+  document.getElementById("expire-date").textContent =
+    String(d.getDate()).padStart(2, "0") + "/" +
+    String(d.getMonth() + 1).padStart(2, "0") + "/" +
+    d.getFullYear();
+
+  /* ---------- contador de espectadores ---------- */
+  var MIN = 780, MAX = 860, viewers = 819;
+  var viewersEl = document.getElementById("viewers");
+  setInterval(function () {
+    viewers += Math.floor(Math.random() * 21) - 10;
+    if (viewers < MIN) viewers = MIN + Math.floor(Math.random() * 5);
+    if (viewers > MAX) viewers = MAX - Math.floor(Math.random() * 5);
+    viewersEl.textContent = viewers;
+  }, 3000);
+
+  /* ---------- chat ao vivo (mensagens automáticas) ---------- */
+  var FOTOS = "assets/images/arcanjo-rafael/";
+  var MESSAGES = [
+    { name: "Roberto Silva",   text: "Comecei a oração agora e senti uma paz que não sentia há anos. Glória a Deus!", avatar: FOTOS + "avatar-33.jpg" },
+    { name: "Juliana Mendes",  text: "Compartilhando com toda a minha família. Isso precisa chegar em mais pessoas! ❤️", avatar: FOTOS + "avatar-45.jpg" },
+    { name: "Pedro Henrique",  text: "Que revelação impressionante. Nunca tinha ouvido falar dessa oração antes.", avatar: FOTOS + "avatar-15.jpg" },
+    { name: "Fernanda Costa",  text: "Assistindo do Rio de Janeiro. Que Deus abençoe esse trabalho 🙌", avatar: FOTOS + "avatar-44.jpg" },
+    { name: "Lucas Almeida",   text: "Estou passando por um momento difícil financeiramente. Vou orar com fé.", avatar: FOTOS + "avatar-68.jpg" },
+    { name: "Patrícia Souza",  text: "Já salvei o link. Quero ouvir de novo mais tarde com calma.", avatar: FOTOS + "avatar-48.jpg" },
+
+    /* mensagens extras, só para o chat continuar se movendo */
+    { name: "Sandra Regina",   text: "Amém! 🙏", avatar: FOTOS + "avatar-26.jpg" },
+    { name: "José Carlos",     text: "Alguém mais de São Paulo acompanhando?", avatar: FOTOS + "avatar-59.jpg" },
+    { name: "Vera Lúcia",      text: "Estou anotando tudo aqui", avatar: FOTOS + "avatar-31.jpg" },
+    { name: "Marcos Antônio",  text: "Meu marido está assistindo comigo, os dois emocionados", avatar: FOTOS + "avatar-53.jpg" },
+    { name: "Cleide Santos",   text: "Que benção esse vídeo", avatar: FOTOS + "avatar-41.jpg" },
+    { name: "Antônio Ferreira",text: "Deus é fiel, sempre foi", avatar: FOTOS + "avatar-60.jpg" },
+    { name: "Rosângela Dias",  text: "Compartilhei no grupo da minha igreja agora", avatar: FOTOS + "avatar-25.jpg" },
+    { name: "Paulo Sérgio",    text: "Não consigo parar de assistir", avatar: FOTOS + "avatar-61.jpg" }
+  ];
+
+  var body = document.getElementById("chat-body");
+  var countEl = document.getElementById("chat-count");
+  var total = 663;
+  var next = 0;
+  var MAX_DOM = 60;
+
+  function esc(t) {
+    return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function nearBottom() {
+    return body.scrollHeight - body.scrollTop - body.clientHeight < 120;
+  }
+
+  function push(msg, opts) {
+    opts = opts || {};
+    var stick = nearBottom();
+
+    var el = document.createElement("div");
+    el.className = "msg" + (opts.animate ? " msg-new" : "");
+    el.innerHTML =
+      (msg.avatar
+        ? '<img class="msg-av" src="' + msg.avatar + '" alt="" loading="lazy" />'
+        : '<span class="msg-av" style="background:var(--brand-red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">V</span>') +
+      '<span class="msg-body">' +
+        '<span class="msg-name' + (opts.owner ? " owner" : "") + '">' + esc(msg.name) + '</span>' +
+        '<span class="msg-text">' + esc(msg.text) + '</span>' +
+      '</span>';
+    body.appendChild(el);
+
+    while (body.children.length > MAX_DOM) body.removeChild(body.firstChild);
+    if (stick) body.scrollTop = body.scrollHeight;
+  }
+
+  /* carga inicial: 6 mensagens já no chat */
+  for (var i = 0; i < 6; i++) push(MESSAGES[next++ % MESSAGES.length]);
+  body.scrollTop = body.scrollHeight;
+
+  /* novas mensagens em intervalo irregular */
+  (function tick() {
+    var delay = 4000 + Math.random() * 6000;
+    setTimeout(function () {
+      push(MESSAGES[next++ % MESSAGES.length], { animate: true });
+      total += 1;
+      countEl.textContent = total;
+      tick();
+    }, delay);
+  })();
+
+  /* mensagem do próprio visitante */
+  document.getElementById("chat-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = document.getElementById("chat-input");
+    var v = input.value.trim();
+    if (!v) return;
+    body.scrollTop = body.scrollHeight;
+    push({ name: "Você", text: v, avatar: null }, { animate: true, owner: true });
+    input.value = "";
+    body.scrollTop = body.scrollHeight;
+  });
+
+  /* botões */
+  var sub = document.getElementById("sub-btn");
+  sub.addEventListener("click", function () {
+    var on = sub.getAttribute("aria-pressed") === "true";
+    sub.setAttribute("aria-pressed", on ? "false" : "true");
+    sub.textContent = on ? "Inscrever-se" : "Inscrito";
+  });
+
+  var like = document.getElementById("like-btn");
+  like.addEventListener("click", function () {
+    like.classList.toggle("liked");
+    document.getElementById("like-count").textContent =
+      like.classList.contains("liked") ? "4,2 mil" : "4,2 mil";
+  });
+
+  document.getElementById("share-btn").addEventListener("click", function () {
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: location.href }).catch(function () {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(location.href).catch(function () {});
+    }
+  });
+})();
+</script>
+
+
+</body></html>
