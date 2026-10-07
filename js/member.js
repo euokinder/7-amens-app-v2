@@ -4,7 +4,7 @@
   // A Terceira Madrugada e a unica que conclui pela contribuicao, nao pelo
   // botao. Ver o bloco de doacao em dia.html e a decisao de 22/09/2026.
   const CHAVE_DIA_03 = 'principal:3';
-  const AJUDA = 'https://wa.me/5591980159224?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.';
+  const AJUDA = 'https://wa.me/5511936203979?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.';
   const readToken = () => { try { return localStorage.getItem(storageKey) || ''; } catch { return ''; } };
   let token = readToken();
   let state = null;
