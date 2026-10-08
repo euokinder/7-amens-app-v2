@@ -34,7 +34,7 @@
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -437,6 +437,56 @@
     content.replaceChildren(bloco, voltar);
     return true;
   }
+  // A LIVE DO ARCANJO SÃO RAFAEL — o que a cliente recebe com o live_rafael
+  //
+  // Terceiro conteúdo trancado por produto (pedido do Caio em 07/10/2026): o
+  // entregável PÓS-LIVE, em vídeo ("A Oração de Cura de São Rafael Arcanjo";
+  // não é a live em si). Diferente dos Arcanjos e do Cântico, o card
+  // NÃO aparece para quem não comprou — sem cadeado e sem "Adquirir" (decisão
+  // do Caio, no mesmo dia). Para as outras clientes, a home fica como estava.
+  //
+  // É pagamento único (Caio, 07/10): pagou, fica; só reembolso tira. Por isso
+  // não entrou no FICA_DEPOIS_DE_CANCELAR da member-api, que não mudou.
+  //
+  // ⚠️ Não é cadeado de verdade: o código do vídeo está no live-rafael.html,
+  // arquivo público. Guia a cliente; não protege conteúdo.
+  const PRODUTO_LIVE_RAFAEL = 'live_rafael';
+  const PAGINA_DA_LIVE_RAFAEL = /\/live-rafael(?:\.html)?$/;
+  const temLiveRafael = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_LIVE_RAFAEL);
+  function desenharCardLiveRafael() {
+    const card = document.getElementById('card-live-rafael');
+    if (card) card.hidden = !temLiveRafael();
+  }
+  // Quem chega pelo link direto sem ter a live no acesso. O caso que mais
+  // importa é o da cliente que PAGOU e não foi liberada (venda que não chegou
+  // ao app): por isso o aviso oferece o suporte, e não uma página de venda.
+  function trancarPaginaDaLiveRafael() {
+    if (!PAGINA_DA_LIVE_RAFAEL.test(location.pathname)) return false;
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    if (temLiveRafael()) {
+      // Foi liberada com a tela trancada aberta: a verificação seguinte a
+      // encontra aqui, e só recarregando o vídeo volta a aparecer.
+      if (content.dataset.trancada) location.reload();
+      return false;
+    }
+    if (content.dataset.trancada) return true;
+    content.dataset.trancada = '1';
+    const titulo = node('h1', 'title', 'A Oração de Cura de São Rafael Arcanjo');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', 'Este vídeo é para quem comprou na Live do Arcanjo São Rafael, e ele ainda não aparece no seu acesso. Se você já comprou, fale com a nossa equipe que a gente resolve.'));
+    const ajuda = node('a', 'member-button', 'Falar com a equipe');
+    ajuda.href = 'https://gerador-link.devzapp.com.br/s/0sQRZM';
+    ajuda.target = '_blank';
+    ajuda.rel = 'noopener';
+    ajuda.style.textAlign = 'center';
+    const voltar = node('a', 'member-gate-help', 'Voltar para o início');
+    voltar.href = 'index.html';
+    voltar.style.textAlign = 'center';
+    content.replaceChildren(bloco, ajuda, voltar);
+    return true;
+  }
   // "Os itens com 🔒 são extras..." — a frase acima dos cards dos extras, na
   // home. Só faz sentido se houver algum 🔒 na tela: para quem já tem os dois
   // extras, ela some. Roda depois dos dois cards, que marcam a situação.
@@ -449,6 +499,7 @@
     setupMemberMenu();
     desenharCardArcanjos();
     desenharCardCantico();
+    desenharCardLiveRafael();
     desenharAvisoDosExtras();
     // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
     // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
@@ -464,6 +515,7 @@
     // instante, para quem não comprou.
     if (trancarPaginaDosArcanjos()) return;
     if (trancarPaginaDoCantico()) return;
+    if (trancarPaginaDaLiveRafael()) return;
     if (setupMemberSurvey()) return;
     if (bloquearDiaTravado(trava)) return;
     if (bloquearDiaDoCanticoTravado(travaDoCantico)) return;

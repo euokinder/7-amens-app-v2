@@ -6,7 +6,7 @@
 <title>Início — 7 Améns da Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=13">
+<link rel="stylesheet" href="css/styles.css?v=15">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
@@ -123,6 +123,27 @@
       <p class="subtext" id="aviso-extras">Os itens com 🔒 são extras... Toque em “Adquirir” para entender mais...</p>
     </div>
 
+    <!-- LIVE DO ARCANJO SÃO RAFAEL — o que a cliente recebe com o live_rafael
+         (pedido do Caio em 07/10/2026): o entregável PÓS-LIVE, em vídeo (não a
+         live em si). O título é o nome que está na capa do vídeo.
+         Diferente dos dois cards abaixo, este NÃO tem cadeado nem "Adquirir":
+         ele NASCE ESCONDIDO e só aparece para quem comprou (decisão do Caio,
+         07/10). Para as outras clientes, a home fica como estava. Quem mostra
+         é o js/member.js (desenharCardLiveRafael).
+         Fica em primeiro nos Conteúdos Exclusivos porque, para quem o vê, ele
+         está sempre liberado: primeiro o que ela já tem.
+         PROVISORIO: a foto é a do Dia 3 (Cura, que é o tema de São Rafael),
+         até chegar a arte do card. Foto nova = arquivo com NOME novo. -->
+    <a href="live-rafael.html" id="card-live-rafael" class="card-produto" hidden>
+      <img class="card-produto-foto" src="assets/images/dia-3-cura.jpg" alt="" width="900" height="1124" loading="lazy" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo">LIBERADO</span>
+        <h3 class="card-produto-titulo">A Oração de Cura de São Rafael Arcanjo</h3>
+        <p class="card-produto-descricao">O seu conteúdo da Live de São Rafael, em vídeo, para assistir quando quiser.</p>
+        <span class="card-produto-botao"><span>Assistir agora</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </div>
+    </a>
+
     <!-- CENTRAL DOS QUATRO ARCANJOS — o que a cliente recebe com o upsell_01.
          É o primeiro card do app trancado por produto extra (decisão do Caio,
          24/09/2026). Quem decide é o js/member.js (desenharCardArcanjos): quem
@@ -205,7 +226,7 @@
     document.getElementById('msg-modal').classList.add('open');
   }
 </script>
-<script src="js/app.js?v=5"></script>
+<script src="js/app.js?v=6"></script>
 <script src="js/banner.js?v=1"></script>
 </body>
 </html>

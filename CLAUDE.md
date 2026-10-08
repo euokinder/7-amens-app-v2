@@ -154,7 +154,7 @@ Onde mora: tabela `member_entry_links` (`supabase/link-de-entrada.sql`); ações
 
 No projeto de **teste** existe uma cópia da função com outro nome, **`member-api-link`**, publicada em 24/09 só para provar o link, sem encostar na `member-api` de lá (que tem o banner). Ela pode ser apagada no painel do Supabase quando não servir mais.
 
-## ⚠️ Só DOIS conteúdos são trancados por produto: a Central dos Arcanjos e o Cântico Angelical
+## ⚠️ Só TRÊS conteúdos são trancados por produto: a Central dos Arcanjos, o Cântico Angelical e a Live do São Rafael
 **Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ✅ **As duas estão no ar desde 24/09/2026**, por enquanto só com o áudio: os textos e as artes definitivas ainda vêm.
 
 Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para publicar, mexer ou desfazer um sem encostar no outro.
@@ -192,12 +192,26 @@ A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPag
 
 **O link de compra** (Caio, 24/09) é `https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell` — `LINK_DE_COMPRA`, em `oferta-cantico.html`. O código do meio, `gTLhMYXqRjFeNlyc7FlH`, **já está** em `hubla_product_map` → `upsell_02`, e é o que chega nas vendas de verdade (314 eventos até 24/09): a venda por ali libera o Cântico sozinha. ⚠️ Trocar por uma oferta NOVA, com código novo, exige mapear o código **antes** da primeira venda — senão a cliente paga e o app não libera.
 
+### Live do Arcanjo São Rafael (`live_rafael`) — ⏳ pronta no repositório, ainda não publicada (07/10/2026)
+Pedido do Caio em **2026-10-07**: um módulo para quem comprou a live do São Rafael. A entrega é o **conteúdo PÓS-LIVE, não a live em si** (Caio, 07/10): o vídeo **"A Oração de Cura de São Rafael Arcanjo"**, da VTurb (`vid-6ac6ff5c7d2a6b90e1cafed7`, deitado 16:9), na página `live-rafael.html`. É esse o título do card e da página. Não confundir com `arcanjo-rafael.html`, que é a página de VENDA (a "live" aberta, sem login).
+
+**Decisões do Caio em 07/10:**
+- **Só quem comprou vê o card.** Sem cadeado e sem "Adquirir": para as outras clientes, a home fica como estava. O card nasce `hidden` no `index.html` e é o **primeiro** dos Conteúdos Exclusivos.
+- **Pagamento único**: pagou, fica; só reembolso tira. Por isso **não** entrou no `FICA_DEPOIS_DE_CANCELAR`, e a `member-api` **não mudou**.
+- Quem abre o link direto sem ter o produto vê um aviso com **"Falar com a equipe"** (e não uma página de venda): o caso que importa é o da cliente que pagou e não foi liberada.
+
+A conta mora em `js/member.js` (`temLiveRafael`, `desenharCardLiveRafael`, `trancarPaginaDaLiveRafael`). O produto nasce com `supabase/live-rafael.sql` (`enabled = false`, `sort_order` 40, `one_time`).
+
+⚠️ **Até 07/10 nenhuma venda da live chegava ao webhook**: a regra da Hubla (*Integrações → Automações → Webhook*) não incluía o produto. O Caio corrigiu a regra em 07/10 à noite. A Hubla **não reenvia** venda feita antes da regra, então as 13 vendas de 30/09 a 07/10 foram liberadas por uma **carga a partir do export de faturas** (`source = 'hubla_import'`), fora do repositório. Os três códigos estão em `supabase/live-rafael.sql`; **nenhuma venda nova tinha chegado pelo webhook até 08/10** para confirmar que o código chega como no export.
+
+⚠️ **A escada dos extras do painel só conta os `upsell_`** (`js/admin.js`). A live vem depois deles no catálogo (`sort_order` 40); posta no meio, viraria a base do degrau seguinte.
+
 ### Vale para os dois
 ⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js` e `js/cantico.js`, arquivos públicos. **Não prometer "conteúdo protegido"** na venda.
 
 ⚠️ **Não ativar o `upsell_01` nem o `upsell_02` no catálogo** (`products.enabled`). Ativado e com link preenchido, um código antigo de `js/member.js` (a seção `member-extras`) cria sozinho um segundo card, genérico, no fim da home.
 
-**Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
+A Live do São Rafael (acima) é a terceira exceção, também pedida pelo Caio. **Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
 
 ## Home como hub
 **Home nova, no ar desde 24/09.** Dois blocos, na ordem pedida pelo Caio:
@@ -281,6 +295,7 @@ Sintoma número um para conferir: se `hubla_events` parar de receber linhas depo
 | `upsell_01` | **Oração Celestial dos Quatro Arcanjos** (no app: "Central dos Quatro Arcanjos") | addon — ⚠️ **assinatura MENSAL de R$ 137**, não pagamento único. Cancelar **não** tira o conteúdo; reembolso tira |
 | `upsell_02` | **Músicas dos Anjos** (no app: "Cântico Angelical" — mesmo produto, nome novo) | addon — ⚠️ **assinatura MENSAL** (confirmado pelo Caio em 24/09). Cancelar **não** tira o conteúdo; reembolso tira |
 | `upsell_03` | **Comunidade da Fé** | addon |
+| `live_rafael` | **Live do Arcanjo São Rafael** (na Hubla: "Oração sagrada do arcanjo rafael") | addon — **pagamento único** (07/10/2026). Vendido fora da esteira de upsells. Três ofertas, três códigos mapeados: `CmL4fCj0VqS5rSwPq4Wo` (R$ 697) · `gGRTrFRMperRP23fXTFJ` (R$ 597) · `HGtQvmVF8zGobBfx2Kcd` (R$ 97) |
 
 O mapeamento vive em `hubla_product_map` (vários IDs da Hubla podem apontar para o mesmo produto). Situação em 2026-09-18:
 

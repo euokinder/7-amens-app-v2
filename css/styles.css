@@ -399,6 +399,10 @@ h2.title {
 .card-contato:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 3px; }
 
 .card-produto { display: block; }
+/* O card da Live do Arcanjo São Rafael nasce escondido e só aparece para
+   quem comprou (js/member.js). Sem esta linha, o display: block acima
+   venceria o atributo hidden e o card apareceria para todas. */
+.card-produto[hidden] { display: none; }
 
 /* A foto arredonda os próprios cantos de cima (22px do card menos 1px de
    borda), em vez de o card cortar com overflow: hidden, que cortaria

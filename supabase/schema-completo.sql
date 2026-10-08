@@ -776,7 +776,10 @@ insert into public.products(key, title, description, enabled, sort_order, type, 
  ('principal', 'Os 7 Améns da Madrugada', 'Todo o conteúdo atual: 7 Orações Sagradas, Pai Nosso, Mensagem do Dia e Novena Desatadora dos Nós.', true, 0, 'main', 'one_time', true),
  ('upsell_01', 'Oração Celestial dos Quatro Arcanjos', 'Oferta seguinte ao produto principal.', false, 10, 'addon', 'subscription', false),
  ('upsell_02', 'Músicas dos Anjos', 'Segunda oferta do funil.', false, 20, 'addon', 'subscription', false),
- ('upsell_03', 'Comunidade da Fé', 'Terceira oferta do funil.', false, 30, 'addon', 'subscription', false)
+ ('upsell_03', 'Comunidade da Fé', 'Terceira oferta do funil.', false, 30, 'addon', 'subscription', false),
+ -- 07/10/2026: ver supabase/live-rafael.sql. Fica DEPOIS dos upsells (40)
+ -- por causa da escada dos extras do painel.
+ ('live_rafael', 'Live do Arcanjo São Rafael', 'Entregável pós-live do Arcanjo São Rafael: o vídeo A Oração de Cura de São Rafael Arcanjo. Vendido fora da esteira de upsells.', false, 40, 'addon', 'one_time', false)
 on conflict (key) do nothing;
 
 -- Placar final da investigação dos códigos: dos três links hub.la/g,
@@ -788,7 +791,10 @@ insert into public.hubla_product_map(hubla_id, product_key, note) values
  ('5pUr8toveL5R5zR3zyaT', 'upsell_01', 'Slug de hub.la/g para Arcanjos. NAO e o product.id real (ODOZxlF1tfhee2TkZikI e). Mantido por so poder significar este produto.'),
  ('vRuLDZ1avAMG2LllTWAu', 'upsell_02', 'CONFIRMADO em 2026-09-18 pelo sandbox: este e o event.product.id real de Musicas dos Anjos.'),
  ('gTLhMYXqRjFeNlyc7FlH', 'upsell_02', 'Slug de hub.la/g de Musicas dos Anjos. NAO e o product.id real (vRuLDZ1avAMG2LllTWAu e). Mantido por so poder significar este produto.'),
- ('nMyLP4oFcIWiJ77UIbsu', 'upsell_03', 'CONFIRMADO em 2026-09-18 por evento real de Comunidade da Fe - Padre Thiago.')
+ ('nMyLP4oFcIWiJ77UIbsu', 'upsell_03', 'CONFIRMADO em 2026-09-18 por evento real de Comunidade da Fe - Padre Thiago.'),
+ ('CmL4fCj0VqS5rSwPq4Wo', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta de R$ 697. Export de faturas de 08/10/2026 (11 vendas). E tambem o codigo do link pay.hub.la da pagina da live.'),
+ ('gGRTrFRMperRP23fXTFJ', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta (Copia) de R$ 597. Export de faturas de 08/10/2026 (1 venda).'),
+ ('HGtQvmVF8zGobBfx2Kcd', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta (Copia) (Copia) (Copia) de R$ 97. Export de faturas de 08/10/2026 (1 venda).')
 on conflict (hubla_id) do nothing;
 
 -- Os quatro pop-ups no ar. v1 fala com quem acabou de comprar ("antes de

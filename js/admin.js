@@ -206,11 +206,20 @@
 
     // ---------------------------------------------------------------- a escada
     const escada = bloco('A escada dos extras', 'De quem levou um, quantas levaram o seguinte?');
+    // A escada é a esteira de vendas: UP01, UP02, UP03. A Live do Arcanjo São
+    // Rafael (live_rafael, 07/10/2026) é vendida fora dela, e a member-api a
+    // mandaria como um degrau a mais ("das que têm UP03, quantas têm a live"),
+    // que não quer dizer nada. Só os upsell_ sobem a escada. Isto só funciona
+    // porque a live vem DEPOIS deles no catálogo (sort_order 40): no meio, ela
+    // viraria a base do degrau seguinte.
+    const naEsteira = key => /^upsell_/.test(key);
     escada.append(element('p', 'admin-legend', (funnel.byProduct || [])
+      .filter(item => naEsteira(item.key))
       .map(item => `${codigo(item.key)} = ${item.title}`).join(' · ')));
 
     (funnel.steps || []).forEach((passo, i) => {
       const item = (funnel.byProduct || [])[i];
+      if (item && !naEsteira(item.key)) return;
       const t = taxa(passo.n, passo.base);
       const degrau = element('div', 'admin-step');
       degrau.append(
@@ -234,7 +243,7 @@
       ]));
     });
 
-    const pulou = (funnel.outOfOrder || []).filter(item => item.pessoas > 0);
+    const pulou = (funnel.outOfOrder || []).filter(item => item.pessoas > 0 && /^UP0/.test(item.produto));
     escada.append(element('p', 'admin-block-foot', pulou.length
       ? `Fora de ordem: ${pulou.map(i => `${i.pessoas} têm ${i.produto} sem ${i.semOAnterior}`).join(' · ')}.`
       : 'Ninguém pulou degrau: quem tem um extra tem também o anterior.'));

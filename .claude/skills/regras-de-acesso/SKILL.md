@@ -38,7 +38,10 @@ Modelo: `products` (catálogo) + `entitlements` (o que cada cliente possui). **N
 
 Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva histórico e mantém o webhook idempotente.
 
-## ⚠️ Só DOIS conteúdos são trancados por produto
+## ⚠️ Só TRÊS conteúdos são trancados por produto
+
+**Terceiro, pedido em 2026-10-07: a Live do Arcanjo São Rafael** (`live_rafael`, pagamento único, página `live-rafael.html`). A entrega é o vídeo pós-live "A Oração de Cura de São Rafael Arcanjo", não a live em si. Diferente dos dois abaixo, o card **só aparece para quem comprou** (sem cadeado, sem "Adquirir"), e a `member-api` não mudou. Detalhes no `CLAUDE.md`, seção do mesmo nome.
+
 
 Os dois pedidos pelo Caio em **2026-09-24**, e **no ar desde a mesma data**, por enquanto só com o áudio.
 

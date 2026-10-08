@@ -89,6 +89,9 @@ function initDestaqueDosCards() {
     let menor = Infinity;
     cards.forEach((card) => {
       const caixa = card.getBoundingClientRect();
+      // Card escondido (o da Live do São Rafael, para quem não comprou) tem
+      // caixa zerada, e sem esta linha podia "ganhar" a luz no topo da tela.
+      if (!caixa.height) return;
       const distancia = Math.abs((caixa.top + caixa.bottom) / 2 - meio);
       if (distancia < menor) { menor = distancia; escolhido = card; }
     });
