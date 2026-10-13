@@ -282,11 +282,17 @@
     const top = element('div', 'admin-campaign-top');
     top.append(element('h3', '', campaign.headline));
     top.append(element('span', `admin-badge${campaign.enabled ? ' active' : ''}`, campaign.enabled ? 'Ativa' : 'Preparada'));
-    const type = campaign.offer_type === 'vip' ? 'Grupo VIP' : campaign.offer_type === 'subscription' ? 'Assinatura' : 'Produto';
+    const type = campaign.offer_type === 'vip' ? 'Grupo VIP'
+      : campaign.offer_type === 'grupo' ? 'Grupo no WhatsApp'
+      : campaign.offer_type === 'subscription' ? 'Assinatura' : 'Produto';
     const trigger = campaign.trigger_type === 'dismissal' ? 'após recusa' : 'na entrada';
     const meta = element('p', 'admin-campaign-meta', `${type} · ${trigger}`);
     const metrics = element('div', 'admin-campaign-metrics');
-    [['Exibida', campaign.shown], ['Cliques', campaign.clicked], ['Recusas', campaign.dismissed], ['Compras', campaign.converted]].forEach(([label, value]) => {
+    // O convite do grupo (11/10/2026) não vende nada: sem a coluna Compras,
+    // que ficaria sempre no zero.
+    const colunas = [['Exibida', campaign.shown], ['Cliques', campaign.clicked], ['Recusas', campaign.dismissed]];
+    if (campaign.offer_type !== 'grupo') colunas.push(['Compras', campaign.converted]);
+    colunas.forEach(([label, value]) => {
       const item = element('span'); item.append(element('strong', '', String(value)), document.createTextNode(String(label))); metrics.append(item);
     });
     card.append(top, meta, metrics);

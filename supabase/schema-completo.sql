@@ -282,7 +282,9 @@ create table if not exists public.member_offer_campaigns (
   constraint member_offer_campaigns_key_check check (key ~ '^[a-z0-9_-]+$'),
   constraint member_offer_campaigns_target_url_check check (target_url is null or target_url ~ '^https://'),
   constraint member_offer_campaigns_trigger_type_check check (trigger_type in ('entry','dismissal')),
-  constraint member_offer_campaigns_offer_type_check check (offer_type in ('product','subscription','vip'))
+  -- 'grupo' entrou em 11/10/2026: o convite para o grupo no WhatsApp
+  -- (supabase/convite-grupo.sql).
+  constraint member_offer_campaigns_offer_type_check check (offer_type in ('product','subscription','vip','grupo'))
 );
 
 -- Uma linha por cliente por campanha. A chave primária dupla garante que
@@ -839,6 +841,17 @@ insert into public.member_offer_campaigns(key, headline, body, cta_label, requir
  ('upsell_02_dismissal_to_bundle', 'Antes de ir, queremos fazer uma última condição', 'Você poderá receber o Up 02 junto com o Up 03 em uma condição especial preparada para este momento.', 'Ver minha condição especial', '{principal,upsell_01}', '{upsell_02,upsell_03}', false, 25, 'dismissal', 'upsell_01_to_upsell_02', 'product', 'Uma última oportunidade', 'Não quero aproveitar'),
  ('upsell_01_02_to_upsell_03_subscription', 'Seu próximo passo pode acompanhar você todos os meses', 'Como você já avançou em nossa jornada, preparamos uma assinatura mensal acessível e exclusiva para você.', 'Conhecer minha assinatura', '{principal,upsell_01,upsell_02}', '{upsell_03}', false, 30, 'entry', null, 'subscription', 'Condição exclusiva', 'Agora não'),
  ('full_funnel_to_vip_whatsapp', 'Você faz parte das nossas clientes mais especiais', 'Queremos convidar você para um grupo VIP, onde compartilharemos novidades e condições reservadas.', 'Entrar no grupo VIP', '{principal,upsell_01,upsell_02,upsell_03}', '{}', false, 40, 'entry', null, 'vip', 'Convite especial', 'Talvez depois')
+on conflict (key) do nothing;
+
+-- O convite para o grupo no WhatsApp (11/10/2026). Nasce desligado; ver
+-- supabase/convite-grupo.sql para a ordem de ligar e as regras.
+insert into public.member_offer_campaigns(key, headline, body, cta_label, target_url, required_product_keys, excluded_product_keys, enabled, sort_order, trigger_type, offer_type, eyebrow, dismiss_label, required_principal_sources) values
+ ('grupo_whatsapp_1', 'Você não precisa rezar sozinha',
+  'Lá no grupo, você tem: lives e orações exclusivas, materiais bônus exclusivos, passagens e imagens de Jesus, orações e salmos diários, sorteios e prêmios.
+É de graça. Você sai quando quiser.',
+  'Quero entrar no grupo', 'https://chat.whatsapp.com/K603psXEfac6YCneu5TgaR',
+  '{principal}', '{}', false, 15, 'entry', 'grupo',
+  'Grupo exclusivo no WhatsApp', 'Agora não', '{}')
 on conflict (key) do nothing;
 
 -- As quatro campanhas ligadas vendem a mesma coisa: a Oração Celestial dos

@@ -150,6 +150,28 @@
     try { target = new URL(offer.target_url); } catch { return; }
     if (target.protocol !== 'https:') return;
     target = mesmoApp(target);
+    const record = event => offer.preview
+      ? Promise.resolve()
+      : api('offer_event', { campaign_key: offer.campaign_key, event }).catch(() => {});
+    // O CONVITE DO GRUPO NO WHATSAPP (11/10/2026) tem desenho próprio, em
+    // js/convite-grupo.js, que só a tela inicial carrega (decisão do Caio:
+    // não interromper quem abriu direto uma oração). Em outra tela, nada
+    // aparece e nada é contado: a campanha fica esperando ela passar pela
+    // inicial. Conta exibição, toque e dispensa como o pop-up comum, mas não
+    // puxa oferta seguinte quando é dispensado.
+    if (offer.offer_type === 'grupo') {
+      if (!window.CONVITE_GRUPO) return;
+      window.CONVITE_GRUPO.abrir({
+        link: target.href,
+        aoMostrar: () => {
+          if (state?.offer?.campaign_key === offer.campaign_key) state.offer = null;
+          record('shown');
+        },
+        aoEntrar: () => record('clicked'),
+        aoFechar: ({ entrou }) => { if (!entrou) record('dismissed'); },
+      });
+      return;
+    }
     const dialog = node('dialog', 'member-offer-dialog');
     dialog.id = 'member-offer-dialog';
     dialog.dataset.offerType = offer.offer_type || 'product';
@@ -176,9 +198,6 @@
     const dismiss = node('button', 'member-offer-dismiss', offer.dismiss_label || 'Agora não');
     dismiss.type = 'button';
     let leaving = false;
-    const record = event => offer.preview
-      ? Promise.resolve()
-      : api('offer_event', { campaign_key: offer.campaign_key, event }).catch(() => {});
     cta.addEventListener('click', async () => {
       if (leaving) return;
       leaving = true;

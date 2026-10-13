@@ -1,0 +1,181 @@
+/* CONVITE PARA O GRUPO NO WHATSAPP — o desenho do pop-up de js/convite-grupo.js
+   (pedido do Caio, 11/10/2026).
+   Mesma moldura do pop-up de oferta (creme, cantos de 26px, fundo escurecido
+   atrás), com a cara do WhatsApp: o logo dele no topo e no botão, no verde
+   oficial (#25D366), para a cliente reconhecer de longe para onde vai.
+   O botão tem texto BRANCO num verde mais fundo que o do logo (pedido do
+   Caio, 11/10/2026: o texto escuro sobre o verde claro o incomodava).
+   Branco sobre o verde do logo daria 2:1, pouco para quem tem 45+; sobre
+   este verde dá 4,9:1.
+   O título fica centralizado; a lista de benefícios, alinhada à esquerda,
+   que é como uma lista se lê sem esforço. */
+.convite-grupo {
+  --verde-whatsapp: #25d366;
+  --verde-botao: #11823b;
+  --verde-fundo: oklch(0.42 0.11 152);
+  --verde-claro: oklch(0.93 0.045 152);
+  width: min(440px, calc(100% - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  background: linear-gradient(165deg, #fffaf1 0%, var(--bg) 60%, #f1ebdb 100%);
+  color: var(--ink);
+  box-shadow: 0 28px 80px oklch(0.16 0.04 55 / 0.36);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.convite-grupo::backdrop { background: oklch(0.16 0.04 55 / 0.62); backdrop-filter: blur(4px); }
+
+.convite-grupo-folha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 30px 24px 18px;
+  text-align: center;
+}
+
+/* O logo do WhatsApp do jeito que ela conhece: branco no círculo verde, com
+   uma luz verde em volta. */
+.convite-grupo-icone {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--verde-whatsapp);
+  color: #fff;
+  box-shadow: 0 0 0 8px rgb(37 211 102 / 0.18), 0 10px 26px rgb(18 140 70 / 0.35);
+}
+.convite-grupo-icone svg { width: 40px; height: 40px; }
+
+.convite-grupo-chamada {
+  margin: 0;
+  color: var(--verde-fundo);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+/* balance: reparte as linhas por igual, para nenhuma palavra ficar sozinha
+   na última linha. */
+.convite-grupo-titulo { margin: 0; font-size: 27px; font-weight: 800; line-height: 1.18; text-wrap: balance; }
+.convite-grupo-intro { margin: 2px 0 0; color: oklch(0.40 0.015 55); font-size: 17px; font-weight: 600; line-height: 1.45; text-wrap: balance; }
+
+/* Cinco benefícios curtos, um por linha: cada um cabe numa linha só, então a
+   lista fica comprida para baixo, mas nunca embolada. */
+.convite-grupo-beneficios {
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.convite-grupo-beneficio {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-radius: 16px;
+  background: oklch(0.99 0.005 85 / 0.75);
+  border: 1px solid var(--hairline);
+}
+.convite-grupo-beneficio-icone {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--verde-claro);
+  color: var(--verde-fundo);
+}
+.convite-grupo-beneficio-icone svg { width: 22px; height: 22px; }
+.convite-grupo-beneficio-texto { font-size: 17px; font-weight: 500; line-height: 1.35; color: var(--ink); }
+.convite-grupo-beneficio-texto strong { font-weight: 800; }
+
+.convite-grupo-garantia { margin: 2px 0 0; color: oklch(0.40 0.015 55); font-size: 16px; font-weight: 600; line-height: 1.45; }
+
+.convite-grupo-botao {
+  align-self: stretch;
+  min-height: 62px;
+  margin-top: 4px;
+  padding: 0 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--verde-botao);
+  color: #fff;
+  font-size: 19px;
+  font-weight: 800;
+  text-decoration: none;
+  animation: convite-grupo-pulso 2.2s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+.convite-grupo-botao:hover { color: #fff; }
+.convite-grupo-botao:active { transform: scale(0.985); }
+.convite-grupo-botao-icone { display: flex; }
+.convite-grupo-botao-icone svg { width: 26px; height: 26px; }
+/* O mesmo pulso do botão de oferta, em verde. Só box-shadow: não ocupa
+   espaço, então nunca empurra a largura do pop-up. */
+@keyframes convite-grupo-pulso {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgb(37 211 102 / 0.6),
+                0 0 16px 2px rgb(37 211 102 / 0.30),
+                0 6px 18px oklch(0.25 0.03 55 / 0.18);
+  }
+  55% {
+    box-shadow: 0 0 0 14px rgb(37 211 102 / 0),
+                0 0 32px 8px rgb(37 211 102 / 0.55),
+                0 12px 28px oklch(0.25 0.03 55 / 0.26);
+  }
+}
+
+.convite-grupo-recusa {
+  min-height: 48px;
+  padding: 8px 18px;
+  border: 0;
+  background: transparent;
+  color: oklch(0.40 0.015 55);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Até 400px cabe a maioria dos celulares (375, 390, 393). Com estes espaços,
+   "Passagens e imagens de Jesus" cabe numa linha só, como os outros. */
+@media (max-width: 400px) {
+  .convite-grupo-folha { padding: 26px 16px 16px; }
+  .convite-grupo-titulo { font-size: 25px; }
+  .convite-grupo-beneficio { gap: 10px; padding-inline: 10px; }
+}
+/* Celular de tela baixa (iPhone SE, 667px): o botão verde tem que aparecer
+   sem rolar. Aperta só os espaços e os ícones; as letras ficam do mesmo
+   tamanho. */
+@media (max-height: 740px) {
+  .convite-grupo-folha { gap: 8px; padding-top: 18px; }
+  .convite-grupo-icone { width: 54px; height: 54px; margin-bottom: 2px; box-shadow: 0 0 0 6px rgb(37 211 102 / 0.18), 0 8px 20px rgb(18 140 70 / 0.35); }
+  .convite-grupo-icone svg { width: 30px; height: 30px; }
+  .convite-grupo-titulo { font-size: 25px; }
+  .convite-grupo-beneficios { gap: 6px; }
+  .convite-grupo-beneficio { padding-block: 5px; }
+  .convite-grupo-beneficio-icone { width: 34px; height: 34px; }
+  .convite-grupo-beneficio-icone svg { width: 19px; height: 19px; }
+  .convite-grupo-recusa { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .convite-grupo-botao { animation: none; box-shadow: 0 0 26px 6px rgb(37 211 102 / 0.45), 0 8px 22px oklch(0.25 0.03 55 / 0.2); }
+}
