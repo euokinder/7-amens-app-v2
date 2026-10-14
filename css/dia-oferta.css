@@ -1,0 +1,78 @@
+/* A oferta emendada no vídeo do dia (hoje, só o Dia 7: ver `oferta` em
+   js/dias.js). Mesmo cartão das contribuições do Dia 03 (css/dia-doacao.css),
+   com um botão dourado só, largo, para não haver dois caminhos disputando o
+   dedo dela.
+   Isolado neste arquivo para não alterar outras telas do aplicativo. */
+
+/* O espaço entre o título e o botão vem da margem do botão, e não de `gap`:
+   a VTurb revela o bloco escrevendo `display: block !important` por cima, e
+   com display: block o gap some (medido no Dia 03 em 27/09). */
+.oferta-dia {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  background: var(--surface-alt);
+}
+
+/* A VTurb revela esta classe quando o vídeo chega ao tempo configurado. */
+.oferta-dia--oculta {
+  display: none;
+}
+
+.oferta-dia__titulo {
+  max-width: 28ch;
+  margin: 0 auto;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* O dourado e a letra vêm do .member-button (css/member.css), o mesmo botão
+   do "Concluí" que este bloco substitui. Aqui ele só fica maior e vira link.
+   O seletor é duplo de propósito: o css/member.css carrega DEPOIS deste
+   arquivo, e com seletor simples o .member-button dele passava por cima
+   (o botão saía com 54px e letra 17).
+   A cor da letra é repetida aqui por causa do `a:hover` do css/styles.css,
+   que pinta todo link de dourado: no botão, dourado sobre dourado. No
+   celular o "hover" fica preso depois do toque, quando ela volta do
+   checkout. */
+.oferta-dia .oferta-dia__botao {
+  color: var(--dark-on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 64px;
+  margin-top: 18px;
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 oklch(0.98 0.02 85 / 0.6),
+    0 6px 16px oklch(0.4 0.08 72 / 0.22);
+  font-size: 19px;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.oferta-dia .oferta-dia__botao:active {
+  box-shadow: 0 3px 10px oklch(0.4 0.08 72 / 0.18);
+  transform: scale(0.985);
+}
+
+.oferta-dia .oferta-dia__botao:focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oferta-dia .oferta-dia__botao {
+    transition: none;
+  }
+}

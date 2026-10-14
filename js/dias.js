@@ -344,8 +344,25 @@ const DIAS = {
     kicker: '7 Améns da Madrugada · Dia 07',
     videoId: '',
     videoEmbed: {
-      html: '<vturb-smartplayer id="vid-6abca3bf88ddc17b615d87f1" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
-      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3bf88ddc17b615d87f1/v4/player.js'
+      html: '<vturb-smartplayer id="vid-6acece22feba2f66a1f1197f" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+      scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6acece22feba2f66a1f1197f/v4/player.js'
+    },
+    // A OFERTA DO FIM DA JORNADA (pedido do Caio, 13/10/2026): o vídeo deste
+    // dia é a oração e, emendada nele, a oferta de "As 3 Madrugadas". O botão
+    // de compra aparece em `segundosDoBotao`, pelo relógio do próprio vídeo,
+    // como as contribuições do Dia 03.
+    // Com a oferta ligada, este dia NÃO tem "Concluí esta oração" (dois botões
+    // disputando atenção): a oração se marca sozinha quando o vídeo passa de
+    // `fimDaOracaoSegundos`, o Amém.
+    // Os dois números em null = oferta desligada: tela e botão "Concluí" como
+    // sempre. Só ligar junto com o vídeo novo (oração + oferta) no videoEmbed.
+    oferta: {
+      produto: 'tres_madrugadas',
+      link: 'https://pay.hub.la/JwN1GmUvx8c3GUTCOaHU?utm_source=app&utm_medium=video-dia-7&utm_campaign=3-madrugadas',
+      titulo: 'Continue a sua caminhada com Deus', // PROVISÓRIO: copy do Caio
+      botao: 'Quero As 3 Madrugadas', // PROVISÓRIO: copy do Caio
+      fimDaOracaoSegundos: 350, // 5:50: o Amém (a oração vai até 5:58)
+      segundosDoBotao: 797 // 13:17, pedido do Caio
     },
     materialPdf: 'assets/pdfs/dia-07-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',

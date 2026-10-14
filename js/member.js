@@ -573,6 +573,14 @@
     // nem o banco (prayer_progress_prayer_key_check) aceitavam a chave.
     const doCantico = key.startsWith('cantico:');
     if (doCantico && !(Array.isArray(state.jornadas) && state.jornadas.includes('cantico'))) return;
+    // DIA COM A OFERTA EMENDADA NO VÍDEO (Dia 7, 13/10/2026; ver `oferta` em
+    // js/dias.js). Quem já comprou o que ela vende não vê o botão de compra.
+    // E ninguém vê o "Concluí": pedido do Caio, para não haver dois botões
+    // disputando atenção. O dia se marca sozinho quando o vídeo passa do
+    // Amém, e quem avisa é o dia.html, no data-fim-da-oracao do .content.
+    const ofertaDoDia = document.getElementById('oferta-do-dia');
+    if (ofertaDoDia && state.products.includes(ofertaDoDia.dataset.produto)) ofertaDoDia.remove();
+    if (content.dataset.fimDaOracao) { marcarNoFimDaOracao(content, key); return; }
     let progress = document.getElementById('member-progress');
     if (!progress) {
       progress = node('section', 'member-progress'); progress.id = 'member-progress';
@@ -619,6 +627,28 @@
     // hora entrega o pitch e derruba a conversao. Concluida, ela ja viu o
     // pitch, e o botao fica sempre a mostra, como nos outros dias.
     esperarAsContribuicoes(progress, key === CHAVE_DIA_03 && !completed(key));
+  }
+  // A marcação sozinha do dia com oferta (ver acima). O render roda de novo a
+  // cada verificação, então a vigia é uma só por tela, e a marcação também:
+  // se falhar (sem internet), a verificação seguinte tenta outra vez.
+  let vigiaDoFimDaOracao = null;
+  let marcandoFimDaOracao = false;
+  function marcarNoFimDaOracao(content, key) {
+    if (completed(key) || marcandoFimDaOracao) return;
+    const passou = () => content.dataset.fimDaOracao === 'passou';
+    const marcar = async () => {
+      if (marcandoFimDaOracao || completed(key)) return;
+      marcandoFimDaOracao = true;
+      vigiaDoFimDaOracao?.disconnect();
+      vigiaDoFimDaOracao = null;
+      try { state = await api('progress', { prayer_key: key, completed: true }); render(); }
+      catch { /* tenta de novo na próxima verificação */ }
+      finally { marcandoFimDaOracao = false; }
+    };
+    if (passou()) { marcar(); return; }
+    if (vigiaDoFimDaOracao) return;
+    vigiaDoFimDaOracao = new MutationObserver(() => { if (passou()) marcar(); });
+    vigiaDoFimDaOracao.observe(content, { attributes: true, attributeFilter: ['data-fim-da-oracao'] });
   }
   // Quem revela o bloco das contribuicoes e o player da VTurb
   // (displayHiddenElements, em dia.html) ou, se ele nao carregar, a rede de

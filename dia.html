@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css?v=14">
 <link rel="stylesheet" href="css/dia-doacao.css?v=10">
+<link rel="stylesheet" href="css/dia-oferta.css?v=1">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
@@ -93,7 +94,7 @@
   </div>
 </div>
 
-<script src="js/dias.js?v=20"></script>
+<script src="js/dias.js?v=21"></script>
 <script src="js/trava.js?v=1"></script>
 <script src="js/materiais.js?v=4"></script>
 <script src="js/tocador.js?v=1"></script>
@@ -105,6 +106,7 @@
   const content = document.getElementById('content');
   const temVideo = !materialKey || (dia && dia.temVideo === true);
   const previaDoacao = params.get('previa-doacao') === '1';
+  const previaOferta = params.get('previa-oferta') === '1';
 
   if (!dia || (!materialKey && !dia.disponivel)) {
     content.innerHTML = `
@@ -170,6 +172,21 @@
          </section>`
       : '';
 
+    // A oferta emendada no vídeo do dia (hoje, só o Dia 7: ver `oferta` em
+    // js/dias.js). Só liga com os dois números preenchidos; sem eles a tela é
+    // a de sempre, com o "Concluí". ?previa-oferta=1 mostra o botão na hora,
+    // para revisão visual.
+    const oferta = !materialKey && dia.oferta
+      && typeof dia.oferta.segundosDoBotao === 'number'
+      && typeof dia.oferta.fimDaOracaoSegundos === 'number'
+      ? dia.oferta : null;
+    const ofertaHtml = oferta
+      ? `<section class="oferta-dia${previaOferta ? '' : ' oferta-dia--oculta'}" id="oferta-do-dia" data-produto="${oferta.produto}" aria-labelledby="oferta-do-dia-titulo">
+           <h2 class="oferta-dia__titulo" id="oferta-do-dia-titulo">${oferta.titulo}</h2>
+           <a class="member-button oferta-dia__botao smartplayer-click-event" href="${oferta.link}">${oferta.botao}</a>
+         </section>`
+      : '';
+
     const audioHtml = dia.audioUrl ? TOCADOR.html(dia.audioUrl, 'Ouça a Oração em Áudio') : '';
 
     let oracaoHtml = '';
@@ -206,6 +223,8 @@
       ${videoHtml}
 
       ${doacaoHtml}
+
+      ${ofertaHtml}
 
       ${descricaoHtml}
 
@@ -255,6 +274,50 @@
           }
         });
       }
+    }
+
+    // A OFERTA DO DIA segue o relógio das contribuições do Dia 03: o próprio
+    // vídeo revela o botão (persist: quem volta já o encontra aberto), e o
+    // timer comum é só a rede de segurança para o script da VTurb que não
+    // carrega. Quem já comprou não vê o botão: quem tira é o js/member.js.
+    if (oferta) {
+      const ofertaBloco = document.getElementById('oferta-do-dia');
+      const player = content.querySelector('vturb-smartplayer');
+      if (!previaOferta) {
+        const redeDaOferta = setTimeout(
+          () => ofertaBloco.classList.remove('oferta-dia--oculta'),
+          (oferta.segundosDoBotao + 120) * 1000
+        );
+        player?.addEventListener('player:ready', () => {
+          if (typeof player.displayHiddenElements !== 'function') return;
+          player.displayHiddenElements(oferta.segundosDoBotao, ['.oferta-dia--oculta'], { persist: true });
+          clearTimeout(redeDaOferta);
+        });
+      }
+
+      // O botão nasce abaixo do vídeo em pé, quase sempre fora da tela do
+      // celular. Quando ele aparece, a página desce só o necessário para
+      // mostrá-lo (o mesmo da página do Cântico).
+      const olhoDaOferta = setInterval(() => {
+        if (!ofertaBloco.isConnected) return clearInterval(olhoDaOferta);
+        if (ofertaBloco.offsetHeight === 0) return;
+        clearInterval(olhoDaOferta);
+        const caixa = ofertaBloco.getBoundingClientRect();
+        if (caixa.bottom <= window.innerHeight && caixa.top >= 0) return;
+        try { ofertaBloco.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { ofertaBloco.scrollIntoView(false); }
+      }, 1000);
+
+      // O FIM DA ORAÇÃO, para o js/member.js marcar o dia sozinho: com a
+      // oferta ligada, este dia não tem o botão "Concluí". "espera" já avisa
+      // que o botão não deve aparecer; "passou" é o Amém.
+      content.dataset.fimDaOracao = 'espera';
+      const relogioDaOracao = setInterval(() => {
+        let segundos = 0;
+        try { segundos = Number(player?.currentTime) || 0; } catch (e) {}
+        if (segundos < oferta.fimDaOracaoSegundos) return;
+        clearInterval(relogioDaOracao);
+        content.dataset.fimDaOracao = 'passou';
+      }, 1000);
     }
 
     // O tocador (recomeçar, voltar, avançar, velocidade) mora em js/tocador.js.

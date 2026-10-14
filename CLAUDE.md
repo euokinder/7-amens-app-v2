@@ -154,6 +154,15 @@ Onde mora: tabela `member_entry_links` (`supabase/link-de-entrada.sql`); ações
 
 No projeto de **teste** existe uma cópia da função com outro nome, **`member-api-link`**, publicada em 24/09 só para provar o link, sem encostar na `member-api` de lá (que tem o banner). Ela pode ser apagada no painel do Supabase quando não servir mais.
 
+## 💰 A oferta do fim do Dia 7: "As 3 Madrugadas" (13/10/2026)
+Pedido do Caio: a oferta vem **emendada no próprio vídeo do Dia 7**, para pegar quem assiste até o fim, marque ou não o "Concluí". O vídeo novo (`vid-6acece22feba2f66a1f1197f`, 14:18) é a oração antiga (até 5:58) seguida da oferta. Tudo mora em `oferta`, no Dia 7 de `js/dias.js`.
+- O **botão dourado** de compra aparece aos **13:17** (`segundosDoBotao`, pedido do Caio), pelo relógio do vídeo, como as contribuições do Dia 03, e a página desce até ele. Leva ao checkout `https://pay.hub.la/JwN1GmUvx8c3GUTCOaHU` com `utm_source=app&utm_medium=video-dia-7`. Título e texto do botão são provisórios (copy do Caio).
+- **O Dia 7 não tem "Concluí"** (dois botões disputando atenção). O dia se marca sozinho quando o vídeo passa de **5:50** (`fimDaOracaoSegundos`); quem avisa é o `dia.html`, pelo `data-fim-da-oracao`, e quem grava é o `js/member.js`. Quem reza sem o vídeo não fica marcada.
+- Quem tem o produto `tres_madrugadas` não vê o botão. Quem reassiste o Dia 7 ouve a oferta de novo, inclusive quem comprou.
+- Desligar: os dois números em `null` (volta o "Concluí") e o `videoEmbed` antigo, `vid-6abca3bf88ddc17b615d87f1`.
+
+⚠️ **O produto ainda NÃO existe no banco** (decisão do Caio em 13/10: criar o produto e o acesso depois; a cliente vai receber tudo no app). O código `JwN1GmUvx8c3GUTCOaHU` não está no `hubla_product_map`: cada venda cai em `needs_reconciliation` e não libera nada, mas fica guardada em `hubla_events` e pode ser liberada depois, como as vendas da Live. Já chega ao webhook: um evento de teste entrou em 13/10, às 17:22. Ao criar, usar a chave **`tres_madrugadas`**, que é a que o front já espera.
+
 ## ⚠️ Só TRÊS conteúdos são trancados por produto: a Central dos Arcanjos, o Cântico Angelical e a Live do São Rafael
 **Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ✅ **As duas estão no ar desde 24/09/2026**, por enquanto só com o áudio: os textos e as artes definitivas ainda vêm.
 
