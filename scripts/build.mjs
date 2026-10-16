@@ -8,6 +8,12 @@ const foraDoAr = [
   'assets/pdfs/build',     // o script que gera os PDFs, com o texto dos materiais
   'assets/fonts',          // .ttf sem uso: as fontes vêm do Google Fonts
 ];
+// O funil de upsell da Payt (16/10/2026): páginas soltas, fora do app — sem
+// login, sem banco, sem o visual do app. Cada pasta é uma página
+// (index.html + images/), servida em setemadrugadas.com.br/<pasta>/.
+// Pasta nova do funil só vai ao ar se entrar nesta lista.
+const funil = ['upsell-01', 'downsell-01', 'upsell-02', 'upsell-03'];
+
 const publicavel = origem => {
   const caminho = origem.split(sep).join('/');
   return !foraDoAr.some(pasta => caminho === pasta || caminho.startsWith(`${pasta}/`));
@@ -18,7 +24,7 @@ const publicavel = origem => {
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
 for (const entry of await readdir('.')) {
-  if (entry.endsWith('.html') || ['assets', 'css', 'js'].includes(entry)) {
+  if (entry.endsWith('.html') || ['assets', 'css', 'js', ...funil].includes(entry)) {
     await cp(entry, `dist/${entry}`, { recursive: true, filter: publicavel });
   }
 }

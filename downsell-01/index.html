@@ -1,0 +1,626 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espera um pouco... Grimório dos Arcanjos</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── Urgency Bar ── */
+    .urgency-bar {
+      background: #c0392b;
+      color: #ffffff;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ── Wrapper ── */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    /* ── Main Headline ── */
+    .main-headline {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .main-headline .highlight-green {
+      color: #1a7a1a;
+      font-weight: 700;
+    }
+
+    .main-headline .highlight-orange {
+      color: #e67e00;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 32px;
+    }
+
+    .subtitle .discount-text {
+      color: #c0392b;
+      font-weight: 700;
+    }
+
+    .subtitle .product-name {
+      color: #1a7a1a;
+      font-weight: 700;
+    }
+
+    /* ── Success Box ── */
+    .success-box {
+      background: #f0f8f0;
+      border: 1px solid #c3e6cb;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 36px;
+    }
+
+    .success-box .success-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .success-box p {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 6px;
+      line-height: 1.5;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ── Section Headings ── */
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 32px 0 14px;
+    }
+
+    /* ── Objections ── */
+    .objections p {
+      font-size: 15px;
+      color: #333;
+      margin-bottom: 8px;
+      font-family: Arial, sans-serif;
+    }
+
+    .objections .obj-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 6px;
+      font-family: Arial, sans-serif;
+    }
+
+    .obj-item .x-mark {
+      color: #c0392b;
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .discount-callout {
+      font-size: 15px;
+      color: #1a1a1a;
+      margin-top: 14px;
+      font-family: Arial, sans-serif;
+    }
+
+    .discount-callout strong {
+      color: #c0392b;
+    }
+
+    .transition-text {
+      font-size: 15px;
+      color: #333;
+      margin-top: 10px;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ── Product Description ── */
+    .product-desc {
+      background: #fafafa;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin: 18px 0;
+    }
+
+    .product-desc p {
+      font-size: 15px;
+      color: #333;
+      line-height: 1.7;
+      font-family: Arial, sans-serif;
+    }
+
+    .archangels-label {
+      font-size: 15px;
+      color: #333;
+      margin: 16px 0 6px;
+      font-family: Arial, sans-serif;
+    }
+
+    .archangels-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 14px 0;
+    }
+
+    .archangels-list li {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+      font-family: Arial, sans-serif;
+    }
+
+    .archangels-cta {
+      font-size: 15px;
+      color: #333;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+    }
+
+    .archangels-cta strong {
+      color: #1a1a1a;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Image Placeholder ── */
+    .img-placeholder {
+      background: linear-gradient(135deg, #e8d5b7, #c9a96e);
+      border-radius: 10px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 28px 0;
+      border: 2px solid #b8974a;
+    }
+
+    .img-placeholder span {
+      font-size: 16px;
+      color: #6b4c1e;
+      font-style: italic;
+      font-family: Arial, sans-serif;
+      letter-spacing: 1px;
+    }
+
+    /* ── Price Box ── */
+    .price-box {
+      text-align: center;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 28px 24px;
+      margin: 24px 0;
+    }
+
+    .price-box .old-label {
+      font-size: 13px;
+      color: #777;
+      font-family: Arial, sans-serif;
+      margin-bottom: 6px;
+    }
+
+    .price-box .old-price {
+      font-size: 18px;
+      color: #999;
+      text-decoration: line-through;
+      font-family: Arial, sans-serif;
+      margin-bottom: 8px;
+    }
+
+    .discount-badge {
+      display: inline-block;
+      background: #e67e00;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 20px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    .special-condition {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      font-family: Arial, sans-serif;
+    }
+
+    .installment-price {
+      background: #1a7a1a;
+      color: #fff;
+      font-size: 38px;
+      font-weight: 900;
+      padding: 18px 40px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 14px;
+      font-family: Arial, sans-serif;
+    }
+
+    .cash-price {
+      font-size: 17px;
+      color: #1a1a1a;
+      font-weight: 700;
+      font-family: Arial, sans-serif;
+      margin-bottom: 8px;
+    }
+
+    .price-cta-label {
+      font-size: 15px;
+      color: #555;
+      font-family: Arial, sans-serif;
+      margin-bottom: 18px;
+    }
+
+    /* ── Buttons ── */
+    .btn-main {
+      display: block;
+      background: #1a7a1a;
+      color: #ffffff;
+      text-align: center;
+      padding: 18px 24px;
+      font-size: 17px;
+      font-weight: 900;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      font-family: Arial, sans-serif;
+      text-transform: uppercase;
+      transition: background 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .btn-main:hover {
+      background: #155a15;
+    }
+
+    .btn-decline {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      text-decoration: underline;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      margin-top: 8px;
+    }
+
+    .btn-decline:hover {
+      color: #555;
+    }
+
+    /* ── Benefits ── */
+    .benefits-box {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 28px 0;
+    }
+
+    .benefits-box h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 18px;
+      text-decoration: underline;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .benefit-item .star {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .benefit-item .benefit-text {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      color: #222;
+      line-height: 1.5;
+    }
+
+    /* ── Separator ── */
+    .sep {
+      border: none;
+      border-top: 1px solid #e0e0e0;
+      margin: 36px 0;
+    }
+
+    /* ── Security Footer ── */
+    .security-note {
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+      font-family: Arial, sans-serif;
+      margin-top: -6px;
+      margin-bottom: 18px;
+    }
+
+    /* ── Ticto Buttons ── */
+    .wrapper-botoes {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .ticto-upsell-button {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 18px 16px;
+      background: #16a34a;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      text-decoration: none;
+      font-size: clamp(14px, 4vw, 17px);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1.4;
+      text-align: center;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: background 0.15s;
+      animation: pulseVerde 2.2s ease-in-out infinite;
+    }
+    .ticto-upsell-button:hover {
+      background: #15803d;
+    }
+    .ticto-upsell-button:active {
+      background: #0F6E56;
+      transform: scale(0.97);
+      animation: none;
+    }
+
+    @keyframes pulseVerde {
+      0%   { transform: scale(1);     box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+      70%  { transform: scale(1.012); box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+      100% { transform: scale(1);     box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+
+    /* Respeita quem prefere menos animação (acessibilidade) */
+    @media (prefers-reduced-motion: reduce) {
+      .ticto-upsell-button { animation: none; }
+    }
+
+    .ticto-refuse-button {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      margin: 18px auto 0;
+      background: none;
+      border: none;
+      border-bottom: 1px solid #aaa;
+      border-radius: 0;
+      color: #aaa;
+      font-family: Arial, Helvetica, sans-serif;
+      text-decoration: none;
+      font-size: clamp(11px, 3.5vw, 13px);
+      padding: 2px 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .main-headline {
+        font-size: 26px;
+      }
+
+      .installment-price {
+        font-size: 30px;
+        padding: 14px 28px;
+      }
+
+      .btn-main {
+        font-size: 15px;
+        padding: 16px 18px;
+      }
+
+      .container {
+        padding: 20px 10px 48px;
+      }
+
+      .price-box {
+        padding: 20px 8px;
+        border-radius: 8px;
+      }
+
+      .wrapper-botoes {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+
+      .ticto-upsell-button {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 16px 8px;
+        font-size: 15px;
+        border-radius: 10px;
+      }
+
+      .ticto-refuse-button {
+        font-size: 12px;
+        max-width: 100%;
+        text-align: center;
+        word-break: break-word;
+      }
+    }
+  </style>
+   
+
+</head>
+<body>
+
+  <!-- Urgency Bar -->
+  <div class="urgency-bar">
+    ⚠️ IMPORTANTE: NÃO ABRA MÃO DO SEU ANJO DA GUARDA, AINDA!
+  </div>
+
+  <div class="container">
+
+    <!-- Main Headline -->
+    <h1 class="main-headline">
+      Espera um pouco…<br>
+      <span class="highlight-green">Antes de sair,</span> Deus tem uma<br>
+      <span class="highlight-orange">bênção disponível</span> para você
+    </h1>
+
+    <p class="subtitle">
+      Receba agora o <span class="product-name">Grimório com as orações dos 4 arcanjos</span>
+      com <span class="discount-text">R$60 de desconto</span> agora mesmo
+    </p>
+
+    <!-- Product Description -->
+    <h2>O que é o Grimório dos Arcanjos?</h2>
+
+    <div class="product-desc">
+      <p>
+        É um Grimório antigo usado pelos apóstolos e papas para garantir proteção contra os nós,
+        contra a escassez, contra enfermidades, contra inveja, contra mau olhado e todo ou qualquer
+        tipo de ataque do mal contra sua vida e de sua família.
+      </p>
+
+      <p class="archangels-label" style="margin-top: 16px;">Os arcanjos:</p>
+
+      <ul class="archangels-list">
+        <li>Rafael</li>
+        <li>Miguel</li>
+        <li>Gabriel</li>
+        <li>Uriel</li>
+      </ul>
+
+      <p class="archangels-cta">
+        <strong>SÃO SEUS ANJOS DA GUARDA</strong> e você precisa ativar sua conexão com eles para que possam
+        proteger sua vida e abrir as portas das bênçãos que Deus tem para você.
+        <br><br>
+        Se você quer ativar sua conexão com esses arcanjos para que eles cuidem para sempre de você,
+        então toque no botão abaixo:
+      </p>
+    </div>
+
+    <!-- Image -->
+    <div style="text-align:center; margin: 28px 0;">
+      <img src="images/grimorio.jpg" alt="Grimório dos Arcanjos" style="max-width: 100%; width: 420px; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.35);">
+    </div>
+
+
+      <div id="wrapper-botoes" class="wrapper-botoes" style="display:block;">
+  <a href="#" class="ticto-upsell-button" payt_action="oneclick_buy" data-object="R2687O-RKBQN6">AMÉM! Aceito essa proteção do arcanjo miguel</a>
+  <a href="https://setemadrugadas.com.br/upsell-02/index.html" class="ticto-refuse-button">Quero ficar sem proteção contra inveja, mal olhado e enfermidades</a>
+</div>
+
+    <!-- Benefits -->
+    <div class="benefits-box">
+      <h3>O que você recebe dentro do Grimório dos Arcanjos:</h3>
+
+      <div class="benefit-item">
+        <span class="star">⭐</span>
+        <span class="benefit-text">Oração para ativar conexão com os 4 Arcanjos</span>
+      </div>
+      <div class="benefit-item">
+        <span class="star">⭐</span>
+        <span class="benefit-text">Como receber tudo que deseja das mãos dos Arcanjos</span>
+      </div>
+      <div class="benefit-item">
+        <span class="star">⭐</span>
+        <span class="benefit-text">Como pedir para seu Arcanjo cortar os laços do mal</span>
+      </div>
+      <div class="benefit-item">
+        <span class="star">⭐</span>
+        <span class="benefit-text">Sente que um nó está se formando? Peça isso ao Arcanjo Miguel</span>
+      </div>
+      <div class="benefit-item">
+        <span class="star">⭐</span>
+        <span class="benefit-text">Como ativar a frequência sagrada que abre o fluxo da prosperidade</span>
+      </div>
+    </div>
+
+    <!-- Image #2 -->
+    <div style="text-align:center; margin: 28px 0;">
+      <img src="images/grimorio.jpg" alt="Grimório dos Arcanjos" style="max-width: 100%; width: 420px; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.35);">
+    </div>
+
+   
+      <div id="wrapper-botoes-2" class="wrapper-botoes" style="display:block;">
+  <a href="#" class="ticto-upsell-button" payt_action="oneclick_buy" data-object="R2687O-RKBQN6">AMÉM! Aceito essa proteção do arcanjo miguel</a>
+  <a href="https://setemadrugadas.com.br/upsell-02/index.html" class="ticto-refuse-button">Quero ficar sem proteção contra inveja, mal olhado e enfermidades</a>
+</div>
+
+    <!-- Footer -->
+    <hr class="sep">
+    <p style="text-align:center; font-size: 12px; color: #aaa; font-family: Arial, sans-serif;">
+      © 2025 Grimório dos Arcanjos · Todos os direitos reservados<br>
+      Esta é uma oferta exclusiva para quem acabou de confirmar sua contribuição
+    </p>
+
+  </div>
+
+  <select payt_element="installment" data-object="R2687O-RKBQN6" hidden></select>
+  <script type="text/javascript" src="https://checkout.payt.com.br/multiple-oneclickbuyscript/LGAJ2Y.js"></script>
+
+</body></html>
