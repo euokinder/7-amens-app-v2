@@ -249,6 +249,39 @@ create table if not exists public.hubla_product_map (
   created_at timestamptz not null default now()
 );
 
+-- A PAYT (16/10/2026) tem a sua própria porta, separada da Hubla: a função
+-- payt-webhook e as duas tabelas abaixo. Ver supabase/payt-webhook.sql.
+-- Cada aviso da Payt, inteiro (sem a chave secreta). A trava do
+-- idempotency_key faz o mesmo aviso chegando duas vezes não duplicar nada.
+create table if not exists public.payt_events (
+  id uuid primary key default gen_random_uuid(),
+  idempotency_key text not null unique,
+  event_status text not null,
+  payment_status text,
+  sale_type text,
+  transaction_id text,
+  product_code text,
+  customer_email text,
+  sandbox boolean not null default false,
+  payload jsonb not null,
+  processing_status text not null default 'received',
+  error text,
+  received_at timestamptz not null default now(),
+  processed_at timestamptz,
+  constraint payt_events_processing_status_check check (
+    processing_status in ('received','processed','ignored','failed','needs_reconciliation')
+  )
+);
+
+-- Tradutor entre o código da Payt (do produto ou da oferta) e o nosso.
+-- Código que não está aqui nunca libera nada.
+create table if not exists public.payt_product_map (
+  payt_code text primary key,
+  product_key text not null references public.products(key) on delete cascade,
+  note text not null default '',
+  created_at timestamptz not null default now()
+);
+
 
 -- =====================================================================
 -- 5. POP-UPS DE OFERTA
@@ -256,7 +289,8 @@ create table if not exists public.hubla_product_map (
 
 -- A configuração de cada pop-up: texto, botão, para quem aparece e para
 -- quem NÃO aparece. 'required_principal_sources' é o que separa público
--- novo (comprou pela Hubla) de base antiga (veio na importação).
+-- novo (comprou pela Hubla ou, desde 16/10/2026, pela Payt) de base antiga
+-- (veio na importação).
 create table if not exists public.member_offer_campaigns (
   key text primary key,
   headline text not null,
@@ -416,6 +450,9 @@ create index if not exists hubla_events_status_idx on public.hubla_events (proce
 create index if not exists hubla_events_type_idx on public.hubla_events (event_type);
 create index if not exists hubla_events_user_idx on public.hubla_events (hubla_user_id);
 create index if not exists hubla_product_map_product_key_idx on public.hubla_product_map (product_key);
+create index if not exists payt_events_transaction_idx on public.payt_events (transaction_id);
+create index if not exists payt_events_email_idx on public.payt_events (customer_email);
+create index if not exists payt_events_status_idx on public.payt_events (processing_status, received_at desc);
 create index if not exists member_offer_campaigns_source_idx on public.member_offer_campaigns (source_campaign_key);
 create index if not exists member_home_banners_ordem_idx on public.member_home_banners (enabled, sort_order);
 create index if not exists member_offer_events_campaign_idx on public.member_offer_events (campaign_key);
@@ -441,7 +478,7 @@ begin
   foreach t in array array[
     'customers','products','entitlements','member_sessions','member_entry_links','member_login_limits',
     'prayer_progress','member_visit_days','member_donation_events','member_admins','admin_actions',
-    'hubla_events','hubla_product_map','member_offer_campaigns','member_offer_events',
+    'hubla_events','hubla_product_map','payt_events','payt_product_map','member_offer_campaigns','member_offer_events',
     'member_survey_campaigns','member_survey_events','member_survey_responses',
     'member_home_banners'
   ] loop
@@ -799,6 +836,19 @@ insert into public.hubla_product_map(hubla_id, product_key, note) values
  ('HGtQvmVF8zGobBfx2Kcd', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta (Copia) (Copia) (Copia) de R$ 97. Export de faturas de 08/10/2026 (1 venda).')
 on conflict (hubla_id) do nothing;
 
+-- Os códigos da Payt (16/10/2026). O "Payt Object ID" das páginas do funil
+-- é oferta-produto; o do principal veio do Caio. Ver supabase/payt-webhook.sql.
+insert into public.payt_product_map(payt_code, product_key, note) values
+ ('4Z3WGM', 'principal', 'Produto principal na Payt, informado pelo Caio em 2026-10-16.'),
+ ('RKBQN6', 'upsell_01', 'Produto dos Arcanjos na Payt: a parte depois do traco do Payt Object ID do UP01 (R6VDGP-RKBQN6) e do DOWN01 (R2687O-RKBQN6). funil/mapa.js, 2026-10-16.'),
+ ('R6VDGP', 'upsell_01', 'Oferta UP01 dos Arcanjos, R$ 137 (Payt Object ID R6VDGP-RKBQN6). 2026-10-16.'),
+ ('R2687O', 'upsell_01', 'Oferta DOWN01 dos Arcanjos, R$ 97 (Payt Object ID R2687O-RKBQN6). 2026-10-16.'),
+ ('LP39N8', 'upsell_02', 'Produto Musicas dos Anjos na Payt (Payt Object ID LGE836-LP39N8). 2026-10-16.'),
+ ('LGE836', 'upsell_02', 'Oferta UP02 Musicas dos Anjos, R$ 69,90. 2026-10-16.'),
+ ('L9EXDN', 'upsell_03', 'Produto Comunidade da Fe na Payt (Payt Object ID 455P2J-L9EXDN). 2026-10-16.'),
+ ('455P2J', 'upsell_03', 'Oferta UP03 Comunidade da Fe, R$ 49,90. 2026-10-16.')
+on conflict (payt_code) do nothing;
+
 -- Os quatro pop-ups no ar. v1 fala com quem acabou de comprar ("antes de
 -- começar"); v2 fala com a base antiga, que já está rezando ("antes de
 -- finalizar"). O -a é a primeira exibição, o -b é a segunda.
@@ -809,14 +859,14 @@ Existe uma orientação que você precisa ouvir antes das 7 Madrugadas.',
   'Entender antes de começar', 'https://thedailyinsightreport.com/uppp?src=rec-app-up01-v1-a',
   '{principal}', '{upsell_01,upsell_02,upsell_03}', true, 10, 'entry', 'product',
   '🚨 Leia com atenção!
-Antes da primeira madrugada', 'Prefiro me arriscar sozinha', '{hubla,manual}'),
+Antes da primeira madrugada', 'Prefiro me arriscar sozinha', '{hubla,manual,payt}'),
  ('front_novas_2', 'O inimigo não precisa impedir sua oração.',
   'Às vezes, basta esperar você receber aquilo que pediu… e encontrar sua vida desprotegida depois.
 Existe uma orientação que você precisa ouvir antes das 7 Madrugadas.',
   'Entender antes de começar', 'https://thedailyinsightreport.com/uppp?src=rec-app-up01-v1-b',
   '{principal}', '{upsell_01,upsell_02,upsell_03}', true, 11, 'entry', 'product',
   '🚨 Leia com atenção!
-Antes da primeira madrugada', 'Prefiro me arriscar sozinha', '{hubla,manual}'),
+Antes da primeira madrugada', 'Prefiro me arriscar sozinha', '{hubla,manual,payt}'),
  ('front_antigas_1', 'O inimigo não precisa impedir sua oração.',
   'Às vezes, basta esperar você receber aquilo que pediu… e encontrar sua vida desprotegida depois.
 Existe uma orientação que você precisa ouvir antes de finalizar as 7 Madrugadas.',

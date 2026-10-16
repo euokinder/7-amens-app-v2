@@ -5,3 +5,7 @@ verify_jwt = false
 [functions.hubla-webhook]
 # Hubla authenticates with its own x-hubla-token header and never sends a JWT.
 verify_jwt = false
+
+[functions.payt-webhook]
+# Payt authenticates with the integration_key inside the body and never sends a JWT.
+verify_jwt = false

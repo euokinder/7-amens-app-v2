@@ -108,7 +108,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 | Frontend + hospedagem | **Netlify** | serve o HTML/CSS/JS, deploy automático |
 | Código + histórico | **GitHub** | fonte central; commit lá → deploy na Netlify |
 | Backend completo | **Supabase** | Postgres, usuários, entitlements, progresso, Edge Functions |
-| Pagamentos | **Hubla** | fonte da verdade de compras e reembolsos, via webhook |
+| Pagamentos | **Hubla** e, desde 16/10/2026, **Payt** | fontes da verdade de compras, cada uma com o seu webhook (ver as seções Hubla e Payt) |
 
 **Decisão firmada: NÃO reescrever em React/Next.** Preserva-se o frontend vanilla e adiciona-se backend por trás.
 
@@ -118,10 +118,10 @@ Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desat
 1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público. **Segunda porta, para quem não consegue nem digitar o e-mail: o link de entrada** (ver a seção própria, abaixo).
 2. **Só quem comprou o produto principal entra no app.** A compra principal libera todo o conteúdo base e o acesso é **vitalício**.
 3. **Extras são entitlements individuais.** Cliente pode ter principal + extra A sem ter extra B.
-4. **Reembolso do principal → perde o app inteiro.** **Reembolso de um extra → mantém o app, perde só aquele extra.**
+4. **Reembolso do principal → perde o app inteiro.** **Reembolso de um extra → mantém o app, perde só aquele extra.** ⚠️ **Vale para a Hubla. Na Payt, reembolso e chargeback NÃO tiram nada** (promessa da VSL, decisão do Caio em 16/10/2026; ver a seção Payt). Se a mesma regra passa a valer para a Hubla é decisão pendente dele.
 5. **Comprou o extra Y → libera Y e para de oferecer Y para ela**, idealmente já na próxima sincronização, mesmo com o app aberto.
 6. **Progresso vive na nuvem (Supabase), não em `localStorage`.** Trocou de aparelho, o progresso continua.
-7. **Webhooks da Hubla devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
+7. **Webhooks (Hubla e Payt) devem ser idempotentes.** Evento repetido não duplica entitlement nem quebra o banco.
 8. **RLS ligado no Supabase.** Ninguém consulta dados de outra pessoa.
 
 ## 🔗 Link de entrada — para quem não consegue digitar o e-mail
@@ -149,6 +149,8 @@ Onde mora: tabela `member_entry_links` (`supabase/link-de-entrada.sql`); ações
 ⛔ **Em 24/09 a trava do próprio Claude Code ("Production Deploy") recusou o agente publicando a `member-api` na produção**, mesmo com o sim do Caio no chat. É a mesma camada descrita em "Como publicar": não se contorna. **SQL na produção passou; publicar Edge Function na produção, não.** O caminho é o Caio, pelo painel do Supabase: *Edge Functions → member-api → Code*, colar o conteúdo de `supabase/functions/member-api/index.ts`, clicar em **Deploy updates**, e conferir que **"Verify JWT" continua DESLIGADO** (ligado, todo login das clientes dá 401). Link direto: `https://supabase.com/dashboard/project/lbaudlocfbjunnaoyrtz/functions/member-api/code`.
 
 **Como fazer sem confusão (aprendido em 24/09):** o **agente** põe o arquivo na área de transferência do computador, rodando ele mesmo pelo PowerShell `Get-Content -Raw -Encoding UTF8 supabase/functions/member-api/index.ts | Set-Clipboard`, e confere com `Get-Clipboard` (primeira linha, última linha `});`, acentos). **Não entregar esse comando num bloco para o Caio clicar:** na primeira tentativa, a própria linha do comando foi parar dentro do editor do Supabase (uma vez em cima do código antigo, outra sozinha). Para o Caio, é um passo por vez: "clique no editor, Ctrl+A, Ctrl+V, mande a foto" → conferir que a linha 1 é `// Email-only identification...` → "clique em Deploy updates". Depois o agente confere a versão nova e `verify_jwt: false` com `list_edge_functions`.
+
+**Função NOVA pelo painel (aprendido em 16/10, com a `payt-webhook`):** *Edge Functions → Deploy a new function → Via Editor*. ⚠️ **O nome fica num campo lá embaixo, e o "Deploy function" publica com o nome inventado que estiver nele** (a primeira tentativa virou `rapid-action`). Renomear depois não adianta: o endereço não muda. Saída: apagar e criar de novo, **escrevendo o nome antes do Deploy**. ⚠️ **Função nova nasce com o JWT LIGADO**: depois do deploy, aba *Settings* → desligar "Verify JWT with legacy secret" → *Save changes*. Guiar o Caio **uma tela por vez, com foto**: com vários passos de uma vez ele se perde.
 
 **Ponto de retorno da função:** a v16 que ficou no ar até 24/09, 21:14, é **idêntica, byte a byte, ao commit `654ccf6`** (conferido em 24/09). Para voltar: `git show 654ccf6:supabase/functions/member-api/index.ts` na área de transferência e colar no mesmo lugar. ⚠️ Voltar para ela desliga o link, o "Concluí" do Cântico e o "cancelou continua" — o banco pode ficar como está, a v16 simplesmente não usa o que ele ganhou.
 
@@ -260,6 +262,8 @@ O backend está bem mais adiantado do que o desenho original sugeria. Nomes reai
 | `member_login_limits` | anti-abuso: 20 tentativas por janela de 10 min |
 | `member_offer_campaigns` | campanhas de oferta dentro do app |
 | `member_offer_events` | registro servidor de exibição/clique, para não repetir oferta em outro aparelho |
+| `payt_events` | cada aviso da Payt, inteiro (sem a chave secreta) · desde 16/10/2026 |
+| `payt_product_map` | tradutor código da Payt → nosso produto · desde 16/10/2026 |
 
 Funções: `allow_member_login(bucket_key)` e `claim_member_offer(customer_id)`.
 Edge Function: `supabase/functions/member-api/index.ts` — **todo acesso ao banco passa por ela.**
@@ -268,7 +272,7 @@ Edge Function: `supabase/functions/member-api/index.ts` — **todo acesso ao ban
 
 Motivo de `products` + `entitlements` em vez de um `tem_acesso = true`: o catálogo vai crescer (novenas, jornadas 21/30 dias, materiais). O banco não pode assumir produto único.
 
-**Já existe e está rodando:** `hubla_events` e a Edge Function `supabase/functions/hubla-webhook/index.ts`, que recebe a venda da Hubla e libera o acesso sozinha.
+**Já existe e está rodando:** `hubla_events` e a Edge Function `supabase/functions/hubla-webhook/index.ts`, que recebe a venda da Hubla e libera o acesso sozinha. E, desde 16/10/2026, `payt_events` e a `supabase/functions/payt-webhook/index.ts`, que faz o mesmo para a Payt (ver a seção Payt).
 
 ### ✅ A receita do banco existe: `supabase/schema-completo.sql`
 **Resolvido em 2026-09-18.** Este é o arquivo que constrói o banco inteiro do zero — 16 tabelas, **3 visões** (`admin_customer_overview`, `admin_offer_overview`, `admin_payment_overview`), 3 funções, 33 índices, 61 travas e a configuração de produtos e campanhas. Sem nenhum dado de cliente.
@@ -294,6 +298,7 @@ Se um destes sumir, nada aparece quebrado na tela — e o estrago é silencioso:
 |---|---|
 | `HUBLA_WEBHOOK_TOKEN` | o webhook recusa **todos** os eventos com "não autorizado": as vendas novas param de liberar acesso, sem aviso |
 | `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_SECRET_KEYS` | a `member-api` para de responder: ninguém entra |
+| `PAYT_INTEGRATION_KEY` | a `payt-webhook` recusa **todos** os avisos da Payt (401): quem compra pela Payt não entra. É a chave do postback, no painel da Payt (16/10/2026) |
 
 Sintoma número um para conferir: se `hubla_events` parar de receber linhas depois de uma venda, o suspeito é o `HUBLA_WEBHOOK_TOKEN`.
 
@@ -330,6 +335,41 @@ Tudo sobre Hubla — webhook, payload, evento, status, reembolso, produto — sa
 - O e-mail vem em `event.user.email` (conta na Hubla). O export de faturas traz o e-mail de **quem pagou**, que pode ser outro. Ao inserir cliente vinda de export, cruzar sempre pelo `hubla_user_id`, nunca só pelo e-mail.
 
 **Especificação de integração aprovada: [docs/hubla-integracao-spec.md](docs/hubla-integracao-spec.md).** É a referência para o webhook. Decisão: adotar 100% da lógica dela, mas **manter os nomes de tabela atuais** (`customers`, `prayer_progress`, `products.key`) em vez dos propostos no documento (`profiles`, `progress`, `slug`) — renomear quebraria a `member-api`, o admin e o perfil num app já em produção.
+
+## Payt — a segunda porta de vendas (no ar desde 16/10/2026, 22:51)
+Desde 16/10/2026 a operação também vende pela **Payt** (conta 91852): checkout do principal e o funil de upsell de 1 clique UP01 → DOWN01 → UP02 → UP03, oficial em `painosso.space` (ver `funil/mapa.js`). A venda pela Payt libera o app **sozinha**, como a da Hubla.
+
+**Separada da Hubla de propósito** (Caio: "uma coisa não pode quebrar a outra"). Porta própria, `supabase/functions/payt-webhook/index.ts` (produção **v1**, `verify_jwt` false), e tabelas próprias, `payt_events` e `payt_product_map` (`supabase/payt-webhook.sql`). O `hubla-webhook`, a `hubla_events` e o `hubla_product_map` não foram tocados. A única tabela em comum é `entitlements` (origem `source = 'payt'`).
+
+**Regras decididas pelo Caio em 16/10/2026:**
+- Compra aprovada libera o produto comprado.
+- ⚠️ **Reembolso e chargeback NÃO tiram o acesso**: é promessa da VSL. A Payt só **dá** acesso, nunca tira; os avisos de devolução ficam só registrados (`ignored`). Tirar, se um dia precisar, é o "Revogar" do painel. **Isso é diferente da regra 4, que vale para a Hubla.**
+- Tudo é **pagamento único** por enquanto; avisos de assinatura só ficam registrados.
+- Acesso já ativo, venha de onde vier (Hubla, painel), fica como está. Cliente que já existe não tem nada sobrescrito: a Payt só preenche o que estiver em branco.
+- Quem comprou pela Payt recebe o pop-up dos Arcanjos (`front_novas_1` e `_2` aceitam a origem `payt`), que leva à mesma página de venda das clientes da Hubla.
+
+**Os códigos** (`payt_product_map`; o "Payt Object ID" das páginas do funil é oferta-produto):
+
+| Produto | Código do produto | Ofertas |
+|---|---|---|
+| `principal` | `4Z3WGM` ✅ confirmado por venda real (16/10) | — |
+| `upsell_01` Arcanjos | `RKBQN6` | `R6VDGP` (UP01, R$ 137) · `R2687O` (DOWN01, R$ 97) |
+| `upsell_02` Músicas dos Anjos | `LP39N8` | `LGE836` (UP02, R$ 69,90) |
+| `upsell_03` Comunidade da Fé | `L9EXDN` | `455P2J` (UP03, R$ 49,90) |
+
+Só o principal foi confirmado por evento real. **Na primeira venda real de cada upsell, conferir que o aviso foi `processed`.**
+
+**O postback no painel da Payt:** *Ferramentas → Postbacks → "App 7 Améns"*, tipo **PayT V1**, URL `https://lbaudlocfbjunnaoyrtz.supabase.co/functions/v1/payt-webhook`, eventos Aprovada, Reembolsada, Chargeback e Solicitação de reembolso. A **chave** desse postback é o segredo `PAYT_INTEGRATION_KEY` do Supabase, e vem dentro de cada aviso (`integration_key`; a função tira antes de gravar). **Desligar a porta = desativar o postback na Payt.**
+
+**No dia a dia:**
+- Aviso `needs_reconciliation` com "Produto não mapeado: X" = oferta nova na Payt. Cadastrar o código em `payt_product_map` e **reenviar o aviso pelo painel da Payt** (lupa do postback): a venda libera sozinha. Avisos `failed` também são refeitos no reenvio.
+- O "Testar URL" da Payt manda **sempre o mesmo aviso de mentira** (`PAYTS2`, `test: true`). Na produção ele só é guardado; no banco de teste (`BANCO_DE_TESTE`, na função), aviso de teste libera, para dar para provar o caminho inteiro.
+- As datas do aviso vêm no **horário de Brasília**, sem fuso (`paid_at` 19:16 = 22:16 UTC).
+- Consultas prontas no fim de `supabase/payt-webhook.sql`.
+
+**Formato do aviso:** a ajuda oficial (help.payt.com.br/article/155-postback) diz onde cadastrar e quais eventos existem, mas **não descreve o JSON**. Os campos seguem o "Guia do Postback PayT" (github.com/ventuinha/payt-postback), que **não é da Payt** e se contradiz. O primeiro aviso real (16/10) bateu com o guia nos campos que usamos. Nunca inferir por analogia com Hubla, Hotmart ou Kiwify.
+
+⚠️ **Lição de 16/10, que vale para qualquer webhook:** gravar com `resolution=ignore-duplicates` **exige** `?on_conflict=<coluna>`. Sem ele, o banco só ignora repetição da chave principal (`id`), e o aviso repetido vira erro 409. O `hubla-webhook` tem esse defeito (17 avisos `failed` desde 23/09; ver o diário). O teste local (`supabase/functions/payt-webhook/testa-webhook.mjs`, 72 conferências) imita o banco de verdade nisso.
 
 ## Painel administrativo (`admin.html`)
 Protegido pela tabela `member_admins` — e um admin também precisa do `principal` ativo, porque a `member-api` exige isso antes de qualquer ação.

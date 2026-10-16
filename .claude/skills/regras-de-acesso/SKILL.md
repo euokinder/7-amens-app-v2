@@ -38,6 +38,8 @@ Modelo: `products` (catálogo) + `entitlements` (o que cada cliente possui). **N
 
 Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva histórico e mantém o webhook idempotente.
 
+⚠️ **A tabela acima é a da Hubla. Na Payt (segunda porta de vendas, desde 2026-10-16), reembolso e chargeback NÃO tiram nada**: é promessa da VSL, decisão do Caio. A `payt-webhook` só dá acesso, nunca tira, e os avisos de devolução ficam só registrados em `payt_events`. Se a regra da Payt passa a valer também para a Hubla é decisão pendente dele: não aplicar sem ele pedir. Detalhes no `CLAUDE.md`, seção "Payt".
+
 ## ⚠️ Só TRÊS conteúdos são trancados por produto
 
 **Terceiro, pedido em 2026-10-07: a Live do Arcanjo São Rafael** (`live_rafael`, pagamento único, página `live-rafael.html`). A entrega é o vídeo pós-live "A Oração de Cura de São Rafael Arcanjo", não a live em si. Diferente dos dois abaixo, o card **só aparece para quem comprou** (sem cadeado, sem "Adquirir"), e a `member-api` não mudou. Detalhes no `CLAUDE.md`, seção do mesmo nome.

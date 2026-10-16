@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-10-13
+> Atualizado: 2026-10-16
 
 ---
 
@@ -14,6 +14,9 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
+| 27 | 🆕 **A regra "reembolso não tira o acesso" vale também para a Hubla?** (16/10) | Na **Payt**, o Caio decidiu em 16/10 que reembolso e chargeback **não** tiram nada, porque é promessa da VSL, e é assim que a `payt-webhook` funciona. Na **Hubla** continua valendo a regra 4 do `CLAUDE.md`: reembolso do principal tira o app, e o `hubla-webhook` grava 'revoked'. Se a VSL promete para todas, a Hubla está descumprindo hoje. Perguntas: vale para a Hubla? Para o principal e para os extras? E quem já foi reembolsada volta a ter acesso? Ele disse "a Hubla a gente vê depois, separado". Há um card de sessão proposto: "Hubla: erro 409 no aviso repetido e regra do reembolso". |
+| 26 | 🆕 **O `CLAUDE.md` e a regra de acesso ganharam a seção da Payt — está bom assim?** (16/10) | O agente escreveu, **sem perguntar antes** (o pedido da sessão que abriu o chat mandava registrar): a seção "Payt — a segunda porta de vendas" (regras, códigos, onde fica o postback, como desligar, o dia a dia), a nota na regra 4 de que na Payt reembolso não tira, o segredo `PAYT_INTEGRATION_KEY`, as duas tabelas novas, o passo a passo de criar função nova pelo painel e a lição do `on_conflict`. Na skill `regras-de-acesso`, uma nota igual na tabela de reembolso. Nada disso vai para o site. Se preferir outra redação, é só dizer. |
+| 25 | 🆕 **Hubla: uma compra das Músicas dos Anjos de 10/10 sem cadastro no app** (16/10) | Achado pelo defeito do 409 (ver o pendente da Hubla). Um aviso de compra (`member_added`, `upsell_02`) de 10/10 ficou "falha", e o e-mail dele **não existe** na lista de clientes: nem o Cântico nem o principal. Provavelmente ela comprou o principal com outro e-mail. O suporte confere na Hubla e libera pelo painel, ou junta os dois e-mails. A consulta que acha o caso está na entrada de 16/10. |
 | 24 | 🆕 **Posso registrar no `CLAUDE.md` onde mora o link do grupo?** (13/10) | Desde 13/10 o link do grupo no WhatsApp mora em **dois lugares**: o card da tela inicial (`index.html`, troca = 1 build) e a campanha do convite no banco (`member_offer_campaigns.target_url` da `grupo_whatsapp_1`, troca = um `update`, sem build; o comando está no fim de `supabase/convite-grupo.sql`). Quem trocar o link só num deles deixa a cliente com dois grupos diferentes. É "como o projeto é", então pertence ao `CLAUDE.md` (junto com o tipo de pop-up `'grupo'`). Perguntado no fechamento de 13/10. |
 | 23 | 🆕 **"Sorteios e prêmios" no convite do grupo — confirmar a autorização** (13/10) | A linha está **no ar** no pop-up desde 13/10, a pedido do Caio. No Brasil, sorteio feito por empresa para promover a marca precisa de autorização prévia do Ministério da Fazenda (Lei 5.768/1971), e sem ela pode dar multa. O agente avisou **duas vezes** e o Caio não respondeu sobre isso. Se precisar trocar: é o 5º item de `TEXTOS.beneficios`, em `js/convite-grupo.js` (1 build); sugestão do agente, "Presentes e surpresas". |
 | 22 | 🆕 **O botão verde do card do WhatsApp na tela inicial** (13/10) | No convite, o Caio **não gostou** do texto escuro sobre o verde claro e escolheu **texto branco num verde mais fundo** (`#11823b`, contraste 4,9:1). O card do grupo na tela inicial continua com o desenho antigo, texto escuro no verde claro (decisão nº 14 (e)). Quer o card igual ao convite? É CSS (`.card-contato.whatsapp .card-contato-botao`, em `css/styles.css`), 1 build. |
@@ -109,7 +112,14 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
-- 🆕🔥 **TRABALHO DE OUTRA CONVERSA NA MÁQUINA, SEM COMMIT: a oferta "As 3 Madrugadas" no Dia 7** (visto em 13/10, ~18:45). Enquanto este chat fechava o convite do grupo, outro chat estava editando, ao mesmo tempo: `dia.html`, `js/dias.js` (o bloco `oferta` do Dia 7, com os dois números em `null` = desligada), **dois trechos do `js/member.js`** (`ofertaDoDia` e `marcarNoFimDaOracao`) e o arquivo novo `css/dia-oferta.css`. **Nada disso foi commitado nem publicado**: o commit `a93c1cf` levou só o convite do grupo, separado trecho por trecho. Quem abrir o próximo chat: **não commitar esses arquivos achando que são seus**, e não descartar achando que é lixo. A pasta `kits/` (com `cartas-arcanjos`) também está solta desde antes de 11/10, de origem desconhecida.
+- 🆕🔥 **Payt: conferir a PRIMEIRA venda real de cada extra** (16/10). Só o código do principal (`4Z3WGM`) foi confirmado por venda de verdade. Os dos extras (`RKBQN6`/`R6VDGP`/`R2687O` Arcanjos, `LP39N8`/`LGE836` Músicas dos Anjos, `L9EXDN`/`455P2J` Comunidade da Fé) vieram do "Payt Object ID" das páginas do funil. Consulta: `select received_at, sale_type, product_code, processing_status, error from payt_events where sandbox = false order by received_at desc;`, e o certo é `processed`. Se vier `needs_reconciliation` com "Produto não mapeado: X", cadastrar o X em `payt_product_map` e **reenviar o aviso pela Payt**: libera sozinho.
+- 🆕🔥 **Hubla: aviso repetido vira "falha" (erro 409), e aviso que falhou nunca é refeito** (16/10). Achado pelo primeiro aviso real da Payt, que bateu no mesmo defeito, já corrigido na Payt. No `hubla-webhook`, a primeira gravação não diz qual trava ignorar, e o banco só ignora repetição do `id`: o mesmo aviso de novo dá 409, o resgate marca o aviso como `failed` e a Hubla recebe 500. **17 avisos** assim na produção desde 23/09 (4 de compra: 3 com acesso ativo e o caso da decisão nº 25). Conserto: acrescentar `?on_conflict=idempotency_key`, como na `payt-webhook`. Mexe na Hubla em produção, então vai com o cuidado de sempre e é o Caio quem publica. Card de sessão proposto: "Hubla: erro 409 no aviso repetido e regra do reembolso". Junto, um detalhe menor: o resgate da Hubla escreve "EVENTO_NAO_GRAVADO" no log mesmo quando gravou (POST com `return=minimal` responde 201 sem corpo).
+- 🆕 **O painel ainda mostra "pela Hubla" para quem comprou pela Payt** (16/10). O conserto (`js/admin.js`: "pela Payt") vai no commit deste chat, mas é site: só aparece na próxima publicação (1 build). Não precisa de publicação só para isso.
+- 🆕 **A ficha do painel não mostra os avisos da Payt** (16/10). O bloco de eventos da ficha lê só `hubla_events`. Para o suporte achar uma venda da Payt hoje, só pelo SQL Editor: `select * from payt_events where customer_email = '...'`. Mostrar na ficha exige mexer na `member-api` (publicação pelo Caio).
+- 🆕 **A cliente dos R$ 10 da Payt (16/10, 19:16): ninguém viu ela entrar no app** (16/10). O acesso está ativo na produção (conferido no banco), mas não houve login dela até a conferência. Ela também tem uma **cópia no banco de TESTE** (a venda caiu lá enquanto o postback apontava para o teste): pode ser apagada de lá.
+- 🆕 **O banco de teste ficou com a porta da Payt e a MESMA chave da produção** (16/10). Função `payt-webhook` (v4) e segredo `PAYT_INTEGRATION_KEY` no projeto de teste, com a mesma chave do postback. Não atrapalha nada, porque a Payt só manda para a produção. Se um dia a chave for trocada na Payt, trocar nos dois.
+- 🆕 **Três commits do funil da Payt (16/10) sem entrada neste diário**: `346fd27`, `283c958` e `86f7052` são de outra conversa, a do funil. E essa mesma conversa deixou `scripts/build.mjs` alterado sem commit (aviso de que as imagens do funil oficial vêm deste site). **Não commitar achando que é seu.**
+- ✅ ~~**TRABALHO DE OUTRA CONVERSA NA MÁQUINA, SEM COMMIT: a oferta "As 3 Madrugadas" no Dia 7**~~ **Desatualizado, visto em 16/10:** foi commitada em `3ae571a` (13/10, 21:55) e está no ar (ver o `CLAUDE.md`). Texto antigo: (visto em 13/10, ~18:45). Enquanto este chat fechava o convite do grupo, outro chat estava editando, ao mesmo tempo: `dia.html`, `js/dias.js` (o bloco `oferta` do Dia 7, com os dois números em `null` = desligada), **dois trechos do `js/member.js`** (`ofertaDoDia` e `marcarNoFimDaOracao`) e o arquivo novo `css/dia-oferta.css`. **Nada disso foi commitado nem publicado**: o commit `a93c1cf` levou só o convite do grupo, separado trecho por trecho. Quem abrir o próximo chat: **não commitar esses arquivos achando que são seus**, e não descartar achando que é lixo. A pasta `kits/` (com `cartas-arcanjos`) também está solta desde antes de 11/10, de origem desconhecida.
 - 🆕 **Convite do grupo: olhar os números depois de uns dias** (13/10). Ligado às ~19h de 13/10, com **0 exibições** na conferência. A consulta está no fim de `supabase/convite-grupo.sql` (viram / tocaram / dispensaram), e o painel mostra a campanha como "Grupo no WhatsApp". ⚠️ **"Tocou" não é "entrou"**: o app só sabe quem tocou no botão; quem entrou de fato, só o WhatsApp mostra. E ficar de olho no **tamanho do grupo**: um grupo cabe 1.024 pessoas, e em 11/10 eram 4.806 clientes com o principal (3.445 entraram no app em 30 dias). Quem já viu os dois pop-ups dos Arcanjos (a maioria) recebe o convite na primeira entrada, então a enxurrada vem nos primeiros dias. O Caio disse "está tudo certinho" antes de ligar, mas o agente não sabe como o grupo novo foi preparado para isso.
 - 🆕 **O banco de TESTE ficou com o convite ligado** (13/10). A campanha `grupo_whatsapp_1` existe e está `enabled = true` lá, e as cobaias `teste.01` (viu e dispensou), `teste.04`, `teste.12` (reservou o `front_novas_1`) e `teste.antigas` ganharam reservas de pop-up no teste da ordem. Não atrapalha nada; só não estranhar.
 
@@ -183,6 +193,57 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-10-16 — Webhook da Payt: a venda pela Payt libera o app sozinha (NO AR desde 22:51)
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+Tudo pelas mãos do Caio, guiado pelo agente; o agente só leu e conferiu.
+
+| Onde | O quê | Conferido |
+|---|---|---|
+| Banco (SQL Editor) | `supabase/payt-webhook.sql`: tabelas `payt_events` e `payt_product_map` (trancadas só para o servidor), 8 códigos, e o pop-up `front_novas_1`/`_2` passou a aceitar a origem `payt` | ✅ lido no banco: tranca, 8 códigos, pop-ups; `front_antigas` intactos |
+| Edge Function | `payt-webhook` **v1**, `verify_jwt` false | ✅ código lido do Supabase: idêntico ao arquivo, inteiro |
+| Segredo | `PAYT_INTEGRATION_KEY` (a chave do postback da Payt), 22:47 | ✅ a porta passou a dizer "chave configurada" |
+| Painel da Payt | postback "App 7 Améns" (PayT V1) → URL da produção, salvo | ✅ o "Testar URL" chegou à produção às 22:49 e ficou só registrado, como deve |
+| Cliente | a compradora dos R$ 10 (Pix, 19:16) foi liberada pelo **reenvio do aviso na Payt**, às 22:51 | ✅ principal ativo, origem payt |
+
+**Não mudou:** `hubla-webhook` (continua v6), `member-api` (v18), `HUBLA_WEBHOOK_TOKEN` (de 18/09). A Hubla liberou 66 vendas nas 3 horas em que isso acontecia. O site não mudou (nenhum build).
+
+### O pedido
+A operação passou a vender pela Payt em 16/10, e só a Hubla avisava o banco: quem comprava pela Payt não entrava no app e não destravava os extras. Esta sessão foi aberta por outra (a do funil da Payt) para fechar essa lacuna.
+
+### As decisões do Caio (16/10)
+- **"Vamos continuar com a Hubla rodando… uma coisa não pode quebrar a outra."** Por isso a Payt ganhou porta e tabelas próprias, e a Hubla não foi tocada.
+- **Reembolso NÃO tira o acesso**: "prometemos na VSL que vamos manter mesmo se ela peça reembolso". **Chargeback também mantém.** Na Hubla fica para depois (decisão nº 27).
+- Código do principal na Payt: `4Z3WGM`. Tudo é **pagamento único** por enquanto.
+- O pop-up dos Arcanjos aparece para quem comprou pela Payt, se não tiver o UP01, levando à mesma página das clientes da Hubla.
+- Ninguém tinha comprado pela Payt antes de começar: não houve carga de vendas antigas a fazer.
+
+### Como funciona (para quem for mexer)
+Está tudo na seção "Payt" do `CLAUDE.md`: regras, códigos, onde fica o postback, como desligar (desativar o postback na Payt), como liberar um código novo (cadastrar + reenviar pela Payt). Arquivos: `supabase/functions/payt-webhook/index.ts`, `supabase/functions/payt-webhook/testa-webhook.mjs`, `supabase/payt-webhook.sql`; a receita `schema-completo.sql` e o `config.toml` foram atualizados.
+
+### Testado, e como
+- **Na máquina:** `testa-webhook.mjs`, **72 conferências**, num banco de mentira que imita o de verdade (inclusive na trava que causou o erro abaixo: a versão antiga falha 8).
+- **No banco de teste, com avisos de verdade da Payt:** o "Testar URL" (aviso de mentira da Payt, produtos que não são nossos) ficou "para conferir", sem liberar; com um código provisório cadastrado e o aviso reenviado, liberou (o provisório foi apagado depois). Uma **venda real** de R$ 10 caiu lá e liberou certinho: foi ela que confirmou o `4Z3WGM`.
+- **Na produção:** o aviso de teste ficou só registrado; o aviso reenviado da cliente dos R$ 10 liberou o principal.
+
+### O que NÃO foi conferido
+- **Nenhuma venda real de extra** pela Payt (UP01, DOWN01, UP02, UP03). Os códigos dos extras saíram do painel da Payt, não de um aviso (pendente).
+- **Nenhum aviso real de reembolso ou chargeback.** Como a porta nunca tira acesso, um formato diferente do esperado não tira ninguém de dentro: o pior caso é o aviso ficar registrado com outro nome.
+- **Ninguém entrou no app com uma compra da Payt**, nem a cliente dos R$ 10 até a conferência.
+- O pop-up dos Arcanjos para uma compradora da Payt não foi visto na tela, só a regra no banco.
+
+### Descobertas que enganam
+- **A ajuda oficial da Payt não descreve o conteúdo do aviso.** O único descritivo é um guia no GitHub (`ventuinha/payt-postback`), que não é da Payt e se contradiz. O aviso real bateu com ele nos campos usados. A chave vem **dentro** do aviso (`integration_key`), não num cabeçalho.
+- **Gravar "ignorando repetido" exige dizer qual trava.** Sem o `on_conflict`, o banco só ignora repetição do `id`, e o mesmo aviso de novo dá erro 409. Foi o "deu erro agora" do Caio no segundo "Testar URL", e é o mesmo defeito que está na Hubla (pendente).
+- **O Supabase responde 201 sem corpo** a uma gravação com `return=minimal`. Ler isso como JSON quebra uma gravação que deu certo. O banco de mentira do teste pegou isso antes de subir.
+- **O "Testar URL" da Payt manda sempre o mesmo aviso de mentira** (`PAYTS2`, `test: true`), e manda para a URL escrita na tela, **mesmo sem salvar**.
+- **As datas da Payt vêm no horário de Brasília, sem fuso** (`paid_at` 19:16 = 22:16 UTC).
+- **Criar função pelo painel:** o nome fica num campo lá embaixo, e o "Deploy function" publica com o nome inventado (a primeira virou `rapid-action`, apagada pelo Caio). E a função nova nasce com o **JWT ligado**. Passo a passo no `CLAUDE.md`, "Quem publica a função na produção".
+- **Segredo novo leva um instante:** a primeira conferência do agente foi às 22:46, e o Caio salvou às 22:47. A porta anota "chaveConfigurada" no log quando recusa uma chave; dá para conferir sem nunca ver a chave.
+- **Com o Caio, uma tela por vez, com foto.** Instrução de vários passos de uma vez o perdeu duas vezes.
 
 ---
 
