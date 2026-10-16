@@ -32,26 +32,37 @@ Cache-Control = "no-cache"
 
 # O funil de upsell da Payt não aparece no Google: a cliente chega nele pela
 # Payt, depois de comprar, e o downsell achado numa busca venderia mais barato.
+#
+# E a Payt mostra estas páginas DENTRO da página de obrigado dela, numa
+# moldura (iframe). O X-Frame-Options SAMEORIGIN do "/*" lá em cima proíbe
+# isso, e a cliente via "setemadrugadas.com.br recusou a conexão" logo depois
+# de pagar (16/10/2026). O frame-ancestors libera a moldura SÓ para a Payt; o
+# navegador ignora o X-Frame-Options quando ele existe. Não trocar por "*":
+# qualquer site poderia emoldurar o botão de compra de 1 clique.
 # Ao criar pasta nova do funil, acrescentar aqui e em scripts/build.mjs.
 [[headers]]
 for = "/upsell-01/*"
 [headers.values]
 X-Robots-Tag = "noindex, nofollow"
+Content-Security-Policy = "frame-ancestors 'self' https://payt.com.br https://*.payt.com.br"
 
 [[headers]]
 for = "/downsell-01/*"
 [headers.values]
 X-Robots-Tag = "noindex, nofollow"
+Content-Security-Policy = "frame-ancestors 'self' https://payt.com.br https://*.payt.com.br"
 
 [[headers]]
 for = "/upsell-02/*"
 [headers.values]
 X-Robots-Tag = "noindex, nofollow"
+Content-Security-Policy = "frame-ancestors 'self' https://payt.com.br https://*.payt.com.br"
 
 [[headers]]
 for = "/upsell-03/*"
 [headers.values]
 X-Robots-Tag = "noindex, nofollow"
+Content-Security-Policy = "frame-ancestors 'self' https://payt.com.br https://*.payt.com.br"
 
 # Imagens, áudio e PDFs só mudam quando o conteúdo muda. Guardar no celular por
 # um ano evita rebaixar 600 KB a cada visita.
