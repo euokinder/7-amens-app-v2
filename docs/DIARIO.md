@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-09-24
+> Atualizado: 2026-10-13
 
 ---
 
@@ -14,6 +14,13 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
+| 24 | 🆕 **Posso registrar no `CLAUDE.md` onde mora o link do grupo?** (13/10) | Desde 13/10 o link do grupo no WhatsApp mora em **dois lugares**: o card da tela inicial (`index.html`, troca = 1 build) e a campanha do convite no banco (`member_offer_campaigns.target_url` da `grupo_whatsapp_1`, troca = um `update`, sem build; o comando está no fim de `supabase/convite-grupo.sql`). Quem trocar o link só num deles deixa a cliente com dois grupos diferentes. É "como o projeto é", então pertence ao `CLAUDE.md` (junto com o tipo de pop-up `'grupo'`). Perguntado no fechamento de 13/10. |
+| 23 | 🆕 **"Sorteios e prêmios" no convite do grupo — confirmar a autorização** (13/10) | A linha está **no ar** no pop-up desde 13/10, a pedido do Caio. No Brasil, sorteio feito por empresa para promover a marca precisa de autorização prévia do Ministério da Fazenda (Lei 5.768/1971), e sem ela pode dar multa. O agente avisou **duas vezes** e o Caio não respondeu sobre isso. Se precisar trocar: é o 5º item de `TEXTOS.beneficios`, em `js/convite-grupo.js` (1 build); sugestão do agente, "Presentes e surpresas". |
+| 22 | 🆕 **O botão verde do card do WhatsApp na tela inicial** (13/10) | No convite, o Caio **não gostou** do texto escuro sobre o verde claro e escolheu **texto branco num verde mais fundo** (`#11823b`, contraste 4,9:1). O card do grupo na tela inicial continua com o desenho antigo, texto escuro no verde claro (decisão nº 14 (e)). Quer o card igual ao convite? É CSS (`.card-contato.whatsapp .card-contato-botao`, em `css/styles.css`), 1 build. |
+| 21 | 🆕 **O `CLAUDE.md` já ganhou a seção da Live de São Rafael — está bom assim?** (08/10) | O agente acrescentou ao `CLAUDE.md`, **sem perguntar antes**, a "terceira exceção" (a Live, ao lado dos Arcanjos e do Cântico), a linha do `live_rafael` no catálogo com os 3 códigos da Hubla, e o aviso de que a Hubla não reenvia venda antiga. Foi junto no commit `36c43c2`, já no GitHub (o `CLAUDE.md` não vai para o site). Se preferir outra redação, ou que saia, é só dizer. **E uma pergunta nova:** registrar no `CLAUDE.md` que o **banco de teste pausa sozinho** quando fica parado (e como religar)? Hoje isso está só neste diário e na memória do agente. |
+| 20 | 🆕 **Live de São Rafael: a arte do card e a copy provisória** (08/10) | **No ar desde 08/10, 00:12**, para as 13 compradoras. Nada trava, mas pede o olho do Caio. **(a)** A **arte do card**: hoje é a foto do Dia 3 (Cura), provisória (arte nova = arquivo com **nome novo**). **(b)** A copy escrita pelo agente: título "A Oração de Cura de São Rafael Arcanjo" (o nome que está na capa do vídeo); descrição do card "O seu conteúdo da Live de São Rafael, em vídeo, para assistir quando quiser."; botão "Assistir agora"; na página, "Conteúdo exclusivo · Live de São Rafael", o subtítulo, as 4 dicas de "Como assistir", a faixa "São Rafael Arcanjo, rogai por nós"; e o aviso de quem abre o link sem ter comprado ("Este vídeo é para quem comprou na Live do Arcanjo São Rafael…" + "Falar com a equipe"). **(c)** O card é o **primeiro** dos Conteúdos Exclusivos. Mexer em qualquer um custa 1 build. |
+| 19 | 🆕 **Posso atualizar o `CLAUDE.md`?** (27/09) | Duas coisas deste chat mudam "como o projeto é": **(a)** o `CLAUDE.md` diz, em "Quem publica a função", que **"SQL na produção passou"**. Em 27/09 **não passou**: a trava "Production Deploy" barrou o agente criando a tabela `member_donation_events`, e quem rodou foi o Caio, pelo SQL Editor. Hoje, tudo que escreve na produção (função **e** SQL) é clique dele. **(b)** As contribuições do Dia 03 (Cakto mensal + Hubla único + pop-up + contagem) não aparecem em lugar nenhum do `CLAUDE.md`. Perguntado no fechamento de 27/09. |
+| 18 | ⚠️ **VELHO desde 30/09** — o commit `98dfc0d` tirou o Pix mensal do Dia 03 (voltou a ser só o pagamento único da Hubla), então não existe mais "o mensal" para baratear. Fica para registro. Texto antigo: 🆕 **Teste futuro: mensal mais barato que o único** (27/09) | Ideia do Caio: "diminuir os tickets pra versão mensal pode ser um bom teste futuramente". Hoje o mensal e o único têm os mesmos três valores. **Quando ele quiser:** criar as ofertas mensais mais baratas na Cakto e trocar o `data-mensal` (e o `data-valor`, se o valor mostrado mudar) de cada botão no `dia.html`. O banco já aceita qualquer valor, sem mexer em nada. Custa 1 build. |
 | ~~17~~ | ✅ **RESOLVIDO em 24/09, 21:14: o Caio publicou a função (v17) pelo painel, e o link está no ar.** Conferido: `verify_jwt` false, respostas novas, 18 pedidos de clientes sem nenhum erro nos 3 minutos seguintes. Texto antigo: **Link de entrada: o Caio publica a função pelo painel do Supabase** (24/09, noite) | O Caio autorizou os passos 1 e 2. **(1) ✅ feito:** os dois SQL rodaram na produção. **(2) ⛔ barrado:** a trava do Claude Code ("Production Deploy") recusou o agente publicando a `member-api`. **Falta o Caio:** *Supabase → Edge Functions → member-api → Code*, colar `supabase/functions/member-api/index.ts`, publicar, e deixar **"Verify JWT" DESLIGADO**. Depois, o agente confere (versão 17, resposta nova, clientes entrando). **(3)** o site vai no botão entregue ao Caio (1 build), e pode subir antes ou depois da função sem estragar nada. Ponto de retorno da função: commit `654ccf6` (idêntico à v16). |
 | ~~10~~ | ✅ **RESOLVIDO em 24/09 (noite).** O Caio autorizou, e o (a) foi feito: `cantico-angelical.sql` no banco de teste e a função nova provada lá, com o nome `member-api-link`. Tudo passou (ver a entrada "Link de entrada", seção "Depois"). O que falta para a produção está na decisão nº 17. Texto antigo: **Arcanjos e Cântico: duas autorizações** (24/09) | **(a)** Publicar uma **cópia temporária** da `member-api` nova no projeto de **TESTE** do Supabase, com **outro nome de função**, e rodar `supabase/cantico-angelical.sql` no banco de **teste**, para provar num servidor de verdade a regra "cancelou continua, reembolsou sai" (dos dois produtos) e o "Concluí este dia" do Cântico. Não tem cliente e não custa nada. **(b)** ✅ ~~Enviar ao GitHub~~ — **enviado em 24/09**, nas duas publicações do dia (`c29da69` às 03:53 e `fef0c11` às 04:17). Os commits são feitos na máquina e **quem clica é o Caio**. Continua aberto só o **(a)**. |
 | 12 | 🆕🔥 **Cântico Angelical: o que só o Caio pode mandar** (24/09) | ✅ ~~(a) o formato da venda~~ — **em vídeo**, com a VSL `vid-6ab4a340c48cfa940452f7df` (já na página). ✅ ~~(b) o link de compra~~ — `pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell`, com o código **já mapeado** para `upsell_02` (314 vendas reais chegaram com ele). **Falta (c):** as **7 artes dos cartões** e, quando houver, os **textos** (✅ os 7 áudios chegaram em 24/09, e a arte do card da home também; ✅ **(e)** vídeo: o áudio tomou o lugar dele, e por enquanto a entrega é só o áudio — Caio, 24/09). O Caio avisou que manda **por último de tudo**. **E (d):** se o texto de cada dia é oração para rezar junto (quadro "A oração") ou reflexão — dá para responder junto com o material. **(f)** 🆕 A **Introdução** vai ter áudio? Sem áudio e sem texto, ela está fora da lista desde 24/09. **(g)** 🆕 **Dia 1, Dia 4 e Dia 7** têm a mesma duração (5:54) e quase todo o som em comum, e **Dia 3 e Dia 6** também (6:25) — foi de propósito? (medido com o `ffmpeg`; ver a entrada dos áudios). |
@@ -102,9 +109,24 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕🔥 **TRABALHO DE OUTRA CONVERSA NA MÁQUINA, SEM COMMIT: a oferta "As 3 Madrugadas" no Dia 7** (visto em 13/10, ~18:45). Enquanto este chat fechava o convite do grupo, outro chat estava editando, ao mesmo tempo: `dia.html`, `js/dias.js` (o bloco `oferta` do Dia 7, com os dois números em `null` = desligada), **dois trechos do `js/member.js`** (`ofertaDoDia` e `marcarNoFimDaOracao`) e o arquivo novo `css/dia-oferta.css`. **Nada disso foi commitado nem publicado**: o commit `a93c1cf` levou só o convite do grupo, separado trecho por trecho. Quem abrir o próximo chat: **não commitar esses arquivos achando que são seus**, e não descartar achando que é lixo. A pasta `kits/` (com `cartas-arcanjos`) também está solta desde antes de 11/10, de origem desconhecida.
+- 🆕 **Convite do grupo: olhar os números depois de uns dias** (13/10). Ligado às ~19h de 13/10, com **0 exibições** na conferência. A consulta está no fim de `supabase/convite-grupo.sql` (viram / tocaram / dispensaram), e o painel mostra a campanha como "Grupo no WhatsApp". ⚠️ **"Tocou" não é "entrou"**: o app só sabe quem tocou no botão; quem entrou de fato, só o WhatsApp mostra. E ficar de olho no **tamanho do grupo**: um grupo cabe 1.024 pessoas, e em 11/10 eram 4.806 clientes com o principal (3.445 entraram no app em 30 dias). Quem já viu os dois pop-ups dos Arcanjos (a maioria) recebe o convite na primeira entrada, então a enxurrada vem nos primeiros dias. O Caio disse "está tudo certinho" antes de ligar, mas o agente não sabe como o grupo novo foi preparado para isso.
+- 🆕 **O banco de TESTE ficou com o convite ligado** (13/10). A campanha `grupo_whatsapp_1` existe e está `enabled = true` lá, e as cobaias `teste.01` (viu e dispensou), `teste.04`, `teste.12` (reservou o `front_novas_1`) e `teste.antigas` ganharam reservas de pop-up no teste da ordem. Não atrapalha nada; só não estranhar.
+
+- 🆕🔥 **Live de São Rafael: conferir a PRIMEIRA venda nova que chegar pelo webhook** (08/10). O Caio corrigiu a regra do webhook na Hubla em 07/10 à noite, e os 3 códigos da live saíram do **export** de faturas, não de um evento de verdade (a lição de 20/09: a Hubla manda formatos diferentes em situações diferentes). Até 08/10, 00:20, **nenhuma venda da live tinha chegado pelo webhook**. Consulta: `select received_at, event_type, processing_status, error from hubla_events where hubla_product_id in ('CmL4fCj0VqS5rSwPq4Wo','gGRTrFRMperRP23fXTFJ','HGtQvmVF8zGobBfx2Kcd') order by received_at desc;` — o certo é `processed`. **Se não aparecer nada depois de uma venda**, procurar `needs_reconciliation` com "Produto não mapeado: …" nas últimas horas: o código que vier ali é o que falta mapear para `live_rafael`. E se nem isso aparecer, a regra da Hubla não pegou.
+- 🆕 **Live de São Rafael: ninguém viu o card com os olhos de uma compradora** (08/10). Conferido no teste local (cobaias `teste.02` com a live e `teste.03` sem, a 390 px) e nos arquivos servidos pelo site, mas **nenhuma das 13 abriu**, e ninguém deu play num celular de verdade. Nenhum dos 3 admins tinha a live em 08/10: para o Caio ver, ele libera para si pelo painel (ficha → "Liberar" → "Live do Arcanjo São Rafael"); isso soma 1 no número de compradoras do painel.
+- 🆕 **O painel passou a contar a live em "Levaram algum extra"** (08/10). Essa conta é feita na `member-api` (que não mudou) e soma todo produto `addon`. A escada UP01→UP02→UP03 foi protegida no `js/admin.js`; este número, não. Hoje são 13 pessoas que já tinham o app, então quase não mexe; se a live vender muito, o número "extras" passa a misturar esteira e live.
+- 🆕 **Os commits de 28/09 a 07/10 não têm entrada neste diário** (achado em 08/10). O diário parou em 27/09. Entraram sem registro: `0ac0d4b` vídeos novos da VTurb na Introdução e nos 7 dias; `32bf1ce` página aberta do Padre Tiago; `98dfc0d` **Dia 03 volta a ser só o pagamento único da Hubla (sai o pop-up e o Pix mensal)**; `b1b024e` página aberta da live do Arcanjo Rafael (`arcanjo-rafael.html`, a página de VENDA); `1248ed8` Dia 03 com os valores novos (R$ 947, R$ 397, R$ 297); `7464a7c` link novo do grupo no WhatsApp; `825d2d2` Fale Conosco pelo devzapp; `2c458fe` número novo do suporte nos links de ajuda. Todos estão no ar. Ninguém registrou o que foi testado nem o que ficou faltando.
+- 🆕 **O banco de teste pausa sozinho quando fica parado** (07/10). Estava `INACTIVE`; religado de graça (plano gratuito, só 2 projetos na conta), levou ~5 minutos, e nos primeiros minutos as tabelas "não existem" (ainda carregando — não é banco apagado). Vai pausar de novo depois de uns dias sem uso.
+
+- ⚠️ **VELHO desde 30/09: o pop-up saiu do ar** (commit `98dfc0d`, a pedido do Caio), e a contagem dos toques parou. Os números de 27/09 a 30/09 continuam na tabela `member_donation_events`, se alguém quiser olhar. Texto antigo: 🆕🔥 **Pop-up da basílica: olhar os primeiros números** (27/09). Está no ar desde 22:56 de 27/09, e às ~23:00 a tabela ainda estava vazia (os valores só aparecem aos 9:14 do vídeo). Depois de uns dias, rodar a consulta do fim de `supabase/popup-da-basilica.sql` e comparar com as vendas: mensal na **Cakto**, único na **Hubla**. A tabela conta quem **foi** até o pagamento, não quem pagou. Comparar também com os dias 26 e 27/09, quando só existia o mensal e a conversão caiu (palavra do Caio; ninguém mediu).
+- ⚠️ **VELHO desde 30/09** (o pop-up saiu do ar). Texto antigo: 🆕 **Ver o pop-up num celular de verdade** (27/09). Conferido no navegador em 390 e 320 px, e o Caio olhou no computador dele ("ficou muito bom!"). Ninguém tocou com o dedo.
+- 🆕 **Conferir a `member-api` v18 byte a byte** (27/09). O Caio colou pelo painel, e foi conferido: a foto do topo do editor, a versão 18, o `verify_jwt` falso e a resposta 401 normal sem sessão. **Não** foi baixada e comparada com o commit `272160a`. Para voltar atrás: o arquivo do commit `26c5868` é a v17.
+- 🆕 **Como as contribuições únicas da Hubla chegam no webhook** (27/09). Os três links avulsos da basílica são produtos da Hubla que não estão no `hubla_product_map`, então as vendas devem cair em `needs_reconciliation`, sem liberar nada. Era assim antes de 26/09 também. Ninguém conferiu.
+- 🆕 **A cobaia `teste.04` do banco de teste tem os toques do teste do Caio** (27/09). O agente desmarcou o Dia 03 dela e apagou os eventos antes de passar o link para ele, mas ele testou depois. Não atrapalha nada.
 - 🆕🔥 **Link de entrada: NO AR desde 24/09, 21:14 — falta o primeiro uso de verdade.** Gerar o link de uma cliente real no painel (ficha dela → "Link de entrada"), mandar pelo WhatsApp, abrir num celular de verdade e confirmar que ela cai na home dela. Ninguém tocou num link desses com o dedo, nem viu o cartão que o WhatsApp desenha para ele. Na ficha, "Ela já tocou no link?" diz se ela usou.
 - 🆕 **Olhar o "Concluí este dia" do Cântico com as clientes de verdade** (24/09). Apareceu para as 96 às 21:14. Na conferência, ninguém tinha marcado ainda (`prayer_key like 'cantico:%'` = 0).
-- 🆕 **Apagar a função `member-api-link` do projeto de TESTE quando não servir mais** (24/09). É uma cópia da `member-api` do repositório, publicada com outro nome só para provar o link sem encostar na `member-api` de lá (que tem o banner). Não custa nada parada.
+- 🆕 **Apagar a função `member-api-link` do projeto de TESTE quando não servir mais** (24/09). É uma cópia da `member-api` do repositório, publicada com outro nome só para provar o link sem encostar na `member-api` de lá (que tem o banner). Não custa nada parada. ⚠️ **Desde 27/09 ela é a v2, uma versão ENXUTA**: sem comentários e **sem as ações do painel e da pesquisa** (só entrar, sessão, progresso, ofertas e a contagem do pop-up). Serviu para testar o pop-up. Para testar o painel por ela, publicar de novo o arquivo inteiro.
 - ✅ ~~**O card do Cântico na home ainda diz "com um vídeo e uma oração para cada dia"**~~ — corrigido em 24/09 à noite ("com um áudio para cada dia"), a pedido do Caio; vai no mesmo botão de publicar do link.
 
 - 🆕 **Ouvir os áudios convertidos, num celular** (24/09). Os 19 áudios dos upsells foram para o site em versão mais leve (Arcanjos mono 96 kbps, Cântico estéreo 128 kbps). Ninguém comparou de ouvido com o original: o teste tocou sem som. Se o Caio achar que perdeu qualidade, os originais estão nas pastas dele, e a troca precisa de **nome novo** de arquivo.
@@ -161,6 +183,203 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-10-11 a 13 — Convite para o grupo no WhatsApp: pop-up com os benefícios do grupo (NO AR e LIGADO)
+
+**Chat:** um só, aberto sem `/abrir`, de 11/10 a 13/10. Pedido do Caio: um pop-up no app incentivando a cliente a entrar no grupo do WhatsApp, falando dos benefícios do grupo. Primeiro o visual, depois a lógica.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+| O quê | Situação |
+|---|---|
+| **Site** | **1 publicação**, clicada pelo Caio: deploy `6acea7b85091fab0b1d4872e`, commit `a93c1cf`, **13/10 às 18:51**, **1 build**. Conferido no site servido: o card da home com o link novo (o antigo sumiu), `js/convite-grupo.js` idêntico ao commit, `css/convite-grupo.css` no ar, `js/member.js` com o convite e **sem** nada da oferta do Dia 7 (que é de outro chat) |
+| **Banco de produção** | rodado **pelo Caio** no SQL Editor (~19h de 13/10): a trava dos tipos de pop-up ganhou `'grupo'`, e a campanha `grupo_whatsapp_1` foi criada **e ligada**. Conferido pelo agente depois: `enabled = true`, `sort_order` 15, link `K603psXEfac6YCneu5TgaR`, para `{principal}`, sem exclusão; **0 exibições** naquele minuto |
+| **Função de produção** | **nada mudou.** A `member-api` já repassa o tipo do pop-up |
+| **Link do grupo** | **`https://chat.whatsapp.com/K603psXEfac6YCneu5TgaR`** (mandado pelo Caio em 13/10), no convite **e** no card "Junte-se ao nosso Grupo no WhatsApp" da home. O anterior, `FtrkFYIfJwXINVZTbShakL`, saiu do site |
+| **Pontos de retorno** | site: deploy `6ac70a0cfb8c6b000828ef4e` (08/10, 00:12, commit `36c43c2`), por "Publish deploy". Convite: `update member_offer_campaigns set enabled = false where key = 'grupo_whatsapp_1'` (no fim de `supabase/convite-grupo.sql`): quem já viu não vê de novo, quem não viu deixa de ver |
+| **Teste depois de ligar** | o Caio: **"testei aqui, funcionou certinho"**. O agente não sabe em qual aparelho |
+
+### As decisões do Caio
+| Pergunta | Resposta dele |
+|---|---|
+| O visual | **com o logo do WhatsApp** (no topo, branco no círculo verde oficial `#25D366`, e dentro do botão) |
+| O que o texto promete | **não falar das orações do app de forma direta**; falar dos benefícios do **grupo**: lives e orações exclusivas · materiais bônus exclusivos · passagens e imagens de Jesus · orações e salmos diários · sorteios e prêmios |
+| O botão | o texto escuro no verde claro "incomodava". Das três opções mostradas lado a lado, escolheu a **1: texto branco num verde mais fundo** (`#11823b`, 4,9:1). As outras: verde-escuro no verde do WhatsApp (6:1) e branco no verde do WhatsApp (2:1, ilegível para 45+) |
+| Ordem dos pop-ups | **depois dos dois dos Arcanjos** (`sort_order` 15; os Arcanjos são 10 a 13) |
+| Quantas vezes | **uma vez só** (o app não sabe quem entrou no grupo; repetir mostraria para quem já está lá) |
+| Para quem | **todas** com o principal, novas e antigas, com ou sem extras |
+| Onde | **só na tela inicial** (não interrompe quem abriu direto uma oração, às 4h, com o áudio) |
+| O card da home | **também** no link novo |
+
+**Textos escritos pelo agente e aceitos pelo Caio** (estão em `js/convite-grupo.js`, `TEXTOS`): chamada "Grupo exclusivo no WhatsApp", título **"Você não precisa rezar sozinha"**, "Lá no grupo, você tem:", "É de graça. Você sai quando quiser.", botão "Quero entrar no grupo", recusa "Agora não".
+
+### Como funciona (para quem for mexer)
+- É o **mesmo sistema do pop-up dos Arcanjos** (`member_offer_campaigns` + `claim_member_offer`): no máximo **1 pop-up por dia** por cliente, cada campanha **uma vez só**, e a ordem é o `sort_order`. A campanha nova tem o tipo `'grupo'`; o `js/member.js` vê esse tipo e, em vez do pop-up de oferta comum, chama `CONVITE_GRUPO.abrir()`, de `js/convite-grupo.js`.
+- **Só o `index.html` carrega `js/convite-grupo.js`.** Em outra tela, a campanha fica reservada para ela, sem aparecer e sem contar exibição, até ela passar pela tela inicial.
+- **O link que vale é o do banco** (`target_url` da campanha). O `LINK_DO_GRUPO` de dentro do JS só serve à prévia. Trocar o link do convite = `update`, sem build (Parte 3 do SQL). ⚠️ Mas o card da home tem o link escrito no `index.html` (decisão nº 24).
+- Conta **viu / tocou / dispensou** em `member_offer_events`, como os Arcanjos; ao dispensar, **não** puxa oferta seguinte. No painel, a campanha aparece como **"Grupo no WhatsApp"**, sem a coluna "Compras".
+- **Prévia** sem contar nada: `setemadrugadas.com.br/index.html?previa-grupo=1` (precisa estar logada).
+
+### Onde mora
+| Peça | O quê |
+|---|---|
+| `js/convite-grupo.js` (novo) | o pop-up: textos, os 5 benefícios (o trecho entre `*asteriscos*` sai em negrito), o logo do WhatsApp, os ícones, a prévia |
+| `css/convite-grupo.css` (novo) | o desenho. Compacta em tela baixa (até 740 px de altura) e estreita (até 400 px) para caber **sem rolar** num iPhone SE |
+| `js/member.js` | o desvio do tipo `'grupo'` em `setupMemberOffer` (o `record` subiu de lugar para servir aos dois) |
+| `js/admin.js` | o rótulo "Grupo no WhatsApp" e sem "Compras" para esse tipo |
+| `index.html` | carrega o CSS e o JS do convite; card do grupo com o link novo |
+| `supabase/convite-grupo.sql` (novo) | a trava com `'grupo'`, a campanha (nasce desligada), e os comandos de ligar, trocar o link, desligar e contar |
+| `supabase/schema-completo.sql` | a receita ganhou a trava e a campanha |
+
+### Testado, e o que não foi
+| | Como |
+|---|---|
+| tamanho | cabe **sem rolar** em 375×667, 390×844 e 360×740 (no 360, "Passagens e imagens de Jesus" quebra em 2 linhas, sem sobrepor nada); sem rolagem lateral |
+| ordem dos pop-ups, **no banco de teste**, pela própria `claim_member_offer` | `teste.12` (nunca viu nada) → `front_novas_1`; `teste.04` e `teste.antigas` (já viram os dois dos Arcanjos) → `grupo_whatsapp_1`, com o link novo |
+| de ponta a ponta no teste local, com a `teste.01` | na tela das 7 Orações: reservado, **não apareceu, não contou**. Na home: abriu com o link do banco; "Agora não" gravou `dismissed_at`; depois disso, nenhum pop-up no mesmo dia |
+| o toque no botão | contou `clicked` e **não** contou `dismissed` (com a campanha simulada) |
+| os Arcanjos | o pop-up comum continua igual: conta exibição, dispensa e puxa a oferta seguinte |
+| site no ar | arquivos servidos conferidos (ver a tabela do topo) |
+| ❌ **não visto pelo agente** | o convite aparecendo para uma cliente real; o toque com o dedo num celular; o WhatsApp abrindo o grupo pelo botão (o Caio testou e disse que funcionou) |
+
+### Descobertas que enganam
+- **Outro chat estava editando o MESMO `js/member.js` ao mesmo tempo** (a oferta do Dia 7). O commit levou só os dois trechos do convite: o agente recortou o `git diff` do arquivo e aplicou só a parte dele com `git apply --cached`, conferiu que o commit compila sozinho (exportando o que estava separado para uma pasta à parte e rodando o build lá) e que o `member.js` publicado não tem nada do Dia 7.
+- **O fechamento de 08/10 deixou o diário separado para commit e nunca commitado.** Para não ir junto no commit do convite, o agente salvou essa parte separada, tirou, e devolveu **idêntica** depois do clique (conferido byte a byte).
+- **Com o painel do navegador escondido, `<dialog>` fecha mas não some** (o evento `close` nunca dispara, nem num diálogo vazio de controle). Com o painel visível, funciona. Não é defeito do pop-up.
+- **As chamadas à `member-api` não aparecem no `read_network_requests`** (são de outro domínio). Para ver o que o app contou, embrulhar o `window.fetch` na página. Instalado duas vezes, ele registra cada chamada em dobro e parece evento duplicado.
+- **Dá para testar um pop-up de campanha sem a campanha existir no banco**: um remendo só no `dist/js/member.js` que injeta a oferta lida do `sessionStorage` (detalhe na memória do agente, "Testar o app localmente", item 16). O build seguinte desfaz.
+- **A porta 3000 estava ocupada pelo outro chat**: o preview subiu na 3001, que é outro endereço para o navegador, e foi preciso entrar de novo com a cobaia.
+- **O conector do Supabase caiu no meio do chat** (11/10) e voltou sozinho em 13/10. Enquanto esteve fora, o teste foi feito com campanha simulada; quando voltou, tudo foi refeito no banco de teste de verdade.
+
+---
+
+## 2026-10-07 e 08 — Live de São Rafael: o módulo com o vídeo pós-live, só para quem comprou (NO AR)
+
+**Chat:** um só, aberto sem `/abrir`. Pedido do Caio: um módulo no app para todas que compraram a live do São Rafael, com o entregável em vídeo e o mesmo UI e UX.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+| O quê | Situação |
+|---|---|
+| **Site** | **1 publicação**, clicada pelo Caio: deploy `6ac70a0cfb8c6b000828ef4e`, commit `36c43c2`, **08/10 às 00:12**, **1 build**. Conferido: os arquivos novos servidos pelo site, e a página sem login manda para o login (`next=live-rafael.html`) sem erro no navegador |
+| **Banco de produção** | rodado **pelo Caio** no SQL Editor (a trava barra o agente): o produto `live_rafael` (pagamento único, `enabled = false`, `sort_order` 40), os **3 códigos** da Hubla no `hubla_product_map` e **13 acessos** (`source = 'hubla_import'`). Conferido pelo agente depois: 13 ativos, as 13 com o app ativo, 3 códigos |
+| **Função de produção** | **nada mudou.** A `member-api` já manda todo produto ativo; pagamento único não precisa do "cancelou continua" |
+| **Hubla** | o Caio **editou a regra do webhook** (Integrações → Automações → Webhook) em 07/10 à noite. O agente não viu como ela ficou (todos os produtos, ou a live acrescentada) |
+| **Banco de teste** | estava **pausado**; religado em 07/10 (grátis). Ganhou o produto `live_rafael`, e a cobaia `teste.02` ganhou a live na mão |
+| **Pontos de retorno** | site: deploy `6ac6bbc6ea05d000071df749` (07/10, 18:38, commit `2c458fe`), por "Publish deploy". Banco: os 13 acessos são as linhas `live_rafael` com `source = 'hubla_import'` em `entitlements` |
+
+### As decisões do Caio
+| Pergunta | Resposta dele |
+|---|---|
+| Quem não comprou vê o card? | **Não.** Só quem comprou. Sem cadeado e sem "Adquirir"; para as outras, a home fica como estava |
+| Cobrança | **Pagamento único**: pagou, fica; só reembolso tira |
+| A headline | **"Esse é o entregável pós-live, não é a live em si."** Virou "A Oração de Cura de São Rafael Arcanjo", o nome na capa do próprio vídeo |
+| Vendas antigas | mandou o export de faturas (`faturas_live.xlsx`, em `D:\Downloads Certos`, fora do repositório): 13 pagas |
+| Publicar | "pode subir, vamos publicar direto já" |
+
+### Onde mora
+| Peça | O quê |
+|---|---|
+| `live-rafael.html` | página nova: o vídeo da VTurb `vid-6ac6ff5c7d2a6b90e1cafed7` (deitado, 16:9, na largura toda), "Como assistir" com 4 dicas, a faixa "São Rafael Arcanjo, rogai por nós" e "Voltar para o início" |
+| `index.html` | o card `card-live-rafael`, primeiro dos Conteúdos Exclusivos, que **nasce escondido** (`hidden`) |
+| `js/member.js` | `temLiveRafael`, `desenharCardLiveRafael`, `trancarPaginaDaLiveRafael` (link direto sem o produto: aviso + "Falar com a equipe", pensando em quem pagou e não foi liberada) e `live-rafael` na lista de volta do login |
+| `css/styles.css` | `.card-produto[hidden]`: sem ela, o `display: block` da classe vencia o `hidden` e o card aparecia **para todas** |
+| `js/app.js` | a luz de fundo pula card escondido (caixa zerada podia "ganhar" a luz no topo da tela) |
+| `js/admin.js` | a escada dos extras conta só os `upsell_`; sem isso ganharia um degrau falso "UP03 → live" |
+| `supabase/live-rafael.sql` | o produto e os 3 códigos (também na receita `schema-completo.sql`) |
+| a carga das 13 | **fora do repositório**, que é público: ficou na pasta temporária do chat (tinha os códigos das clientes na Hubla) |
+
+### A carga das 13 vendas antigas
+- **A Hubla não reenvia venda feita antes de a regra do webhook incluir o produto** (documentação dela, página "Histórico": só entra no histórico o que uma regra ativa já mandou). Daí o caminho: export → cruzamento → SQL.
+- O export: 13 faturas pagas, de **30/09 20:57 a 07/10 22:09**, todas "Pagamento único". Na Hubla o produto é **"Oração sagrada do arcanjo rafael"**, com 3 ofertas e 3 códigos: R$ 697 `CmL4fCj0VqS5rSwPq4Wo` (11 vendas; é também o código do link `pay.hub.la` da página da live), R$ 597 `gGRTrFRMperRP23fXTFJ` (1) e R$ 97 `HGtQvmVF8zGobBfx2Kcd` (1).
+- **11** achadas pela conta da Hubla (`hubla_user_id`); **2** pelo e-mail (o cadastro delas não tem a conta da Hubla) e entraram no SQL pelo identificador do app, sem e-mail nenhum.
+- O SQL tinha uma trava: se não achasse exatamente 13 clientes, as 13 com o app ativo, parava sem gravar nada. Provado antes no banco de teste (barrou, nada ficou) e conferido na produção só lendo (13 e 13).
+- O SQL Editor avisou *"creates a table without enabling Row Level Security"* por causa da tabela **temporária** da carga: a resposta certa foi **"Run without RLS"** (ela some no fim da execução).
+
+### Testado, e o que não foi
+| | Como |
+|---|---|
+| `teste.02` (com a live) | o card aparece, a página abre e o player da VTurb carrega — teste local, 390 px |
+| `teste.03` (sem a live) | a home fica igual à de hoje, e o link direto cai no aviso |
+| site no ar | os arquivos novos servidos; sem login, a página manda para o login |
+| ❌ **não visto** | nenhuma das 13 abriu o card; ninguém deu play num celular; **nenhuma venda nova da live chegou pelo webhook** (ver o pendente) |
+
+### Descobertas que enganam
+- **A VTurb lembra onde ela parou** (no mesmo celular) e pergunta "Continuar assistindo? / Assistir do início?". Virou a 4ª dica da página.
+- **O banco de teste pausa sozinho.** `INACTIVE` no Supabase; religar é grátis e leva ~5 min, e nos primeiros minutos as tabelas "não existem".
+- **A Netlify reescreve o HTML.** No ar o card fica `<a class='card-produto' hidden href='/live-rafael' id='card-live-rafael'>`: procurar o texto exato do repositório dá zero. Não é defeito.
+- **O diário estava parado desde 27/09**, e as alterações daquele fechamento **nunca tinham sido commitadas** — entram agora, junto com esta entrada. Os commits de 28/09 a 07/10 seguem sem entrada (ver o pendente). ⚠️ Um deles, `98dfc0d` (30/09), **tirou o pop-up da basílica e o Pix mensal**: os itens de 27/09 sobre o pop-up foram marcados como velhos.
+
+---
+
+## 2026-09-26 e 27 — Dia 03: as contribuições foram para a Cakto (mensal), a conversão caiu, e entrou o pop-up "todo mês ou só desta vez"
+
+**Chat:** um só, aberto sem `/abrir`. O Caio pediu uma troca simples de links e, no dia seguinte, a resposta para a queda de conversão que ela causou.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+| O quê | Situação |
+|---|---|
+| **Site** | **2 publicações**, as duas clicadas pelo Caio e conferidas no ar. **26/09 às 01:54**: deploy `6ab75016`, commit `26c5868`, os três botões do Dia 03 para a Cakto. **27/09 às 22:56**: deploy `6ab9c957`, commit `272160a`, o pop-up. **2 builds** no total |
+| **Banco de produção** | tabela nova **`member_donation_events`**, criada **pelo Caio**, no SQL Editor (a trava barrou o agente, ver abaixo). Conferida pelo agente: RLS ligado, política `backend_only`, 0 linhas às ~23:00. Nada mais foi escrito |
+| **Função de produção** | `member-api` **v18**, colada e publicada **pelo Caio** no painel. Conferida: versão 18, `verify_jwt` = false, e sem sessão responde 401 "Entre novamente com seu e-mail" (a resposta normal) |
+| **Banco de teste** | a mesma tabela; a cobaia `teste.04` com toques e o Dia 03 marcado e desmarcado várias vezes |
+| **Função de teste** | `member-api-link` passou para a **v2, enxuta** (ver o pendente dela) |
+| **Pontos de retorno** | site: deploy `6ab75016` (26/09, 01:54), que já tem os links da Cakto; antes dele, `6ab5b923` (24/09, 20:58), ainda com os links da Hubla. Função: o arquivo do commit `26c5868` é a v17 |
+
+### O que aconteceu
+1. **26/09:** o Caio pediu os links da Cakto nos três valores (R$ 950 `365v974_1141314` · R$ 300 `7y6eqfi` · R$ 197 `4tx9dv3`). Abertos só para leitura, os três cobram o valor certo, mas **são assinatura mensal** ("R$ 950,00 / mês", "Renovação mensal", mais R$ 0,99 de taxa), e o botão dizia só "Contribuição de R$950". Os antigos da Hubla eram pagamento único (o de R$ 197 em "12x R$ 20,02"). O Caio foi avisado antes do clique e publicou.
+2. **27/09:** nas palavras dele, "realmente não funcionou bem a questão do pix automático... a conv. caiu muito". A ideia dele: um pop-up ao tocar no valor, agradecendo e deixando claro que dá para ajudar todo mês ou só uma vez, e que cancelar é simples.
+
+### As decisões do Caio
+| Pergunta | Resposta dele |
+|---|---|
+| Link do "só desta vez" | **os antigos da Hubla** (`4vSvS89vI3KSJw0BSFdd`, `KVOgmVu5VyF04JUgitat`, `SBLUP4swsvhsHvTo4HqY`) |
+| Trocar o valor dentro do pop-up | **sim**, e os links mudam juntos |
+| O que o aviso diz | que existe o mensal automático pelo Pix, e que **cancelar é pelo WhatsApp ou direto no banco** |
+| VTurb | **igual**: continua contando os toques nos três valores. O pop-up "é apenas um step novo" |
+| Números | quantas abriram e quantas foram por cada caminho, **perguntando no chat** (sem bloco no painel) |
+| O texto | rascunho do agente, aprovado como está: "ficou muito bom!" |
+| Mensal mais barato | "pode ser um bom teste futuramente" (decisão nº 18) |
+
+### Como funciona (onde mora)
+| Peça | O quê |
+|---|---|
+| `dia.html` | cada valor guarda os dois links: `href` = **único (Hubla)**, `data-mensal` = **mensal (Cakto)**, mais `data-valor`. Se o pop-up não carregar, o toque segue o `href` e ela cai no **único**, sem cobrança mensal escondida |
+| `js/doacao-dia-03.js` (novo) | o pop-up. Lê os links dos próprios botões, então trocar um link é mexer num lugar só. Título "Que Deus abençoe o seu coração generoso!", três botões de valor, "Quero ajudar todo mês" e "Quero ajudar só desta vez" **com o mesmo desenho**, o aviso do Pix Automático e do cancelamento, e "Voltar para a oração". Fundo escuro e Esc fecham como o "Voltar" |
+| `css/dia-doacao.css` | o desenho do pop-up (a versão da folha passou para `?v=8`) |
+| `js/member.js` | conta cada toque marcado com `data-doacao-evento`, com o mesmo envio que não espera resposta (`keepalive`) do "concluí". E, depois de concluir o Dia 03, **redesenha a tela**: como agora ela fica na página, o botão lá embaixo continuaria pedindo "Escolha uma contribuição" |
+| `member-api` | ação nova `donation_event`: grava e responde `{ok}`, sem o resto |
+| `member_donation_events` | uma linha por toque: `opened` (abriu, com o valor tocado), `monthly` (foi para o mensal), `once` (foi para o único), `closed` (fechou), sempre com o valor que estava na tela. O valor aceita qualquer número de 1 a 100.000, para o teste de mensal mais barato não exigir banco. Também na receita (`schema-completo.sql`, agora 19 tabelas) |
+
+Tocar num valor **continua concluindo o Dia 03** (decisão de 22/09), mesmo que ela feche o pop-up.
+
+**A consulta que responde "como está o pop-up da basílica"** está no fim de `supabase/popup-da-basilica.sql` (pessoas diferentes e toques, por caminho e por valor).
+
+### A prova (banco de teste, cobaia `teste.04`, função `member-api-link`)
+| Conferência | Resultado |
+|---|---|
+| Tocar em R$ 300 | o pop-up abre com R$ 300 marcado, o mensal aponta para `7y6eqfi` e o único para `KVOgmVu5VyF04JUgitat`; a rolagem da página trava |
+| Trocar para R$ 950 dentro dele | os dois links, os dois textos e o valor contado mudam juntos |
+| "Voltar", fundo escuro | fecha e destrava a rolagem |
+| Mensal (R$ 950) | caiu no checkout da Cakto `365v974_1141314` |
+| Único (abriu em R$ 950, trocou para R$ 300) | caiu no checkout da Hubla `KVOgmVu5VyF04JUgitat` |
+| Banco | os quatro tipos gravaram, **inclusive os dois que saem para o checkout na mesma aba**; o Dia 03 ficou concluído no primeiro toque |
+| Botão lá embaixo | passou de "Escolha uma contribuição…" para "✓ Oração concluída · desfazer" sem recarregar |
+| Tela | 390×600: os dois caminhos aparecem sem rolar, nada sobreposto. 320 px: nada estoura para o lado, botões de valor com 54 px de altura |
+| Sintaxe | `node --check` nos dois JS |
+
+### Armadilhas desta vez
+1. 🪤 **O `sed -i` do Git Bash reescreveu o fim de linha do `dia.html` inteiro** (392 linhas "mudadas" para trocar 3 links), apesar de a memória já avisar. O `dia.html` é **misturado** no repositório (389 linhas CRLF e 65 LF antes, 390 e 69 depois). O que funcionou: restaurar com `git cat-file -p :dia.html` e trocar **em bytes**, com Python. Diff final de 3 linhas.
+2. 🪤 **A trava "Production Deploy" agora barra também SQL na produção.** Em 24/09 o agente rodou dois SQL lá; em 27/09, criar uma tabela foi recusado, mesmo com o "pode colocar no ar" do Caio. Não foi contornada: o agente pôs o SQL na área de transferência e o Caio rodou no SQL Editor. **Leitura (SELECT) continua passando.** O painel avisou "Potential issue detected… destructive operations", por causa do `drop policy if exists` e do `revoke`, que só mexem na tabela nova. Decisão nº 19.
+3. 🪤 **A pesquisa de perfil sequestra também o `dia.html`**, e não só a home (armadilha 3 da memória): a cobaia foi mandada para `perfil.html`. Contorno só no `dist/`, desfeito pelo build.
+4. 🪤 **Publicar função no teste exige o arquivo inteiro colado na chamada.** Por isso a cópia de teste ficou enxuta. O pedaço novo é idêntico ao do repositório; o arquivo publicado na produção é o do repositório, pela área de transferência.
+
+### O que NÃO foi conferido
+- Nenhum toque de cliente real ainda (tabela vazia às ~23:00).
+- A v18 publicada não foi comparada byte a byte com o commit (pendente).
+- Nada num celular de verdade.
+- Se a conversão voltou: isso só os números dos próximos dias dizem.
+- Como as vendas avulsas da Hubla aparecem no webhook (pendente).
 
 ---
 
