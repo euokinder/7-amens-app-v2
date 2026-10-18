@@ -40,7 +40,9 @@ Reembolso **não apaga a linha** — muda `status` para `'refunded'`. Preserva h
 
 ⚠️ **A tabela acima é a da Hubla. Na Payt (segunda porta de vendas, desde 2026-10-16), reembolso e chargeback NÃO tiram nada**: é promessa da VSL, decisão do Caio. A `payt-webhook` só dá acesso, nunca tira, e os avisos de devolução ficam só registrados em `payt_events`. Se a regra da Payt passa a valer também para a Hubla é decisão pendente dele: não aplicar sem ele pedir. Detalhes no `CLAUDE.md`, seção "Payt".
 
-## ⚠️ Só TRÊS conteúdos são trancados por produto
+## ⚠️ Só QUATRO conteúdos são trancados por produto
+
+**Quarto, pedido em 2026-10-18: As 3 Madrugadas** (`tres_madrugadas`, pagamento único, vendido no fim do vídeo do Dia 7; páginas `tres-madrugadas.html` e `tres-madrugadas-video.html`). Três vídeos, sempre abertos. Mesmo desenho da Live: o card **só aparece para quem comprou**, e a `member-api` não mudou. Detalhes no `CLAUDE.md`.
 
 **Terceiro, pedido em 2026-10-07: a Live do Arcanjo São Rafael** (`live_rafael`, pagamento único, página `live-rafael.html`). A entrega é o vídeo pós-live "A Oração de Cura de São Rafael Arcanjo", não a live em si. Diferente dos dois abaixo, o card **só aparece para quem comprou** (sem cadeado, sem "Adquirir"), e a `member-api` não mudou. Detalhes no `CLAUDE.md`, seção do mesmo nome.
 

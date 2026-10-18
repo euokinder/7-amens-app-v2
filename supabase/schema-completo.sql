@@ -818,7 +818,9 @@ insert into public.products(key, title, description, enabled, sort_order, type, 
  ('upsell_03', 'Comunidade da Fé', 'Terceira oferta do funil.', false, 30, 'addon', 'subscription', false),
  -- 07/10/2026: ver supabase/live-rafael.sql. Fica DEPOIS dos upsells (40)
  -- por causa da escada dos extras do painel.
- ('live_rafael', 'Live do Arcanjo São Rafael', 'Entregável pós-live do Arcanjo São Rafael: o vídeo A Oração de Cura de São Rafael Arcanjo. Vendido fora da esteira de upsells.', false, 40, 'addon', 'one_time', false)
+ ('live_rafael', 'Live do Arcanjo São Rafael', 'Entregável pós-live do Arcanjo São Rafael: o vídeo A Oração de Cura de São Rafael Arcanjo. Vendido fora da esteira de upsells.', false, 40, 'addon', 'one_time', false),
+ -- 18/10/2026: ver supabase/tres-madrugadas.sql. Também depois dos upsells.
+ ('tres_madrugadas', 'As 3 Madrugadas', 'Três madrugadas de oração por uma pessoa, em vídeo. Vendido no fim do vídeo do Dia 7, fora da esteira de upsells.', false, 50, 'addon', 'one_time', false)
 on conflict (key) do nothing;
 
 -- Placar final da investigação dos códigos: dos três links hub.la/g,
@@ -833,7 +835,8 @@ insert into public.hubla_product_map(hubla_id, product_key, note) values
  ('nMyLP4oFcIWiJ77UIbsu', 'upsell_03', 'CONFIRMADO em 2026-09-18 por evento real de Comunidade da Fe - Padre Thiago.'),
  ('CmL4fCj0VqS5rSwPq4Wo', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta de R$ 697. Export de faturas de 08/10/2026 (11 vendas). E tambem o codigo do link pay.hub.la da pagina da live.'),
  ('gGRTrFRMperRP23fXTFJ', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta (Copia) de R$ 597. Export de faturas de 08/10/2026 (1 venda).'),
- ('HGtQvmVF8zGobBfx2Kcd', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta (Copia) (Copia) (Copia) de R$ 97. Export de faturas de 08/10/2026 (1 venda).')
+ ('HGtQvmVF8zGobBfx2Kcd', 'live_rafael', 'Oracao sagrada do arcanjo rafael, oferta (Copia) (Copia) (Copia) de R$ 97. Export de faturas de 08/10/2026 (1 venda).'),
+ ('JwN1GmUvx8c3GUTCOaHU', 'tres_madrugadas', 'As 3 Madrugadas, oferta do fim do video do Dia 7 (pay.hub.la/JwN1GmUvx8c3GUTCOaHU). CONFIRMADO por 33 eventos reais de 13/10 a 18/10/2026.')
 on conflict (hubla_id) do nothing;
 
 -- Os códigos da Payt (16/10/2026). O "Payt Object ID" das páginas do funil

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>As 3 Madrugadas — 7 Améns da Madrugada</title>
+<!-- Conteúdo de quem comprou: não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5511936203979?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='tres-madrugadas.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+
+</div>
+
+<script src="js/tres-madrugadas.js?v=1"></script>
+<script>
+  // tres-madrugadas-video.html?m=1 — uma das 3 Madrugadas: o vídeo, na mesma
+  // moldura de cantos arredondados dos vídeos das 7 madrugadas (dia.html).
+  // Quem não comprou não vê esta tela: o js/member.js a troca por um aviso.
+  // PROVISORIO: os textos em volta do vídeo (a copy é do Caio).
+  const numero = new URLSearchParams(location.search).get('m');
+  const madrugada = /^[1-3]$/.test(numero || '') ? TRES_MADRUGADAS[numero] : null;
+  const content = document.getElementById('content');
+  const check = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>';
+
+  if (!madrugada || !madrugada.video) {
+    content.innerHTML = `
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
+        <p class="subtext">Não encontramos esta madrugada. Volte para As 3 Madrugadas.</p>
+      </div>
+      <a class="member-button" href="tres-madrugadas.html" style="text-align:center;">Voltar para As 3 Madrugadas</a>
+    `;
+  } else {
+    document.title = `${madrugada.titulo} — As 3 Madrugadas`;
+
+    content.innerHTML = `
+      <span class="kicker">${madrugada.kicker}</span>
+      <div class="section-heading" style="margin-top:-8px;">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;">${madrugada.titulo}</h1>
+          <p class="subtext">${madrugada.subtitulo}</p>
+        </div>
+      </div>
+
+      <div class="video-wrap-embed">${madrugada.video.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>
+
+      <div>
+        <h2 class="section-label" style="margin-bottom:14px;">Como rezar</h2>
+        <div class="modal-checklist">
+          <div class="item">${check}<p>Toque no vídeo para começar. Aumente o volume do celular ou use um fone de ouvido.</p></div>
+          <div class="item">${check}<p>Quando o vídeo pedir, diga o nome da pessoa em voz alta.</p></div>
+          <!-- O player da VTurb lembra onde ela parou, no mesmo celular
+               (conferido na Live de São Rafael, 07/10/2026). -->
+          <div class="item">${check}<p>Se precisar parar, pode sair. Quando voltar, o vídeo pergunta se você quer continuar de onde parou.</p></div>
+        </div>
+      </div>
+
+      <p class="subtext" style="text-align:center;">${madrugada.proximo}</p>
+
+      <div class="banner">
+        <span>Três madrugadas para cada nome</span>
+      </div>
+
+      <a class="member-button" href="tres-madrugadas.html" style="text-align:center;">Ver as 3 madrugadas</a>
+    `;
+
+    const s = document.createElement('script');
+    s.src = madrugada.video.scriptSrc;
+    s.async = true;
+    document.head.appendChild(s);
+  }
+</script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>

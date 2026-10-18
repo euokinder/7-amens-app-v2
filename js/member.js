@@ -34,7 +34,7 @@
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael|tres-madrugadas|tres-madrugadas-video)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -506,6 +506,56 @@
     content.replaceChildren(bloco, ajuda, voltar);
     return true;
   }
+  // AS 3 MADRUGADAS — o que a cliente recebe com o tres_madrugadas
+  //
+  // O produto vendido no fim do vídeo do Dia 7 (a oferta emendada, 13/10/2026;
+  // ver `oferta` em js/dias.js). O entregável, em vídeo, entrou em 18/10/2026.
+  // Mesmo desenho da Live, logo acima (decisões do Caio, 18/10): o card só
+  // aparece para quem comprou, sem cadeado nem "Adquirir", e as três
+  // madrugadas ficam sempre abertas (o rito recomeça a cada nome).
+  //
+  // Pagamento único: pagou, fica; só reembolso tira. Por isso não entrou no
+  // FICA_DEPOIS_DE_CANCELAR da member-api, que não mudou.
+  //
+  // ⚠️ Não é cadeado de verdade: os códigos dos vídeos estão no
+  // js/tres-madrugadas.js, arquivo público. Guia a cliente; não protege.
+  const PRODUTO_TRES_MADRUGADAS = 'tres_madrugadas';
+  const PAGINA_DAS_TRES_MADRUGADAS = /\/tres-madrugadas(?:-video)?(?:\.html)?$/;
+  const temTresMadrugadas = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_TRES_MADRUGADAS);
+  function desenharCardTresMadrugadas() {
+    const card = document.getElementById('card-tres-madrugadas');
+    if (card) card.hidden = !temTresMadrugadas();
+  }
+  // Quem chega pelo link direto sem ter o produto. Como na Live, o caso que
+  // importa é o da cliente que PAGOU e não foi liberada: o aviso oferece o
+  // suporte, e não a venda.
+  function trancarPaginaDasTresMadrugadas() {
+    if (!PAGINA_DAS_TRES_MADRUGADAS.test(location.pathname)) return false;
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    if (temTresMadrugadas()) {
+      // Foi liberada com a tela trancada aberta: a verificação seguinte a
+      // encontra aqui, e só recarregando o vídeo volta a aparecer.
+      if (content.dataset.trancada) location.reload();
+      return false;
+    }
+    if (content.dataset.trancada) return true;
+    content.dataset.trancada = '1';
+    const titulo = node('h1', 'title', 'As 3 Madrugadas');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', 'As 3 Madrugadas são para quem comprou no fim da Sétima Madrugada, e elas ainda não aparecem no seu acesso. Se você já comprou, fale com a nossa equipe que a gente resolve.'));
+    const ajuda = node('a', 'member-button', 'Falar com a equipe');
+    ajuda.href = 'https://gerador-link.devzapp.com.br/s/0sQRZM';
+    ajuda.target = '_blank';
+    ajuda.rel = 'noopener';
+    ajuda.style.textAlign = 'center';
+    const voltar = node('a', 'member-gate-help', 'Voltar para o início');
+    voltar.href = 'index.html';
+    voltar.style.textAlign = 'center';
+    content.replaceChildren(bloco, ajuda, voltar);
+    return true;
+  }
   // "Os itens com 🔒 são extras..." — a frase acima dos cards dos extras, na
   // home. Só faz sentido se houver algum 🔒 na tela: para quem já tem os dois
   // extras, ela some. Roda depois dos dois cards, que marcam a situação.
@@ -519,6 +569,7 @@
     desenharCardArcanjos();
     desenharCardCantico();
     desenharCardLiveRafael();
+    desenharCardTresMadrugadas();
     desenharAvisoDosExtras();
     // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
     // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
@@ -535,6 +586,7 @@
     if (trancarPaginaDosArcanjos()) return;
     if (trancarPaginaDoCantico()) return;
     if (trancarPaginaDaLiveRafael()) return;
+    if (trancarPaginaDasTresMadrugadas()) return;
     if (setupMemberSurvey()) return;
     if (bloquearDiaTravado(trava)) return;
     if (bloquearDiaDoCanticoTravado(travaDoCantico)) return;

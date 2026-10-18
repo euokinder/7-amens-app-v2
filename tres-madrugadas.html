@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>As 3 Madrugadas — 7 Améns da Madrugada</title>
+<!-- Conteúdo de quem comprou: não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5511936203979?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <!-- =====================================================================
+       AS 3 MADRUGADAS — o que a cliente recebe com o tres_madrugadas (o
+       produto vendido no fim do vídeo do Dia 7). Três vídeos, um por
+       madrugada, SEMPRE abertos (Caio, 18/10/2026): o rito recomeça a cada
+       nome, e uma trava de um dia por vez atrapalharia quem já está no
+       segundo nome. O conteúdo mora em js/tres-madrugadas.js.
+       Quem não comprou não vê esta tela: o js/member.js a troca por um aviso
+       (trancarPaginaDasTresMadrugadas). E nem chega aqui pela home: o card
+       só aparece para quem comprou.
+       PROVISORIO: os textos desta tela (a copy é do Caio).
+       ===================================================================== -->
+  <div class="content">
+
+    <span class="kicker">Conteúdo exclusivo</span>
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">As 3 Madrugadas</h1>
+        <p class="subtext">Três madrugadas de oração por uma pessoa que você carrega no coração. Comece pela Primeira.</p>
+      </div>
+    </div>
+
+    <div id="tres-madrugadas-lista" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+    <div>
+      <h2 class="section-label" style="margin-bottom:14px;">Como funciona</h2>
+      <div class="modal-checklist">
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Escolha uma pessoa: um filho, o marido, a mãe, alguém que precisa de Deus agora.</p>
+        </div>
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Reze uma madrugada de cada vez, na ordem: a Primeira, depois a Segunda, depois a Terceira.</p>
+        </div>
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Quando o vídeo pedir, diga o nome dessa pessoa em voz alta. O nome fica só entre você e Deus: o aplicativo não pergunta e não guarda.</p>
+        </div>
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Terminou a Terceira? Para rezar por outra pessoa, comece de novo pela Primeira.</p>
+        </div>
+      </div>
+    </div>
+
+    <a class="member-button" href="index.html" style="text-align:center;">Voltar para o início</a>
+
+  </div>
+</div>
+
+<script src="js/tres-madrugadas.js?v=1"></script>
+<script>
+  const OVERLAY = "linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)";
+  const playIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+  let html = '';
+  for (let i = 1; i <= 3; i++) {
+    const madrugada = TRES_MADRUGADAS[i];
+    html += `
+      <a href="tres-madrugadas-video.html?m=${i}" class="card" style="height:320px;background-image:${OVERLAY}, url(${madrugada.imagem});">
+        <div class="num-badge">${madrugada.numero}</div>
+        <div class="play-btn">${playIcon}</div>
+        <div class="card-body">
+          <h3 class="card-title">${madrugada.titulo}</h3>
+          <p class="card-sub">${madrugada.subtitulo}</p>
+        </div>
+      </a>
+    `;
+  }
+  // Desenhado UMA vez, ANTES do js/app.js carregar: o efeito de foco ao rolar
+  // (o único que tira o cartão de `opacity: 0.5`) só enxerga os cartões que já
+  // existem quando a página termina de abrir. Nunca redesenhar depois.
+  document.getElementById('tres-madrugadas-lista').innerHTML = html;
+</script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>

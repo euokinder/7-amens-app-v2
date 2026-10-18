@@ -163,9 +163,9 @@ Pedido do Caio: a oferta vem **emendada no próprio vídeo do Dia 7**, para pega
 - Quem tem o produto `tres_madrugadas` não vê o botão. Quem reassiste o Dia 7 ouve a oferta de novo, inclusive quem comprou.
 - Desligar: os dois números em `null` (volta o "Concluí") e o `videoEmbed` antigo, `vid-6abca3bf88ddc17b615d87f1`.
 
-⚠️ **O produto ainda NÃO existe no banco** (decisão do Caio em 13/10: criar o produto e o acesso depois; a cliente vai receber tudo no app). O código `JwN1GmUvx8c3GUTCOaHU` não está no `hubla_product_map`: cada venda cai em `needs_reconciliation` e não libera nada, mas fica guardada em `hubla_events` e pode ser liberada depois, como as vendas da Live. Já chega ao webhook: um evento de teste entrou em 13/10, às 17:22. Ao criar, usar a chave **`tres_madrugadas`**, que é a que o front já espera.
+⏳ **O produto `tres_madrugadas` e o que a cliente recebe estão prontos no repositório desde 18/10/2026** (ver "As 3 Madrugadas", na seção abaixo). Até o `supabase/tres-madrugadas.sql` rodar na produção, o código `JwN1GmUvx8c3GUTCOaHU` não está no `hubla_product_map`: cada venda cai em `needs_reconciliation` e não libera nada, mas fica guardada em `hubla_events`. O mesmo SQL libera essas vendas atrasadas (33 compras de 13/10 a 18/10, nenhuma reembolsada).
 
-## ⚠️ Só TRÊS conteúdos são trancados por produto: a Central dos Arcanjos, o Cântico Angelical e a Live do São Rafael
+## ⚠️ Só QUATRO conteúdos são trancados por produto: a Central dos Arcanjos, o Cântico Angelical, a Live do São Rafael e As 3 Madrugadas
 **Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ✅ **As duas estão no ar desde 24/09/2026**, por enquanto só com o áudio: os textos e as artes definitivas ainda vêm.
 
 Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para publicar, mexer ou desfazer um sem encostar no outro.
@@ -217,12 +217,24 @@ A conta mora em `js/member.js` (`temLiveRafael`, `desenharCardLiveRafael`, `tran
 
 ⚠️ **A escada dos extras do painel só conta os `upsell_`** (`js/admin.js`). A live vem depois deles no catálogo (`sort_order` 40); posta no meio, viraria a base do degrau seguinte.
 
+### As 3 Madrugadas (`tres_madrugadas`) — ⏳ pronta no repositório, ainda não publicada (18/10/2026)
+O produto vendido no fim do vídeo do Dia 7 (ver "A oferta do fim do Dia 7", acima). A entrega são **três vídeos da VTurb, um por madrugada**, em `tres-madrugadas.html` (a lista) → `tres-madrugadas-video.html?m=1…3`. O conteúdo mora em `js/tres-madrugadas.js`.
+
+**Decisões do Caio em 18/10:**
+- **Só quem comprou vê o card**, como a Live: sem cadeado e sem "Adquirir". A venda é o próprio vídeo do Dia 7. O card nasce `hidden` no `index.html`, logo depois do da Live.
+- **As três ficam sempre abertas**, sem trava de um dia por vez: o rito é **por nome** (três madrugadas por pessoa, e recomeça da Primeira no nome seguinte), e a trava atrapalharia quem já está no segundo nome.
+- O nome que a cliente lê é **"As 3 Madrugadas"**, o mesmo do botão de compra. "Rito do Telhado Aberto" é só o nome do roteiro.
+- **Pagamento único**: não entrou no `FICA_DEPOIS_DE_CANCELAR`, e a `member-api` **não mudou**. Sem "Concluí": o app não guarda progresso das 3 Madrugadas.
+- O app **não pergunta nem guarda o nome** de quem ela carrega: é a promessa da venda.
+
+A conta mora em `js/member.js` (`temTresMadrugadas`, `desenharCardTresMadrugadas`, `trancarPaginaDasTresMadrugadas`). O produto nasce com `supabase/tres-madrugadas.sql` (`enabled = false`, `sort_order` 50, `one_time`), que também libera as vendas que chegaram antes dele, lendo `hubla_events` (`source = 'hubla_import'`; acha a cliente pelo e-mail e, se não achar, pela conta da Hubla). Provado no banco de teste em 18/10. **Ordem de publicar: qualquer uma.**
+
 ### Vale para os dois
 ⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js` e `js/cantico.js`, arquivos públicos. **Não prometer "conteúdo protegido"** na venda.
 
 ⚠️ **Não ativar o `upsell_01` nem o `upsell_02` no catálogo** (`products.enabled`). Ativado e com link preenchido, um código antigo de `js/member.js` (a seção `member-extras`) cria sozinho um segundo card, genérico, no fim da home.
 
-A Live do São Rafael (acima) é a terceira exceção, também pedida pelo Caio. **Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
+A Live do São Rafael e As 3 Madrugadas (acima) são a terceira e a quarta exceções, também pedidas pelo Caio. **Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
 
 ## Home como hub
 **Home nova, no ar desde 24/09.** Dois blocos, na ordem pedida pelo Caio:
@@ -310,6 +322,7 @@ Sintoma número um para conferir: se `hubla_events` parar de receber linhas depo
 | `upsell_02` | **Músicas dos Anjos** (no app: "Cântico Angelical" — mesmo produto, nome novo) | addon — ⚠️ **assinatura MENSAL** (confirmado pelo Caio em 24/09). Cancelar **não** tira o conteúdo; reembolso tira |
 | `upsell_03` | **Comunidade da Fé** | addon |
 | `live_rafael` | **Live do Arcanjo São Rafael** (na Hubla: "Oração sagrada do arcanjo rafael") | addon — **pagamento único** (07/10/2026). Vendido fora da esteira de upsells. Três ofertas, três códigos mapeados: `CmL4fCj0VqS5rSwPq4Wo` (R$ 697) · `gGRTrFRMperRP23fXTFJ` (R$ 597) · `HGtQvmVF8zGobBfx2Kcd` (R$ 97) |
+| `tres_madrugadas` | **As 3 Madrugadas** | addon — **pagamento único** (18/10/2026). Vendido no fim do vídeo do Dia 7. Código `JwN1GmUvx8c3GUTCOaHU`, confirmado por 33 vendas reais |
 
 O mapeamento vive em `hubla_product_map` (vários IDs da Hubla podem apontar para o mesmo produto). Situação em 2026-09-18:
 
