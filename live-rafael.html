@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/member.css">
 <script src="js/member-config.js"></script>
 <script src="js/member.js"></script>
+<script src="js/video.js?v=1"></script>
 </head>
 <body>
 <div id="member-gate" role="status">
@@ -52,16 +53,29 @@
       </div>
     </div>
 
-    <!-- O código de incorporação da VTurb, exatamente como o Caio mandou em
-         07/10/2026, na mesma moldura de cantos arredondados dos outros vídeos
+    <!-- O vídeo, na mesma moldura de cantos arredondados dos outros vídeos
          do app. Este vídeo é DEITADO (16:9), e por isso ocupa a largura
-         inteira: os das 7 orações são em pé e param em 400px. -->
-    <div class="video-wrap-embed">
-      <vturb-smartplayer id="vid-6ac6ff5c7d2a6b90e1cafed7" style="display: block; margin: 0 auto; width: 100%; "><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
-      <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
-      <div class="corner-mask bl"></div><div class="corner-mask br"></div>
-    </div>
-    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ac6ff5c7d2a6b90e1cafed7/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+         inteira: os das 7 orações são em pé e param em 400px.
+         Quem escolhe entre a Bunny e a VTurb é o js/video.js. O código da
+         VTurb é o que o Caio mandou em 07/10/2026 e continua aqui: é a
+         volta atrás. Para passar para a Bunny, preencher `bunny` com o ID
+         do vídeo, no formato '16:9'. -->
+    <div class="video-wrap-embed" id="video-da-live"></div>
+    <script>
+      (function () {
+        const video = VIDEO.escolher({
+          bunny: null, // { video: '<ID do vídeo na Bunny>', formato: '16:9' }
+          vturb: {
+            html: '<vturb-smartplayer id="vid-6ac6ff5c7d2a6b90e1cafed7" style="display: block; margin: 0 auto; width: 100%; "><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
+            scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ac6ff5c7d2a6b90e1cafed7/v4/player.js'
+          },
+          titulo: 'A Oração de Cura de São Rafael Arcanjo'
+        });
+        document.getElementById('video-da-live').innerHTML = video.html
+          + '<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div>';
+        VIDEO.carregarScript(video.scriptSrc);
+      })();
+    </script>
 
     <div>
       <h2 class="section-label" style="margin-bottom:14px;">Como assistir</h2>

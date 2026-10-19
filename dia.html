@@ -98,6 +98,7 @@
 <script src="js/trava.js?v=1"></script>
 <script src="js/materiais.js?v=4"></script>
 <script src="js/tocador.js?v=1"></script>
+<script src="js/video.js?v=1"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const materialKey = params.get('material');
@@ -121,9 +122,14 @@
     let videoHtml = '';
     let videoScriptSrc = '';
     if (temVideo) {
-      if (dia.videoEmbed) {
-        videoHtml = `<div class="video-wrap-embed">${dia.videoEmbed.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>`;
-        videoScriptSrc = dia.videoEmbed.scriptSrc;
+      // Quem escolhe entre a Bunny e a VTurb é o js/video.js. O Dia 3 e o
+      // Dia 7 ficam sempre na VTurb: as contribuições e a oferta seguem o
+      // relógio do player dela, e o Dia 7 se marca sozinho por ele.
+      const ficaNaVturb = !materialKey && (diaNum === 3 || Boolean(dia.oferta));
+      const video = VIDEO.escolher({ bunny: ficaNaVturb ? null : dia.bunny, vturb: dia.videoEmbed, titulo: dia.titulo });
+      if (video) {
+        videoHtml = `<div class="video-wrap-embed">${video.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>`;
+        videoScriptSrc = video.scriptSrc;
       } else if (dia.videoId) {
         videoHtml = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${dia.videoId}" title="${dia.titulo}" allowfullscreen></iframe></div>`;
       } else {

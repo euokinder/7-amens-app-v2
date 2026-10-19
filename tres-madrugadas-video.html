@@ -38,6 +38,7 @@
 </div>
 
 <script src="js/tres-madrugadas.js?v=1"></script>
+<script src="js/video.js?v=1"></script>
 <script>
   // tres-madrugadas-video.html?m=1 — uma das 3 Madrugadas: o vídeo, na mesma
   // moldura de cantos arredondados dos vídeos das 7 madrugadas (dia.html).
@@ -48,7 +49,12 @@
   const content = document.getElementById('content');
   const check = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>';
 
-  if (!madrugada || !madrugada.video) {
+  // Quem escolhe entre a Bunny e a VTurb é o js/video.js.
+  const videoDaMadrugada = madrugada
+    ? VIDEO.escolher({ bunny: madrugada.bunny, vturb: madrugada.video, titulo: madrugada.titulo })
+    : null;
+
+  if (!videoDaMadrugada) {
     content.innerHTML = `
       <div class="heading-block">
         <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
@@ -69,7 +75,7 @@
         </div>
       </div>
 
-      <div class="video-wrap-embed">${madrugada.video.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>
+      <div class="video-wrap-embed">${videoDaMadrugada.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>
 
       <div>
         <h2 class="section-label" style="margin-bottom:14px;">Como rezar</h2>
@@ -91,10 +97,7 @@
       <a class="member-button" href="tres-madrugadas.html" style="text-align:center;">Ver as 3 madrugadas</a>
     `;
 
-    const s = document.createElement('script');
-    s.src = madrugada.video.scriptSrc;
-    s.async = true;
-    document.head.appendChild(s);
+    VIDEO.carregarScript(videoDaMadrugada.scriptSrc);
   }
 </script>
 <script src="js/app.js?v=6"></script>
