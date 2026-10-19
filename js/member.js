@@ -34,7 +34,7 @@
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael|tres-madrugadas|tres-madrugadas-video)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|oferta-arcanjos-vsl|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael|tres-madrugadas|tres-madrugadas-video)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -133,6 +133,10 @@
   // Os endereços do próprio app, em todas as roupas que ele veste: o
   // domínio de verdade, o site de validação e os links de cada deploy.
   const nossosSites = /(?:^|[.-])(?:setemadrugadas\.com\.br|7-amens-app-v2\.netlify\.app|7madrugadas\.netlify\.app)$/;
+  // As páginas de venda dos extras (oferta-*.html). Nelas a cliente está no
+  // meio de um vídeo de venda: nem pop-up nem formulário de perfil a tiram
+  // de lá (setupMemberOffer e setupMemberSurvey).
+  const PAGINA_DE_OFERTA = /\/oferta-[a-z-]+(?:\.html)?$/;
   // A campanha guarda o endereço COMPLETO (o banco só aceita https). Quando
   // esse endereço é uma página do próprio app, trocamos o domínio pelo de
   // agora. Sem isto, clicar no pop-up em localhost jogaria quem está
@@ -144,8 +148,12 @@
   function setupMemberOffer(nextOffer = null) {
     const offer = nextOffer || state?.offer;
     if (!offer || document.getElementById('member-offer-dialog')) return;
-    // Na própria página de oferta o pop-up não aparece: ela já está lá dentro.
-    if (/\/oferta-arcanjos(?:\.html)?$/.test(location.pathname)) return;
+    // Na página de oferta o pop-up não aparece: ela está no meio de um vídeo
+    // de venda. Vale para todas (oferta-arcanjos, oferta-arcanjos-vsl,
+    // oferta-cantico). Até 19/10 só a dos Arcanjos estava protegida, e a
+    // verificação de 5 em 5 minutos podia abrir o pop-up dos Arcanjos por
+    // cima do vídeo do Cântico.
+    if (PAGINA_DE_OFERTA.test(location.pathname)) return;
     let target;
     try { target = new URL(offer.target_url); } catch { return; }
     if (target.protocol !== 'https:') return;
@@ -233,7 +241,7 @@
     // A pesquisa de perfil não interrompe a página de oferta. Ela chegou ali
     // por um pop-up, está no meio de um vídeo de venda: arrancá-la para
     // responder um formulário mata a oferta e ainda perde o vídeo já assistido.
-    if (!survey || surveyRedirecting || /\/(perfil|oferta-arcanjos)(?:\.html)?$/.test(location.pathname)) return false;
+    if (!survey || surveyRedirecting || /\/perfil(?:\.html)?$/.test(location.pathname) || PAGINA_DE_OFERTA.test(location.pathname)) return false;
     if (!/^[a-z0-9_-]+$/.test(survey.campaign_key || '') || !/^[a-z0-9-]+[.]html$/.test(survey.target_path || '')) return false;
     surveyRedirecting = true;
     try { sessionStorage.setItem('7amens.member.survey.return', `${location.pathname.split('/').pop() || 'index.html'}${location.search}`); } catch {}
@@ -334,8 +342,10 @@
   const PRODUTO_ARCANJOS = 'upsell_01';
   const PAGINA_DOS_ARCANJOS = /\/(arcanjos|arcanjo|oracao-arcanjo)(?:\.html)?$/;
   // A etiqueta separa, no evento da Hubla, a venda que veio do card da que
-  // veio do pop-up (utm_medium=popup). Ver oferta-arcanjos.html.
-  const ofertaDosArcanjos = origem => `oferta-arcanjos.html?utm_source=app&utm_medium=card&utm_campaign=arcanjos&utm_content=${origem}`;
+  // veio do pop-up (utm_medium=popup). Desde 19/10/2026 o card vai para a
+  // página em VSL (oferta-arcanjos-vsl.html); o pop-up continua na das
+  // cartas (oferta-arcanjos.html), que é o endereço gravado no banco.
+  const ofertaDosArcanjos = origem => `oferta-arcanjos-vsl.html?utm_source=app&utm_medium=card&utm_campaign=arcanjos&utm_content=${origem}`;
   const temArcanjos = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_ARCANJOS);
   function desenharCardArcanjos() {
     const card = document.getElementById('card-arcanjos');

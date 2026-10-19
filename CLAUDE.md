@@ -112,7 +112,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 
 **Decisão firmada: NÃO reescrever em React/Next.** Preserva-se o frontend vanilla e adiciona-se backend por trás.
 
-Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos (`arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`) e o Cântico Angelical (`cantico.html`, `cantico-dia.html`, `oferta-cantico.html`, `cantico.js`). Todo áudio do app toca pelo **tocador único**, `js/tocador.js` (24/09): recomeçar, voltar e avançar 10 s, velocidade 1x/1,5x/2x e controle pela tela bloqueada do celular. Quem usa: `dia.html`, `oracao-arcanjo.html` e `cantico-dia.html`. Tocador novo numa tela = `TOCADOR.html(...)` + `TOCADOR.ligar(...)`, nunca uma cópia.
+Arquivos conhecidos do frontend: `index.html`, `novena.html`, `dia.html`, `desatadora.html`, `app.js`, `dias.js`, `materiais.js`, `mensagens.js`, `novena-desatadora.js` — e, desde 24/09, a Central dos Arcanjos (`arcanjos.html`, `arcanjo.html`, `oracao-arcanjo.html`, `arcanjos.js`) e o Cântico Angelical (`cantico.html`, `cantico-dia.html`, `oferta-cantico.html`, `cantico.js`). As páginas de venda em vídeo dos dois (`oferta-arcanjos-vsl.html`, `oferta-cantico.html`) usam `js/oferta-vsl.js` (19/10). Todo áudio do app toca pelo **tocador único**, `js/tocador.js` (24/09): recomeçar, voltar e avançar 10 s, velocidade 1x/1,5x/2x e controle pela tela bloqueada do celular. Quem usa: `dia.html`, `oracao-arcanjo.html` e `cantico-dia.html`. Tocador novo numa tela = `TOCADOR.html(...)` + `TOCADOR.ligar(...)`, nunca uma cópia.
 
 ## Regras de negócio (inegociáveis)
 1. **Login sem senha, sem OTP, sem código no e-mail.** A cliente digita o mesmo e-mail da compra e entra. O e-mail É a identidade. Risco de compartilhamento é aceito conscientemente — a fricção de auth tradicional é pior para esse público. **Segunda porta, para quem não consegue nem digitar o e-mail: o link de entrada** (ver a seção própria, abaixo).
@@ -163,7 +163,7 @@ Pedido do Caio: a oferta vem **emendada no próprio vídeo do Dia 7**, para pega
 - Quem tem o produto `tres_madrugadas` não vê o botão. Quem reassiste o Dia 7 ouve a oferta de novo, inclusive quem comprou.
 - Desligar: os dois números em `null` (volta o "Concluí") e o `videoEmbed` antigo, `vid-6abca3bf88ddc17b615d87f1`.
 
-⏳ **O produto `tres_madrugadas` e o que a cliente recebe estão prontos no repositório desde 18/10/2026** (ver "As 3 Madrugadas", na seção abaixo). Até o `supabase/tres-madrugadas.sql` rodar na produção, o código `JwN1GmUvx8c3GUTCOaHU` não está no `hubla_product_map`: cada venda cai em `needs_reconciliation` e não libera nada, mas fica guardada em `hubla_events`. O mesmo SQL libera essas vendas atrasadas (33 compras de 13/10 a 18/10, nenhuma reembolsada).
+✅ **O que a cliente recebe está no ar desde 18/10/2026, 17:27** (ver "As 3 Madrugadas", na seção abaixo). Desde então o código `JwN1GmUvx8c3GUTCOaHU` está no `hubla_product_map`, e a venda nova libera sozinha. As 33 compras de 13/10 a 18/10, que tinham caído em `needs_reconciliation` porque o produto não existia, foram liberadas pelo `supabase/tres-madrugadas.sql`, rodado pelo Caio no mesmo dia.
 
 ## ⚠️ Só QUATRO conteúdos são trancados por produto: a Central dos Arcanjos, o Cântico Angelical, a Live do São Rafael e As 3 Madrugadas
 **Comprou o principal = acesso a todo o resto do aplicativo.** As duas exceções são a **Central dos Quatro Arcanjos** (`upsell_01`) e o **Cântico Angelical** (`upsell_02`), as duas pedidas pelo Caio em **2026-09-24**. ✅ **As duas estão no ar desde 24/09/2026**, por enquanto só com o áudio: os textos e as artes definitivas ainda vêm.
@@ -175,7 +175,7 @@ Os dois ficam em blocos **separados** no `js/member.js`, de propósito: dá para
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
 | Comprou os Arcanjos | selo "LIBERADO", "Acessar conteúdo" | entra na Central (`arcanjos.html` → `arcanjo.html?a=…` → `oracao-arcanjo.html?a=…&o=…`) |
-| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de oferta (`oferta-arcanjos.html`, etiqueta `utm_medium=card`) |
+| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-arcanjos-vsl.html`, desde 19/10; etiqueta `utm_medium=card`): headline, VSL e botão aos **5:56**. ⚠️ O **pop-up** não vem para cá: continua em `oferta-arcanjos.html`, a das cartas (ver "As páginas de venda dos dois", abaixo) |
 
 **Regras decididas pelo Caio em 24/09:**
 - **Cancelou a assinatura → CONTINUA com a Central.** Só **reembolso ou estorno** tiram (regra 4). A Hubla manda o mesmo `customer.member_removed` nos dois casos, e o webhook grava `revoked` nos dois. Quem separa é a `member-api` (`conteudosDela`): assinatura com fatura `refunded`/`chargeback` = reembolso. O campo novo `conteudos` do snapshot é o que a Central lê; `products` continua sendo só o que está ativo.
@@ -190,7 +190,7 @@ Na Hubla e no banco o produto ainda se chama **"Músicas dos Anjos"**: é o **me
 | Quem | Vê na home | Ao tocar |
 |---|---|---|
 | Comprou o Cântico | selo "LIBERADO", "Acessar conteúdo" (2º dos Conteúdos Exclusivos) | entra na jornada (`cantico.html` → `cantico-dia.html?dia=1…7`: por enquanto, só o áudio) |
-| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-cantico.html`): a VSL da VTurb (`vid-6ab4a340c48cfa940452f7df`) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`). O botão só aparece aos **9:00 do vídeo** (`SEGUNDOS_DO_BOTAO = 540`, pedido do Caio em 24/09), pelo mesmo relógio da VTurb das cartas dos Arcanjos |
+| Não comprou | selo "🔒 EXTRA", "Adquirir" | página de venda **em vídeo** (`oferta-cantico.html`): headline, a VSL da VTurb (`vid-6ad68ab858b3baf33051a701` desde 19/10: o mesmo vídeo de 9:44, com outro código) e o botão para o checkout da Hubla, levando a etiqueta de origem (`utm_campaign=cantico`). O botão só aparece aos **9:00 do vídeo** (`data-segundos="540"`, pedido do Caio em 24/09), pelo mesmo relógio da VTurb dos Arcanjos |
 
 **Regras decididas pelo Caio em 24/09:**
 - **Introdução + 7 dias, um por dia**, com a mesma âncora das madrugadas (ver a seção da trava, acima).
@@ -201,7 +201,7 @@ A conta mora em `js/member.js` (`temCantico`, `desenharCardCantico`, `trancarPag
 
 ⚠️ **O "Concluí este dia" depende de uma alteração no banco:** `supabase/cantico-angelical.sql`. ✅ **Aplicada na produção em 24/09 à noite**, e a função que usa ela (v17) **está no ar desde 21:14 do mesmo dia**. O botão do Cântico passou a aparecer para as clientes. A ordem de publicar é **banco → função → site**. Se a função subir antes do banco, o botão dá erro na tela dela. O site pode subir antes dos dois: sem o campo `jornadas` no snapshot, o botão do Cântico simplesmente não aparece.
 
-**O link de compra** (Caio, 24/09) é `https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell` — `LINK_DE_COMPRA`, em `oferta-cantico.html`. O código do meio, `gTLhMYXqRjFeNlyc7FlH`, **já está** em `hubla_product_map` → `upsell_02`, e é o que chega nas vendas de verdade (314 eventos até 24/09): a venda por ali libera o Cântico sozinha. ⚠️ Trocar por uma oferta NOVA, com código novo, exige mapear o código **antes** da primeira venda — senão a cliente paga e o app não libera.
+**O link de compra** (Caio, 24/09) é `https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell` — o `data-link` do botão, em `oferta-cantico.html`. O código do meio, `gTLhMYXqRjFeNlyc7FlH`, **já está** em `hubla_product_map` → `upsell_02`, e é o que chega nas vendas de verdade (314 eventos até 24/09): a venda por ali libera o Cântico sozinha. ⚠️ Trocar por uma oferta NOVA, com código novo, exige mapear o código **antes** da primeira venda — senão a cliente paga e o app não libera.
 
 ### Live do Arcanjo São Rafael (`live_rafael`) — ⏳ pronta no repositório, ainda não publicada (07/10/2026)
 Pedido do Caio em **2026-10-07**: um módulo para quem comprou a live do São Rafael. A entrega é o **conteúdo PÓS-LIVE, não a live em si** (Caio, 07/10): o vídeo **"A Oração de Cura de São Rafael Arcanjo"**, da VTurb (`vid-6ac6ff5c7d2a6b90e1cafed7`, deitado 16:9), na página `live-rafael.html`. É esse o título do card e da página. Não confundir com `arcanjo-rafael.html`, que é a página de VENDA (a "live" aberta, sem login).
@@ -217,7 +217,7 @@ A conta mora em `js/member.js` (`temLiveRafael`, `desenharCardLiveRafael`, `tran
 
 ⚠️ **A escada dos extras do painel só conta os `upsell_`** (`js/admin.js`). A live vem depois deles no catálogo (`sort_order` 40); posta no meio, viraria a base do degrau seguinte.
 
-### As 3 Madrugadas (`tres_madrugadas`) — ⏳ pronta no repositório, ainda não publicada (18/10/2026)
+### As 3 Madrugadas (`tres_madrugadas`) — ✅ no ar desde 18/10/2026, 17:27
 O produto vendido no fim do vídeo do Dia 7 (ver "A oferta do fim do Dia 7", acima). A entrega são **três vídeos da VTurb, um por madrugada**, em `tres-madrugadas.html` (a lista) → `tres-madrugadas-video.html?m=1…3`. O conteúdo mora em `js/tres-madrugadas.js`.
 
 **Decisões do Caio em 18/10:**
@@ -227,7 +227,17 @@ O produto vendido no fim do vídeo do Dia 7 (ver "A oferta do fim do Dia 7", aci
 - **Pagamento único**: não entrou no `FICA_DEPOIS_DE_CANCELAR`, e a `member-api` **não mudou**. Sem "Concluí": o app não guarda progresso das 3 Madrugadas.
 - O app **não pergunta nem guarda o nome** de quem ela carrega: é a promessa da venda.
 
-A conta mora em `js/member.js` (`temTresMadrugadas`, `desenharCardTresMadrugadas`, `trancarPaginaDasTresMadrugadas`). O produto nasce com `supabase/tres-madrugadas.sql` (`enabled = false`, `sort_order` 50, `one_time`), que também libera as vendas que chegaram antes dele, lendo `hubla_events` (`source = 'hubla_import'`; acha a cliente pelo e-mail e, se não achar, pela conta da Hubla). Provado no banco de teste em 18/10. **Ordem de publicar: qualquer uma.**
+A conta mora em `js/member.js` (`temTresMadrugadas`, `desenharCardTresMadrugadas`, `trancarPaginaDasTresMadrugadas`). O produto nasce com `supabase/tres-madrugadas.sql` (`enabled = false`, `sort_order` 50, `one_time`), que também libera as vendas que chegaram antes dele, lendo `hubla_events` (`source = 'hubla_import'`; acha a cliente pelo e-mail e, se não achar, pela conta da Hubla). Provado no banco de teste e rodado na produção pelo Caio em 18/10: **33 compradoras liberadas**, nenhuma venda para trás. Site: commit `3750b35`, deploy `6ad52baf849225dacde3d4e8`.
+
+### As páginas de venda dos dois (19/10/2026)
+Pedido do Caio: a venda dos dois extras pelo card da home em **headline + VSL + botão no minuto do pitch**. Depois vem uma versão em texto (TSL), para testar qual vende mais. O ponto de partida, medido no banco em 19/10 (de 24/09 a 19/10): o card vendia **0,4%** dos Arcanjos e **0,8%** do Cântico, contando quem abriu o app sem o produto. O pop-up dos Arcanjos vende **2,9%** de quem o vê.
+
+- **Um script só**, `js/oferta-vsl.js`, carregado no `<head>`. Cada página só diz, no botão, `data-link` (o checkout), `data-campanha` e `data-segundos` (o pitch; vazio = botão desde o começo). `?previa=1` mostra o botão na hora.
+- **Toda venda dessas páginas leva `utm_term=pagina-vsl`**, que a Hubla devolve no webhook (`event.subscription.firstPaymentSession.utm.term`, conferido em 19/10). É o que separa a página nova da antiga, e da TSL quando ela vier (com outro valor).
+- **Os checkouts são os mesmos de antes**, já mapeados no `hubla_product_map`: os Arcanjos, o das cartas (`hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6`); o Cântico, o `/upsell` acima.
+- **Os vídeos são os mesmos de antes, com código novo** (Caio, 19/10). Por isso os minutos também: 5:56 e 9:00.
+- **Nenhuma página `oferta-*.html` é interrompida**: nem pop-up nem formulário de perfil (`PAGINA_DE_OFERTA`, em `js/member.js`). Até 19/10 só a dos Arcanjos estava protegida, e a verificação de 5 em 5 minutos podia abrir o pop-up dos Arcanjos, ou desviar para o perfil, no meio do vídeo do Cântico.
+- O toque no card **não é gravado** em lugar nenhum. Quantas tocam e até onde assistem está no painel da VTurb.
 
 ### Vale para os dois
 ⚠️ **É trava de experiência, não de segurança** (mesmo desenho do login e da trava das madrugadas): os textos estão em `js/arcanjos.js` e `js/cantico.js`, arquivos públicos. **Não prometer "conteúdo protegido"** na venda.

@@ -9,41 +9,22 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=11">
+<link rel="stylesheet" href="css/styles.css?v=15">
 <link rel="stylesheet" href="css/oferta.css?v=1">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="stylesheet" href="css/member.css">
 <!-- =====================================================================
-     A VENDA DO CÂNTICO É EM VÍDEO — decisão do Caio em 24/09/2026: a VSL
-     da VTurb e um botão para o checkout da Hubla. Ainda PROVISÓRIOS: a
-     chamada acima do vídeo e o texto do botão (a copy é do Caio). Procure
-     por PROVISORIO.
+     A VENDA DO CÂNTICO — headline, VSL e botão no minuto do pitch (pedido
+     do Caio em 19/10/2026, com vídeo novo). Até 19/10 era o vídeo de 9:44
+     com o botão aos 9:00 e, embaixo, a lista dos 7 dias; o card vendia 0,8%
+     de quem abria o app.
 
-     DE ONDE ELA VEIO — a mesma etiqueta de oferta-arcanjos.html
-     O card da home e o convite mandam a cliente para cá com utm_* no
-     endereço, dizendo de onde ela veio. Guardamos isso aqui em cima, antes
-     de qualquer outro script, e colamos no link da Hubla lá embaixo: é o
-     único jeito de saber, na venda, se foi o card que vendeu.
-     ⚠️ A ordem importa: a VTurb mexe no endereço da página para escrever a
-     etiqueta DELA. Guardada antes de o player carregar, a nossa já está
-     salva, aconteça o que acontecer depois. E por isso os campos são utm_*,
-     que a VTurb só lê: o "src" ela sobrescreve.
+     Quem faz o trabalho é js/oferta-vsl.js (o mesmo dos Arcanjos). Aqui fica
+     só o que é desta página: a headline, o vídeo e o botão. A headline e o
+     texto do botão foram escritos pelo agente e aprovados pelo Caio (19/10).
      ===================================================================== -->
-<script>
-window.ETIQUETAS_DE_ORIGEM = (function () {
-  var permitidas = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
-  var chegaram = new URLSearchParams(location.search);
-  var guardadas = {};
-  permitidas.forEach(function (nome) {
-    var valor = (chegaram.get(nome) || '').trim();
-    // Só segue adiante o que tem cara de etiqueta nossa, para nada estranho
-    // entrar no link do checkout.
-    if (valor && valor.length <= 80 && /^[A-Za-z0-9._-]+$/.test(valor)) guardadas[nome] = valor;
-  });
-  return guardadas;
-})();
-</script>
+<script src="js/oferta-vsl.js?v=1"></script>
 <script src="js/member-config.js"></script>
 <script src="js/member.js"></script>
 </head>
@@ -69,148 +50,46 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 
     <span class="kicker">Cântico Angelical · Sua jornada de 7 dias</span>
 
-    <!-- PROVISORIO: a chamada acima do vídeo. A copy é do Caio. -->
     <div class="section-heading" style="margin-top:-8px;">
       <div class="bar"></div>
       <div class="heading-block">
-        <h1 class="title oferta-headline">Cântico Angelical</h1>
+        <h1 class="title oferta-headline">Entregue a Deus o que mais pesa no seu coração, um dia de cada vez</h1>
       </div>
     </div>
 
     <!-- ================= VÍDEO (VSL) =================
          Código de incorporação da VTurb, exatamente como o Caio mandou em
-         24/09/2026, na mesma moldura de cantos arredondados dos outros
-         vídeos do app. -->
+         19/10/2026. O script que carrega o player fica no fim da página. -->
     <div class="video-wrap-embed">
-      <vturb-smartplayer id="vid-6ab4a340c48cfa940452f7df" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <vturb-smartplayer id="vid-6ad68ab858b3baf33051a701" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
       <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
       <div class="corner-mask bl"></div><div class="corner-mask br"></div>
     </div>
-    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ab4a340c48cfa940452f7df/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
 
-    <!-- O botão de compra. O link da Hubla mora em LINK_DE_COMPRA, lá embaixo.
-         A classe "smartplayer-click-event" é o que faz a VTurb contar o toque
-         como "Clique no Botão" no Analytics dela — o nome exato da
-         documentação oficial, o mesmo das cartas de oferta-arcanjos.html. Sem
-         ela o Analytics mostra ZERO cliques.
-         Ele só aparece aos 9:00 do vídeo (540 segundos, pedido do Caio em
-         24/09/2026), pelo mesmo relógio das cartas dos Arcanjos: a classe
-         "esconder" (css/oferta.css) o deixa invisível, e o player da VTurb o
-         revela na hora certa (displayHiddenElements). O número mora no
-         script, lá embaixo: SEGUNDOS_DO_BOTAO. PROVISORIO: o texto do botão. -->
-    <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;">Quero o Cântico Angelical</a>
-
-    <div>
-      <h2 class="section-label" style="margin-bottom:14px;">Sua jornada, dia a dia</h2>
-      <div class="modal-checklist" id="oferta-dias"></div>
-    </div>
+    <!-- O BOTÃO DE COMPRA
+         data-link: a compra em um clique do Cântico na Hubla, mandada pelo
+         Caio em 24/09/2026. O código no meio, gTLhMYXqRjFeNlyc7FlH, JÁ está em
+         hubla_product_map apontando para upsell_02 (314 vendas reais chegaram
+         com ele até 24/09), por isso a venda por aqui libera o Cântico
+         sozinha. ⚠️ Trocar por uma oferta NOVA, com código novo, exige mapear
+         o código ANTES da primeira venda — senão a cliente paga e o app não
+         libera (o evento cai em needs_reconciliation).
+         data-segundos: o minuto do pitch, em segundos — 9:00, pedido do Caio
+         em 24/09. O vídeo é o mesmo de antes, com outro código (Caio, 19/10;
+         os dois têm 9:44). ⚠️ Quem para de assistir antes das 9:00 não vê o
+         botão: são os últimos 44 segundos do vídeo.
+         A classe "smartplayer-click-event" faz a VTurb contar o toque como
+         "Clique no Botão" no Analytics dela (nome exato da documentação). -->
+    <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;"
+       data-link="https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell"
+       data-campanha="cantico"
+       data-segundos="540">Quero o Cântico Angelical</a>
 
   </div>
 </div>
 
-<script src="js/cantico.js?v=1"></script>
-<script>
-(() => {
-  'use strict';
-
-  // A jornada sai do mesmo arquivo das páginas do Cântico: o que a oferta
-  // promete é, letra por letra, o que ela vai encontrar lá dentro.
-  const numero = (n) => `<div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--dark-on-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;">${n}</div>`;
-  let dias = '';
-  for (let i = 1; i <= 7; i++) {
-    dias += `
-      <div style="display:flex;gap:12px;align-items:center;">
-        ${numero(i)}
-        <p style="margin:0;font-size:16px;font-weight:700;color:var(--ink);">${CANTICO[i].subtitulo}</p>
-      </div>`;
-  }
-  document.getElementById('oferta-dias').innerHTML = dias;
-
-  // O link de compra do Cântico na Hubla, mandado pelo Caio em 24/09/2026.
-  //
-  // É a compra em um clique (/upsell), o mesmo tipo de checkout que a
-  // oferta dos Arcanjos alcança pelo hub.la/r/...
-  //
-  // O código no meio do endereço, gTLhMYXqRjFeNlyc7FlH, JÁ está em
-  // hubla_product_map apontando para upsell_02, e é o que chega nas vendas
-  // de verdade: 314 eventos reais com ele até 24/09 (conferido no banco).
-  // Por isso a venda por aqui libera o Cântico sozinha. ⚠️ Se um dia este
-  // link for trocado por uma oferta NOVA, com código novo, o código precisa
-  // entrar no hubla_product_map ANTES da primeira venda — senão a cliente
-  // paga e o app não libera (o evento cai em needs_reconciliation).
-  const LINK_DE_COMPRA = 'https://pay.hub.la/gTLhMYXqRjFeNlyc7FlH/upsell';
-
-  // Quando ela chega SEM etiqueta nenhuma (digitou o endereço, ou um link
-  // novo esqueceu de etiquetar), mandamos "sem-etiqueta" de propósito: campo
-  // vazio deixaria a dúvida entre "veio direto" e "o rastreamento quebrou".
-  const SEM_ETIQUETA = {
-    utm_source: 'app',
-    utm_medium: 'direto',
-    utm_campaign: 'cantico',
-    utm_content: 'sem-etiqueta'
-  };
-
-  const botao = document.getElementById('oferta-comprar');
-
-  // O BOTÃO SÓ APARECE AOS 9:00 DO VÍDEO (pedido do Caio, 24/09/2026). É o
-  // mesmo relógio das cartas de oferta-arcanjos.html: o próprio player da
-  // VTurb revela o que tem a classe "esconder" quando o vídeo chega nesse
-  // ponto. Com persist: true a VTurb lembra, e quem volta à página já
-  // encontra o botão. Para mudar a hora, mude só este número.
-  const SEGUNDOS_DO_BOTAO = 540; // 9:00
-  const player = document.querySelector('vturb-smartplayer');
-
-  // ATALHO PARA CONFERIR A TELA: ?previa=1 no fim do endereço mostra o botão
-  // na hora, sem esperar os 9 minutos. A cliente nunca chega aqui com ele: o
-  // card e o convite mandam só as etiquetas utm_*.
-  if (new URLSearchParams(location.search).get('previa') === '1') {
-    botao.classList.remove('esconder');
-  } else {
-    // Rede de segurança, a mesma dos Arcanjos: se o script da VTurb não
-    // carregar (internet ruim, bloqueador de anúncio, serviço fora do ar), o
-    // botão não apareceria NUNCA e a venda se perderia calada.
-    // ⚠️ Este relógio conta o tempo de PÁGINA ABERTA, não de vídeo assistido.
-    // Por isso ele é desligado assim que o player dá sinal de vida: dali em
-    // diante quem conta é o player, que conta certo.
-    const redeDeSeguranca = setTimeout(() => {
-      if (botao.offsetHeight === 0) botao.classList.remove('esconder');
-    }, (SEGUNDOS_DO_BOTAO + 120) * 1000);
-
-    if (player) {
-      player.addEventListener('player:ready', () => {
-        if (typeof player.displayHiddenElements === 'function') {
-          player.displayHiddenElements(SEGUNDOS_DO_BOTAO, ['.esconder'], { persist: true });
-          clearTimeout(redeDeSeguranca); // o player assumiu o relógio
-        }
-      });
-    }
-
-    // Quando o botão aparece, ele pode nascer logo abaixo da tela (celular
-    // pequeno, vídeo em pé). Então, no instante em que ele ganha altura, a
-    // página desce só o necessário para mostrá-lo — e não mexe em nada se ele
-    // já estiver à vista.
-    const olho = setInterval(() => {
-      if (botao.offsetHeight === 0) return;
-      clearInterval(olho);
-      const caixa = botao.getBoundingClientRect();
-      if (caixa.bottom <= window.innerHeight && caixa.top >= 0) return;
-      try { botao.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { botao.scrollIntoView(false); }
-    }, 1000);
-  }
-
-  let destino;
-  try { destino = new URL(LINK_DE_COMPRA); } catch (e) { destino = null; }
-  if (!destino) {
-    botao.style.opacity = '0.5';
-    botao.setAttribute('aria-disabled', 'true');
-    return;
-  }
-  let etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
-  if (!Object.keys(etiquetas).length) etiquetas = SEM_ETIQUETA;
-  Object.keys(etiquetas).forEach((nome) => destino.searchParams.set(nome, etiquetas[nome]));
-  botao.href = destino.href;
-})();
-</script>
+<script>OFERTA_VSL.ligar();</script>
+<script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ad68ab858b3baf33051a701/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
 
 </body>
 </html>

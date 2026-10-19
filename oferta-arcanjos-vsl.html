@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central dos Quatro Arcanjos — 7 Améns da Madrugada</title>
+<!-- Esta página não deve aparecer no Google. Só se chega nela pelo card da
+     home e pelo convite das páginas dos Arcanjos. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="stylesheet" href="css/oferta.css?v=1">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<!-- =====================================================================
+     A VENDA DOS ARCANJOS PELO CARD DA HOME — headline, VSL e botão no
+     minuto do pitch (pedido do Caio em 19/10/2026).
+
+     ⚠️ O POP-UP NÃO VEM PARA CÁ. Ele continua em oferta-arcanjos.html, a
+     página das cartas, que vende 2,9% de quem vê o pop-up (medido em 19/10).
+     Esta página é só do card (js/member.js, ofertaDosArcanjos), que vendia
+     0,4% de quem abria o app. Decisão do Caio: arriscar só o canal ruim.
+
+     Quem faz o trabalho é js/oferta-vsl.js (o mesmo do Cântico). Aqui fica
+     só o que é desta página: a headline, o vídeo e o botão. A headline e o
+     texto do botão foram escritos pelo agente e aprovados pelo Caio (19/10).
+     ===================================================================== -->
+<script src="js/oferta-vsl.js?v=1"></script>
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir esta página.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5511936203979?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+
+<div class="app">
+
+  <div class="header">
+    <!-- O X leva direto para a home, sem passar pelo histórico: "voltar"
+         poderia devolvê-la para a tela trancada de onde ela veio. -->
+    <button class="oferta-fechar" type="button" aria-label="Fechar e voltar para o início" onclick="location.href='index.html'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <span class="kicker">Central dos Quatro Arcanjos · 12 orações</span>
+
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title oferta-headline">Peça a proteção dos Quatro Arcanjos para você, sua família e sua casa</h1>
+      </div>
+    </div>
+
+    <!-- ================= VÍDEO (VSL) =================
+         Código de incorporação da VTurb, exatamente como o Caio mandou em
+         19/10/2026. O script que carrega o player fica no fim da página. -->
+    <div class="video-wrap-embed">
+      <vturb-smartplayer id="vid-6ad68ab3966cb230e231c185" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
+      <div class="corner-mask bl"></div><div class="corner-mask br"></div>
+    </div>
+
+    <!-- O BOTÃO DE COMPRA
+         data-link: o mesmo checkout das cartas de oferta-arcanjos.html. Ele
+         já está no hubla_product_map (as vendas do pop-up chegam por ele), por
+         isso a venda por aqui libera a Central sozinha. ⚠️ Trocar por uma
+         oferta NOVA, com código novo, exige mapear o código ANTES da primeira
+         venda — senão a cliente paga e o app não libera.
+         data-segundos: o minuto do pitch, em segundos — 5:56, o mesmo das
+         cartas. O vídeo é o mesmo da página das cartas, com outro código
+         (Caio, 19/10; conferido: os dois têm 370,9 s).
+         A classe "smartplayer-click-event" faz a VTurb contar o toque como
+         "Clique no Botão" no Analytics dela (nome exato da documentação). -->
+    <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;"
+       data-link="https://hub.la/r/Hr4Z0fVu3XkpmbkIBHJ6"
+       data-campanha="arcanjos"
+       data-segundos="356">Quero a Central dos Arcanjos</a>
+
+  </div>
+</div>
+
+<script>OFERTA_VSL.ligar();</script>
+<script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ad68ab3966cb230e231c185/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+
+</body>
+</html>
