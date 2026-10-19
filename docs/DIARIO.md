@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-10-16
+> Atualizado: 2026-10-18
 
 ---
 
@@ -14,6 +14,8 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
+| 29 | 🆕 **As 3 Madrugadas: os textos e as fotos são provisórios** (18/10) | **No ar desde 18/10, 17:27**, para as 33 compradoras. Nada trava, mas pede o olho do Caio. **(a) Os subtítulos** "O telhado se abre", "Levanta-te" e "Vai para tua casa" saíram do roteiro de 15/10, que previa ~38 min por nome. **Os vídeos somam ~23 min** (8:03, 6:03 e 8:58), então a divisão das orações pode ter mudado: os subtítulos batem com o que o padre fala? **(b) O "Como funciona" da lista** diz para rezar as três madrugadas pela mesma pessoa e recomeçar pela Primeira no próximo nome. Isso bate com os vídeos **e com o que a oferta do Dia 7 promete**? A memória do agente registra que a VSL de 15/10 dizia "três madrugadas, uma para cada nome", que é outro modelo. **(c)** Os textos escritos pelo agente: a descrição do card ("Três madrugadas de oração, em vídeo, por quem você carrega no coração."), o "Como rezar" do vídeo, as frases da próxima madrugada, a faixa "Três madrugadas para cada nome" e o aviso de quem abre sem ter comprado. **(d)** As fotos são as dos Dias 1, 3 e 7 (foto nova = arquivo com **nome novo**). **(e)** O card fica logo depois do da Live. Mexer em qualquer um custa 1 build. |
+| ~~28~~ | ✅ **RESOLVIDO em 18/10.** O Caio respondeu "pode corrigir o CLAUDE.md para dizer que As 3 Madrugadas estão no ar", e as duas linhas passaram a dizer "no ar desde 18/10, 17:27", com as 33 compradoras liberadas, o commit e o deploy. Foi junto no commit do fechamento. A seção escrita sem perguntar ficou como estava (ele não pediu mudança). Texto antigo: **O `CLAUDE.md` ganhou a seção das 3 Madrugadas — e ainda diz "não publicada"** (18/10) | O agente escreveu, **sem perguntar antes**, e foi junto no commit `3750b35` (já no ar; o `CLAUDE.md` não vai para o site): a seção "As 3 Madrugadas", a linha `tres_madrugadas` no catálogo, o título "Só QUATRO conteúdos são trancados" e a troca do aviso "o produto ainda NÃO existe" na seção da oferta do Dia 7. A skill `regras-de-acesso` ganhou uma nota igual. **Falta uma correção que o `/fechar` não faz sem perguntar:** as duas linhas ainda dizem "⏳ pronta no repositório, ainda não publicada" e "até o SQL rodar". Posso trocar para "no ar desde 18/10, 17:27, 33 compradoras liberadas"? |
 | 27 | 🆕 **A regra "reembolso não tira o acesso" vale também para a Hubla?** (16/10) | Na **Payt**, o Caio decidiu em 16/10 que reembolso e chargeback **não** tiram nada, porque é promessa da VSL, e é assim que a `payt-webhook` funciona. Na **Hubla** continua valendo a regra 4 do `CLAUDE.md`: reembolso do principal tira o app, e o `hubla-webhook` grava 'revoked'. Se a VSL promete para todas, a Hubla está descumprindo hoje. Perguntas: vale para a Hubla? Para o principal e para os extras? E quem já foi reembolsada volta a ter acesso? Ele disse "a Hubla a gente vê depois, separado". Há um card de sessão proposto: "Hubla: erro 409 no aviso repetido e regra do reembolso". |
 | 26 | 🆕 **O `CLAUDE.md` e a regra de acesso ganharam a seção da Payt — está bom assim?** (16/10) | O agente escreveu, **sem perguntar antes** (o pedido da sessão que abriu o chat mandava registrar): a seção "Payt — a segunda porta de vendas" (regras, códigos, onde fica o postback, como desligar, o dia a dia), a nota na regra 4 de que na Payt reembolso não tira, o segredo `PAYT_INTEGRATION_KEY`, as duas tabelas novas, o passo a passo de criar função nova pelo painel e a lição do `on_conflict`. Na skill `regras-de-acesso`, uma nota igual na tabela de reembolso. Nada disso vai para o site. Se preferir outra redação, é só dizer. |
 | 25 | 🆕 **Hubla: uma compra das Músicas dos Anjos de 10/10 sem cadastro no app** (16/10) | Achado pelo defeito do 409 (ver o pendente da Hubla). Um aviso de compra (`member_added`, `upsell_02`) de 10/10 ficou "falha", e o e-mail dele **não existe** na lista de clientes: nem o Cântico nem o principal. Provavelmente ela comprou o principal com outro e-mail. O suporte confere na Hubla e libera pelo painel, ou junta os dois e-mails. A consulta que acha o caso está na entrada de 16/10. |
@@ -112,9 +114,15 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕🔥 **As 3 Madrugadas: conferir a PRIMEIRA venda nova que chegar pelo webhook** (18/10). O código `JwN1GmUvx8c3GUTCOaHU` foi mapeado às ~17:30 de 18/10, e até 19:24 não tinha entrado venda nova. Ele já foi confirmado pelas 33 compras reais, então deve passar direto. Consulta: `select received_at, processing_status, error from hubla_events where hubla_product_id = 'JwN1GmUvx8c3GUTCOaHU' and event_type = 'customer.member_added' order by received_at desc limit 5;` — o certo é `processed`. Para achar quem ficou de fora (o certo é zero linhas), a parte (c) do fim de `supabase/tres-madrugadas.sql`.
+- 🆕 **As 3 Madrugadas: ninguém viu num celular de verdade** (18/10). Conferido no teste local, a 390 px, com os três vídeos tocando. A conta admin do Caio ganhou o produto em 18/10, então ele já pode abrir no celular dele.
+- 🆕 **As 3 Madrugadas: tem um segundo acesso "liberado na mão" que o agente não fez** (18/10). Às 19:24 eram 35 acessos: as 33 da carga, o da conta do Caio (gravado pelo agente direto no banco, a pedido dele) e **mais um**, provavelmente liberado por alguém pelo painel. Não é problema; dá para ver quem foi no histórico do painel. ⚠️ O da conta do Caio **não aparece** no histórico do painel (`admin_actions`), porque não passou pelo botão.
+- 🆕 **Suspeita, não conferida: compradora com e-mail diferente na Hubla pode fazer o webhook falhar** (18/10). Das 33 compras das 3 Madrugadas, **uma** veio com o e-mail da conta da Hubla diferente do cadastro do app. O `hubla-webhook` procura a cliente **só pelo e-mail**. Sem achar, ele tenta criar uma cliente nova com a mesma conta da Hubla, e o banco não aceita duas clientes com a mesma conta (`customers_hubla_user_id_unique`). O mais provável é a venda virar "falha". A carga das 3 Madrugadas evitou isso procurando também pela conta da Hubla. O agente leu o código, mas **não testou**. Se for verdade, vale para qualquer produto, e combina com o conserto do 409 (item abaixo).
+- 🆕 **O banco de TESTE ficou com o produto `tres_madrugadas` e 8 vendas de mentira** (18/10). Os eventos `teste-3m-A` até `teste-3m-S` em `hubla_events` (seis casos para provar a carga) e o produto ativo nas cobaias `teste.02`, `teste.03` e `teste.05`. Não atrapalha nada. Só não estranhar.
+- ✅ ~~**O painel ainda mostra "pela Hubla" para quem comprou pela Payt**~~ — **foi ao ar em 18/10, 17:27**, junto com As 3 Madrugadas (os commits `f226a93` e `496f544` foram na mesma publicação).
+
 - 🆕🔥 **Payt: conferir a PRIMEIRA venda real de cada extra** (16/10). Só o código do principal (`4Z3WGM`) foi confirmado por venda de verdade. Os dos extras (`RKBQN6`/`R6VDGP`/`R2687O` Arcanjos, `LP39N8`/`LGE836` Músicas dos Anjos, `L9EXDN`/`455P2J` Comunidade da Fé) vieram do "Payt Object ID" das páginas do funil. Consulta: `select received_at, sale_type, product_code, processing_status, error from payt_events where sandbox = false order by received_at desc;`, e o certo é `processed`. Se vier `needs_reconciliation` com "Produto não mapeado: X", cadastrar o X em `payt_product_map` e **reenviar o aviso pela Payt**: libera sozinho.
 - 🆕🔥 **Hubla: aviso repetido vira "falha" (erro 409), e aviso que falhou nunca é refeito** (16/10). Achado pelo primeiro aviso real da Payt, que bateu no mesmo defeito, já corrigido na Payt. No `hubla-webhook`, a primeira gravação não diz qual trava ignorar, e o banco só ignora repetição do `id`: o mesmo aviso de novo dá 409, o resgate marca o aviso como `failed` e a Hubla recebe 500. **17 avisos** assim na produção desde 23/09 (4 de compra: 3 com acesso ativo e o caso da decisão nº 25). Conserto: acrescentar `?on_conflict=idempotency_key`, como na `payt-webhook`. Mexe na Hubla em produção, então vai com o cuidado de sempre e é o Caio quem publica. Card de sessão proposto: "Hubla: erro 409 no aviso repetido e regra do reembolso". Junto, um detalhe menor: o resgate da Hubla escreve "EVENTO_NAO_GRAVADO" no log mesmo quando gravou (POST com `return=minimal` responde 201 sem corpo).
-- 🆕 **O painel ainda mostra "pela Hubla" para quem comprou pela Payt** (16/10). O conserto (`js/admin.js`: "pela Payt") vai no commit deste chat, mas é site: só aparece na próxima publicação (1 build). Não precisa de publicação só para isso.
 - 🆕 **A ficha do painel não mostra os avisos da Payt** (16/10). O bloco de eventos da ficha lê só `hubla_events`. Para o suporte achar uma venda da Payt hoje, só pelo SQL Editor: `select * from payt_events where customer_email = '...'`. Mostrar na ficha exige mexer na `member-api` (publicação pelo Caio).
 - 🆕 **A cliente dos R$ 10 da Payt (16/10, 19:16): ninguém viu ela entrar no app** (16/10). O acesso está ativo na produção (conferido no banco), mas não houve login dela até a conferência. Ela também tem uma **cópia no banco de TESTE** (a venda caiu lá enquanto o postback apontava para o teste): pode ser apagada de lá.
 - 🆕 **O banco de teste ficou com a porta da Payt e a MESMA chave da produção** (16/10). Função `payt-webhook` (v4) e segredo `PAYT_INTEGRATION_KEY` no projeto de teste, com a mesma chave do postback. Não atrapalha nada, porque a Payt só manda para a produção. Se um dia a chave for trocada na Payt, trocar nos dois.
@@ -193,6 +201,70 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-10-18 — As 3 Madrugadas: o entregável em vídeo, só para quem comprou (NO AR desde 17:27)
+
+**Chat:** um só, aberto sem `/abrir` (o diário foi lido no começo). Pedido do Caio: "estou com o entregável em vídeo do 3 améns da madrugada feito, vamos implementar?". É o produto vendido no fim do vídeo do Dia 7, que vendia desde 13/10 sem entregar nada.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+| Onde | O quê | Conferido |
+|---|---|---|
+| **Site** | **1 publicação**, clicada pelo Caio: commit `3750b35`, deploy `6ad52baf849225dacde3d4e8`, **18/10 às 17:27**, **1 build**. Foram junto os commits `f226a93` (Payt; no site, só o painel passa a escrever "pela Payt") e `496f544` (diário) | ✅ as 3 páginas novas respondem 200; `js/tres-madrugadas.js` e `js/member.js` servidos idênticos ao commit; o card está na home, escondido |
+| **Banco (SQL Editor)** | rodado **pelo Caio**: `supabase/tres-madrugadas.sql` criou o produto `tres_madrugadas` (pagamento único, `enabled = false`, `sort_order` 50), mapeou o código `JwN1GmUvx8c3GUTCOaHU` e liberou **as 33 compras** que esperavam desde 13/10 (`source = 'hubla_import'`) | ✅ lido pelo agente depois: 33 ativos, as 33 com o principal ativo, **zero compras sem liberar**, 33 avisos marcados como liberados |
+| **Banco (pelo agente)** | a pedido do Caio ("você não consegue liberar?"), o produto foi gravado direto na **conta admin do Caio** (`source = 'manual'`) | ✅ pela resposta da própria gravação. ⚠️ Não aparece no histórico do painel |
+| **Função** | **nada mudou.** A `member-api` já manda todo produto ativo | — |
+| **Pontos de retorno** | site: deploy `6ad280232f5e5cb9be69865a` (16/10, 16:51), por "Publish deploy". Banco: os 33 acessos são as linhas `tres_madrugadas` com `source = 'hubla_import'` em `entitlements` | — |
+
+Às 19:24: **35 acessos ativos** (33 da carga + 2 na mão, ver o pendente) e **18 compradoras tinham aberto o app no dia** (a conta pega o dia inteiro, inclusive antes da liberação).
+
+### As decisões do Caio (18/10)
+| Pergunta | Resposta dele |
+|---|---|
+| Quantos vídeos | **3, um por madrugada** |
+| Quem não comprou vê o card? | **Não**, só quem comprou, como a Live. A venda continua sendo o vídeo do Dia 7 |
+| Uma por dia ou todas abertas? | **Todas abertas.** O rito recomeça a cada nome, e uma trava atrapalharia quem está no segundo nome |
+| O nome na tela | **"As 3 Madrugadas"**, o mesmo do botão de compra (não "Rito do Telhado Aberto") |
+| Os vídeos | mandou os 3 códigos da VTurb: `vid-6ad4fe8cff942efd73ed0258` (8:03), `vid-6ad5031184ff5e9c27000fd4` (6:03), `vid-6ad506eeeb8fcb3d90d4893d` (8:58). Os três em pé (3:4) |
+| Publicar | clicou no botão de commit + publicar |
+
+### Onde mora
+| Peça | O quê |
+|---|---|
+| `js/tres-madrugadas.js` (novo) | o conteúdo: títulos, subtítulos, fotos, os 3 vídeos e a frase da próxima madrugada |
+| `tres-madrugadas.html` (novo) | a lista das três (cartões no desenho das 7 madrugadas, desenhados **uma vez só**, antes do `js/app.js`, por causa do efeito de foco) e o "Como funciona" |
+| `tres-madrugadas-video.html?m=1…3` (novo) | o vídeo, o "Como rezar", a frase da próxima madrugada e "Ver as 3 madrugadas" |
+| `index.html` | o card `card-tres-madrugadas`, que **nasce escondido**, logo depois do da Live |
+| `js/member.js` | `temTresMadrugadas`, `desenharCardTresMadrugadas`, `trancarPaginaDasTresMadrugadas` (link direto sem o produto: aviso + "Falar com a equipe") e as duas páginas na lista de volta do login |
+| `supabase/tres-madrugadas.sql` (novo) | o produto, o código e a carga das vendas atrasadas, com as conferências no fim. Também na receita `schema-completo.sql` |
+| `CLAUDE.md` e skill `regras-de-acesso` | o quarto conteúdo trancado por produto (decisão nº 28) |
+
+**Não tem "Concluí"**: o app não guarda progresso das 3 Madrugadas. E **não pergunta nem guarda o nome** de quem ela carrega, que é a promessa da venda.
+
+### A carga das 33 compras atrasadas
+- **Não precisou de export**, ao contrário da Live: todas as compras estavam guardadas em `hubla_events` como "Produto não mapeado". O SQL lê de lá, então **não tem dado de cliente** e pôde ficar no repositório.
+- 33 compras de 13/10 a 18/10, 33 pessoas, **nenhum reembolso, estorno ou retirada**. Uma é o **evento de teste de 13/10** (assinatura do tipo `free`, acesso gratuito dado na Hubla), que entrou também, como o webhook faria.
+- **Uma compradora tinha o e-mail da conta da Hubla diferente do cadastro do app.** A carga procura pelo e-mail e, se não achar, pela conta da Hubla (`hubla_user_id`). Foi achada assim. Ver a suspeita no pendente.
+- Quem tiver reembolso fica de fora; venda sem cliente encontrada continua esperando.
+- **Provado no banco de teste** com seis casos (compra normal, compra repetida, e-mail diferente, reembolso, compradora desconhecida, evento de sandbox) e rodado **duas vezes**: a segunda não mudou nada.
+
+### Testado, e o que não foi
+| | Como |
+|---|---|
+| `teste.02` (com o produto) | card na home, lista das três, os 3 vídeos carregando e **tocando** (mudo, pelo relógio do player), sem rolagem lateral e sem nada sobreposto — teste local, 390 px |
+| `teste.04` (sem o produto) | card escondido; a lista e o vídeo pelo link direto caem no aviso |
+| site no ar | arquivos servidos conferidos (tabela do topo) |
+| banco de produção | lido pelo agente depois do SQL (tabela do topo) |
+| ❌ **não visto** | nenhuma compradora abrindo o card; ninguém deu play num celular; nenhuma venda nova pelo webhook (ver o pendente); o botão do Dia 7 sumindo para quem comprou (a regra já existia, desde 13/10, e só passou a valer agora) |
+
+### Descobertas que enganam
+- **A trava do Claude Code na produção não é previsível.** A gravação direta na conta do Caio **passou**; a leitura de conferência logo depois foi **recusada** ("Modify Shared Resources"), e uma leitura meia hora depois passou. Usar a resposta da própria gravação como prova e não insistir. Para cliente de verdade, o caminho seguro continua sendo o painel ("Liberar acesso na mão"), que registra quem liberou.
+- **O SQL Editor mostra uma tabela de resultado só**, mesmo com várias consultas no fim do arquivo. Aqui mostrou a (b), "hubla_import · active · 33", e não a (c). Conferir à parte.
+- **Aqui o código do checkout é o mesmo que chega no aviso.** Nos upsells, o código que chega costuma ser outro (a lição de 20/09). Desta vez as 33 vendas reais confirmaram antes de mapear.
+- **A Netlify troca `href="tres-madrugadas.html"` por `href='/tres-madrugadas'`** no HTML servido. A regra do `js/member.js` aceita os dois jeitos.
+- **O login no teste local falhou uma vez** ("Não conseguimos abrir seu acesso agora") e entrou na segunda tentativa. Foi passageiro, do banco de teste.
+- **O banco de teste tem o pop-up do grupo ligado**: ele aparece por cima da home nas fotos. Para fotografar, remover o `<dialog>` na página.
 
 ---
 
