@@ -20,6 +20,7 @@ const MATERIAIS = {
       html: '<vturb-smartplayer id="vid-6abca3e2e46f7d51c60f5510" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3e2e46f7d51c60f5510/v4/player.js'
     },
+    bunny: { video: 'e8804c98-78c8-443d-92ab-129cd5047feb', formato: '3:4' }, // piloto da Bunny (20/10/2026): apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/pai-nosso-completo-premium.pdf',
     materialLabel: 'Acessar Material de Apoio',
     audioUrl: 'assets/audio/dia-01-oracao.mp3',

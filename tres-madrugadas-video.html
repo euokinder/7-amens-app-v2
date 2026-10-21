@@ -37,8 +37,8 @@
 
 </div>
 
-<script src="js/tres-madrugadas.js?v=1"></script>
-<script src="js/video.js?v=1"></script>
+<script src="js/tres-madrugadas.js?v=2"></script>
+<script src="js/video.js?v=2"></script>
 <script>
   // tres-madrugadas-video.html?m=1 — uma das 3 Madrugadas: o vídeo, na mesma
   // moldura de cantos arredondados dos vídeos das 7 madrugadas (dia.html).
@@ -82,9 +82,11 @@
         <div class="modal-checklist">
           <div class="item">${check}<p>Toque no vídeo para começar. Aumente o volume do celular ou use um fone de ouvido.</p></div>
           <div class="item">${check}<p>Quando o vídeo pedir, diga o nome da pessoa em voz alta.</p></div>
-          <!-- O player da VTurb lembra onde ela parou, no mesmo celular
-               (conferido na Live de São Rafael, 07/10/2026). -->
-          <div class="item">${check}<p>Se precisar parar, pode sair. Quando voltar, o vídeo pergunta se você quer continuar de onde parou.</p></div>
+          <!-- Os dois players lembram onde ela parou, no mesmo celular, mas de
+               jeitos diferentes: o da VTurb PERGUNTA "Continuar assistindo?"
+               (conferido na Live de São Rafael, 07/10/2026); o da Bunny volta
+               SOZINHO para o ponto (conferido no código do player, 20/10/2026). -->
+          <div class="item">${check}<p>Se precisar parar, pode sair. Quando voltar, ${videoDaMadrugada.origem === 'bunny' ? 'o vídeo continua sozinho de onde você parou' : 'o vídeo pergunta se você quer continuar de onde parou'}.</p></div>
         </div>
       </div>
 

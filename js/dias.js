@@ -13,6 +13,7 @@ const DIAS = {
       html: '<vturb-smartplayer id="vid-6abca3b0504eece7be6e9010" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3b0504eece7be6e9010/v4/player.js'
     },
+    bunny: { video: '1ed0f653-8cc2-498a-bfa1-4c6561df9ace', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/7-amens-comece-aqui-premium-revisado.pdf',
     materialLabel: 'Acessar Material de Apoio',
     audioUrl: '',
@@ -92,6 +93,7 @@ const DIAS = {
       html: '<vturb-smartplayer id="vid-6abca3e2e46f7d51c60f5510" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3e2e46f7d51c60f5510/v4/player.js'
     },
+    bunny: { video: 'e8804c98-78c8-443d-92ab-129cd5047feb', formato: '3:4' }, // piloto da Bunny (20/10/2026): apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/dia-01-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
     materialPage: {
@@ -137,6 +139,7 @@ const DIAS = {
       html: '<vturb-smartplayer id="vid-6abca3e5d76b5fcf4180e910" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3e5d76b5fcf4180e910/v4/player.js'
     },
+    bunny: { video: '7ab39556-afc0-48b6-9488-d5910a4bd896', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/dia-02-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
     materialPage: {
@@ -223,6 +226,7 @@ const DIAS = {
       html: '<vturb-smartplayer id="vid-6abca3d638fddd9e2e94b56a" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3d638fddd9e2e94b56a/v4/player.js'
     },
+    bunny: { video: 'f41ff06d-51d4-499d-823a-89f2ce8ec198', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/dia-04-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
     materialPage: {
@@ -265,6 +269,7 @@ const DIAS = {
       html: '<vturb-smartplayer id="vid-6abca3db43c8cc80762da215" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3db43c8cc80762da215/v4/player.js'
     },
+    bunny: { video: '9677e1bb-8087-4d5a-a1cb-b989a3cf5843', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/dia-05-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
     materialPage: {
@@ -308,6 +313,7 @@ const DIAS = {
       html: '<vturb-smartplayer id="vid-6abca3c908b80e9782bc1c9a" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6abca3c908b80e9782bc1c9a/v4/player.js'
     },
+    bunny: { video: 'f0359bdb-3d0f-41b2-9ecb-3ddc69b46ec1', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/dia-06-material-apoio.pdf',
     materialLabel: 'Acessar Material de Apoio',
     materialPage: {

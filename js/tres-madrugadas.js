@@ -40,6 +40,7 @@ const TRES_MADRUGADAS = {
       html: '<vturb-smartplayer id="vid-6ad4fe8cff942efd73ed0258" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ad4fe8cff942efd73ed0258/v4/player.js'
     },
+    bunny: { video: 'ddcbb3cb-1b06-4dc5-b30b-6aad5293868a', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     proximo: 'Na próxima madrugada: a Segunda Madrugada, pela mesma pessoa.'
   },
   2: {
@@ -52,6 +53,7 @@ const TRES_MADRUGADAS = {
       html: '<vturb-smartplayer id="vid-6ad5031184ff5e9c27000fd4" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ad5031184ff5e9c27000fd4/v4/player.js'
     },
+    bunny: { video: 'd1f90277-3308-455b-8b52-b30fd7cca91a', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     proximo: 'Na próxima madrugada: a Terceira Madrugada, pela mesma pessoa.'
   },
   3: {
@@ -64,6 +66,7 @@ const TRES_MADRUGADAS = {
       html: '<vturb-smartplayer id="vid-6ad506eeeb8fcb3d90d4893d" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>',
       scriptSrc: 'https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ad506eeeb8fcb3d90d4893d/v4/player.js'
     },
+    bunny: { video: '4b5ddc45-90f4-440f-882f-510d119230a4', formato: '3:4' }, // na Bunny desde 20/10/2026: apagar esta linha volta para a VTurb (js/video.js)
     // A Terceira fecha a pessoa: o que vem depois é o próximo nome, do início.
     proximo: 'Você completou as três madrugadas por esta pessoa. Quando quiser rezar por outra, comece de novo pela Primeira Madrugada.'
   }

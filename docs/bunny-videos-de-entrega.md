@@ -1,6 +1,6 @@
 # Vídeos de entrega na Bunny — o plano
 
-> Escrito em 2026-10-19. **A conta e a biblioteca foram criadas e configuradas em 19/10.** O código ainda não foi feito, e nenhum vídeo foi enviado.
+> Escrito em 2026-10-19. **Em 20/10/2026 os 9 vídeos enviados passaram para a Bunny** (decisão do Caio: todos de uma vez, sem esperar a semana do piloto, depois do teste no celular dele). Falta a Live do São Rafael, que não foi enviada.
 > Quando uma fase andar, anotar aqui (e no diário) o que mudou.
 
 ## A decisão
@@ -32,6 +32,30 @@ A VTurb continua sendo a ferramenta certa para vender: ela mostra em que minuto 
 | As 3 Madrugadas — 2ª | `js/tres-madrugadas.js` | `vid-6ad5031184ff5e9c27000fd4` | em pé |
 | As 3 Madrugadas — 3ª | `js/tres-madrugadas.js` | `vid-6ad506eeeb8fcb3d90d4893d` | em pé |
 | Live do São Rafael (pós-live) | `live-rafael.html` | `vid-6ac6ff5c7d2a6b90e1cafed7` | **deitado (16:9)** |
+
+### Os vídeos na Bunny (enviados pelo Caio em 20/10/2026)
+O agente conferiu cada um contra o que está hoje na VTurb, **pela duração** (no máximo 1 s de diferença, que é arredondamento). Ele também trocou o título de cada vídeo no painel: a Bunny usa o nome do arquivo ("DIA 1.mp4"), e esse nome aparece no player.
+
+| Vídeo | ID na Bunny | Duração | Maior qualidade | No app |
+|---|---|---|---|---|
+| Introdução (o arquivo "NOVA INTRO" é a mesma Introdução de hoje) | `1ed0f653-8cc2-498a-bfa1-4c6561df9ace` | 10:23 | 640 × 854 | **Bunny** |
+| Dia 1 — Pai Nosso | `e8804c98-78c8-443d-92ab-129cd5047feb` | 5:08 | 640 × 854 | **Bunny**, no Dia 1 e no Pai Nosso |
+| Dia 2 — Perdão | `7ab39556-afc0-48b6-9488-d5910a4bd896` | 5:13 | 640 × 854 | **Bunny** |
+| Dia 4 — Libertação | `f41ff06d-51d4-499d-823a-89f2ce8ec198` | 5:03 | 640 × 854 | **Bunny** |
+| Dia 5 — Prosperidade | `9677e1bb-8087-4d5a-a1cb-b989a3cf5843` | 4:31 | 640 × 854 | **Bunny** |
+| Dia 6 — Paz | `f0359bdb-3d0f-41b2-9ecb-3ddc69b46ec1` | 4:18 | 640 × 854 | **Bunny** |
+| As 3 Madrugadas — 1ª | `ddcbb3cb-1b06-4dc5-b30b-6aad5293868a` | 8:03 | 960 × 1280 | **Bunny** |
+| As 3 Madrugadas — 2ª | `d1f90277-3308-455b-8b52-b30fd7cca91a` | 6:03 | 960 × 1280 | **Bunny** |
+| As 3 Madrugadas — 3ª | `4b5ddc45-90f4-440f-882f-510d119230a4` | 8:57 | 960 × 1280 | **Bunny** |
+| Live do São Rafael | ⏳ **não enviado** (a da VTurb tem 2:40) | | | VTurb |
+
+**O que foi conferido de fora, pedindo à própria Bunny (20/10):**
+- os 9 terminaram a conversão;
+- o player vem para o nosso site e para o `localhost`, e é **recusado (403)** para um site qualquer;
+- os arquivos do vídeo só saem para o player da Bunny (sem ele, 403);
+- o player sai em português (`lang="pt"`).
+
+⚠️ **A qualidade máxima depende do arquivo original.** Num vídeo em pé, a Bunny conta a resolução pelo lado comprido. Por isso o "720p" dos Dias (que viraria 960 × 1280) passa do original e é pulado, e a maior qualidade fica em 640 × 854, em torno de 1 Mbps. Isso gasta **menos banda do que a estimativa** (~40 MB por Dia assistido inteiro, contra os ~80 MB estimados). Se no celular parecer pouco nítido, é preciso mudar o encoding **e enviar o vídeo de novo**, porque o original não fica guardado na Bunny ("Keep original" desligado).
 
 **Nenhum destes 10 usa o relógio da VTurb.** Conferido em 19/10: só o Dia 3 e o Dia 7 usam (`dia.html`, linhas 258 a 321). Por isso a troca é só de player. A trava de um dia por vez, o "Concluí" e o progresso não mudam.
 
@@ -97,9 +121,9 @@ O agente fez pelo navegador do app, depois do login do Caio, e cada tela foi con
 ## A ordem do trabalho
 | Fase | Quem | O quê |
 |---|---|---|
-| 0 | Caio + agente | ✅ **Conta e biblioteca criadas e configuradas em 19/10.** ⏳ Falta: quando o Drive estiver pronto, subir **só o vídeo do Dia 1** (*Stream → 7 Améns - entregas → Videos → Upload*, arrastando o arquivo do computador) e mandar o ID do vídeo para o agente. O ID é público, porque aparece no endereço do vídeo: **nenhuma senha nem chave passa pelo chat**. ⏱️ O teste grátis acaba por volta de 02/11. Se o Dia 1 for ao ar depois disso, basta **pôr saldo antes de publicar**: a configuração continua guardada. |
-| 1 | Caio | Assiste no celular, **no 4G**, pela pré-visualização do painel: demora para começar? trava? Melhor ainda se alguém fora de São Paulo também testar. |
-| 2 | agente | Faz o `js/video.js`, liga o Dia 1 e o Pai Nosso na Bunny e testa no local. |
+| 0 | Caio + agente | ✅ **Conta e biblioteca criadas e configuradas em 19/10.** ✅ **9 dos 10 vídeos enviados em 20/10** (ver a tabela "Os vídeos na Bunny"). ⏳ Falta a Live do São Rafael. ⏱️ O teste grátis acaba por volta de 02/11. Se o Dia 1 for ao ar depois disso, basta **pôr saldo antes de publicar**: a configuração continua guardada. |
+| 1 | Caio | ✅ **20/10: começou rápido, não travou e está nítido** (celular do Caio, no 4G). Ainda falta testar fora de São Paulo. Como foi feito: assistir no celular, **no 4G**, pelo link de teste do Dia 1: https://player.mediadelivery.net/play/784501/e8804c98-78c8-443d-92ab-129cd5047feb. Demora para começar? Trava? Está nítido? Melhor ainda se alguém fora de São Paulo também testar. |
+| 2 | agente | ✅ `js/video.js` pronto (19/10). ✅ **Dia 1 e Pai Nosso ligados na Bunny em 20/10**, no `js/dias.js` e no `js/materiais.js` (com `?v=` novo no `dia.html`), e conferidos no teste local: os dois na Bunny, no mesmo tamanho do player da VTurb, e o resto na VTurb. No teste local a moldura apareceu alta demais em tela com mais de 400 px, e o `js/video.js` foi corrigido no mesmo dia. |
 | 3 | Caio publica | **Só o Dia 1** vai ao ar (1 build). Uma semana olhando: o gasto na Bunny, reclamação no suporte e os plays da VTurb caindo. |
 | 4 | Caio + agente | Sobem os outros 9 vídeos, e tudo vai ao ar numa publicação só (1 build). |
 | 5 | Caio | 30 dias depois: compara a conta da Bunny com a da VTurb e decide se baixa o plano da VTurb. |
@@ -112,7 +136,7 @@ O agente fez pelo navegador do app, depois do login do Caio, e cada tela foi con
 1. 💳 **O saldo acaba e os vídeos param para as clientes.** A conta é pré-paga, em dólar, e a recarga automática fica desligada (19/10). Ver "Acompanhar o consumo", logo abaixo.
 2. **Um domínio esquecido na lista, e a cliente vê "vídeo bloqueado".** Por isso o piloto é com um vídeo só, conferido no site no ar.
 3. **O vídeo toca sozinho.** O padrão da Bunny é tocar. Desligar na biblioteca **e** no endereço.
-4. **"Continuar de onde parou".** Na VTurb, o player pergunta "Continuar assistindo?". Na Bunny, a posição fica guardada **por 7 dias** no celular, e não se sabe se ela pergunta ou retoma direto. Duas telas prometem a pergunta: `tres-madrugadas-video.html` (linha 81) e `live-rafael.html` (linha 85). **Testar no piloto e ajustar o texto dessas telas.**
+4. **"Continuar de onde parou".** ✅ Resolvido em 20/10. O player da Bunny **não pergunta**: ele volta sozinho para o ponto em que ela parou, no mesmo celular (conferido no código do próprio player). A da VTurb pergunta "Continuar assistindo?". Por isso o texto da `tres-madrugadas-video.html` segue o player de cada vídeo (`videoDaMadrugada.origem`). A `live-rafael.html` continua prometendo a pergunta, porque a Live segue na VTurb: **trocar esse texto quando a Live passar para a Bunny.**
 5. **A rede Volume tem um único ponto no Brasil (São Paulo).** No Norte e no Nordeste, o vídeo pode demorar mais para começar. Se o piloto mostrar isso, trocar para a rede Standard, que é ~9 vezes mais cara (~R$ 500 por mês) e ainda fica perto da VTurb.
 6. **O player com outra cara, ou em inglês.** Confirmar o `lang=pt`, a cor dourada e os botões grandes (regra dos 45+).
 7. **Dólar e IOF** na fatura.

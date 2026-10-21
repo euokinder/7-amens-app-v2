@@ -58,15 +58,19 @@
     return Boolean(BUNNY_LIGADA && bunny && ID_DA_BUNNY.test(bunny.video || '') && FORMATOS[bunny.formato || '3:4']);
   }
 
-  // A mesma caixa do <vturb-smartplayer>: largura cheia, no máximo 400px no
-  // vídeo em pé, fundo preto enquanto carrega e a altura pela proporção.
+  // A mesma montagem do <vturb-smartplayer>: uma caixa de fora com a largura
+  // (cheia, no máximo 400px no vídeo em pé) e uma de dentro com a altura pela
+  // proporção. ⚠️ Tem de ser em duas: a altura em % conta a largura da caixa
+  // de FORA, e numa caixa só ela contaria a da página inteira, e o vídeo
+  // ficaria mais alto que o certo em tela mais larga que 400px (visto em 20/10).
   function htmlDaBunny(bunny, titulo) {
     const formato = FORMATOS[bunny.formato || '3:4'];
     const largura = formato.larguraMaxima ? ` max-width: ${formato.larguraMaxima};` : '';
     const endereco = `https://player.mediadelivery.net/embed/${BIBLIOTECA}/${bunny.video}?${OPCOES}`;
-    return `<div class="video-bunny" style="position: relative; width: 100%;${largura} margin: 0 auto; padding-top: ${formato.altura}; background-color: black;">`
+    return `<div class="video-bunny" style="display: block; width: 100%;${largura} margin: 0 auto;">`
+      + `<div style="position: relative; width: 100%; padding-top: ${formato.altura}; background-color: black;">`
       + `<iframe src="${endereco}" title="${escapar(titulo)}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>`
-      + '</div>';
+      + '</div></div>';
   }
 
   function escolher({ bunny, vturb, titulo } = {}) {
