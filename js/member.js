@@ -4,7 +4,7 @@
   // A Terceira Madrugada e a unica que conclui pela contribuicao, nao pelo
   // botao. Ver o bloco de doacao em dia.html e a decisao de 22/09/2026.
   const CHAVE_DIA_03 = 'principal:3';
-  const AJUDA = 'https://wa.me/5511936203979?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.';
+  const AJUDA = 'https://wa.me/5521923671052?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns.';
   const readToken = () => { try { return localStorage.getItem(storageKey) || ''; } catch { return ''; } };
   let token = readToken();
   let state = null;
@@ -506,7 +506,7 @@
     const bloco = node('div', 'heading-block');
     bloco.append(titulo, node('p', 'subtext', 'Este vídeo é para quem comprou na Live do Arcanjo São Rafael, e ele ainda não aparece no seu acesso. Se você já comprou, fale com a nossa equipe que a gente resolve.'));
     const ajuda = node('a', 'member-button', 'Falar com a equipe');
-    ajuda.href = 'https://gerador-link.devzapp.com.br/s/0sQRZM';
+    ajuda.href = 'https://wa.me/5521923671052?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20app%207%20Am%C3%A9ns%20da%20Madrugada';
     ajuda.target = '_blank';
     ajuda.rel = 'noopener';
     ajuda.style.textAlign = 'center';
@@ -556,7 +556,7 @@
     const bloco = node('div', 'heading-block');
     bloco.append(titulo, node('p', 'subtext', 'As 3 Madrugadas são para quem comprou no fim da Sétima Madrugada, e elas ainda não aparecem no seu acesso. Se você já comprou, fale com a nossa equipe que a gente resolve.'));
     const ajuda = node('a', 'member-button', 'Falar com a equipe');
-    ajuda.href = 'https://gerador-link.devzapp.com.br/s/0sQRZM';
+    ajuda.href = 'https://wa.me/5521923671052?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20app%207%20Am%C3%A9ns%20da%20Madrugada';
     ajuda.target = '_blank';
     ajuda.rel = 'noopener';
     ajuda.style.textAlign = 'center';
