@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-10-18
+> Atualizado: 2026-10-27
 
 ---
 
@@ -14,6 +14,7 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
+| 30 | 🆕🔥 **Pedidos de São Judas: publicar ATÉ QUARTA, 28/10, 18h** (27/10) | O formulário `setemadrugadas.com.br/sao-judas` está pronto e enviado para a `development` (ver a entrada de 26 e 27/10), mas **nada está no ar**. Ele substitui o "[PREENCHER: LINK DO PRIVADO DO PADRE]" da mensagem do WhatsApp. **Nesta ordem, e os três são cliques do Caio:** (1) rodar `supabase/pedidos-de-oracao.sql` no SQL Editor da produção; (2) colar a `member-api` nova pelo painel, com "Verify JWT" **desligado**; (3) publicar o site, push na `main` (**1 build**; ponto de retorno: deploy `6adcafb43f5447d3341d7fec`). Depois, (4) um pedido de teste, conferido no banco, e só então (5) a mensagem. ⚠️ **A página diz "Recebi o seu pedido" mesmo quando não grava**: com o site no ar sem os passos 1 e 2, todo pedido se perde sem ninguém ver. **Também pede o olho dele:** (a) a copy escrita pelo agente (o selo "Quarta-feira, 28 de outubro, às 20h", os rótulos "O seu primeiro nome" e "A sua causa, em poucas palavras", o exemplo, o botão "Enviar o meu pedido", a tela "Recebi o seu pedido, Maria." e a de "Os pedidos foram encerrados"); (b) o `CLAUDE.md` ganhou a seção "Pedidos de oração para a live de São Judas" e uma linha na tabela do banco, **escritas sem perguntar antes** (foram junto no commit `0858b5e`). |
 | 29 | 🆕 **As 3 Madrugadas: os textos e as fotos são provisórios** (18/10) | **No ar desde 18/10, 17:27**, para as 33 compradoras. Nada trava, mas pede o olho do Caio. **(a) Os subtítulos** "O telhado se abre", "Levanta-te" e "Vai para tua casa" saíram do roteiro de 15/10, que previa ~38 min por nome. **Os vídeos somam ~23 min** (8:03, 6:03 e 8:58), então a divisão das orações pode ter mudado: os subtítulos batem com o que o padre fala? **(b) O "Como funciona" da lista** diz para rezar as três madrugadas pela mesma pessoa e recomeçar pela Primeira no próximo nome. Isso bate com os vídeos **e com o que a oferta do Dia 7 promete**? A memória do agente registra que a VSL de 15/10 dizia "três madrugadas, uma para cada nome", que é outro modelo. **(c)** Os textos escritos pelo agente: a descrição do card ("Três madrugadas de oração, em vídeo, por quem você carrega no coração."), o "Como rezar" do vídeo, as frases da próxima madrugada, a faixa "Três madrugadas para cada nome" e o aviso de quem abre sem ter comprado. **(d)** As fotos são as dos Dias 1, 3 e 7 (foto nova = arquivo com **nome novo**). **(e)** O card fica logo depois do da Live. Mexer em qualquer um custa 1 build. |
 | ~~28~~ | ✅ **RESOLVIDO em 18/10.** O Caio respondeu "pode corrigir o CLAUDE.md para dizer que As 3 Madrugadas estão no ar", e as duas linhas passaram a dizer "no ar desde 18/10, 17:27", com as 33 compradoras liberadas, o commit e o deploy. Foi junto no commit do fechamento. A seção escrita sem perguntar ficou como estava (ele não pediu mudança). Texto antigo: **O `CLAUDE.md` ganhou a seção das 3 Madrugadas — e ainda diz "não publicada"** (18/10) | O agente escreveu, **sem perguntar antes**, e foi junto no commit `3750b35` (já no ar; o `CLAUDE.md` não vai para o site): a seção "As 3 Madrugadas", a linha `tres_madrugadas` no catálogo, o título "Só QUATRO conteúdos são trancados" e a troca do aviso "o produto ainda NÃO existe" na seção da oferta do Dia 7. A skill `regras-de-acesso` ganhou uma nota igual. **Falta uma correção que o `/fechar` não faz sem perguntar:** as duas linhas ainda dizem "⏳ pronta no repositório, ainda não publicada" e "até o SQL rodar". Posso trocar para "no ar desde 18/10, 17:27, 33 compradoras liberadas"? |
 | 27 | 🆕 **A regra "reembolso não tira o acesso" vale também para a Hubla?** (16/10) | Na **Payt**, o Caio decidiu em 16/10 que reembolso e chargeback **não** tiram nada, porque é promessa da VSL, e é assim que a `payt-webhook` funciona. Na **Hubla** continua valendo a regra 4 do `CLAUDE.md`: reembolso do principal tira o app, e o `hubla-webhook` grava 'revoked'. Se a VSL promete para todas, a Hubla está descumprindo hoje. Perguntas: vale para a Hubla? Para o principal e para os extras? E quem já foi reembolsada volta a ter acesso? Ele disse "a Hubla a gente vê depois, separado". Há um card de sessão proposto: "Hubla: erro 409 no aviso repetido e regra do reembolso". |
@@ -114,6 +115,12 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 
 ## 🟡 Pendente — pode tocar sem perguntar
 
+- 🆕🔥 **Pedidos de São Judas: depois de publicar, conferir um pedido de verdade no banco** (27/10). A página nunca mostra erro, então a única prova é o banco: `select * from public.prayer_requests where campaign = 'sao_judas_2026' order by created_at desc limit 5;`. **Na quarta, às 18h**, entregar a lista para o padre (a consulta pronta está no fim de `supabase/pedidos-de-oracao.sql`; ou Table Editor → `prayer_requests` → Export → CSV).
+- 🆕 **Pedidos de São Judas: a tabela nunca rodou num banco de verdade** (27/10). A criação no banco de **teste** foi tentada pela ferramenta da Supabase, que pediu aprovação; ninguém respondeu em 60 s, e ela desistiu. Ao que tudo indica **não rodou**; conferir com `select to_regclass('public.prayer_requests');` no banco de teste. A função também só foi testada contra um banco de mentira (21 conferências), nunca contra a Supabase de verdade.
+- 🆕 **Pedidos de São Judas: ninguém abriu num celular de verdade nem viu o cartão do link no WhatsApp** (27/10). Conferido no navegador, a 390 px, nas quatro telas (formulário, campo vazio, recebido, encerrado).
+- 🆕 **Três commits de 19 a 24/10 sem entrada neste diário** (achado em 26/10): `4365c20` páginas de venda em vídeo dos Arcanjos (card) e do Cântico; `a926918` vídeos de entrega na Bunny (Introdução, Dias 1, 2, 4, 5 e 6, Pai Nosso e As 3 Madrugadas); `d78184c` número novo do suporte, (21) 92367-1052. Os três estão no ar (deploy `6adcafb43f5447d3341d7fec`, 24/10, 10:16). Ninguém registrou o que foi testado nem o que ficou faltando.
+- 🆕 **A `member-api` da produção está na v19, não na v18** (26/10). O diário de 27/09 fala em v18; a v19 é de ~28/09. Lida inteira pelo agente em 26/10 e igual ao repositório **de olho**, não byte a byte.
+
 - 🆕🔥 **As 3 Madrugadas: conferir a PRIMEIRA venda nova que chegar pelo webhook** (18/10). O código `JwN1GmUvx8c3GUTCOaHU` foi mapeado às ~17:30 de 18/10, e até 19:24 não tinha entrado venda nova. Ele já foi confirmado pelas 33 compras reais, então deve passar direto. Consulta: `select received_at, processing_status, error from hubla_events where hubla_product_id = 'JwN1GmUvx8c3GUTCOaHU' and event_type = 'customer.member_added' order by received_at desc limit 5;` — o certo é `processed`. Para achar quem ficou de fora (o certo é zero linhas), a parte (c) do fim de `supabase/tres-madrugadas.sql`.
 - 🆕 **As 3 Madrugadas: ninguém viu num celular de verdade** (18/10). Conferido no teste local, a 390 px, com os três vídeos tocando. A conta admin do Caio ganhou o produto em 18/10, então ele já pode abrir no celular dele.
 - 🆕 **As 3 Madrugadas: tem um segundo acesso "liberado na mão" que o agente não fez** (18/10). Às 19:24 eram 35 acessos: as 33 da carga, o da conta do Caio (gravado pelo agente direto no banco, a pedido dele) e **mais um**, provavelmente liberado por alguém pelo painel. Não é problema; dá para ver quem foi no histórico do painel. ⚠️ O da conta do Caio **não aparece** no histórico do painel (`admin_actions`), porque não passou pelo botão.
@@ -203,6 +210,50 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
 
 ---
+
+## 2026-10-26 e 27 — Pedidos para a live de São Judas: formulário aberto, sem login (PRONTO, NÃO PUBLICADO)
+
+**Chat:** um só, numa **sessão na nuvem** (claude.ai/code), não na máquina do Caio. Começou com "você tem acesso a tudo que foi feito no nosso app?". Depois, o pedido: um formulário simples dentro do app, onde a pessoa coloca o primeiro nome e a causa, para fazer o papel do "me mande no privado" da mensagem do padre. Live de São Judas: quarta, 28/10, 20h; pedidos até as 18h.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+**Nada.** Nem site, nem banco, nem função. O banco de teste também não mudou, ao que tudo indica (ver o pendente).
+
+| Onde | O quê |
+|---|---|
+| GitHub | commits `0858b5e` (o formulário) e o deste fechamento, enviados para a **`development`**. A `main` continua em `d78184c` |
+| Produção | `member-api` **v19** (lida, não mexida); site no deploy `6adcafb43f5447d3341d7fec` (24/10, 10:16), que é o ponto de retorno |
+
+### As decisões (do pedido no chat)
+| Pergunta | Resposta |
+|---|---|
+| Quem abre a página? | **Todo mundo, sem login** |
+| Guardar os pedidos? | "Caso armazenar seja fácil e barato, faça. Se for muito custoso, apenas finja que recebeu." É barato (uma tabela no banco que já existe), então **guarda**, e o "finge" ficou como reserva: se a gravação falhar, a tela diz "Recebi" do mesmo jeito |
+| Visual | o do app: creme, dourado e o painel marrom dos cards da home |
+| Publicar | "pode enviar pra main". A trava do projeto barrou o agente, e o botão Run não rodou nesta sessão (nada chegou ao GitHub). Ficou para o Caio (decisão nº 30) |
+
+### Onde mora
+| Peça | O quê |
+|---|---|
+| `sao-judas.html` (novo) | a página. Aberta como a do Padre Tiago: **sem** o `js/member.js`. A campanha (`data-campanha="sao_judas_2026"`) e o prazo (`data-encerra`, 28/10 às 18h) moram no `<form>`. Outra live = copiar a página e trocar os dois |
+| `js/pedido-de-oracao.js`, `css/pedido.css` (novos) | o envio, os avisos de campo vazio, a tela "Recebi o seu pedido, Maria." (com "Mandar outro pedido", que guarda o nome) e a de encerrado |
+| `member-api` | ação `prayer_request`, **sem sessão**, como `login`, `recover` e `entry`. Limita 20 pedidos por 10 min por endereço de internet **e** nome (o mesmo balde do login) |
+| `supabase/pedidos-de-oracao.sql` (novo) | a tabela `prayer_requests` (sem `customer_id`; RLS `backend_only`) e as consultas prontas: a lista para o padre e a contagem por dia. Também na receita `schema-completo.sql` (que dizia "19 tabelas" e tinha 21; agora diz 22) |
+| `CLAUDE.md` | a seção nova e a linha da tabela (decisão nº 30 (b)) |
+
+**Por que na `member-api`, e não o navegador gravando direto no banco:** seria o caminho mais curto (sem mexer na função), mas exigiria abrir uma tabela para o público, e a regra do projeto é "nunca criar política para `anon`". **E por que não Netlify Forms:** cada envio gasta crédito da Netlify, e o projeto está com o recurso desligado.
+
+### Testado, e o que não foi
+| | Como |
+|---|---|
+| a função | rodada **no Node**, com um banco de mentira: **21 conferências certas** (pedido válido e limpo de espaços, campos vazios, limites de 60 e 300 letras, campanha inválida, o 21º pedido barrado, outra pessoa no mesmo endereço passando, site de fora barrado, banco falhando, e login e sessão respondendo como antes). O roteiro ficou fora do repositório |
+| a página | teste local, 390 px: as 4 telas, sem rolagem lateral, nada sobreposto. A gravação falhou dos dois jeitos de propósito (o banco de teste não tem a ação nova: 401; e uma vez demorou mais de 10 s) e a tela disse "Recebi" nos dois |
+| o build | passou, com os 3 arquivos novos em `dist/` |
+| ❌ **não visto** | o SQL em qualquer banco de verdade; a função numa Supabase de verdade; um celular; o cartão do link no WhatsApp; o endereço sem `.html` na Netlify (deve funcionar como o `/entrar`) |
+
+### Descobertas que enganam
+- **Nesta sessão na nuvem, a trava `protege-producao` só deixa o agente enviar para a `development`.** A branch própria da sessão (`claude/...`) não sobe, e o botão Run do comando não rodou aqui. Quem trabalha na nuvem: commitar e mandar para a `development`, ou o trabalho morre com a sessão.
+- **A ferramenta da Supabase às vezes pede aprovação antes de rodar SQL**, mesmo no banco de teste. Se ninguém responde em 60 s, ela desiste e não pode ser chamada de novo na mesma rodada.
+- **O diário tinha parado em 18/10**, com três publicações depois (ver o pendente).
 
 ## 2026-10-18 — As 3 Madrugadas: o entregável em vídeo, só para quem comprou (NO AR desde 17:27)
 
