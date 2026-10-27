@@ -269,6 +269,24 @@ Deno.serve(async (req: Request) => {
       await db(`member_entry_links?customer_id=eq.${dona.id}`, 'PATCH', { last_used_at: new Date().toISOString(), uses: (link.uses || 0) + 1 });
       return respond({ token: sessao, ...await snapshot(dona, produtos) });
     }
+    // PEDIDOS DE ORAÇÃO (26/10/2026) — o formulário aberto de sao-judas.html,
+    // para a live de São Judas. Roda SEM sessão, como o `login`: a página é
+    // de quem tiver o link, cliente ou não. Só grava o nome e a causa; não
+    // devolve nada de ninguém. Ver supabase/pedidos-de-oracao.sql.
+    if (body.action === 'prayer_request') {
+      const campanha = typeof body.campaign === 'string' ? body.campaign : '';
+      const nome = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ') : '';
+      const causa = typeof body.intention === 'string' ? body.intention.trim().replace(/\s+/g, ' ') : '';
+      if (!/^[a-z0-9_-]{1,40}$/.test(campanha) || !nome || nome.length > 60 || !causa || causa.length > 300) return respond({ error: 'Confira o seu nome e o seu pedido e tente de novo.' }, 400);
+      // O balde é por endereço de internet E por nome, como no login (que usa
+      // o e-mail): a mensagem vai para todas de uma vez, e a operadora de
+      // celular põe muita gente atrás do mesmo IP.
+      const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '';
+      const permitido = await db('rpc/allow_member_login', 'POST', { bucket_key: await hash(`pedido:${ip}|${nome.toLowerCase()}`) });
+      if (!permitido) return respond({ error: 'Você mandou vários pedidos seguidos. Espere uns minutinhos e tente outra vez.' }, 429);
+      await db('prayer_requests', 'POST', { campaign: campanha, name: nome, intention: causa });
+      return respond({ ok: true });
+    }
     const token = req.headers.get('x-member-session') || '';
     if (!/^[a-f0-9-]{72}$/.test(token)) return respond({ error: 'Entre novamente com seu e-mail.' }, 401);
     const tokenHash = await hash(token);

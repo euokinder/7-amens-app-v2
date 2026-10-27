@@ -1,0 +1,156 @@
+/* OS PEDIDOS PARA A LIVE DE SÃO JUDAS (sao-judas.html, 26/10/2026).
+   O formulário mora no mesmo painel marrom dos cards da home, com os campos
+   brancos e o botão dourado: é o app, e não um formulário de fora. */
+
+.pedido-data {
+  align-self: flex-start;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: oklch(0.72 0.14 85 / 0.18);
+  /* O dourado mais fundo da saudação da home: o --accent sobre o creme fica
+     abaixo do mínimo de contraste. */
+  color: oklch(0.45 0.12 80);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.pedido-titulo { line-height: 1.25; text-wrap: balance; }
+
+.pedido-abertura {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.pedido-cartao {
+  margin-top: 4px;
+  padding: 26px 22px 28px;
+  border-radius: 22px;
+  background: var(--painel);
+  border: 1px solid var(--painel-borda);
+  color: var(--card-ink);
+  box-shadow: 0 12px 28px -18px oklch(0.2 0.03 50 / 0.6);
+}
+
+.pedido-form,
+.pedido-resposta {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+/* Sem isto, o display: flex acima venceria o atributo hidden e as três
+   telas apareceriam juntas. */
+.pedido-form[hidden],
+.pedido-resposta[hidden] { display: none; }
+
+.pedido-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pedido-campo label {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--card-ink);
+}
+
+.pedido-exemplo {
+  margin: -4px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--painel-suave);
+}
+
+.pedido-campo input,
+.pedido-campo textarea {
+  width: 100%;
+  min-height: 58px;
+  padding: 15px 16px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 19px;
+  line-height: 1.45;
+}
+.pedido-campo textarea { min-height: 128px; resize: vertical; }
+
+.pedido-campo input:focus-visible,
+.pedido-campo textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pedido-campo [aria-invalid="true"] { border-color: oklch(0.70 0.15 35); }
+
+.pedido-erro {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+  /* Coral claro: lê bem no painel marrom (o vermelho escuro some nele). */
+  color: oklch(0.86 0.08 45);
+}
+.pedido-erro:empty { display: none; }
+
+.pedido-botao {
+  min-height: 60px;
+  padding: 14px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--dark-on-accent);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pedido-botao:active { transform: scale(0.985); }
+.pedido-botao:disabled { opacity: .7; cursor: wait; }
+.pedido-botao:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.pedido-botao.secundario {
+  background: transparent;
+  border: 2px solid var(--painel-borda);
+  color: var(--card-ink);
+}
+
+.pedido-prazo {
+  margin: -6px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--painel-suave);
+}
+
+.pedido-resposta { align-items: center; text-align: center; gap: 16px; }
+.pedido-resposta-icone { font-size: 46px; line-height: 1; }
+.pedido-resposta h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--card-ink);
+  overflow-wrap: anywhere;
+}
+.pedido-resposta h2:focus { outline: none; }
+.pedido-resposta p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--painel-suave);
+}
+.pedido-resposta .pedido-resposta-prece {
+  font-style: italic;
+  font-weight: 700;
+  /* O dourado claro do selo dos cards: o --accent fica abaixo do mínimo de
+     contraste no painel marrom. */
+  color: oklch(0.80 0.13 85);
+}
+.pedido-resposta .pedido-botao { align-self: stretch; margin-top: 6px; }

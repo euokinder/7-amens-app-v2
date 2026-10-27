@@ -246,6 +246,15 @@ Pedido do Caio: a venda dos dois extras pelo card da home em **headline + VSL + 
 
 A Live do São Rafael e As 3 Madrugadas (acima) são a terceira e a quarta exceções, também pedidas pelo Caio. **Não trancar nenhum outro conteúdo por upsell sem o Caio pedir.** Os entitlements de `upsell_03` continuam servindo só para a operação saber quem comprou o quê.
 
+## 🙏 Pedidos de oração para a live de São Judas (26/10/2026) — ⏳ pronto no repositório, ainda não publicado
+O formulário que substitui o "manda no privado do padre" da mensagem do WhatsApp: a pessoa escreve o **primeiro nome** e a **causa, em poucas palavras**. Link da mensagem: `setemadrugadas.com.br/sao-judas` (`sao-judas.html`, `js/pedido-de-oracao.js`, `css/pedido.css`). Live: quarta, 28/10, 20h; pedidos até as 18h.
+
+- **Página aberta, como a do Padre Tiago:** entra quem tiver o link, cliente ou não. **Não carrega o `js/member.js`** (o portão do login). Só o `js/member-config.js`, que diz o endereço da função.
+- Os pedidos vão para a tabela **`prayer_requests`** (`supabase/pedidos-de-oracao.sql`), pela ação **`prayer_request`** da `member-api`, que roda **sem sessão** (como `login`, `recover` e `entry`). Limite: 20 pedidos por 10 min por IP **e** nome. A lista para o padre é a consulta no fim do SQL.
+- ⚠️ **A tela sempre diz "Recebi o seu pedido", mesmo se a gravação falhar.** Pedido de 26/10: "se não der para guardar, finge que recebeu". Consequência: uma falha de gravação **não aparece para ninguém**. Antes de mandar a mensagem, enviar um pedido de teste e conferir no banco que ele chegou.
+- Depois de **28/10, 18h** (`data-encerra`, no `<form>`), a página mostra "Os pedidos foram encerrados" e não envia mais nada. A campanha (`data-campanha="sao_judas_2026"`) vai para o banco. Outra live = copiar a página e trocar os dois `data-`.
+- **Ordem de publicar: banco → função → site.** O que chegar antes dos dois primeiros passos se perde em silêncio.
+
 ## Home como hub
 **Home nova, no ar desde 24/09.** Dois blocos, na ordem pedida pelo Caio:
 1. **"Escolha um conteúdo"**: 7 Orações Sagradas · Grupo no WhatsApp · Mensagem do Dia
@@ -286,6 +295,7 @@ O backend está bem mais adiantado do que o desenho original sugeria. Nomes reai
 | `member_offer_events` | registro servidor de exibição/clique, para não repetir oferta em outro aparelho |
 | `payt_events` | cada aviso da Payt, inteiro (sem a chave secreta) · desde 16/10/2026 |
 | `payt_product_map` | tradutor código da Payt → nosso produto · desde 16/10/2026 |
+| `prayer_requests` | pedidos de oração do formulário aberto (`sao-judas.html`), sem `customer_id` · ⏳ só depois de rodar `supabase/pedidos-de-oracao.sql` |
 
 Funções: `allow_member_login(bucket_key)` e `claim_member_offer(customer_id)`.
 Edge Function: `supabase/functions/member-api/index.ts` — **todo acesso ao banco passa por ela.**

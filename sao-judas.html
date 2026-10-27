@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seu pedido a São Judas — 7 Améns da Madrugada</title>
+<!-- =====================================================================
+     OS PEDIDOS PARA A LIVE DE SÃO JUDAS — pedido de 26/10/2026.
+     A cliente escreve o primeiro nome e a causa, e o pedido vai para o
+     banco (tabela prayer_requests, supabase/pedidos-de-oracao.sql), pela
+     ação "prayer_request" da member-api. É o link da mensagem do WhatsApp:
+     setemadrugadas.com.br/sao-judas
+
+     Página ABERTA, como a do Padre Tiago: entra quem tiver o link, cliente
+     ou não, sem e-mail e sem login. Por isso ela NÃO carrega o js/member.js
+     (quem faz o portão "Verificando seu acesso…") e não tem o #member-gate.
+     ⚠️ Não acrescentar o js/member.js "para ficar igual às outras": a
+     página passaria a pedir e-mail, e quem não é cliente cairia no login.
+     O js/member-config.js fica: ele só diz o endereço da member-api (e, no
+     computador, aponta para o banco de teste). Não tranca nada.
+
+     A cliente sempre vê "Recebi o seu pedido", mesmo se a gravação falhar
+     (sem internet, função antiga no ar, banco sem a tabela). Decisão de
+     26/10: na falta de onde guardar, o pedido "finge que recebeu". Quem
+     confere se está gravando de verdade é a consulta do SQL acima.
+
+     A campanha e o prazo moram no <form>: data-campanha (o nome que vai
+     para o banco) e data-encerra (depois disso, a página mostra "Os pedidos
+     foram encerrados" e não envia mais nada). Para outra live: copiar esta
+     página, trocar os textos e os dois data-.
+
+     O que o WhatsApp mostra no cartão do link sai das três linhas "og:".
+     PROVISORIO (escrito pelo agente, a copy é do Caio): o selo da data, os
+     rótulos e o texto do botão, a tela de "Recebi o seu pedido" e a de
+     pedidos encerrados. O título, a abertura e o prazo são os da mensagem
+     do WhatsApp.
+     ===================================================================== -->
+<meta property="og:title" content="Quero levar o seu pedido a São Judas">
+<meta property="og:description" content="Toque aqui e escreva o seu pedido.">
+<meta property="og:image" content="https://setemadrugadas.com.br/assets/images/icon-512.png">
+<!-- Só se chega aqui pelo link. Não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=14">
+<link rel="stylesheet" href="css/pedido.css?v=1">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<script src="js/member-config.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <div class="header" style="justify-content:flex-end;">
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <main class="content">
+
+    <span class="pedido-data">Quarta-feira, 28 de outubro, às 20h</span>
+
+    <div class="section-heading" style="margin-top:-6px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title pedido-titulo">Quero levar o seu pedido a São Judas</h1>
+      </div>
+    </div>
+
+    <p class="pedido-abertura">Na quarta-feira, dia 28, às 20h, no dia de São Judas, eu vou rezar ao vivo com vocês. E quero levar comigo o pedido de cada um.</p>
+
+    <section class="pedido-cartao" aria-label="O seu pedido">
+
+      <form id="pedido-form" class="pedido-form" novalidate
+            data-campanha="sao_judas_2026"
+            data-encerra="2026-10-28T18:00:00-03:00">
+        <div class="pedido-campo">
+          <label for="pedido-nome">O seu primeiro nome</label>
+          <input id="pedido-nome" name="nome" type="text" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" maxlength="60" required aria-describedby="pedido-nome-erro">
+          <p id="pedido-nome-erro" class="pedido-erro" role="alert"></p>
+        </div>
+
+        <div class="pedido-campo">
+          <label for="pedido-causa">A sua causa, em poucas palavras</label>
+          <p id="pedido-causa-exemplo" class="pedido-exemplo">Por exemplo: pela saúde do meu marido.</p>
+          <textarea id="pedido-causa" name="causa" rows="3" maxlength="300" required aria-describedby="pedido-causa-exemplo pedido-causa-erro"></textarea>
+          <p id="pedido-causa-erro" class="pedido-erro" role="alert"></p>
+        </div>
+
+        <button class="pedido-botao" type="submit">Enviar o meu pedido</button>
+
+        <p class="pedido-prazo">Pode mandar até quarta, às 18h. Cada pedido vai comigo.</p>
+      </form>
+
+      <div id="pedido-recebido" class="pedido-resposta" hidden>
+        <div class="pedido-resposta-icone" aria-hidden="true">🙏</div>
+        <h2 id="pedido-recebido-titulo" tabindex="-1">Recebi o seu pedido<span id="pedido-recebido-nome"></span>.</h2>
+        <p>Na quarta-feira, dia 28, às 20h, ele vai comigo na oração a São Judas Tadeu.</p>
+        <p class="pedido-resposta-prece">São Judas Tadeu, rogai por nós.</p>
+        <button id="pedido-outro" class="pedido-botao secundario" type="button">Mandar outro pedido</button>
+      </div>
+
+      <div id="pedido-encerrado" class="pedido-resposta" hidden>
+        <div class="pedido-resposta-icone" aria-hidden="true">🕯️</div>
+        <h2>Os pedidos foram encerrados</h2>
+        <p>Recebi os pedidos até quarta-feira, às 18h. Que São Judas Tadeu interceda por você e pela sua família.</p>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="js/pedido-de-oracao.js?v=1"></script>
+</body>
+</html>

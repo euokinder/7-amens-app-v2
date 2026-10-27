@@ -3,7 +3,7 @@
 -- =====================================================================
 --
 -- O QUE É ESTE ARQUIVO
--- Ele constrói o banco inteiro do zero: as 19 tabelas, as travas de
+-- Ele constrói o banco inteiro do zero: as 22 tabelas, as travas de
 -- segurança, os índices, as 3 funções, as 3 visões do painel e a
 -- configuração de produtos e campanhas. Rodando este arquivo num banco vazio, você tem um sistema
 -- funcionando — só sem clientes.
@@ -173,6 +173,20 @@ create table if not exists public.member_donation_events (
   created_at timestamptz not null default now(),
   constraint member_donation_events_event_check check (event in ('opened', 'monthly', 'once', 'closed')),
   constraint member_donation_events_amount_check check (amount between 1 and 100000)
+);
+
+-- Pedidos de oração (26/10/2026): o formulário aberto de sao-judas.html, sem
+-- login, para a live de São Judas. Por isso não há customer_id. Ver
+-- supabase/pedidos-de-oracao.sql.
+create table if not exists public.prayer_requests (
+  id bigint generated always as identity primary key,
+  campaign text not null,
+  name text not null,
+  intention text not null,
+  created_at timestamptz not null default now(),
+  constraint prayer_requests_campaign_check check (campaign ~ '^[a-z0-9_-]{1,40}$'),
+  constraint prayer_requests_name_check check (char_length(name) between 1 and 60),
+  constraint prayer_requests_intention_check check (char_length(intention) between 1 and 300)
 );
 
 
@@ -458,6 +472,7 @@ create index if not exists member_home_banners_ordem_idx on public.member_home_b
 create index if not exists member_offer_events_campaign_idx on public.member_offer_events (campaign_key);
 create index if not exists member_survey_events_campaign_idx on public.member_survey_events (campaign_key);
 create index if not exists member_donation_events_customer_idx on public.member_donation_events (customer_id);
+create index if not exists prayer_requests_campaign_idx on public.prayer_requests (campaign, created_at);
 
 
 -- =====================================================================
@@ -477,7 +492,7 @@ declare t text;
 begin
   foreach t in array array[
     'customers','products','entitlements','member_sessions','member_entry_links','member_login_limits',
-    'prayer_progress','member_visit_days','member_donation_events','member_admins','admin_actions',
+    'prayer_progress','member_visit_days','member_donation_events','prayer_requests','member_admins','admin_actions',
     'hubla_events','hubla_product_map','payt_events','payt_product_map','member_offer_campaigns','member_offer_events',
     'member_survey_campaigns','member_survey_events','member_survey_responses',
     'member_home_banners'
