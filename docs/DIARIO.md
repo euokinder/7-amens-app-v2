@@ -4,7 +4,7 @@
 > O `CLAUDE.md` diz *como as coisas são*. Este arquivo diz *onde paramos*.
 > Regra: o mais recente fica em cima. Nada aqui é apagado, só empurrado para baixo.
 > Quem lê este arquivo é o `/abrir`. Quem escreve nele é o `/fechar`.
-> Atualizado: 2026-10-18
+> Atualizado: 2026-10-27
 
 ---
 
@@ -14,6 +14,7 @@ Nada anda nestes pontos até ele responder.
 
 | # | Assunto | A pergunta |
 |---|---|---|
+| 31 | 🆕🔥 **Netlify: o que foi feito às 10:20 de 27/10, e qual saída seguir** (27/10) | O site gasta **~6.000 créditos por mês**, o dobro do que o Pro dá, e **vai parar de novo** se nada mudar: com o crédito do Pro, em umas duas semanas (ver a entrada de 27/10). **(a)** Mandar uma foto da tela *Usage & billing* do time (plano, datas do ciclo, crédito usado e o que sobra, recarga automática ligada ou não). O agente não consegue ver: o painel pede login. **(b)** Às ~10:20 de Brasília, o que foi feito: troca de plano (Pro = US$ 20 por mês, recorrente), pacote avulso, ou recarga automática (cobrança sozinha no cartão, **sem teto**)? **(c)** Quais saídas seguir. Recomendação do agente: **tirar os áudios da Netlify para a Bunny** (corta metade do gasto) e **ligar o aviso de site fora do ar**; a recarga automática segura o site enquanto isso, se ele aceitar a cobrança. **(d)** Posso corrigir a seção de custos do `CLAUDE.md` (diz "plano ~US$ 9 em avaliação" e trata crédito como sinônimo de build) depois que o plano estiver confirmado? |
 | 29 | 🆕 **As 3 Madrugadas: os textos e as fotos são provisórios** (18/10) | **No ar desde 18/10, 17:27**, para as 33 compradoras. Nada trava, mas pede o olho do Caio. **(a) Os subtítulos** "O telhado se abre", "Levanta-te" e "Vai para tua casa" saíram do roteiro de 15/10, que previa ~38 min por nome. **Os vídeos somam ~23 min** (8:03, 6:03 e 8:58), então a divisão das orações pode ter mudado: os subtítulos batem com o que o padre fala? **(b) O "Como funciona" da lista** diz para rezar as três madrugadas pela mesma pessoa e recomeçar pela Primeira no próximo nome. Isso bate com os vídeos **e com o que a oferta do Dia 7 promete**? A memória do agente registra que a VSL de 15/10 dizia "três madrugadas, uma para cada nome", que é outro modelo. **(c)** Os textos escritos pelo agente: a descrição do card ("Três madrugadas de oração, em vídeo, por quem você carrega no coração."), o "Como rezar" do vídeo, as frases da próxima madrugada, a faixa "Três madrugadas para cada nome" e o aviso de quem abre sem ter comprado. **(d)** As fotos são as dos Dias 1, 3 e 7 (foto nova = arquivo com **nome novo**). **(e)** O card fica logo depois do da Live. Mexer em qualquer um custa 1 build. |
 | ~~28~~ | ✅ **RESOLVIDO em 18/10.** O Caio respondeu "pode corrigir o CLAUDE.md para dizer que As 3 Madrugadas estão no ar", e as duas linhas passaram a dizer "no ar desde 18/10, 17:27", com as 33 compradoras liberadas, o commit e o deploy. Foi junto no commit do fechamento. A seção escrita sem perguntar ficou como estava (ele não pediu mudança). Texto antigo: **O `CLAUDE.md` ganhou a seção das 3 Madrugadas — e ainda diz "não publicada"** (18/10) | O agente escreveu, **sem perguntar antes**, e foi junto no commit `3750b35` (já no ar; o `CLAUDE.md` não vai para o site): a seção "As 3 Madrugadas", a linha `tres_madrugadas` no catálogo, o título "Só QUATRO conteúdos são trancados" e a troca do aviso "o produto ainda NÃO existe" na seção da oferta do Dia 7. A skill `regras-de-acesso` ganhou uma nota igual. **Falta uma correção que o `/fechar` não faz sem perguntar:** as duas linhas ainda dizem "⏳ pronta no repositório, ainda não publicada" e "até o SQL rodar". Posso trocar para "no ar desde 18/10, 17:27, 33 compradoras liberadas"? |
 | 27 | 🆕 **A regra "reembolso não tira o acesso" vale também para a Hubla?** (16/10) | Na **Payt**, o Caio decidiu em 16/10 que reembolso e chargeback **não** tiram nada, porque é promessa da VSL, e é assim que a `payt-webhook` funciona. Na **Hubla** continua valendo a regra 4 do `CLAUDE.md`: reembolso do principal tira o app, e o `hubla-webhook` grava 'revoked'. Se a VSL promete para todas, a Hubla está descumprindo hoje. Perguntas: vale para a Hubla? Para o principal e para os extras? E quem já foi reembolsada volta a ter acesso? Ele disse "a Hubla a gente vê depois, separado". Há um card de sessão proposto: "Hubla: erro 409 no aviso repetido e regra do reembolso". |
@@ -201,6 +202,101 @@ Do lado de `js/member.js`, `index.html` e `oferta-arcanjos.html`: **muda, sim.**
 - ✅ ~~**Rodar `supabase/metricas-do-funil.sql`**~~ **FEITO em 20/09 na produção**, com autorização do Caio. Criou a coluna e a visão, e recuperou **6 conversões** (o arquivo previa 2 — ver a linha acima sobre a foto velha). Conferido contra os eventos da Hubla, um para um.
 - **Rodar `supabase/conferir-acessos-perdidos.sql` depois de cada dia de vendas.** É a rede de segurança que acha quem pagou e ficou sem acesso. Leva segundos e não altera nada.
 - **`node` não está no PATH do Windows.** Até alguém acrescentar `C:\Program Files\nodejs`, todo comando precisa do caminho completo. Não é urgente, é chato.
+
+---
+
+## 2026-10-27 — O site saiu do ar por falta de crédito na Netlify: o que gastou e como evitar (ESTUDO, nada mudou)
+
+**Chat:** sessão lateral, aberta por outra sessão do mesmo dia, **só leitura e estudo**. O pedido: descobrir por que a conta ficou sem crédito e o que fazer para não repetir. No meio, o Caio escreveu: "importante ter algum aviso quando acontecer esse problema, para o site não ficar off novamente por tanto tempo".
+
+⚠️ **Este diário foi escrito na `development`, que estava 2 commits atrás da `main`** (`0858b5e` São Judas e `a9dcfa5` fechamento de 26 e 27/10). Ao juntar a `main` na `development`, o topo do diário vai dar conflito: ficam as **duas** entradas, esta em cima, e a decisão nº 31 em cima da nº 30.
+
+### ⚠️ O QUE MUDOU NA PRODUÇÃO
+**Nada, por este chat.** Nem código, nem plano, nem configuração da Netlify. O que mudou hoje foi feito pelo Caio no painel (ver abaixo).
+
+### O que aconteceu (horário de Brasília)
+| Hora | O quê |
+|---|---|
+| ~8:30 | O crédito do mês acabou. A Netlify pausou **os três projetos do time** (é a regra: acabou o crédito, tudo para, até build), e o site respondeu 503 `usage_exceeded` |
+| 10:14 | O envio para a `main` (São Judas) **não gerou build**, por causa da pausa |
+| ~10:20 | O Caio liberou o uso no painel. O time aparece hoje como **Pro**. O que exatamente foi feito (troca de plano, pacote avulso ou recarga automática) **não dá para ver daqui**: decisão nº 31 |
+| 10:37 | "Trigger deploy" manual: deploy `6ae0a9281e681992c65b4c1f`, commit `a9dcfa5`. Pôs no ar a `sao-judas.html` |
+
+**Não houve pico.** O movimento da `member-api` foi igual ao de 26/10, e o da Netlify ficou entre 5,8 e 7,8 GB por dia a semana toda. **O site gasta, num mês normal, uns 6.000 créditos**, o dobro do que o Pro dá. Vai acabar de novo no meio de qualquer ciclo.
+
+### Como a Netlify cobra (conferido em 27/10, na documentação e na página de preços)
+| Uso | Crédito |
+|---|---|
+| Banda (o que sai do servidor) | **20 por GB** |
+| Requisições (cada arquivo pedido, até a resposta "304", que quer dizer "não mudou") | **2 a cada 10 mil** |
+| Build de produção | **15 cada** (o que falha não conta) |
+| Funções da Netlify | o site não usa nenhuma |
+
+| Plano | Preço | Créditos por mês | Pacote extra |
+|---|---|---|---|
+| Free | US$ 0 | 300 | não tem |
+| Personal | US$ 9 | 1.000 | 500 por US$ 5 |
+| Pro | US$ 20 | 3.000 | 1.500 por US$ 10 |
+
+- O crédito do plano **não passa** para o mês seguinte; o de pacote passa.
+- O ciclo começa no dia em que a conta foi aberta (o time é de **16/09**). Subir para o Pro no meio do ciclo **recomeça o ciclo** no dia da troca.
+- A **recarga automática** vem desligada. Ligada, compra um pacote cada vez que o crédito acaba, **sem teto**, no cartão salvo. Só o dono do time liga ou desliga.
+- A Netlify manda e-mail (e aviso no painel) em **50%, 75% e 100%** do crédito do mês.
+
+### O que gastou (20/10 a 27/10, observabilidade da Netlify, projeto `7madrugadas`)
+| | 7 dias | por mês | créditos por mês |
+|---|---|---|---|
+| **Banda total** | 51,5 GB | ~220 GB | **~4.400** |
+| ↳ áudios (MP3) | 34,8 GB | ~150 GB | ~3.000 |
+| ↳ só o `dia-01-oracao.mp3` | 26,2 GB | ~112 GB | **~2.250** |
+| ↳ fotos (JPG) | 6,4 GB | ~27 GB | ~550 |
+| ↳ PDFs | 3,0 GB | ~13 GB | ~260 |
+| **Requisições** | 1,55 milhão | ~6,6 milhões | **~1.330** |
+| ↳ "304" (o celular perguntando se o CSS e o JS mudaram, a cada página aberta) | 1,01 milhão | ~4,3 milhões | ~870 |
+| ↳ o script de medição que a Netlify põe em toda página (`/.netlify/scripts/rum`) | 116 mil | ~500 mil | ~100 (mais ~45 de banda) |
+| **Builds** | | 15 em outubro, até 27/10 | **~225** |
+| **Total** | | | **~6.000** |
+
+O "por mês" é a semana vezes 30/7. A Netlify só guarda 7 dias de detalhe, então o ciclo inteiro **não** foi visto.
+
+**O campeão é um arquivo só: `assets/audio/dia-01-oracao.mp3`, o Pai Nosso. Metade de toda a banda.**
+- Quem pede são clientes de verdade (navegador de celular, não robô): 20,3 GB vieram do Dia 1 (`dia.html?dia=1`) e 5,7 GB do Pai Nosso do Material Complementar.
+- O arquivo tem 5,2 MB (3:37 em 192 kbps estéreo). É o **único áudio que nunca passou pela conversão** que o `CLAUDE.md` manda fazer: os dos Arcanjos e do Cântico vieram depois da regra.
+- **O cache de um ano não segura áudio.** O celular baixa o áudio em pedaços cada vez que toca (38 mil pedidos em pedaços, os "206", e 8,6 mil interrompidos), e na prática não reaproveita o que já baixou. Quem reza o Pai Nosso todo dia baixa todo dia.
+
+**Os outros dois projetos não gastaram nada.** O congelado `7-amens-app-v2` teve 4 KB de tráfego na semana, e o último deploy dele é o do envio de 21/09, 22:53: **não voltou a construir**. O `7sacredprayers` teve zero tráfego; último deploy em 17/09.
+
+**Os builds de outubro** (pelo registro de envios desta máquina): 06, 07 (três), 08, 13 (dois), 16 (três), 18, 19, 20, 24 e 27/10 (o manual). São 15, uns 225 créditos: **menos de 4% do gasto. Build não é o problema.**
+
+### As saídas, da mais barata para a mais cara
+| # | Saída | Economia por mês | Custo | Quem faz |
+|---|---|---|---|---|
+| 1 | **Aviso de site fora do ar** (o pedido do Caio) | não economiza; encurta a queda de ~2 h para poucos minutos | ver abaixo | o Caio cria a conta; o agente ajuda a configurar |
+| 2 | **Converter o `dia-01-oracao.mp3`** para o padrão do projeto (mono 96 kbps se for só voz; estéreo 128 kbps se tiver música) | ~750 a ~1.100 créditos | 1 build, e alguém ouvir antes | o agente converte; o Caio ouve e publica |
+| 3 | **Tirar os áudios da Netlify** e servir pela Bunny (a conta já existe; rede "Volume", US$ 0,005 por GB, com ponto em São Paulo) | **~3.000 créditos**, metade do gasto (inclui a 2) | ~US$ 0,75 por mês de entrega na Bunny, mais centavos de armazenamento; 1 build | o Caio cria a área de arquivos na Bunny; o agente sobe os 20 áudios e troca os endereços em `js/dias.js`, `js/materiais.js`, `js/arcanjos.js` e `js/cantico.js` |
+| 4 | **Cache curto para CSS e JS** no `netlify.toml` (hoje é "pergunte toda vez") | até ~870 créditos | 1 build; exige pôr `?v=` em todos os CSS e JS, senão a cliente fica com o JS velho depois de publicar | o agente |
+| 5 | **Recarga automática ligada** (Pro) | não economiza: **impede o site de parar** | US$ 10 a cada 1.500 créditos, **cobrado sozinho no cartão, sem teto**. Com o gasto de hoje, ~2 por mês (~US$ 20) | só o Caio, dono do time |
+
+- Com a 3 e a 4, o gasto cai para **~2.200 créditos por mês**: cabe no Pro (3.000) com folga para lançamento, e a recarga automática quase nunca dispararia. No Personal (1.000) **não cabe** nem assim.
+- Em dinheiro: o crédito do pacote Pro sai a US$ 0,0067. Os ~3.000 créditos dos áudios valem ~US$ 20 por mês em pacotes; na Bunny, custariam menos de US$ 1.
+- ⚠️ **A saída 3 passa o risco para a Bunny.** A conta de lá é pré-paga, sem recarga automática (decisão de 19/10), e o teste grátis acaba por volta de 02/11. Saldo negativo por 4 dias desliga a conta, e aí **os áudios param**. O acompanhamento semanal de `docs/bunny-videos-de-entrega.md` passa a valer também para os áudios.
+
+**Sobre o aviso (saída 1):**
+- **O aviso de 75% da Netlify já existe e é de graça.** Com o gasto de hoje, no Pro, ele chega uns 4 dias antes de o crédito acabar. Falta conferir **para qual e-mail** ele vai e se alguém lê: procurar "You've used 75% of your credits" na caixa de entrada e no spam.
+- **Para saber na hora que o site caiu, por qualquer motivo:** um serviço de fora que abre `https://setemadrugadas.com.br/` a cada poucos minutos e avisa quando a resposta não é 200. ⚠️ O plano grátis do UptimeRobot é **só para uso não comercial** desde outubro de 2024; o pago (Solo) sai por ~US$ 7 a 9 por mês. Há outros com plano grátis (Better Stack, StatusCake), mas é preciso conferir, ao criar a conta, se o grátis aceita site comercial. **Criar a conta é do Caio**: o agente não cria conta nem digita senha.
+- Um alarme rodando no computador do Caio **não** resolve: às 4h, com o computador desligado, ninguém fica sabendo.
+
+### O que NÃO foi visto
+- **A tela *Usage & billing* do time.** O painel pede login, e o agente não entra com senha. Ficam sem resposta: em que dia o ciclo começou e renova, quanto crédito sobrou, se a recarga automática está ligada e o que exatamente foi feito às ~10:20 (decisão nº 31).
+- O gasto antes de 20/10 (a Netlify só guarda 7 dias de detalhe).
+- Quantas clientes ouvem o Pai Nosso por dia: os números acima são de pedidos e de bytes, não de pessoas.
+- Onde se desliga o script `rum` no painel. Pesa pouco (~145 créditos por mês).
+
+### Descobertas que enganam
+- **Crédito não é só build.** O `CLAUDE.md` e a skill `deploy-seguro` tratam crédito como sinônimo de build. Hoje build é ~4% do gasto, e o que pesa é a **banda dos áudios**. Economizar build não teria evitado a queda.
+- **Cache de um ano não protege áudio.** O `netlify.toml` já tem `immutable` para `/assets/*`, e mesmo assim o Pai Nosso saiu do servidor o equivalente a ~5 mil arquivos inteiros por semana.
+- **Acabou o crédito, param os TRÊS projetos**, inclusive os que não gastaram nada, e os builds também.
+- **A ferramenta de observabilidade da Netlify** (`netlify-observability-services-reader`, só leitura) responde por endereço, tipo de arquivo, código de resposta e página de origem, 7 dias para trás. É o jeito de refazer esta conta sem o painel.
 
 ---
 
