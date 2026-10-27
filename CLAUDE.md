@@ -109,6 +109,7 @@ Até 20/09 o app entregava as 7 madrugadas de uma vez. Hoje ele caminha junto co
 | Código + histórico | **GitHub** | fonte central; commit lá → deploy na Netlify |
 | Backend completo | **Supabase** | Postgres, usuários, entitlements, progresso, Edge Functions |
 | Pagamentos | **Hubla** e, desde 16/10/2026, **Payt** | fontes da verdade de compras, cada uma com o seu webhook (ver as seções Hubla e Payt) |
+| Áudios e PDFs | **Bunny** (Pull Zone `setemadrugadas`) | entrega o que está em `assets/audio/` e `assets/pdfs/`, buscando cada arquivo no próprio site; os arquivos continuam no repositório (ver "Custos") |
 
 **Decisão firmada: NÃO reescrever em React/Next.** Preserva-se o frontend vanilla e adiciona-se backend por trás.
 
@@ -510,7 +511,7 @@ O que o login entrega de verdade: saber quem entrou, medir progresso e mostrar o
 
 Consequências que valem dinheiro:
 - **Não prometer "conteúdo protegido" em nenhuma peça de venda.**
-- Áudio (5,2 MB) e PDFs (1,6 MB) em endereço fixo consomem banda da Netlify de quem quer que baixe, inclusive robô e link colado em grupo de WhatsApp.
+- Áudio (3 a 6 MB cada) e PDFs (até 1,6 MB) em endereço fixo consomem banda de quem quer que baixe, inclusive robô e link colado em grupo de WhatsApp. Hoje a banda é da Bunny (ver "Custos"); a cópia que fica no site também continua aberta.
 - Controle de acesso por papel na própria Netlify é **recurso de plano pago**, não um botão do plano gratuito. O caminho realista para proteção real é servir PDF e áudio pela API com link que expira — e isso é trabalho, não ajuste.
 
 ## Fluxo-alvo da Hubla
@@ -530,6 +531,11 @@ cliente entra com e-mail → sistema a encontra → sabe o que comprou → mostr
 - Cada verificação de sessão do app grava no banco. O intervalo é de **5 minutos** (`js/member.js`); baixar esse número multiplica o consumo da Supabase.
 - Alertar sobre qualquer risco de cobrança automática no cartão antes de acontecer.
 - **Áudio novo é convertido antes de entrar no site.** Os originais do Caio vêm em MP3 de 192 kbps. Voz que é mono de verdade vai em **mono 96 kbps**, e música em **estéreo 128 kbps** — metade do peso, ou perto disso, e cada cliente baixa cada áudio pelo menos uma vez. O `ffmpeg` já está instalado nesta máquina (pelo winget). Os originais ficam nas pastas dele, **fora** do repositório: arquivo grande que entra num commit fica no histórico para sempre, mesmo se trocado depois.
+- **Áudios e PDFs saem pela Bunny, não pela Netlify** (pedido de 27/10/2026, depois que o site caiu por falta de crédito: o áudio era ~71% da banda da Netlify, e banda é o que gasta crédito). É uma Pull Zone, `setemadrugadas.b-cdn.net`, na rede Volume (US$ 0,005 por GB, com servidor em São Paulo), com teto de **1 TB por mês** (no máximo US$ 5; passou disso, a zona para até o mês virar). Ela busca cada arquivo no próprio site na primeira vez e guarda: **não há upload**, e áudio novo chega com a publicação. O endereço mora num lugar só, `js/member-config.js` (`MIDIA`), e no `localhost` ficam os arquivos locais.
+  - ⚠️ A Bunny guarda por um ano, como o celular: **arquivo trocado = nome novo** (ou limpar o arquivo na Bunny, em *Purge*).
+  - Se a Bunny falhar (sem saldo, teto, fora do ar), o `js/tocador.js` toca a cópia que continua no site, gastando crédito da Netlify. **Os PDFs não têm essa volta.**
+  - A conta é a mesma dos vídeos de entrega: **sem saldo, caem os vídeos e os PDFs** (rotina do saldo em `docs/bunny-videos-de-entrega.md`).
+  - Voltar atrás: `BUNNY = ''` no `js/member-config.js`, 1 build.
 
 ## Segurança — calibragem
 Site simples, superfície de ataque pequena, **não é a prioridade**. Exceções que importam de verdade: RLS no Supabase e não vazar chave de service_role no frontend.

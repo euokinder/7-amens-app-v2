@@ -139,7 +139,7 @@
 
     const materialClick = (dia.materialPage || dia.guiaPage)
       ? `onclick="abrirMaterialPage()"`
-      : `onclick="window.open('${dia.materialPdf}', '_blank')"`;
+      : `onclick="window.open('${MIDIA.endereco(dia.materialPdf)}', '_blank')"`;
 
     const materialHtml = (dia.materialPdf || dia.materialPage || dia.guiaPage)
       ? `<button class="material-btn" type="button" ${materialClick}>
@@ -149,7 +149,7 @@
       : `<p class="subtext" style="text-align:center;">Esse material ainda não foi adicionado.</p>`;
 
     const materialExtraHtml = dia.materialExtraPdf
-      ? `<button class="material-btn" type="button" onclick="window.open('${dia.materialExtraPdf}', '_blank')">
+      ? `<button class="material-btn" type="button" onclick="window.open('${MIDIA.endereco(dia.materialExtraPdf)}', '_blank')">
            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
            ${dia.materialExtraLabel}
          </button>`
@@ -334,7 +334,7 @@
       document.getElementById('material-kicker').textContent = dia.kicker;
       document.getElementById('material-title').textContent = dia.titulo;
       document.getElementById('material-subtitle').textContent = dia.subtitulo;
-      document.getElementById('material-pdf-btn').onclick = () => window.open(dia.materialPdf, '_blank');
+      document.getElementById('material-pdf-btn').onclick = () => window.open(MIDIA.endereco(dia.materialPdf), '_blank');
       document.getElementById('material-regras').innerHTML = mp.regras.map((r) => `
         <div class="item">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
@@ -395,7 +395,7 @@
         </div>
       `;
       const pdfBtnHtml = dia.materialPdf
-        ? `<button class="material-btn lg" type="button" onclick="window.open('${dia.materialPdf}', '_blank')">
+        ? `<button class="material-btn lg" type="button" onclick="window.open('${MIDIA.endereco(dia.materialPdf)}', '_blank')">
              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
              Baixar PDF pra guardar ou imprimir
            </button>`

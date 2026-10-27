@@ -78,7 +78,7 @@
         <button class="audio-botao" type="button" data-acao="avancar" aria-label="Avançar ${PASSO} segundos">${ICONE.avancar}</button>
         <button class="audio-botao audio-velocidade" type="button" data-acao="velocidade">1x</button>
       </div>
-      <audio preload="metadata" src="${endereco}"></audio>
+      <audio preload="metadata" src="${MIDIA.endereco(endereco)}" data-copia-do-site="${endereco}"></audio>
     </div>`;
   }
 
@@ -148,6 +148,25 @@
       audio.currentTime = 0;
       desenharBarra();
       desenharBotao();
+    });
+
+    // A REDE DE SEGURANÇA. No ar, o áudio vem da Bunny (js/member-config.js).
+    // Se ela falhar (conta sem saldo, fora do ar), o tocador troca, uma vez
+    // só, para a cópia que continua no site, do ponto em que estava. Gasta
+    // crédito da Netlify, mas a cliente não fica sem a oração.
+    const copiaDoSite = audio.dataset.copiaDoSite;
+    audio.addEventListener('error', () => {
+      if (!copiaDoSite || audio.getAttribute('src') === copiaDoSite) return;
+      const ponto = audio.currentTime;
+      const estavaTocando = !audio.paused;
+      audio.src = copiaDoSite;
+      if (ponto > 0) audio.addEventListener('loadedmetadata', () => irPara(ponto), { once: true });
+      if (estavaTocando) {
+        const tentativa = audio.play();
+        if (tentativa && tentativa.catch) tentativa.catch(() => desenharBotao());
+      } else {
+        desenharBotao();
+      }
     });
 
     botaoTocar.addEventListener('click', () => {
