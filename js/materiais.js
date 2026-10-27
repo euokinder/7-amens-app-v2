@@ -23,7 +23,7 @@ const MATERIAIS = {
     bunny: { video: 'e8804c98-78c8-443d-92ab-129cd5047feb', formato: '3:4' }, // piloto da Bunny (20/10/2026): apagar esta linha volta para a VTurb (js/video.js)
     materialPdf: 'assets/pdfs/pai-nosso-completo-premium.pdf',
     materialLabel: 'Acessar Material de Apoio',
-    audioUrl: 'assets/audio/dia-01-oracao.mp3',
+    audioUrl: 'assets/audio/dia-01-oracao-v2.mp3',
     materialExtraPdf: 'assets/pdfs/traducao-lado-a-lado.pdf',
     materialExtraLabel: 'Manuscrito Digital em Aramaico',
     oracao: {

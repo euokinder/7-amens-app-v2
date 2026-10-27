@@ -1,5 +1,6 @@
-import { cp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
-import { sep } from 'node:path';
+import { createHash } from 'node:crypto';
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { posix, sep } from 'node:path';
 
 // Bastidor: nada aqui é usado por nenhuma página (conferido), então publicar
 // isso só engorda o deploy e deixa material interno num endereço público.
@@ -26,6 +27,45 @@ await mkdir('dist', { recursive: true });
 for (const entry of await readdir('.')) {
   if (entry.endsWith('.html') || ['assets', 'css', 'js', ...funil].includes(entry)) {
     await cp(entry, `dist/${entry}`, { recursive: true, filter: publicavel });
+  }
+}
+
+// CSS e JS ficam um ano guardados no celular (netlify.toml). Para a cliente
+// receber a versão nova logo depois de publicar, cada página passa a pedir o
+// arquivo com uma impressão digital do conteúdo (css/styles.css?v=1a2b3c4d5e):
+// mudou o arquivo, muda a impressão, e o celular busca de novo. O ?v= escrito à
+// mão nos .html é trocado aqui, então não precisa mais ser aumentado.
+const htmlDentroDe = async pasta => {
+  const achados = [];
+  for (const item of await readdir(pasta, { withFileTypes: true })) {
+    const caminho = `${pasta}/${item.name}`;
+    if (item.isDirectory()) achados.push(...await htmlDentroDe(caminho));
+    else if (item.name.endsWith('.html')) achados.push(caminho);
+  }
+  return achados;
+};
+const impressoes = new Map();
+const impressao = async arquivo => {
+  if (!impressoes.has(arquivo)) {
+    const conteudo = await readFile(`dist/${arquivo}`).catch(() => null);
+    impressoes.set(arquivo, conteudo && createHash('sha256').update(conteudo).digest('hex').slice(0, 10));
+  }
+  return impressoes.get(arquivo);
+};
+const referencia = /(\s(?:src|href)=")(\/?(?:css|js)\/[^"?#]+\.(?:css|js))(?:\?[^"#]*)?"/g;
+for (const caminho of await htmlDentroDe('dist')) {
+  const html = await readFile(caminho, 'utf8');
+  const pasta = posix.dirname(caminho.slice('dist/'.length));
+  const trocas = new Map();
+  for (const [, , endereco] of html.matchAll(referencia)) {
+    const arquivo = endereco.startsWith('/') ? endereco.slice(1) : posix.join(pasta, endereco);
+    const hash = await impressao(arquivo);
+    if (hash) trocas.set(endereco, hash);
+    else console.warn(`AVISO: ${caminho} aponta para ${endereco}, que não existe`);
+  }
+  if (trocas.size) {
+    await writeFile(caminho, html.replace(referencia, (inteiro, antes, endereco) =>
+      trocas.has(endereco) ? `${antes}${endereco}?v=${trocas.get(endereco)}"` : inteiro));
   }
 }
 

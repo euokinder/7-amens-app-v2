@@ -73,3 +73,21 @@ Content-Security-Policy = "frame-ancestors 'self' https://payt.com.br https://*.
 for = "/assets/*"
 [headers.values]
 Cache-Control = "public, max-age=31536000, immutable"
+
+# CSS e JS também ficam um ano no celular. Quem garante que a cliente recebe a
+# versão nova depois de publicar é o scripts/build.mjs: ele põe em cada página
+# uma impressão digital do conteúdo (css/styles.css?v=1a2b3c4d5e), que muda
+# sozinha quando o arquivo muda. Até 27/10/2026 o celular perguntava ao servidor
+# por cada CSS e JS a cada página aberta: ~1 milhão de pedidos por semana, uns
+# 870 créditos da Netlify por mês.
+# ⚠️ CSS ou JS chamado por um caminho que o build não reconhece (montado dentro
+# de um JS, por exemplo) fica com a versão velha no celular por até um ano.
+[[headers]]
+for = "/css/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/js/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"

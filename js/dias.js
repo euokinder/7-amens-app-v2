@@ -108,7 +108,7 @@ const DIAS = {
       depois: 'Fique alguns instantes em silêncio e apresente a Deus o seu pedido. Diga o nome, a situação, o que está doendo — sem pressa para terminar.',
       declaracao: 'Hoje, eu abri o caminho.'
     },
-    audioUrl: 'assets/audio/dia-01-oracao.mp3',
+    audioUrl: 'assets/audio/dia-01-oracao-v2.mp3',
     materialExtraPdf: 'assets/pdfs/traducao-lado-a-lado.pdf',
     materialExtraLabel: 'Manuscrito Digital em Aramaico',
     disponivel: true,
