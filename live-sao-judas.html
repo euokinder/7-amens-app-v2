@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oração a São Judas Tadeu — 7 Améns da Madrugada</title>
+<!-- =====================================================================
+     A ESTREIA DE SÃO JUDAS — a página da "live" de 28/10/2026, que vende
+     as 30 Tardes da Misericórdia (R$ 97). Pedido do Arthur em 28/10.
+     ⚠️ Não confundir com o sao-judas.html: aquele é o formulário de pedidos
+     de oração para esta mesma live (no ar desde 27/10, link já mandado no
+     grupo). Por isso esta página tem outro nome.
+
+     O vídeo é a "Oração a São Judas Tadeu, Padroeiro das Causas
+     Impossíveis" (7:37) seguida do convite do padre. O roteiro aprovado
+     está no Google Doc "Live São Judas · 30 Tardes da Misericórdia ·
+     Roteiro", e os textos desta página saem dele.
+
+     O layout é a moldura do arcanjo-rafael.html (vídeo no topo, título,
+     linha do canal e um painel ao lado) com as cores do app. Foi decisão
+     do Arthur em 28/10: "misture ambas".
+
+     ⚠️ A live é GRAVADA. Por isso o selo diz ESTREIA, o nome que o próprio
+     YouTube dá a vídeo gravado que passa em horário marcado, e não AO VIVO.
+     O painel ao lado mostra "Recados da equipe", assinados pela equipe, e
+     não um chat com pessoas inventadas. Também não tem contador de
+     "assistindo agora". A escassez das dez primeiras é a regra dita no
+     vídeo, sem contador.
+
+     A página é ABERTA, como a do arcanjo Rafael: entra quem tiver o link,
+     sem login. Ela não carrega o js/member-config.js nem o js/member.js e
+     não faz nenhuma chamada ao Supabase, então centenas de pessoas abrindo
+     a página na mesma hora não pesam no banco.
+
+     O QUE FALTA PREENCHER fica no bloco window.LIVE, logo no começo do
+     <body>. Enquanto faltar algo, a página mostra uma faixa amarela no
+     topo. Não publicar com a faixa aparecendo.
+
+     ?previa=1 no fim do endereço mostra a oferta e todos os recados na
+     hora, para conferir a tela sem esperar o vídeo.
+     ===================================================================== -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Oração a São Judas Tadeu, Padroeiro das Causas Impossíveis. Estreia no Dia de São Judas, 28 de outubro.">
+<meta property="og:title" content="Oração a São Judas Tadeu, Padroeiro das Causas Impossíveis">
+<meta property="og:description" content="Estreia no Dia de São Judas, 28 de outubro.">
+<meta property="og:image" content="https://setemadrugadas.com.br/assets/images/icon-512.png">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="dns-prefetch" href="https://cdn.converteai.net">
+<link rel="dns-prefetch" href="https://scripts.converteai.net">
+<link rel="dns-prefetch" href="https://images.converteai.net">
+<link rel="dns-prefetch" href="https://license.vturb.com">
+
+<style>
+  /* As cores do app (css/styles.css), escritas em hex: celular antigo não
+     entende oklch e mostraria a página sem cor. */
+  :root {
+    --creme:          #FBF4EB;
+    --creme-2:        #F1E9DD;
+    --branco:         #FFFDF9;
+    --tinta:          #2C211B;
+    --tinta-2:        #6F665F;
+    --dourado:        #CD9C1F;
+    --dourado-escuro: #A66E00;
+    --tinta-no-dourado: #25170D;
+    --painel:         #412E21;
+    --painel-texto:   #F7F0E4;
+    --dourado-claro:  #F2C14E;
+    --linha:          rgba(0, 0, 0, 0.08);
+    --vermelho:       #D11A2A;
+    --pendente:       #FFE58A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--creme);
+    color: var(--tinta);
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; }
+  :focus-visible { outline: 3px solid var(--dourado-escuro); outline-offset: 3px; border-radius: 6px; }
+
+  /* A VTurb revela, no segundo marcado, tudo o que tem esta classe.
+     Não renomear. */
+  .esconder { display: none; }
+
+  /* ---------- O QUE FALTA (só aparece enquanto faltar algo) ---------- */
+  .aviso-pendente {
+    background: var(--pendente); color: #3A2A00;
+    padding: 12px 16px; font-size: 16px; line-height: 1.5;
+    border-bottom: 2px solid #E0B800;
+  }
+  mark.pendente {
+    background: var(--pendente); color: #3A2A00;
+    padding: 0 6px; border-radius: 4px; font-weight: 800;
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .pagina { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); }
+  .principal { min-width: 0; }
+  .lado { padding: 0 16px 28px; }
+
+  /* ---------- VÍDEO ---------- */
+  .player { background: #000; }
+  vturb-smartplayer { display: block; margin: 0 auto; width: 100%; }
+
+  /* ---------- TÍTULO, SELO E CANAL ---------- */
+  .cabeca { padding: 14px 16px 0; }
+  .linha-estreia {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px;
+    font-size: 16px; font-weight: 600; color: var(--tinta-2);
+  }
+  .selo-estreia {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--vermelho); color: #fff;
+    font-size: 14px; font-weight: 800; letter-spacing: 0.06em;
+    padding: 5px 10px; border-radius: 6px;
+  }
+  .selo-estreia .ponto {
+    width: 9px; height: 9px; border-radius: 50%; background: #fff;
+    animation: pulsar 1.6s ease-in-out infinite;
+  }
+  @keyframes pulsar { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+  .selo-estreia.passou { background: var(--creme-2); color: var(--tinta-2); }
+  .selo-estreia.passou .ponto { display: none; }
+
+  h1.titulo { font-size: 24px; line-height: 1.3; font-weight: 800; margin: 10px 0 12px; }
+
+  .canal {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-top: 1px solid var(--linha); border-bottom: 1px solid var(--linha);
+  }
+  .canal img { width: 44px; height: 44px; border-radius: 12px; }
+  .canal-nome { font-size: 18px; font-weight: 800; line-height: 1.2; }
+
+  /* ---------- A OFERTA ---------- */
+  .oferta { padding: 18px 16px 8px; }
+
+  .botao-comprar {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; min-height: 66px; padding: 14px 18px;
+    border-radius: 16px; background: var(--dourado); color: var(--tinta-no-dourado);
+    font-size: 21px; font-weight: 800; line-height: 1.25; text-align: center; text-decoration: none;
+    box-shadow: 0 5px 0 var(--dourado-escuro), 0 10px 22px rgba(166, 110, 0, 0.28);
+    cursor: pointer;
+  }
+  .botao-comprar:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--dourado-escuro); }
+  .botao-comprar[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+  .botao-comprar svg { width: 24px; height: 24px; flex-shrink: 0; }
+  .sob-botao { margin-top: 12px; text-align: center; font-size: 17px; font-weight: 600; color: var(--tinta-2); }
+  .sob-botao strong { color: var(--tinta); }
+
+  .cartao {
+    margin-top: 20px; padding: 22px 20px;
+    background: var(--branco); border: 1px solid var(--linha); border-radius: 18px;
+  }
+  .cartao h2 {
+    position: relative; padding-left: 16px; margin-bottom: 14px;
+    font-size: 23px; line-height: 1.25; font-weight: 800;
+  }
+  .cartao h2::before {
+    content: ""; position: absolute; left: 0; top: 3px; bottom: 3px;
+    width: 5px; border-radius: 3px; background: var(--dourado);
+  }
+  .cartao p + p { margin-top: 10px; }
+  .frase { margin-bottom: 14px; font-size: 20px; font-weight: 700; font-style: italic; }
+
+  /* Listas com o "check" dourado. O ícone fica fora do fluxo do texto, para
+     um <strong> no meio da frase não quebrar a linha. */
+  .lista { list-style: none; display: grid; gap: 12px; }
+  .lista li { position: relative; padding-left: 40px; }
+  .lista li::before {
+    content: ""; position: absolute; left: 0; top: 1px;
+    width: 27px; height: 27px; border-radius: 50%;
+    background: var(--dourado) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2325170D' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 15px no-repeat;
+  }
+
+  .presentes { list-style: none; counter-reset: presente; display: grid; gap: 16px; }
+  .presentes li { position: relative; padding-left: 50px; counter-increment: presente; }
+  .presentes li::before {
+    content: counter(presente);
+    position: absolute; left: 0; top: 0;
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--painel); color: var(--dourado-claro); font-size: 18px; font-weight: 800;
+  }
+  .presentes strong { display: block; font-size: 19px; line-height: 1.3; margin-bottom: 2px; }
+  .nota { margin-top: 16px; font-weight: 700; }
+
+  .cartao-escuro { background: var(--painel); color: var(--painel-texto); border-color: rgba(205, 156, 31, 0.45); }
+  .cartao-escuro h2 { color: var(--dourado-claro); }
+  .cartao-escuro h2::before { background: var(--dourado-claro); }
+  .legal {
+    margin-top: 16px !important; padding: 12px 14px; border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08); font-size: 16px; line-height: 1.5;
+  }
+
+  .preco { text-align: center; }
+  .preco .rotulo { font-size: 15px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tinta-2); }
+  .preco .valor { margin: 2px 0 4px; font-size: 54px; font-weight: 800; line-height: 1.1; }
+  .preco .valor small { font-size: 26px; font-weight: 800; vertical-align: 0.9em; margin-right: 4px; }
+  .preco .graca { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--linha); font-weight: 700; }
+  .preco .botao-comprar { margin-top: 20px; }
+
+  .fecho { margin-top: 24px; }
+
+  /* ---------- RECADOS DA EQUIPE ---------- */
+  .recados { margin-top: 20px; background: var(--branco); border: 1px solid var(--linha); border-radius: 18px; overflow: hidden; }
+  .recados-topo {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    padding: 14px 18px; border-bottom: 1px solid var(--linha);
+  }
+  .recados-titulo { font-size: 18px; font-weight: 800; }
+  .recados-sub { font-size: 14px; color: var(--tinta-2); }
+  .recados-lista { list-style: none; display: grid; gap: 14px; padding: 14px 18px 18px; }
+  .recado { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; animation: entrar 0.35s ease-out; }
+  .recado img { width: 34px; height: 34px; border-radius: 10px; }
+  .recado-nome { display: block; font-size: 15px; font-weight: 800; color: var(--dourado-escuro); }
+  .recado-texto { display: block; font-size: 17px; line-height: 1.5; }
+  @keyframes entrar { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- O BOTÃO SEMPRE À MÃO ----------
+     Depois que a oferta aparece, quando nenhum botão da página está na
+     tela, uma barra com o botão sobe do rodapé. */
+  .barra-fixa {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(251, 244, 235, 0.97); border-top: 1px solid var(--linha);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(110%); transition: transform 0.25s ease;
+  }
+  .barra-fixa.visivel { transform: none; }
+  .barra-fixa .botao-comprar { max-width: 640px; margin: 0 auto; min-height: 58px; font-size: 19px; box-shadow: 0 4px 0 var(--dourado-escuro); }
+  body.com-barra { padding-bottom: 96px; }
+
+  /* ---------- COMPUTADOR: vídeo à esquerda, recados à direita ---------- */
+  @media (min-width: 1000px) {
+    .pagina { grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; padding: 24px; align-items: start; }
+    .player { border-radius: 14px; overflow: hidden; }
+    .cabeca, .oferta { padding-left: 0; padding-right: 0; }
+    h1.titulo { font-size: 26px; }
+    .lado { position: sticky; top: 24px; padding: 0; }
+    .recados { margin-top: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<script>
+/* =====================================================================
+   OS DADOS DA LIVE — tudo o que falta preencher fica aqui.
+   Campo vazio = PENDENTE: a página mostra a faixa amarela no topo e marca
+   o lugar em amarelo.
+   ===================================================================== */
+window.LIVE = {
+  // O checkout (Pix ou cartão), da Hubla, mandado pelo Arthur em 28/10.
+  // ⚠️ O código bDktoSpaBK9DyjcdOMmS tem de estar mapeado no banco
+  // (hubla_product_map) ANTES da primeira venda. Sem isso a venda cai em
+  // needs_reconciliation e o app não fica sabendo quem comprou.
+  checkout: 'https://pay.hub.la/bDktoSpaBK9DyjcdOMmS',
+
+  // O segundo do vídeo em que o botão e a oferta aparecem: quando o padre
+  // diz "é de 97 reais", logo antes das Dúvidas ("o botão já está aí").
+  // 16:41, mandado pelo Arthur em 28/10. Nesse ponto o próprio vídeo mostra
+  // uma seta vermelha apontando para baixo (conferido no player).
+  // Vazio = a oferta NÃO aparece: ela só existe no momento do pitch.
+  segundosDaOferta: '1001',
+
+  // O horário da estreia, só para o selo ("Hoje às 20h"). Pode ficar vazio.
+  hora: '',
+
+  // O sorteio da viagem a Aparecida. O número do certificado tem de
+  // aparecer em todo material de divulgação. Copiar do certificado.
+  // Os dois vieram da copy final (Google Doc do roteiro), em 28/10.
+  certificado: '23988',
+  dataDoSorteio: '29/11/2026'
+};
+</script>
+
+<div class="aviso-pendente" id="aviso-pendente" hidden></div>
+
+<div class="pagina">
+
+  <main class="principal">
+
+    <!-- ================= VÍDEO =================
+         Código de incorporação da VTurb, exatamente como o Arthur mandou em
+         28/10/2026 (conta do app, 3fe9f7a6…, vídeo deitado, 16:9). A linha
+         do script que carrega o player fica no fim da página. -->
+    <div class="player">
+      <vturb-smartplayer id="vid-6ae26bdf1a888f6107f5dafa" style="display: block; margin: 0 auto; width: 100%; "><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+    </div>
+
+    <div class="cabeca">
+      <div class="linha-estreia">
+        <span class="selo-estreia" id="selo-estreia"><span class="ponto"></span><span id="selo-texto">ESTREIA</span></span>
+        <span id="estreia-quando">Hoje · Dia de São Judas Tadeu</span>
+      </div>
+
+      <h1 class="titulo">Oração a São Judas Tadeu, Padroeiro das Causas Impossíveis</h1>
+
+      <div class="canal">
+        <img src="assets/images/icon-96.png" alt="" width="44" height="44">
+        <div class="canal-nome">7 Améns da Madrugada</div>
+      </div>
+    </div>
+
+    <!-- ================= A OFERTA =================
+         Escondida até o segundo marcado em window.LIVE.segundosDaOferta.
+         Os textos saem do roteiro aprovado ("Como vão ser as 30 Tardes",
+         "Os presentes", "As dez primeiras", "O valor" e "Dúvidas"). -->
+    <section class="oferta esconder" id="oferta" aria-label="As 30 Tardes da Misericórdia">
+
+      <a class="botao-comprar smartplayer-click-event">Quero entrar nas 30 Tardes</a>
+      <p class="sob-botao"><strong>R$ 97</strong> · Pix ou cartão</p>
+      <p class="sob-botao">Depois do pagamento, você vai para a página de obrigado e entra no grupo do WhatsApp.</p>
+
+      <div class="cartao">
+        <h2>As 30 Tardes da Misericórdia</h2>
+        <p class="frase">Você traz a sua causa. Eu trago a oração.</p>
+        <ul class="lista">
+          <li>Todos os dias, às três da tarde, na hora da misericórdia.</li>
+          <li>Um vídeo novo a cada tarde. Curtinho. Uns poucos minutos.</li>
+          <li>Às três da tarde chega a mensagem no grupo. Você toca no link e o vídeo abre. Só isso.</li>
+          <li>E o vídeo fica lá, esperando você, para rezar com calma quando der.</li>
+          <li>Durante 30 tardes, de 29 de outubro a 28 de novembro, o próximo dia de São Judas.</li>
+        </ul>
+      </div>
+
+      <div class="cartao">
+        <h2>Os dois presentes</h2>
+        <ol class="presentes">
+          <li><strong>As novenas</strong>As novenas mais amadas dos santos e santas, reunidas num lugar só, para você rezar no seu tempo.</li>
+          <li><strong>O Itinerário para a Intimidade com Cristo</strong>São cinco aulas. A confissão. A direção espiritual. A vida na graça.</li>
+        </ol>
+        <p class="nota">Tudo isso vem junto com as 30 Tardes da Misericórdia.</p>
+      </div>
+
+      <!-- As dez primeiras valem só para HOJE (28/10). A partir de 29/10,
+           pelo relógio de Brasília, este bloco some sozinho: quem abrir o
+           link depois não lê uma promessa que já não vale. -->
+      <div class="cartao cartao-escuro" id="dez-primeiras">
+        <h2>É só para as dez primeiras</h2>
+        <p>As dez primeiras pessoas que entrarem nas 30 Tardes da Misericórdia hoje vão ganhar uma Bíblia Sagrada personalizada. Com o seu nome. Ou com o nome de alguém da sua família.</p>
+        <p>E entre essas dez, uma vai ser sorteada para uma viagem com tudo pago para Aparecida, podendo levar mais um acompanhante, ainda em 2026.</p>
+        <p class="legal">Sorteio autorizado pelo Ministério da Fazenda. Certificado de autorização nº <span data-campo="certificado"></span>. Data do sorteio: <span data-campo="dataDoSorteio"></span>.</p>
+      </div>
+
+      <div class="cartao preco">
+        <p class="rotulo">A sua contribuição</p>
+        <p class="valor"><small>R$</small>97</p>
+        <p>para as 30 Tardes da Misericórdia, com os dois presentes.</p>
+        <p>Parte do que você contribui hoje vai para a nossa basílica, uma casa de oração que a gente está terminando.</p>
+        <p class="graca">A graça não se compra. A graça é de Deus, e Ele dá de graça. O que você contribui é para manter a obra de pé.</p>
+        <a class="botao-comprar smartplayer-click-event">Quero entrar nas 30 Tardes</a>
+        <p class="sob-botao">Pix ou cartão</p>
+      </div>
+
+      <div class="cartao">
+        <h2>Pode entrar tranquila</h2>
+        <ul class="lista">
+          <li>Se nos primeiros sete dias você sentir que não é para você, é só pedir, e a gente devolve tudo.</li>
+          <li>Ninguém da nossa equipe vai te chamar no privado pedindo Pix. A única forma de entrar é pelo botão daqui.</li>
+        </ul>
+      </div>
+
+      <div class="fecho">
+        <a class="botao-comprar smartplayer-click-event">Quero entrar nas 30 Tardes</a>
+        <p class="sob-botao"><strong>R$ 97</strong> · Pix ou cartão</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <aside class="lado">
+    <section class="recados" aria-label="Recados da equipe">
+      <div class="recados-topo">
+        <span class="recados-titulo">Recados da equipe</span>
+        <span class="recados-sub">durante a estreia</span>
+      </div>
+      <ol class="recados-lista" id="recados-lista" aria-live="polite"></ol>
+    </section>
+  </aside>
+
+</div>
+
+<div class="barra-fixa esconder" id="barra-fixa">
+  <a class="botao-comprar smartplayer-click-event">Quero entrar nas 30 Tardes · R$ 97</a>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var LIVE = window.LIVE || {};
+  var DIA_DA_ESTREIA = '2026-10-28';
+  // Vai no utm_term de toda venda que sai daqui, como o "pagina-vsl" do
+  // js/oferta-vsl.js: separa no evento da venda o que esta página vendeu.
+  var VERSAO_DA_PAGINA = 'live-sao-judas';
+
+  // Lido ANTES de o player carregar: a VTurb mexe no endereço da página.
+  var chegaram = new URLSearchParams(location.search);
+  // ?previa=1 mostra a oferta e os recados na hora. A cliente nunca chega
+  // com ele: o link do grupo é só o endereço.
+  var previa = chegaram.get('previa') === '1';
+
+  var oferta = document.getElementById('oferta');
+  var barra = document.getElementById('barra-fixa');
+  var player = document.querySelector('vturb-smartplayer');
+  var segundos = parseInt(LIVE.segundosDaOferta, 10);
+
+  function vazio(valor) { return String(valor == null ? '' : valor).trim() === ''; }
+
+  /* ---------- A FAIXA AMARELA: o que ainda falta ---------- */
+  var faltando = [];
+  if (!player) faltando.push('o vídeo (código da VTurb)');
+  if (vazio(LIVE.checkout)) faltando.push('o link do checkout');
+  if (vazio(LIVE.segundosDaOferta)) faltando.push('o segundo do vídeo em que a oferta aparece');
+  if (vazio(LIVE.certificado)) faltando.push('o número do certificado do sorteio');
+  if (vazio(LIVE.dataDoSorteio)) faltando.push('a data do sorteio');
+  if (faltando.length) {
+    var aviso = document.getElementById('aviso-pendente');
+    var forte = document.createElement('strong');
+    forte.textContent = 'Página em preparo, só a equipe deve ver isto. ';
+    aviso.appendChild(forte);
+    aviso.appendChild(document.createTextNode('Falta: ' + faltando.join(', ') + '.'));
+    aviso.hidden = false;
+  }
+
+  /* ---------- OS DADOS DO SORTEIO ---------- */
+  var NOMES_DOS_CAMPOS = { certificado: 'número do certificado', dataDoSorteio: 'data do sorteio' };
+  Array.prototype.forEach.call(document.querySelectorAll('[data-campo]'), function (lugar) {
+    var campo = lugar.getAttribute('data-campo');
+    if (!vazio(LIVE[campo])) {
+      lugar.textContent = String(LIVE[campo]).trim();
+      return;
+    }
+    var marca = document.createElement('mark');
+    marca.className = 'pendente';
+    marca.textContent = 'PENDENTE: ' + NOMES_DOS_CAMPOS[campo];
+    lugar.appendChild(marca);
+  });
+
+  /* ---------- O SELO DA ESTREIA ----------
+     O dia vem do relógio do celular, convertido para Brasília. */
+  function hojeEmBrasilia() {
+    try {
+      var partes = {};
+      new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' })
+        .formatToParts(new Date())
+        .forEach(function (p) { partes[p.type] = p.value; });
+      return partes.year + '-' + partes.month + '-' + partes.day;
+    } catch (e) {
+      // Brasília é UTC-3 o ano todo desde 2019 (sem horário de verão).
+      return new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10);
+    }
+  }
+
+  var quando = document.getElementById('estreia-quando');
+  if (hojeEmBrasilia() > DIA_DA_ESTREIA) {
+    document.getElementById('selo-estreia').classList.add('passou');
+    document.getElementById('selo-texto').textContent = 'ESTREOU EM 28/10';
+    quando.textContent = 'Dia de São Judas Tadeu';
+    document.getElementById('dez-primeiras').style.display = 'none';
+  } else if (!vazio(LIVE.hora)) {
+    quando.textContent = 'Hoje às ' + String(LIVE.hora).trim() + ' · Dia de São Judas Tadeu';
+  }
+
+  /* ---------- O LINK DO CHECKOUT, COM A ETIQUETA DE ORIGEM ----------
+     O mesmo cuidado do js/oferta-vsl.js: passa adiante as utm_* com que
+     ela chegou e, se não veio nenhuma, manda "sem-etiqueta" de propósito. */
+  var destino = null;
+  try { destino = new URL(String(LIVE.checkout).trim()); } catch (e) { destino = null; }
+  var linkDaCompra = null;
+  if (destino) {
+    var etiquetas = {};
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (nome) {
+      var valor = (chegaram.get(nome) || '').trim();
+      if (valor && valor.length <= 80 && /^[A-Za-z0-9._-]+$/.test(valor)) etiquetas[nome] = valor;
+    });
+    if (!etiquetas.utm_source) {
+      etiquetas = { utm_source: 'pagina-live', utm_medium: 'direto', utm_campaign: 'sao-judas', utm_content: 'sem-etiqueta' };
+    }
+    etiquetas.utm_term = VERSAO_DA_PAGINA;
+    Object.keys(etiquetas).forEach(function (nome) { destino.searchParams.set(nome, etiquetas[nome]); });
+    linkDaCompra = destino.href;
+  }
+  var botoes = document.querySelectorAll('.botao-comprar');
+  Array.prototype.forEach.call(botoes, function (botao) {
+    if (linkDaCompra) botao.href = linkDaCompra;
+    else botao.setAttribute('aria-disabled', 'true');
+  });
+
+  /* ---------- A OFERTA NO MINUTO DO PITCH ----------
+     Quem conta o tempo é o player da VTurb (displayHiddenElements), como
+     no js/oferta-vsl.js. Com persist: true, quem volta à página já
+     encontra a oferta aberta.
+     Sem o vídeo ou sem o segundo marcado, a oferta fica escondida: o pitch
+     só aparece no momento certo (Arthur, 28/10). Aqui é diferente do
+     js/oferta-vsl.js, que mostra o botão desde o começo quando falta o
+     segundo. A faixa amarela avisa o que falta, e ?previa=1 mostra a
+     oferta para conferir a tela. */
+  function revelarAgora() {
+    oferta.classList.remove('esconder');
+    barra.classList.remove('esconder');
+  }
+
+  if (previa) {
+    revelarAgora();
+  } else if (player && segundos >= 0) {
+    // Rede de segurança: se o script da VTurb não carregar, a oferta não
+    // apareceria nunca. Este relógio conta o tempo de PÁGINA ABERTA, não de
+    // vídeo; por isso é desligado assim que o player dá sinal de vida.
+    var redeDeSeguranca = setTimeout(function () {
+      if (oferta.offsetHeight === 0) revelarAgora();
+    }, (segundos + 120) * 1000);
+    player.addEventListener('player:ready', function () {
+      if (typeof player.displayHiddenElements === 'function') {
+        player.displayHiddenElements(segundos, ['.esconder'], { persist: true });
+        clearTimeout(redeDeSeguranca);
+      }
+    });
+  }
+
+  /* ---------- A BARRA COM O BOTÃO ----------
+     A conta é feita na mão, pela posição dos botões, e não com
+     IntersectionObserver: é pouca coisa (três botões) e dá o mesmo
+     resultado em qualquer navegador. */
+  var botoesDaOferta = oferta.querySelectorAll('.botao-comprar');
+  function algumBotaoNaTela() {
+    return Array.prototype.some.call(botoesDaOferta, function (botao) {
+      var caixa = botao.getBoundingClientRect();
+      return caixa.height > 0 && caixa.bottom > 0 && caixa.top < window.innerHeight;
+    });
+  }
+  function atualizarBarra() {
+    var aberta = oferta.offsetHeight > 0;
+    barra.classList.toggle('visivel', aberta && !algumBotaoNaTela());
+    document.body.classList.toggle('com-barra', aberta);
+  }
+  window.addEventListener('scroll', atualizarBarra, { passive: true });
+  window.addEventListener('resize', atualizarBarra);
+
+  /* ---------- RECADOS DA EQUIPE ----------
+     Mensagens da equipe, escritas antes e assinadas por ela, que aparecem
+     no ritmo do vídeo. Não é chat: ninguém escreve aqui, e não há pessoa
+     inventada. "aos" = segundo do vídeo; "depoisDaOferta" = segundos depois
+     de a oferta aparecer.
+     ⚠️ Os segundos 190 e 457 contam que o vídeo começa direto na oração
+     (o momento dos nomes é 3:14 e o fim da oração, 7:37). Conferir com o
+     vídeo final. */
+  var RECADOS = [
+    { aos: 0, texto: 'Seja bem-vinda. Hoje é dia de São Judas Tadeu. Traga a sua causa para esta oração.' },
+    { aos: 190, texto: 'Pense agora no nome de quem você quer apresentar ao Senhor.' },
+    { aos: 457, texto: 'Amém. Não sai ainda: o padre quer te fazer uma pergunta.' },
+    { depoisDaOferta: 0, texto: 'O botão para entrar nas 30 Tardes da Misericórdia já está logo abaixo do vídeo.' },
+    { depoisDaOferta: 25, texto: 'Ninguém da nossa equipe vai te chamar no privado pedindo Pix. A única forma de entrar é pelo botão daqui.' }
+  ];
+  var lista = document.getElementById('recados-lista');
+  var mostrados = [];
+  var ofertaAbriuEm = null;
+
+  function tempoDoVideo() {
+    if (!player) return 0;
+    try {
+      var t = typeof player.currentTime === 'function' ? player.currentTime() : player.currentTime;
+      return (typeof t === 'number' && isFinite(t)) ? t : 0;
+    } catch (e) { return 0; }
+  }
+
+  function mostrarRecado(i) {
+    mostrados[i] = true;
+    var item = document.createElement('li');
+    item.className = 'recado';
+    var foto = document.createElement('img');
+    foto.src = 'assets/images/icon-96.png';
+    foto.alt = '';
+    foto.width = 34;
+    foto.height = 34;
+    var corpo = document.createElement('div');
+    var nome = document.createElement('span');
+    nome.className = 'recado-nome';
+    nome.textContent = 'Equipe 7 Améns';
+    var texto = document.createElement('span');
+    texto.className = 'recado-texto';
+    texto.textContent = RECADOS[i].texto;
+    corpo.appendChild(nome);
+    corpo.appendChild(texto);
+    item.appendChild(foto);
+    item.appendChild(corpo);
+    lista.appendChild(item);
+  }
+
+  function conferirRecados() {
+    var agora = Date.now();
+    if (ofertaAbriuEm === null && oferta.offsetHeight > 0) ofertaAbriuEm = agora;
+    var t = tempoDoVideo();
+    RECADOS.forEach(function (recado, i) {
+      if (mostrados[i]) return;
+      var chegou = previa ||
+        (typeof recado.aos === 'number' && t >= recado.aos) ||
+        (typeof recado.depoisDaOferta === 'number' && ofertaAbriuEm !== null &&
+          agora - ofertaAbriuEm >= recado.depoisDaOferta * 1000);
+      if (chegou) mostrarRecado(i);
+    });
+  }
+
+  conferirRecados();
+  atualizarBarra();
+  setInterval(function () {
+    conferirRecados();
+    atualizarBarra();
+  }, 1000);
+})();
+</script>
+
+<!-- O CARREGADOR DA VTURB vem DEPOIS do script acima, para o "player:ready"
+     nunca acontecer antes de alguém estar ouvindo (o mesmo cuidado do
+     oferta-cantico.html). -->
+<script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6ae26bdf1a888f6107f5dafa/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+
+</body>
+</html>
