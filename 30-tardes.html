@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>30 Tardes da Misericórdia</title>
+<!-- =====================================================================
+     AS 30 TARDES DA MISERICÓRDIA — a página do vídeo de cada tarde.
+     Pedido do Caio em 30/10/2026: uma página só, que troca de vídeo sozinha
+     a cada dia. É o entregável da live de São Judas (live-sao-judas.html,
+     obrigado-30-tardes.html).
+
+     Como ela escolhe o vídeo: a Tarde 1 é 31/10 (sábado; o Caio passou o
+     começo de 30/10 para 31/10 no próprio dia 30) e cada dia abre a seguinte,
+     às 15h de Brasília, até a Tarde 30, em 29/11. O dia de São Judas (28/11)
+     cai na Tarde 29. Antes das
+     15h fica a tarde de ontem, com o aviso de que a de hoje chega às três.
+     As tardes que já passaram ficam numa lista embaixo ("ele fica esperando
+     por você", promete a mensagem da Tarde 1). As que não chegaram não
+     aparecem.
+
+     O link da mensagem das 15h pode ser sempre o mesmo
+     (setemadrugadas.com.br/30-tardes), ou levar o número da tarde
+     (setemadrugadas.com.br/30-tardes?tarde=5): assim quem toca numa
+     mensagem antiga cai naquela tarde. Tarde que ainda não chegou não abre
+     pelo número: a página mostra a de hoje.
+
+     A página é aberta, sem login, e não carrega o js/member.js: nenhuma
+     chamada ao Supabase. Quem garante que só compradoras recebem o link é o
+     grupo fechado do WhatsApp. É trava de experiência, não de segurança: o
+     relógio é o do celular, e os IDs dos vídeos ficam à vista, aqui e no
+     repositório (que é público).
+
+     Os vídeos são da Bunny e tocam pelo js/video.js, como os das madrugadas
+     (biblioteca, trava de domínio e autoplay desligado: ver
+     docs/bunny-videos-de-entrega.md).
+
+     PARA PREENCHER: o ID de cada vídeo vai no bloco window.TARDES, logo no
+     começo do <body>. Cada troca nesse bloco é uma publicação (1 build na
+     Netlify): o ideal é juntar vários IDs numa publicação só.
+     PRÉVIA DA EQUIPE: 30-tardes?previa=1 mostra todas as tardes que já têm
+     vídeo, mesmo as que não chegaram, e diz quais IDs faltam. Com
+     &agora=2026-11-03T14 dá para ver a página como ela fica naquele dia e
+     hora (só junto com o previa=1).
+     ===================================================================== -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="O vídeo da tarde de hoje. Toque e reze comigo.">
+<meta property="og:title" content="30 Tardes da Misericórdia">
+<meta property="og:description" content="O vídeo da tarde de hoje. Toque e reze comigo.">
+<meta property="og:image" content="https://setemadrugadas.com.br/assets/images/icon-512.png">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+
+<style>
+  /* As mesmas cores do obrigado-30-tardes.html (as do app, em hex). */
+  :root {
+    --creme:          #FBF4EB;
+    --branco:         #FFFDF9;
+    --tinta:          #2C211B;
+    --tinta-2:        #6F665F;
+    --dourado:        #CD9C1F;
+    --dourado-escuro: #A66E00;
+    --dourado-claro:  #F2C14E;
+    --dourado-fundo:  #FFF4D6;
+    --painel:         #412E21;
+    --painel-texto:   #F7F0E4;
+    --linha:          rgba(0, 0, 0, 0.08);
+    --pendente:       #FFE58A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--creme);
+    color: var(--tinta);
+    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--dourado-escuro); outline-offset: 3px; border-radius: 6px; }
+
+  .aviso-pendente {
+    background: var(--pendente); color: #3A2A00;
+    padding: 12px 16px; font-size: 16px; line-height: 1.5;
+    border-bottom: 2px solid #E0B800;
+  }
+
+  .topo { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 18px 16px 0; }
+  .topo img { width: 36px; height: 36px; border-radius: 10px; }
+  .topo span { font-size: 16px; font-weight: 800; }
+
+  .conteudo { max-width: 560px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  .kicker {
+    text-align: center; font-size: 15px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--dourado-escuro);
+  }
+
+  /* ---------- O CABEÇALHO DA TARDE ---------- */
+  .numero {
+    display: block; width: fit-content; margin: 12px auto 0; padding: 4px 16px;
+    border-radius: 999px; background: var(--painel); color: var(--painel-texto);
+    font-size: 16px; font-weight: 800;
+  }
+  h1 { margin: 10px 0 4px; text-align: center; font-size: 29px; line-height: 1.2; font-weight: 800; }
+  .data { text-align: center; font-size: 17px; font-weight: 600; color: var(--tinta-2); }
+  .barra {
+    height: 8px; margin: 14px auto 0; max-width: 260px;
+    border-radius: 999px; background: rgba(205, 156, 31, 0.2); overflow: hidden;
+  }
+  .barra span { display: block; height: 100%; border-radius: 999px; background: var(--dourado); }
+
+  /* ---------- O VÍDEO ----------
+     A moldura vem pronta do js/video.js (no máximo 400px de largura no vídeo
+     em pé). Aqui só se arredondam os cantos. */
+  .video { margin-top: 20px; }
+  .video .video-bunny {
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 12px 30px rgba(44, 33, 27, 0.18);
+  }
+
+  /* ---------- OS AVISOS E OS BLOCOS ---------- */
+  .aviso {
+    margin-top: 18px; padding: 18px 18px;
+    background: var(--dourado-fundo); border: 2px solid var(--dourado); border-radius: 18px;
+    font-size: 18px; font-weight: 600; text-align: center;
+  }
+  .aviso strong { font-weight: 800; }
+  .botao {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; min-height: 60px; margin-top: 14px; padding: 14px 18px;
+    border-radius: 16px; background: var(--dourado); color: var(--tinta);
+    font-size: 19px; font-weight: 800; text-align: center; text-decoration: none;
+    box-shadow: 0 4px 0 var(--dourado-escuro);
+  }
+  .botao:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--dourado-escuro); }
+
+  .espera { margin-top: 22px; padding: 26px 20px; text-align: center; }
+  .espera h1 { margin-top: 0; }
+  .espera p { font-size: 19px; }
+
+  .cartao {
+    margin-top: 24px; padding: 22px 20px;
+    background: var(--branco); border: 1px solid var(--linha); border-radius: 18px;
+  }
+  .titulo-secao {
+    position: relative; padding-left: 16px; margin-bottom: 12px;
+    font-size: 22px; line-height: 1.25; font-weight: 800;
+  }
+  .titulo-secao::before {
+    content: ""; position: absolute; left: 0; top: 3px; bottom: 3px;
+    width: 5px; border-radius: 3px; background: var(--dourado);
+  }
+  .passos { list-style: none; }
+  .passos li { display: flex; gap: 12px; align-items: flex-start; }
+  .passos li + li { margin-top: 12px; }
+  .passos svg { flex-shrink: 0; width: 24px; height: 24px; margin-top: 2px; color: var(--dourado-escuro); }
+
+  .proxima { margin-top: 20px; text-align: center; font-size: 18px; font-weight: 700; }
+
+  /* ---------- AS TARDES QUE JÁ PASSARAM ---------- */
+  .lista-bloco { margin-top: 32px; }
+  .lista-bloco .sob-titulo { margin: -4px 0 14px; color: var(--tinta-2); font-size: 17px; }
+  .lista { list-style: none; }
+  .lista li + li { margin-top: 10px; }
+  .item {
+    display: flex; align-items: center; gap: 14px;
+    min-height: 72px; padding: 12px 14px;
+    background: var(--branco); border: 1px solid var(--linha); border-radius: 16px;
+    text-decoration: none;
+  }
+  .item .num {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(205, 156, 31, 0.18); color: var(--dourado-escuro);
+    font-size: 18px; font-weight: 800;
+  }
+  .item .texto { flex: 1; min-width: 0; line-height: 1.35; }
+  .item .texto strong { display: block; font-size: 18px; font-weight: 800; }
+  .item .texto small { display: block; margin-top: 2px; font-size: 16px; font-weight: 600; color: var(--tinta-2); }
+  .item .seta { flex-shrink: 0; width: 26px; height: 26px; color: var(--dourado-escuro); }
+  .item.atual { border: 2px solid var(--dourado); background: var(--dourado-fundo); }
+  .item.atual .num { background: var(--dourado); color: var(--tinta); }
+  .item .aqui { flex-shrink: 0; font-size: 14px; font-weight: 800; color: var(--dourado-escuro); text-align: right; line-height: 1.2; }
+
+  .bencao {
+    margin-top: 32px; padding: 24px 20px; border-radius: 18px;
+    background: var(--painel); color: var(--painel-texto); text-align: center;
+    border: 1px solid rgba(205, 156, 31, 0.45);
+  }
+  .bencao .cruz { width: 28px; height: 28px; margin: 0 auto 10px; color: var(--dourado-claro); }
+  .bencao p { font-size: 19px; font-style: italic; }
+  .bencao p + p { margin-top: 8px; }
+
+  .ajuda {
+    display: block; margin-top: 22px; padding: 12px; text-align: center;
+    font-size: 17px; font-weight: 700; color: var(--dourado-escuro);
+  }
+</style>
+</head>
+<body>
+
+<script>
+/* =====================================================================
+   AS 30 TARDES — o ID de cada vídeo na Bunny vai no campo `bunny`, entre as
+   aspas. É o ID do painel da Bunny (biblioteca "7 Améns - entregas"), no
+   formato 1ed0f653-8cc2-498a-bfa1-4c6561df9ace. Campo vazio = a tarde ainda
+   não tem vídeo: ela não aparece para as clientes, e no dia dela a página diz
+   que o vídeo "está chegando".
+   Os temas saem do roteiro (Google Doc "Live São Judas · 30 Tardes da
+   Misericórdia · Roteiro", aba Entregável).
+   ===================================================================== */
+window.TARDES = {
+  primeira: '2026-10-31', // a data da Tarde 1; cada tarde seguinte é um dia depois
+  hora: 15,               // a hora em que a tarde do dia abre (Brasília)
+  // '3:4' é o vídeo em pé, como os das madrugadas; '16:9' é o deitado.
+  formato: '3:4',
+  lista: [
+    { tema: 'A sua causa nas mãos de São Judas',     bunny: 'b340b865-920f-4070-a422-63951db9feca' }, // Tarde 1  · sáb 31/10
+    { tema: 'O parente de Jesus',                    bunny: '' }, // Tarde 2  · dom 01/11
+    { tema: 'O santo de quem não tem a quem recorrer', bunny: '' }, // Tarde 3  · seg 02/11
+    { tema: 'A pergunta de São Judas',               bunny: '' }, // Tarde 4  · ter 03/11
+    { tema: 'Para Deus nada é impossível',           bunny: '' }, // Tarde 5  · qua 04/11
+    { tema: 'Por que três da tarde',                 bunny: '' }, // Tarde 6  · qui 05/11
+    { tema: 'Uma semana sem largar',                 bunny: '' }, // Tarde 7  · sex 06/11
+    { tema: 'Misericórdia, paz e amor',              bunny: '' }, // Tarde 8  · sáb 07/11
+    { tema: 'Chamados, amados e guardados',          bunny: '' }, // Tarde 9  · dom 08/11
+    { tema: 'Construir sobre a fé',                  bunny: '' }, // Tarde 10 · seg 09/11
+    { tema: 'Quando você não sabe rezar',            bunny: '' }, // Tarde 11 · ter 10/11
+    { tema: 'Ficar no amor de Deus',                 bunny: '' }, // Tarde 12 · qua 11/11
+    { tema: 'Esperar a misericórdia',                bunny: '' }, // Tarde 13 · qui 12/11
+    { tema: 'Por quem está longe de Deus',           bunny: '' }, // Tarde 14 · sex 13/11
+    { tema: 'A metade do caminho',                   bunny: '' }, // Tarde 15 · sáb 14/11
+    { tema: 'A sua família',                         bunny: '' }, // Tarde 16 · dom 15/11
+    { tema: 'Os filhos e os netos',                  bunny: '' }, // Tarde 17 · seg 16/11
+    { tema: 'A saúde',                               bunny: '' }, // Tarde 18 · ter 17/11
+    { tema: 'O pão de cada dia',                     bunny: '' }, // Tarde 19 · qua 18/11
+    { tema: 'O casamento',                           bunny: '' }, // Tarde 20 · qui 19/11
+    { tema: 'As dores que ninguém vê',               bunny: '' }, // Tarde 21 · sex 20/11
+    { tema: 'Quando o medo aperta',                  bunny: '' }, // Tarde 22 · sáb 21/11
+    { tema: 'Injustiça e calúnia',                   bunny: '' }, // Tarde 23 · dom 22/11
+    { tema: 'Quando a resposta demora',              bunny: '' }, // Tarde 24 · seg 23/11
+    { tema: 'Agradecer antes de ver',                bunny: '' }, // Tarde 25 · ter 24/11
+    { tema: 'Maria ao pé da cruz',                   bunny: '' }, // Tarde 26 · qua 25/11
+    { tema: 'Não solte agora',                       bunny: '' }, // Tarde 27 · qui 26/11
+    { tema: 'Ninguém reza sozinho',                  bunny: '' }, // Tarde 28 · sex 27/11
+    { tema: 'Fica conosco, Senhor',                  bunny: '' }, // Tarde 29 · sáb 28/11
+    { tema: 'A última tarde, no dia de São Judas',   bunny: '' }  // Tarde 30 · dom 29/11
+  ]
+};
+</script>
+
+<div class="aviso-pendente" id="aviso-previa" hidden></div>
+
+<div class="topo">
+  <img src="assets/images/icon-96.png" alt="" width="36" height="36">
+  <span>7 Améns da Madrugada</span>
+</div>
+
+<main class="conteudo">
+
+  <p class="kicker">30 Tardes da Misericórdia</p>
+
+  <div id="tela"></div>
+
+  <section class="lista-bloco" id="lista-bloco" hidden>
+    <h2 class="titulo-secao">As tardes até hoje</h2>
+    <p class="sob-titulo">Perdeu alguma? Toque nela para rezar agora.</p>
+    <ol class="lista" id="lista"></ol>
+  </section>
+
+  <div class="bencao">
+    <svg class="cruz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M6 8.5h12"/></svg>
+    <p>Que o Deus de toda misericórdia guarde a sua causa e o seu coração.</p>
+    <p>Que São Judas Tadeu interceda por você e pela sua família.</p>
+  </div>
+
+  <a class="ajuda" href="https://wa.me/5521923671052?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20as%2030%20Tardes%20da%20Miseric%C3%B3rdia." target="_blank" rel="noopener">O vídeo não abre? Fale com a gente</a>
+
+</main>
+
+<script src="js/video.js?v=2"></script>
+<script>
+(function () {
+  'use strict';
+
+  var TARDES = window.TARDES;
+  var TOTAL = TARDES.lista.length;
+  var params = new URLSearchParams(location.search);
+  var previa = params.get('previa') === '1';
+
+  var escapar = function (texto) {
+    return String(texto).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  /* ---------- QUE DIA E QUE HORA É EM BRASÍLIA ----------
+     Pelo relógio do celular, convertido para Brasília (o mesmo do
+     obrigado-30-tardes.html). Na prévia, ?agora=2026-11-03T14 finge outro
+     dia e hora. */
+  function agoraEmBrasilia() {
+    var fingido = previa && /^(\d{4}-\d{2}-\d{2})T(\d{1,2})$/.exec(params.get('agora') || '');
+    if (fingido) return { dia: fingido[1], hora: parseInt(fingido[2], 10) };
+    try {
+      var p = {};
+      new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' })
+        .formatToParts(new Date())
+        .forEach(function (x) { p[x.type] = x.value; });
+      return { dia: p.year + '-' + p.month + '-' + p.day, hora: parseInt(p.hour, 10) };
+    } catch (e) {
+      // Brasília é UTC-3 o ano todo desde 2019 (sem horário de verão).
+      var d = new Date(Date.now() - 3 * 3600 * 1000);
+      return { dia: d.toISOString().slice(0, 10), hora: d.getUTCHours() };
+    }
+  }
+
+  function dataDa(n) {
+    var p = TARDES.primeira.split('-');
+    return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n - 1)).toISOString().slice(0, 10);
+  }
+
+  // "sexta-feira, 30 de outubro"
+  function porExtenso(dia) {
+    var p = dia.split('-');
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' })
+      .format(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12)));
+  }
+  // "na sexta-feira, 30 de outubro", mas "no sábado" e "no domingo".
+  function naData(dia) {
+    var texto = porExtenso(dia);
+    return (/^(sábado|domingo)/.test(texto) ? 'no ' : 'na ') + texto;
+  }
+
+  var agora = agoraEmBrasilia();
+  function chegou(n) {
+    var dia = dataDa(n);
+    return agora.dia > dia || (agora.dia === dia && agora.hora >= TARDES.hora);
+  }
+
+  // A última tarde que já chegou (0 = nenhuma ainda) e a próxima.
+  var ultima = 0;
+  for (var n = 1; n <= TOTAL; n++) if (chegou(n)) ultima = n;
+  var proxima = ultima < TOTAL ? ultima + 1 : 0;
+  var proximaEhHoje = proxima > 0 && dataDa(proxima) === agora.dia;
+
+  // O player de cada tarde, pelo js/video.js. ID vazio ou fora do formato da
+  // Bunny = null (a tarde fica sem vídeo).
+  var videos = {};
+  var faltam = [];
+  TARDES.lista.forEach(function (tarde, i) {
+    var numero = i + 1;
+    videos[numero] = VIDEO.escolher({
+      bunny: { video: String(tarde.bunny || '').trim(), formato: TARDES.formato },
+      titulo: 'Tarde ' + numero + ' · ' + tarde.tema
+    });
+    if (!videos[numero]) faltam.push(numero);
+  });
+
+  function aberta(numero) {
+    return Boolean(videos[numero]) && (previa || numero <= ultima);
+  }
+
+  // Os links da página guardam a prévia, para a equipe navegar sem perdê-la.
+  function linkDa(numero) {
+    var p = new URLSearchParams();
+    if (numero) p.set('tarde', numero);
+    if (previa) {
+      p.set('previa', '1');
+      if (params.get('agora')) p.set('agora', params.get('agora'));
+    }
+    var busca = p.toString();
+    return location.pathname + (busca ? '?' + busca : '');
+  }
+
+  // Qual tarde mostrar: a pedida no link (se já chegou e tem vídeo); senão,
+  // a última que chegou.
+  var pedida = parseInt(params.get('tarde'), 10);
+  var escolhida = 0;
+  if (pedida >= 1 && pedida <= TOTAL && aberta(pedida)) escolhida = pedida;
+  else if (aberta(ultima)) escolhida = ultima;
+  else if (previa) for (var m = 1; m <= TOTAL && !escolhida; m++) if (aberta(m)) escolhida = m;
+
+  /* ---------- A FAIXA DA PRÉVIA ---------- */
+  if (previa) {
+    var faixa = document.getElementById('aviso-previa');
+    var forte = document.createElement('strong');
+    forte.textContent = 'Prévia da equipe. ';
+    faixa.appendChild(forte);
+    faixa.appendChild(document.createTextNode(
+      'Aparecem todas as tardes que têm vídeo, mesmo as que não chegaram para as clientes. '
+      + (faltam.length ? 'Faltam os vídeos das tardes: ' + faltam.join(', ') + '.' : 'Os 30 vídeos estão preenchidos.')
+      + ' Dia e hora considerados: ' + porExtenso(agora.dia) + ', ' + agora.hora + 'h.'
+    ));
+    faixa.hidden = false;
+  }
+
+  /* ---------- A TARDE ---------- */
+  var tela = document.getElementById('tela');
+  var check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>';
+
+  if (escolhida) {
+    var tarde = TARDES.lista[escolhida - 1];
+    document.title = 'Tarde ' + escolhida + ' · 30 Tardes da Misericórdia';
+
+    var avisoNoTopo = '';
+    if (escolhida > ultima) {
+      avisoNoTopo = '<div class="aviso">Prévia: esta tarde ainda não chegou para as clientes. Ela chega ' + naData(dataDa(escolhida)) + ', às ' + TARDES.hora + 'h.</div>';
+    } else if (escolhida < ultima) {
+      avisoNoTopo = '<div class="aviso">Esta tarde já passou, e continua aqui para você.'
+        + '<a class="botao" href="' + escapar(linkDa(0)) + '">Ir para a tarde de hoje</a></div>';
+    } else if (proximaEhHoje) {
+      avisoNoTopo = '<div class="aviso"><strong>A Tarde ' + proxima + ' chega hoje, às três da tarde.</strong> Enquanto isso, a Tarde ' + escolhida + ' continua aqui para você.</div>';
+    }
+
+    var depois = '';
+    if (escolhida === ultima && !proximaEhHoje) {
+      depois = proxima
+        ? '<p class="proxima">Amanhã, às três da tarde, a Tarde ' + proxima + ' chega aqui, neste mesmo link.</p>'
+        : '<p class="proxima">Esta é a última das 30 tardes.</p>';
+    }
+
+    tela.innerHTML = avisoNoTopo
+      + '<p class="numero">Tarde ' + escolhida + ' de ' + TOTAL + '</p>'
+      + '<h1>' + escapar(tarde.tema) + '</h1>'
+      + '<p class="data">' + escapar(porExtenso(dataDa(escolhida))) + '</p>'
+      + '<div class="barra" aria-hidden="true"><span style="width: ' + (escolhida / TOTAL * 100).toFixed(1) + '%"></span></div>'
+      + '<div class="video">' + videos[escolhida].html + '</div>'
+      + '<div class="cartao">'
+      +   '<h2 class="titulo-secao">Como rezar</h2>'
+      +   '<ul class="passos">'
+      +     '<li>' + check + '<p>Toque no vídeo para começar. Aumente o volume do celular ou use um fone de ouvido.</p></li>'
+      +     '<li>' + check + '<p>Traga a sua causa no coração. É ela que você entrega a São Judas, tarde após tarde.</p></li>'
+      // O player da Bunny volta SOZINHO para o ponto em que ela parou, no
+      // mesmo celular (docs/bunny-videos-de-entrega.md, risco 4).
+      +     '<li>' + check + '<p>Se precisar parar, pode sair. Quando voltar, o vídeo continua sozinho de onde você parou.</p></li>'
+      +   '</ul>'
+      + '</div>'
+      + depois;
+  } else if (ultima === 0) {
+    var primeiraHoje = dataDa(1) === agora.dia;
+    tela.innerHTML = '<div class="cartao espera">'
+      + '<h1>A primeira tarde está chegando</h1>'
+      + '<p>Ela chega ' + (primeiraHoje ? 'hoje' : escapar(naData(dataDa(1)))) + ', às três da tarde, aqui neste mesmo link.</p>'
+      + '</div>';
+  } else {
+    tela.innerHTML = '<div class="cartao espera">'
+      + '<h1>A Tarde ' + ultima + ' está chegando</h1>'
+      + '<p>O vídeo de hoje fica pronto daqui a pouco. Volte a este mesmo link mais tarde.</p>'
+      + '</div>';
+  }
+
+  /* ---------- AS TARDES ATÉ HOJE ----------
+     Só as que já chegaram e têm vídeo. A que está na tela fica marcada. */
+  var abertas = [];
+  for (var k = 1; k <= TOTAL; k++) if (aberta(k)) abertas.push(k);
+
+  if (abertas.length >= 2 || (abertas.length === 1 && abertas[0] !== escolhida)) {
+    var seta = '<svg class="seta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/></svg>';
+    document.getElementById('lista').innerHTML = abertas.map(function (numero) {
+      var miolo = '<span class="num">' + numero + '</span>'
+        + '<span class="texto"><strong>Tarde ' + numero + '</strong>' + escapar(TARDES.lista[numero - 1].tema)
+        + '<small>' + escapar(porExtenso(dataDa(numero))) + '</small></span>';
+      return numero === escolhida
+        ? '<li><div class="item atual" aria-current="true">' + miolo + '<span class="aqui">Você está<br>aqui</span></div></li>'
+        : '<li><a class="item" href="' + escapar(linkDa(numero)) + '">' + miolo + seta + '</a></li>';
+    }).join('');
+    document.getElementById('lista-bloco').hidden = false;
+  }
+})();
+</script>
+
+</body>
+</html>
