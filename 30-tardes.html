@@ -11,10 +11,14 @@
      obrigado-30-tardes.html).
 
      Como ela escolhe o vídeo: a Tarde 1 é 31/10 (sábado; o Caio passou o
-     começo de 30/10 para 31/10 no próprio dia 30) e cada dia abre a seguinte,
-     às 15h de Brasília, até a Tarde 30, em 29/11. O dia de São Judas (28/11)
-     cai na Tarde 29. Antes das
-     15h fica a tarde de ontem, com o aviso de que a de hoje chega às três.
+     começo de 30/10 para 31/10 no próprio dia 30), e a Tarde 30 é 29/11. O
+     dia de São Judas (28/11) cai na Tarde 29. A tarde de hoje fica na tela
+     o dia inteiro, e às 20h de Brasília a de amanhã entra no lugar dela
+     (pedido do Caio em 31/10: antes, a tarde só abria às 15h do próprio
+     dia, e quem abria o link de manhã via "está chegando"). Por isso o
+     vídeo de cada tarde tem de estar publicado ANTES DAS 20h DA VÉSPERA.
+     Sem ele, a página continua mostrando a tarde anterior, com o aviso de
+     que o vídeo está chegando.
      As tardes que já passaram ficam numa lista embaixo ("ele fica esperando
      por você", promete a mensagem da Tarde 1). As que não chegaram não
      aparecem.
@@ -212,14 +216,14 @@
    AS 30 TARDES — o ID de cada vídeo na Bunny vai no campo `bunny`, entre as
    aspas. É o ID do painel da Bunny (biblioteca "7 Améns - entregas"), no
    formato 1ed0f653-8cc2-498a-bfa1-4c6561df9ace. Campo vazio = a tarde ainda
-   não tem vídeo: ela não aparece para as clientes, e no dia dela a página diz
-   que o vídeo "está chegando".
+   não tem vídeo: ela não aparece para as clientes, e na hora dela a página
+   diz que o vídeo "está chegando".
    Os temas saem do roteiro (Google Doc "Live São Judas · 30 Tardes da
    Misericórdia · Roteiro", aba Entregável).
    ===================================================================== */
 window.TARDES = {
   primeira: '2026-10-31', // a data da Tarde 1; cada tarde seguinte é um dia depois
-  hora: 15,               // a hora em que a tarde do dia abre (Brasília)
+  hora: 20,               // a hora em que a tarde de amanhã entra no lugar da de hoje (Brasília)
   // '3:4' é o vídeo em pé, como os das madrugadas; '16:9' é o deitado.
   formato: '3:4',
   lista: [
@@ -252,7 +256,7 @@ window.TARDES = {
     { tema: 'Não solte agora',                       bunny: '' }, // Tarde 27 · qui 26/11
     { tema: 'Ninguém reza sozinho',                  bunny: '' }, // Tarde 28 · sex 27/11
     { tema: 'Fica conosco, Senhor',                  bunny: '' }, // Tarde 29 · sáb 28/11
-    { tema: 'A última tarde, no dia de São Judas',   bunny: '' }  // Tarde 30 · dom 29/11
+    { tema: 'A última tarde',                        bunny: '' }  // Tarde 30 · dom 29/11
   ]
 };
 </script>
@@ -271,7 +275,7 @@ window.TARDES = {
   <div id="tela"></div>
 
   <section class="lista-bloco" id="lista-bloco" hidden>
-    <h2 class="titulo-secao">As tardes até hoje</h2>
+    <h2 class="titulo-secao">As tardes até agora</h2>
     <p class="sob-titulo">Perdeu alguma? Toque nela para rezar agora.</p>
     <ol class="lista" id="lista"></ol>
   </section>
@@ -340,16 +344,19 @@ window.TARDES = {
   }
 
   var agora = agoraEmBrasilia();
+  // Cada tarde entra na véspera do dia dela, na hora marcada em TARDES.hora.
   function chegou(n) {
-    var dia = dataDa(n);
-    return agora.dia > dia || (agora.dia === dia && agora.hora >= TARDES.hora);
+    var vespera = dataDa(n - 1);
+    return agora.dia > vespera || (agora.dia === vespera && agora.hora >= TARDES.hora);
+  }
+  function diasAte(dia) {
+    return Math.round((Date.parse(dia) - Date.parse(agora.dia)) / 86400000);
   }
 
   // A última tarde que já chegou (0 = nenhuma ainda) e a próxima.
   var ultima = 0;
   for (var n = 1; n <= TOTAL; n++) if (chegou(n)) ultima = n;
   var proxima = ultima < TOTAL ? ultima + 1 : 0;
-  var proximaEhHoje = proxima > 0 && dataDa(proxima) === agora.dia;
 
   // O player de cada tarde, pelo js/video.js. ID vazio ou fora do formato da
   // Bunny = null (a tarde fica sem vídeo).
@@ -381,12 +388,16 @@ window.TARDES = {
   }
 
   // Qual tarde mostrar: a pedida no link (se já chegou e tem vídeo); senão,
-  // a última que chegou.
+  // a mais nova que já chegou e tem vídeo. A que devia aparecer e ainda não
+  // tem vídeo fica em `chegando`, para o aviso.
   var pedida = parseInt(params.get('tarde'), 10);
+  if (!(pedida >= 1 && pedida <= TOTAL)) pedida = 0;
   var escolhida = 0;
-  if (pedida >= 1 && pedida <= TOTAL && aberta(pedida)) escolhida = pedida;
-  else if (aberta(ultima)) escolhida = ultima;
-  else if (previa) for (var m = 1; m <= TOTAL && !escolhida; m++) if (aberta(m)) escolhida = m;
+  var m;
+  if (pedida && aberta(pedida)) escolhida = pedida;
+  else for (m = ultima; m >= 1 && !escolhida; m--) if (aberta(m)) escolhida = m;
+  if (!escolhida && previa) for (m = 1; m <= TOTAL && !escolhida; m++) if (aberta(m)) escolhida = m;
+  var chegando = pedida && !aberta(pedida) ? pedida : (ultima && !aberta(ultima) ? ultima : 0);
 
   /* ---------- A FAIXA DA PRÉVIA ---------- */
   if (previa) {
@@ -412,19 +423,21 @@ window.TARDES = {
 
     var avisoNoTopo = '';
     if (escolhida > ultima) {
-      avisoNoTopo = '<div class="aviso">Prévia: esta tarde ainda não chegou para as clientes. Ela chega ' + naData(dataDa(escolhida)) + ', às ' + TARDES.hora + 'h.</div>';
-    } else if (escolhida < ultima) {
+      avisoNoTopo = '<div class="aviso">Prévia: esta tarde ainda não apareceu para as clientes. Ela aparece ' + naData(dataDa(escolhida - 1)) + ', às ' + TARDES.hora + 'h.</div>';
+    } else if (chegando) {
+      avisoNoTopo = '<div class="aviso"><strong>O vídeo da Tarde ' + chegando + ' está chegando.</strong> Volte a este mesmo link daqui a pouco. Enquanto isso, a Tarde ' + escolhida + ' continua aqui para você.</div>';
+    } else if (escolhida < ultima && diasAte(dataDa(escolhida)) < 0) {
       avisoNoTopo = '<div class="aviso">Esta tarde já passou, e continua aqui para você.'
-        + '<a class="botao" href="' + escapar(linkDa(0)) + '">Ir para a tarde de hoje</a></div>';
-    } else if (proximaEhHoje) {
-      avisoNoTopo = '<div class="aviso"><strong>A Tarde ' + proxima + ' chega hoje, às três da tarde.</strong> Enquanto isso, a Tarde ' + escolhida + ' continua aqui para você.</div>';
+        + '<a class="botao" href="' + escapar(linkDa(0)) + '">Ir para a tarde mais nova</a></div>';
     }
 
+    // Depois das 20h a tela já mostra a tarde de amanhã, e a próxima é a de
+    // depois de amanhã: por isso a data vem por extenso quando não é amanhã.
     var depois = '';
-    if (escolhida === ultima && !proximaEhHoje) {
-      depois = proxima
-        ? '<p class="proxima">Amanhã, às três da tarde, a Tarde ' + proxima + ' chega aqui, neste mesmo link.</p>'
-        : '<p class="proxima">Esta é a última das 30 tardes.</p>';
+    if (escolhida === ultima) {
+      if (!proxima) depois = '<p class="proxima">Esta é a última das 30 tardes.</p>';
+      else if (diasAte(dataDa(proxima)) === 1) depois = '<p class="proxima">Amanhã, às três da tarde, é a Tarde ' + proxima + ', aqui neste mesmo link.</p>';
+      else depois = '<p class="proxima">A Tarde ' + proxima + ' é ' + escapar(naData(dataDa(proxima))) + ', às três da tarde, aqui neste mesmo link.</p>';
     }
 
     tela.innerHTML = avisoNoTopo
@@ -445,19 +458,19 @@ window.TARDES = {
       + '</div>'
       + depois;
   } else if (ultima === 0) {
-    var primeiraHoje = dataDa(1) === agora.dia;
+    var abreHoje = diasAte(dataDa(0)) === 0;
     tela.innerHTML = '<div class="cartao espera">'
       + '<h1>A primeira tarde está chegando</h1>'
-      + '<p>Ela chega ' + (primeiraHoje ? 'hoje' : escapar(naData(dataDa(1)))) + ', às três da tarde, aqui neste mesmo link.</p>'
+      + '<p>Ela aparece ' + (abreHoje ? 'hoje' : escapar(naData(dataDa(0)))) + ', às ' + TARDES.hora + 'h, aqui neste mesmo link.</p>'
       + '</div>';
   } else {
     tela.innerHTML = '<div class="cartao espera">'
-      + '<h1>A Tarde ' + ultima + ' está chegando</h1>'
-      + '<p>O vídeo de hoje fica pronto daqui a pouco. Volte a este mesmo link mais tarde.</p>'
+      + '<h1>O vídeo da Tarde ' + (chegando || ultima) + ' está chegando</h1>'
+      + '<p>Volte a este mesmo link daqui a pouco.</p>'
       + '</div>';
   }
 
-  /* ---------- AS TARDES ATÉ HOJE ----------
+  /* ---------- AS TARDES ATÉ AGORA ----------
      Só as que já chegaram e têm vídeo. A que está na tela fica marcada. */
   var abertas = [];
   for (var k = 1; k <= TOTAL; k++) if (aberta(k)) abertas.push(k);
