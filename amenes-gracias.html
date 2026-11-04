@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tu compra está confirmada · 7 Amenes de la Madrugada</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#241A11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/amenes.css">
+<!-- Esta es la página de "Redirect after checkout" de la Whop.
+     NO disparar "Purchase" del píxel aquí: la Whop ya avisa la compra a Meta, y saldría doble. -->
+</head>
+<body>
+
+<header class="simple-cabecera">
+  <div class="contenedor"><a href="amenes.html">7 Amenes de la Madrugada</a></div>
+</header>
+
+<main class="seccion">
+  <div class="contenedor">
+    <!-- La Whop manda aquí con ?status=succeeded, failed o canceled (y processing mientras confirma). -->
+    <div id="falla" hidden>
+      <span class="etiqueta">Pago no completado</span>
+      <h1>Tu pago no se completó</h1>
+      <p class="destacado">No se realizó ningún cobro. Puedes intentarlo de nuevo con otra tarjeta o con otra forma de pago.</p>
+      <a class="boton" href="amenes-checkout.html">Volver al pago</a>
+      <p class="ayuda-pago">¿Necesitas ayuda? Escríbenos a <a href="mailto:contact@pkscale.com">contact@pkscale.com</a></p>
+    </div>
+    <div id="pendiente" hidden>
+      <span class="etiqueta">Confirmando tu pago</span>
+      <h1>Estamos confirmando tu pago</h1>
+      <p class="destacado">Algunas formas de pago tardan un poco. Apenas se confirme, recibirás un correo de "7 Amenes de la Madrugada via Whop" con tu acceso.</p>
+    </div>
+    <div id="exito">
+    <span class="etiqueta">Compra confirmada</span>
+    <h1>¡Gracias! Tus 7 madrugadas ya te esperan</h1>
+    <p class="destacado">Sigue estos 3 pasos para empezar.</p>
+
+    <div class="pasos">
+      <div class="paso"><div class="paso-numero">1</div><div>
+        <h3>Busca el correo de la compra</h3>
+        <p>Llega de <strong>"7 Amenes de la Madrugada via Whop"</strong>. Si no lo ves en unos minutos, revisa las carpetas de Spam o Promociones.</p>
+      </div></div>
+      <div class="paso"><div class="paso-numero">2</div><div>
+        <h3>Entra en Whop con ese mismo correo</h3>
+        <p>En la computadora, entra en whop.com. En el celular, descarga la app <strong>Whop</strong> (App Store o Google Play). Escribe <strong>el mismo correo que usaste en la compra</strong> y sigue los pasos de la pantalla.</p>
+      </div></div>
+      <div class="paso"><div class="paso-numero">3</div><div>
+        <h3>Abre "Comienza aquí"</h3>
+        <p>Lee la guía con calma hoy. Mañana, entre las 4 y las 7 de la mañana, reza el Primer Amén.</p>
+      </div></div>
+    </div>
+
+    <a class="boton" href="https://whop.com" rel="noopener">Entrar en Whop</a>
+
+    <div class="aviso">
+      <h3>¿No encuentras el correo o no puedes entrar?</h3>
+      <p style="margin:0">Escríbenos a <a href="mailto:contact@pkscale.com"><strong>contact@pkscale.com</strong></a> con el correo que usaste en la compra. Te respondemos en español.</p>
+    </div>
+
+    <p class="destacado centro">Que Dios te acompañe en cada madrugada.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <nav><a href="amenes-terminos.html">Términos y Condiciones</a><a href="amenes-privacidad.html">Política de Privacidad</a><a href="amenes-reembolso.html">Política de Reembolso</a></nav>
+    <p>© 2026 7 Amenes de la Madrugada</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var status = new URLSearchParams(window.location.search).get("status");
+  if (!status || status === "succeeded") return;
+  document.getElementById("exito").hidden = true;
+  document.getElementById(status === "failed" || status === "canceled" ? "falla" : "pendiente").hidden = false;
+})();
+</script>
+</body>
+</html>

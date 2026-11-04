@@ -1,0 +1,254 @@
+/* 7 Amenes de la Madrugada — páginas externas (venta, gracias, legales).
+   Público: mujeres católicas 45+. Letra grande, alto contraste, botones grandes.
+   Paleta del producto: crema + dorado + negro (la misma de los PDF). */
+
+:root {
+  --crema: #FBF3E6;
+  --crema-2: #F3E8D4;
+  --tinta: #2E241A;
+  --tinta-suave: #5E5141;
+  --dorado: #D3A83E;
+  --dorado-fuerte: #9A6F1C;
+  --oscuro: #241A11;
+  --oscuro-2: #332A1D;
+  --sobre-oscuro: #F7F1E2;
+  --sobre-oscuro-suave: #D8CBB0;
+  --linea: rgba(46, 36, 26, 0.12);
+  --verde: #2F6B4F;
+  --radio: 18px;
+  --ancho: 720px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 19px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--dorado-fuerte); }
+
+.contenedor { max-width: var(--ancho); margin: 0 auto; padding: 0 22px; }
+
+.seccion { padding: 64px 0; }
+.seccion + .seccion { border-top: 1px solid var(--linea); }
+.seccion.oscura { background: var(--oscuro); color: var(--sobre-oscuro); border-top: 0; }
+.seccion.oscura + .seccion { border-top: 0; }
+.seccion.suave { background: var(--crema-2); }
+
+.etiqueta {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dorado-fuerte);
+  margin-bottom: 10px;
+}
+.oscura .etiqueta { color: var(--dorado); }
+
+h1, h2, h3 { line-height: 1.2; margin: 0 0 16px; font-weight: 800; }
+h1 { font-size: 36px; letter-spacing: -0.01em; }
+h2 { font-size: 30px; }
+h3 { font-size: 22px; }
+p { margin: 0 0 18px; }
+.destacado { font-size: 21px; font-weight: 600; }
+.centro { text-align: center; }
+
+/* ---------- Portada ---------- */
+.portada { position: relative; color: var(--sobre-oscuro); background: var(--oscuro); }
+.portada-foto { position: absolute; inset: 0; overflow: hidden; }
+.portada-foto img { width: 100%; height: 100%; object-fit: cover; }
+.portada-foto::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(20,14,9,0.55) 0%, rgba(20,14,9,0.80) 45%, rgba(20,14,9,0.96) 100%);
+}
+.portada .contenedor { position: relative; padding-top: 56px; padding-bottom: 56px; }
+.portada h1 { font-size: 38px; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,0.5); }
+.portada .bajada { font-size: 21px; color: var(--sobre-oscuro); margin-bottom: 28px; }
+.portada .etiqueta { color: var(--dorado); }
+
+/* ---------- Botón de compra ---------- */
+.boton {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+  min-height: 68px;
+  padding: 16px 22px;
+  border-radius: 16px;
+  background: var(--dorado);
+  color: var(--oscuro);
+  font-size: 21px; font-weight: 800; line-height: 1.25;
+  text-align: center; text-decoration: none;
+  box-shadow: 0 10px 26px rgba(154, 111, 28, 0.35);
+  border: 0; cursor: pointer;
+}
+.boton:hover, .boton:focus-visible { background: #E0B54A; }
+.boton:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.micro { margin-top: 12px; font-size: 16px; text-align: center; color: inherit; opacity: 0.9; }
+.micro strong { white-space: nowrap; }
+
+/* ---------- Listas ---------- */
+.lista-dolor, .lista-check, .lista-no { list-style: none; padding: 0; margin: 0 0 22px; }
+.lista-dolor li, .lista-check li, .lista-no li {
+  position: relative; padding: 16px 18px 16px 58px; margin-bottom: 12px;
+  background: #fff; border: 1px solid var(--linea); border-radius: var(--radio);
+}
+.lista-dolor li::before, .lista-check li::before, .lista-no li::before {
+  position: absolute; left: 16px; top: 14px;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 17px; font-weight: 800;
+}
+.lista-dolor li::before { content: "•"; background: var(--crema-2); color: var(--dorado-fuerte); font-size: 28px; line-height: 1; }
+.lista-check li::before { content: "✓"; background: var(--dorado); color: var(--oscuro); }
+.lista-no li::before { content: "!"; background: var(--crema-2); color: var(--dorado-fuerte); }
+.oscura .lista-check li { background: var(--oscuro-2); border-color: rgba(211,168,62,0.35); color: var(--sobre-oscuro); }
+
+/* ---------- Pasos ---------- */
+.pasos { display: grid; gap: 14px; margin: 26px 0 8px; }
+.paso {
+  display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start;
+  background: #fff; border: 1px solid var(--linea); border-radius: var(--radio); padding: 20px;
+}
+.paso-numero {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--oscuro); color: var(--dorado);
+  display: grid; place-items: center; font-size: 24px; font-weight: 800;
+}
+.paso h3 { margin-bottom: 6px; font-size: 21px; }
+.paso p { margin: 0; color: var(--tinta-suave); }
+
+/* ---------- Los 7 Amenes ---------- */
+.amenes { display: grid; gap: 18px; margin-top: 26px; }
+.amen {
+  display: grid; grid-template-columns: 112px 1fr; gap: 16px; align-items: center;
+  background: var(--oscuro-2); color: var(--sobre-oscuro);
+  border: 1px solid rgba(211,168,62,0.35); border-radius: var(--radio); padding: 14px;
+}
+.amen img { width: 112px; height: 140px; object-fit: cover; border-radius: 12px; }
+.amen .dia { font-size: 14px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dorado); }
+.amen h3 { font-size: 21px; margin: 4px 0 6px; color: #fff; }
+.amen p { margin: 0; font-size: 17px; color: var(--sobre-oscuro-suave); line-height: 1.5; }
+
+/* ---------- Muestra del PDF ---------- */
+.muestra { display: grid; gap: 22px; align-items: center; margin-top: 18px; }
+.muestra img { border-radius: 10px; box-shadow: 0 18px 40px rgba(46,36,26,0.22); background: #fff; }
+.partes { counter-reset: parte; list-style: none; padding: 0; margin: 0; }
+.partes li { counter-increment: parte; position: relative; padding: 0 0 14px 46px; }
+.partes li::before {
+  content: counter(parte); position: absolute; left: 0; top: 0;
+  width: 32px; height: 32px; border-radius: 50%; background: var(--dorado); color: var(--oscuro);
+  display: grid; place-items: center; font-weight: 800; font-size: 16px;
+}
+
+/* ---------- Oferta ---------- */
+.leque { margin: 6px auto 26px; max-width: 620px; }
+.precio {
+  background: var(--oscuro-2); border: 2px solid var(--dorado); border-radius: 22px;
+  padding: 28px 22px; text-align: center; margin-top: 10px;
+}
+.precio .valor { font-size: 54px; font-weight: 800; color: #fff; line-height: 1.1; }
+.precio .valor small { font-size: 22px; font-weight: 700; color: var(--dorado); vertical-align: top; }
+.precio .detalle { color: var(--sobre-oscuro-suave); margin: 8px 0 22px; font-size: 18px; }
+
+/* ---------- Garantía ---------- */
+.garantia { display: grid; gap: 22px; align-items: center; }
+.sello {
+  width: 168px; height: 168px; margin: 0 auto; border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #F0CF77, var(--dorado) 60%, #B88A2C);
+  color: var(--oscuro); display: grid; place-items: center; text-align: center;
+  box-shadow: 0 0 0 8px var(--crema-2), 0 0 0 10px var(--dorado), 0 14px 30px rgba(154,111,28,0.35);
+}
+.sello b { display: block; font-size: 58px; line-height: 1; }
+.sello span { display: block; font-size: 15px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ---------- Preguntas ---------- */
+.pregunta { background: #fff; border: 1px solid var(--linea); border-radius: var(--radio); padding: 20px 22px; margin-bottom: 14px; }
+.pregunta h3 { font-size: 20px; margin-bottom: 8px; }
+.pregunta p { margin: 0; color: var(--tinta-suave); }
+
+/* ---------- Pie ---------- */
+.pie { background: var(--oscuro); color: var(--sobre-oscuro-suave); font-size: 16px; padding: 40px 0 120px; text-align: center; }
+.pie a { color: var(--sobre-oscuro); }
+.pie nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; margin-bottom: 18px; }
+.pie nav a { padding: 6px 0; }
+.pie p { margin: 0 0 10px; }
+
+/* ---------- Barra fija de compra (celular) ---------- */
+.barra-compra {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: rgba(36, 26, 17, 0.97); border-top: 1px solid rgba(211,168,62,0.45);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  transform: translateY(110%); transition: transform 0.25s ease;
+}
+.barra-compra.visible { transform: translateY(0); }
+.barra-compra .boton { min-height: 60px; font-size: 19px; box-shadow: none; max-width: var(--ancho); margin: 0 auto; }
+
+/* ---------- Páginas de texto (gracias y legales) ---------- */
+.simple-cabecera { background: var(--oscuro); color: var(--sobre-oscuro); padding: 26px 0; }
+.simple-cabecera a { color: var(--dorado); text-decoration: none; font-weight: 800; font-size: 18px; }
+.texto-legal h1 { font-size: 32px; margin-top: 8px; }
+.texto-legal h2 { font-size: 22px; margin-top: 30px; color: var(--dorado-fuerte); }
+.texto-legal ul { padding-left: 24px; }
+.texto-legal li { margin-bottom: 8px; }
+.fecha { color: var(--tinta-suave); font-size: 16px; }
+.aviso {
+  background: #fff; border: 2px solid var(--dorado); border-radius: var(--radio);
+  padding: 20px 22px; margin: 22px 0;
+}
+
+@media (min-width: 760px) {
+  body { font-size: 20px; }
+  h1, .portada h1 { font-size: 50px; }
+  h2 { font-size: 36px; }
+  .portada .contenedor { padding-top: 96px; padding-bottom: 96px; }
+  .muestra { grid-template-columns: 1fr 1fr; }
+  .garantia { grid-template-columns: 200px 1fr; }
+  .boton { max-width: 560px; margin: 0 auto; }
+  .amen { grid-template-columns: 140px 1fr; }
+  .amen img { width: 140px; height: 175px; }
+}
+
+/* ---------- Página de pago (checkout.html) ---------- */
+.faixa-topo { background: var(--oscuro); color: var(--sobre-oscuro); text-align: center; font-size: 15px; font-weight: 700; padding: 10px 16px; letter-spacing: 0.02em; }
+.faixa-topo span { color: var(--dorado); }
+.banner-pago { position: relative; background: var(--oscuro) center/cover no-repeat; color: #fff; }
+.banner-pago::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(20,14,9,0.92) 0%, rgba(20,14,9,0.7) 60%, rgba(20,14,9,0.45) 100%); }
+.banner-pago .contenedor { position: relative; z-index: 1; padding-top: 34px; padding-bottom: 34px; }
+.banner-pago h1 { font-size: 34px; margin: 6px 0 8px; color: #fff; }
+.banner-pago h1 span { color: var(--dorado); }
+.banner-pago p { margin: 0; font-size: 18px; color: var(--sobre-oscuro); }
+.faixa-dourada { background: linear-gradient(90deg, #B8892E, var(--dorado) 50%, #B8892E); color: var(--oscuro); text-align: center; font-weight: 800; font-size: 19px; letter-spacing: 0.04em; text-transform: uppercase; padding: 12px 16px; }
+.pago { padding: 22px 0 40px; }
+.resumo { display: grid; grid-template-columns: 76px 1fr; gap: 14px; align-items: center; background: #fff; border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; margin-bottom: 14px; }
+.resumo img { width: 76px; height: 95px; object-fit: cover; border-radius: 10px; }
+.resumo h2 { font-size: 19px; margin: 0 0 4px; }
+.resumo .detalle { font-size: 15px; color: var(--tinta-suave); margin: 0 0 6px; line-height: 1.4; }
+.resumo .valor { font-size: 22px; font-weight: 800; }
+.resumo .valor small { font-size: 15px; font-weight: 700; color: var(--tinta-suave); }
+.incluye { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 6px; font-size: 16px; }
+.incluye li::before { content: "✓"; color: var(--dorado-fuerte); font-weight: 800; margin-right: 8px; }
+.caja-pago { background: #fff; border: 2px solid var(--dorado); border-radius: var(--radio); padding: 16px; min-height: 260px; }
+.caja-pago .cargando { text-align: center; color: var(--tinta-suave); font-size: 16px; padding: 60px 10px; }
+.garantia-pago { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; background: var(--crema-2); border-radius: var(--radio); padding: 16px; margin-top: 16px; }
+.garantia-pago .sello { width: 84px; height: 84px; box-shadow: 0 0 0 4px var(--crema-2), 0 0 0 5px var(--dorado); }
+.garantia-pago .sello b { font-size: 30px; }
+.garantia-pago .sello span { font-size: 9px; }
+.garantia-pago h3 { font-size: 18px; margin: 0 0 4px; }
+.garantia-pago p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--tinta-suave); }
+.confianza { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; font-size: 15px; color: var(--tinta-suave); }
+.confianza li::before { content: "🔒"; margin-right: 8px; }
+.ayuda-pago { text-align: center; font-size: 15px; color: var(--tinta-suave); margin-top: 18px; }
+@media (min-width: 760px) {
+  .banner-pago h1 { font-size: 44px; }
+}

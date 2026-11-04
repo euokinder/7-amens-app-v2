@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pago seguro · 7 Amenes de la Madrugada</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#241A11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/amenes.css">
+<!-- El pago es de la Whop, embebido aquí (Whop Elements). -->
+<script src="https://cdn.whop.com/elements/amber/elements.js" data-whop-elements></script>
+<!-- PÍXEL DE META: pegar aquí el código del píxel (PageView / InitiateCheckout) cuando tengamos el ID.
+     La COMPRA la avisa la Whop (Configuración → Pixels de rastreamento → Meta). No disparar "Purchase" aquí. -->
+</head>
+<body>
+
+<div class="faixa-topo">🔒 <span>Pago 100% seguro</span> · Acceso inmediato después del pago</div>
+
+<header class="banner-pago" style="background-image:url('assets/latam/amenes/hero.webp')">
+  <div class="contenedor">
+    <span class="etiqueta" style="color:var(--dorado)">Guía de oración católica</span>
+    <h1>7 Amenes de la <span>Madrugada</span></h1>
+    <p>7 oraciones guiadas, una por madrugada, para rezar en voz alta.</p>
+  </div>
+</header>
+<div class="faixa-dourada">Garantiza tu acceso ahora</div>
+
+<main class="pago">
+  <div class="contenedor">
+
+    <div class="resumo">
+      <img src="assets/latam/amenes/dia-1.webp" alt="" width="640" height="800">
+      <div>
+        <h2>7 Amenes de la Madrugada</h2>
+        <p class="detalle">Guía en PDF · 7 madrugadas · acceso por 12 meses · <strong>pago único</strong></p>
+      </div>
+    </div>
+
+    <!-- El precio lo muestra el pago de la Whop, ya en la moneda de la clienta (US$ 27 convertidos). -->
+    <div class="caja-pago">
+      <div id="checkout"><p class="cargando">Cargando el pago seguro…</p></div>
+    </div>
+    <p class="ayuda-pago" style="margin-top:10px">¿Problemas para pagar aquí? <a id="pago-alternativo" href="https://whop.com/checkout/plan_69XTsTRUeGzAt">Paga en la página segura de Whop</a></p>
+
+    <ul class="incluye" style="margin-top:16px">
+      <li>Guía "Comienza aquí" y las 7 oraciones en PDF</li>
+      <li>De regalo: Padre Nuestro Completo y "Una oración, dos lados"</li>
+      <li>Para leer en el celular o imprimir</li>
+      <li>No es una suscripción: no hay cobros mensuales</li>
+    </ul>
+
+    <div class="garantia-pago">
+      <div class="sello"><div><b>7</b><span>días de<br>garantía</span></div></div>
+      <div>
+        <h3>Garantía de 7 días</h3>
+        <p>Si en los primeros 7 días sientes que no es para ti, te devolvemos el 100% del valor. No necesitas explicar el motivo.</p>
+      </div>
+    </div>
+
+    <ul class="confianza">
+      <li>Pago procesado por Whop. No vemos ni guardamos tu tarjeta.</li>
+      <li>Recibes el acceso y el recibo en tu correo.</li>
+      <li>En muchos países, el valor aparece en tu moneda local.</li>
+    </ul>
+
+    <p class="ayuda-pago">¿Dudas antes de pagar? Escríbenos a <a href="mailto:contact@pkscale.com">contact@pkscale.com</a></p>
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <nav><a href="amenes-terminos.html">Términos y Condiciones</a><a href="amenes-privacidad.html">Política de Privacidad</a><a href="amenes-reembolso.html">Política de Reembolso</a></nav>
+    <p>Este sitio no forma parte de Facebook ni de Meta Platforms, Inc.</p>
+    <p>© 2026 7 Amenes de la Madrugada</p>
+  </div>
+</footer>
+
+<!-- Página a la que va la clienta después de pagar (el nombre lo ajusta el script de publicación). -->
+<a id="ir-gracias" href="amenes-gracias.html" hidden></a>
+
+<script>
+(function () {
+  // Plan de la Whop: US$ 27, pago único, con moneda local.
+  var PLAN = "plan_69XTsTRUeGzAt";
+  var gracias = new URL(document.getElementById("ir-gracias").getAttribute("href"), window.location.href).toString();
+
+  // Las etiquetas del anuncio quedan registradas en la venta, en el panel de la Whop.
+  var url = new URLSearchParams(window.location.search);
+
+  // El link de respaldo (pago en la página de la Whop) también lleva las etiquetas del anuncio.
+  var alternativo = document.getElementById("pago-alternativo");
+  var destino = new URL(alternativo.href);
+  url.forEach(function (valor, nombre) {
+    if (/^utm_|^fbclid$/.test(nombre)) destino.searchParams.set(nombre, valor);
+  });
+  alternativo.href = destino.toString();
+
+  var attribution = {};
+  [["utm_source", "utmSource"], ["utm_medium", "utmMedium"], ["utm_campaign", "utmCampaign"],
+   ["utm_term", "utmTerm"], ["utm_content", "utmContent"]].forEach(function (par) {
+    if (url.get(par[0])) attribution[par[1]] = url.get(par[0]);
+  });
+
+  function avisarError() {
+    document.getElementById("checkout").innerHTML =
+      '<p class="cargando">No pudimos cargar el pago. Actualiza la página o escríbenos a contact@pkscale.com.</p>';
+  }
+
+  if (!window.WhopElements) { avisarError(); return; }
+  try {
+    var whop = window.WhopElements({
+      locale: "es",
+      appearance: { theme: { appearance: "light", accentColor: "amber" } }
+    });
+    var opciones = {
+      plan: PLAN,
+      returnUrl: gracias,
+      onComplete: function (fin) {
+        if (fin && fin.result === "payment") {
+          window.location.href = gracias + "?status=succeeded";
+        }
+      }
+    };
+    if (Object.keys(attribution).length) opciones.attribution = attribution;
+    var checkout = whop.checkout.create(opciones);
+    document.getElementById("checkout").innerHTML = "";
+    checkout.create("checkout").mount("#checkout");
+  } catch (e) {
+    avisarError();
+  }
+})();
+</script>
+</body>
+</html>
