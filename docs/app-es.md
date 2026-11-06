@@ -99,6 +99,43 @@ Cada bloco termina provado, antes do seguinte. Do Bloco 0 ao 4, o custo é zero.
 | 6 | Suporte: achar a cliente, liberar à mão, corrigir o e-mail e gerar o link de entrada | agente | depois de ir ao ar |
 | 7 | Primeira semana: avisos `processed` e nenhum `failed`; o consumo da Netlify, uma vez | agente | depois de ir ao ar |
 
+## O roteiro do Bloco 5: ir ao ar (preparado em 06/11, 00:05)
+**Conferido antes:**
+- a `origin/main` não andou desde a base (`de37a6c`);
+- os 3 commits da LATAM estão na branch;
+- montando o site da `main` e o da `latam-app`, **só mudam arquivos da LATAM** (`es*.html`, `js/es`, `css/es`, `materiales.html` e `assets/latam/pdf`); todo arquivo do Brasil sai idêntico;
+- na produção não há nada `latam_` nem função `latam-*`;
+- o ponto de retorno da Netlify é o deploy `6aece0118531e61c70fce54c`.
+
+Os PDFs antigos continuam nos endereços antigos, com o texto corrigido, para nenhum link já mandado dar 404.
+
+Um passo por vez, com foto. Cada passo é inofensivo sem o seguinte, e nenhum toca no Brasil. Nada entre 3h e 8h de Brasília.
+
+| # | Quem | O quê | Como conferir |
+|---|---|---|---|
+| 1 | Caio | SQL Editor da produção ← `supabase/latam/01-tabelas.sql` (o agente põe na área de transferência) | consulta de leitura: 8 tabelas `latam_` com RLS |
+| 2 | Caio | *Edge Functions → Deploy a new function → Via Editor*: nome **`latam-api`** escrito ANTES do Deploy; colar o `index.ts`; depois *Settings* → desligar "Verify JWT" | `list_edge_functions`: `latam-api`, `verify_jwt: false` |
+| 3 | Caio | o mesmo para **`latam-whop`** | idem |
+| 4 | Caio | Whop → *Developer → Webhooks → Create*: URL `https://lbaudlocfbjunnaoyrtz.supabase.co/functions/v1/latam-whop`, eventos `payment.succeeded`, `refund.created`, `refund.updated` e `dispute.created`. Copiar o segredo `ws_…` | — |
+| 5 | Caio | Supabase → *Edge Functions → Secrets*: **`LATAM_WHOP_SECRET`** = o `ws_…`. O agente nunca vê o segredo | — |
+| 6 | Caio | *Send test event*, uma vez | `latam_whop_events`: `processed` e qual chave conferiu. Depois, apagar a cliente de mentira (SQL do agente, colado pelo Caio) |
+| 7 | Caio | **1 clique**: commit e `git push origin HEAD:main`, na worktree. É **1 build** | o agente confere `/es`, `/es-entrar`, `/materiales` e uma página do Brasil no ar |
+| 8 | Caio | SQL da carga de quem comprou antes do webhook, gerado pelo agente a partir da Whop. Fica **fora do repositório** | contagem de acessos `import` |
+| 9 | Caio | KashPay → e-mail de compra e página depois do pagamento com `setemadrugadas.com.br/es` (e a `/materiales`) | o agente lê no painel |
+
+Entre o passo 4 e o 5, uma venda real recebe 401, e a Whop tenta de novo por 3 dias, então nenhuma venda se perde. As vendas de antes do webhook entram pelo passo 8.
+
+**O que aconteceu na madrugada de 06/11 (horário de Brasília):**
+- ✅ **Passo 1:** SQL colado pelo Caio. O SQL Editor avisou "creates tables without enabling RLS" porque não enxerga o laço que liga o RLS; a escolha foi "Run without RLS" (o script como provado). Conferido: 8 tabelas com RLS, 1 política cada, `anon` e `authenticated` sem leitura, e a função `latam_allow_login` sem execução para `anon`.
+- ✅ **Passos 2 e 3:** `latam-api` v1 e `latam-whop` v1, com `verify_jwt: false`. Conferido:
+  - login com e-mail inexistente → 403 em espanhol;
+  - aviso sem assinatura → 401;
+  - as 3 funções do Brasil continuam na mesma versão.
+- ✅ **Passos 4 e 5:** webhook da Whop criado na empresa 7 Amenes, com os eventos `payment.succeeded`, `refund.created/updated` e `dispute.created/updated`. Segredo `LATAM_WHOP_SECRET` gravado pelo Caio no Supabase.
+- ✅ **Passo 6:**
+  - **Os 2 testes da Whop:** a assinatura conferiu com a leitura **"texto"** (o segredo `ws_…` usado como texto). O teste vem com a empresa `biz_xxxxxxxxxxxxxx` e o e-mail `…@shinetime.example`, por isso a função o marca `ignored` e não cria cliente nenhuma. **Não há nada para apagar.**
+  - **Uma venda REAL**, a primeira depois do webhook (01:07, US$ 37, KashPay), chegou e ficou `processed`: app liberado até 06/11/2027. O aviso real traz `customer_email`, `paid_at` e `metadata.kashpay_checkout_id`.
+
 ## As funções (Bloco 2)
 **`latam-api`** (`supabase/functions/latam-api/index.ts`)
 - **Ações:** `login` (e-mail), `entry` (link de entrada), `session`, `progress` (`{day, done}`) e `logout`.
