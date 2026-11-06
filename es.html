@@ -1,31 +1,75 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es" class="member-checking">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1a120c">
-<title>7 Amenes de la Madrugada</title>
+<title>Inicio — 7 Amenes de la Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
 </head>
 <body>
-<!-- App em espanhol (LATAM): o início. Abre em setemadrugadas.com.br/es.
-     Plano e regras: docs/app-es.md -->
-<div class="pagina">
-  <header class="topo alto" style="--foto:url('/assets/latam/img/capa.jpg')">
-    <div class="selo">7 DÍAS</div>
-    <h1 id="saludo">Hola</h1>
-    <p>Tu jornada de 7 madrugadas. Un día a la vez.</p>
-  </header>
-  <main id="contenido"><p class="cargando">Cargando tu jornada…</p></main>
+<!-- App em espanhol (LATAM): o início. CÓPIA do index.html do Brasil, em
+     espanhol e sem o que a LATAM não tem (grupo, Mensagem do Dia, extras).
+     Abre em setemadrugadas.com.br/es. Plano e regras: docs/app-es.md -->
+<div id="member-gate" role="status">
+  <p>Verificando tu acceso…</p>
+  <noscript><p>Tu navegador tiene JavaScript desactivado. Actívalo para abrir tus oraciones.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">¿Necesitas ayuda? Escríbenos</a>
 </div>
-<noscript><p class="pagina">Para usar la app, activa JavaScript en tu navegador.</p></noscript>
+<div class="app">
+
+  <div class="header" style="justify-content:flex-end;">
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amenes de la Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content home">
+
+    <div class="heading-block heading-home">
+      <span class="eyebrow" id="saudacao">Hola, ¡que la paz del Señor esté contigo!</span>
+      <h1 class="title">Elige un contenido</h1>
+      <p class="subtext">Toca cualquier tarjeta para abrirla y empezar.</p>
+    </div>
+
+    <a href="/es-novena" class="card-produto">
+      <img class="card-produto-foto" src="/assets/images/home/7-oracoes.jpg" alt="" width="960" height="960" fetchpriority="high" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo">DISPONIBLE</span>
+        <h3 class="card-produto-titulo">7 Oraciones Sagradas</h3>
+        <p class="card-produto-descricao">Accede a la introducción, a las 7 oraciones de la madrugada y al material de regalo.</p>
+        <span class="card-produto-botao"><span>Acceder al contenido</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </div>
+    </a>
+
+    <a href="/materiales" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2.5H7a1.5 1.5 0 0 0-1.5 1.5v16A1.5 1.5 0 0 0 7 21.5h10a1.5 1.5 0 0 0 1.5-1.5V7Z"/><path d="M14.5 2.5V7H19"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/><line x1="8.5" y1="16" x2="15.5" y2="16"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Tus materiales en PDF</h3>
+      <p class="card-contato-descricao">Todas las oraciones en PDF, para guardar en el celular o imprimir.</p>
+      <span class="card-contato-botao"><span>Ver mis PDF</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+    <a href="#" id="card-ayuda" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Escríbenos</h3>
+      <p class="card-contato-descricao">¿Dudas o algún problema para entrar? Nuestro equipo te responde.</p>
+      <span class="card-contato-botao"><span>Hablar con el equipo</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+    <p class="subtext" id="acceso-hasta" style="text-align:center;"></p>
+    <button class="member-help es-salir" id="salir" type="button">Salir</button>
+  </div>
+</div>
+
 <script src="/js/es/config.js"></script>
 <script src="/js/es/sesion.js"></script>
-<script src="/js/es/dias.js"></script>
+<script src="/js/es/app.js"></script>
 <script src="/js/es/inicio.js"></script>
 </body>
 </html>

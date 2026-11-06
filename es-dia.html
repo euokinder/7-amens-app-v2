@@ -1,32 +1,46 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es" class="member-checking">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1a120c">
 <title>7 Amenes de la Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
 </head>
 <body>
-<!-- App em espanhol (LATAM): um dia da jornada (/es-dia?dia=0 a 7).
-     O texto é o mesmo do PDF (js/es/dias.js, gerado). Plano: docs/app-es.md -->
-<div class="pagina">
-  <header id="topo" class="topo" style="--foto:url('/assets/latam/img/capa.jpg')">
-    <a class="volver" href="/es">‹ Mi jornada</a>
-    <div class="selo" id="selo">7 DÍAS</div>
-    <h1 id="titulo">Un momento…</h1>
-    <p id="subtitulo"></p>
-  </header>
-  <main id="contenido"><p class="cargando">Cargando tu oración…</p></main>
+<!-- App em espanhol (LATAM): um dia da jornada (/es-dia?dia=0 a 7). CÓPIA do
+     dia.html do Brasil, em espanhol. No lugar do vídeo, a oração completa (os
+     blocos do "Material de Apoio" brasileiro), com o texto do PDF (js/es/dias.js,
+     gerado). Plano e regras: docs/app-es.md -->
+<div id="member-gate" role="status">
+  <p>Verificando tu acceso…</p>
+  <noscript><p>Tu navegador tiene JavaScript desactivado. Actívalo para abrir tus oraciones.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">¿Necesitas ayuda? Escríbenos</a>
 </div>
-<noscript><p class="pagina">Para usar la app, activa JavaScript en tu navegador.</p></noscript>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='/es-novena'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Volver</span>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amenes de la Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Cargando...</p>
+  </div>
+
+</div>
+
 <script src="/js/es/config.js"></script>
 <script src="/js/es/sesion.js"></script>
 <script src="/js/es/dias.js"></script>
+<script src="/js/es/app.js"></script>
 <script src="/js/es/dia.js"></script>
 </body>
 </html>

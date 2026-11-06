@@ -1,16 +1,16 @@
 // A entrada do app em espanhol: pelo e-mail da compra ou pelo link de entrada.
-// Arquivo só da LATAM.
+// No desenho da tela de entrar do Brasil (login.html). Arquivo só da LATAM.
 (function () {
   const form = document.getElementById('form-entrar');
   const campo = document.getElementById('correo');
   const boton = form.querySelector('button');
   const aviso = document.getElementById('aviso');
+  const TEXTO_DO_BOTAO = boton.textContent;
   document.getElementById('boton-ayuda').href = window.AMENES_CONFIG.soporte;
 
   function mostrar(texto, tipo) {
     aviso.textContent = texto || '';
-    aviso.className = tipo === 'info' ? 'aviso info' : 'aviso';
-    aviso.hidden = !texto;
+    aviso.classList.toggle('es-info', tipo === 'info');
   }
 
   const pendiente = window.AMENES.mensajePendiente();
@@ -51,7 +51,7 @@
     const r = await window.AMENES.entrar(email);
     if (r.ok) { location.replace('/es'); return; }
     boton.disabled = false;
-    boton.textContent = 'Entrar';
+    boton.textContent = TEXTO_DO_BOTAO;
     mostrar(r.error);
   });
 })();

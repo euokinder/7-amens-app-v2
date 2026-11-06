@@ -128,6 +128,28 @@
 
     rezados: retrato => retrato.completados.filter(dia => dia >= 1).length,
 
+    // O portão "Verificando tu acceso…", como no app brasileiro: a página fica
+    // escondida (html.member-checking) até a sessão responder.
+    mostrarTela() {
+      document.documentElement.classList.remove('member-checking');
+      const portao = document.getElementById('member-gate');
+      if (portao) portao.remove();
+    },
+    falhaNoPortao(mensaje) {
+      const portao = document.getElementById('member-gate');
+      if (!portao) return;
+      const texto = portao.querySelector('p');
+      if (texto) texto.textContent = mensaje;
+      if (!portao.querySelector('.member-button')) {
+        const boton = document.createElement('button');
+        boton.className = 'member-button';
+        boton.type = 'button';
+        boton.textContent = 'Intentar de nuevo';
+        boton.addEventListener('click', () => location.reload());
+        portao.insertBefore(boton, portao.querySelector('.member-gate-help'));
+      }
+    },
+
     // Monta um pedaço da tela. Texto sempre por textContent, nunca innerHTML:
     // o nome dela vem do cadastro da compra e não pode virar código na página.
     el(tag, atributos, ...filhos) {

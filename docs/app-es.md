@@ -135,6 +135,14 @@ Entre o passo 4 e o 5, uma venda real recebe 401, e a Whop tenta de novo por 3 d
 - ✅ **Passo 6:**
   - **Os 2 testes da Whop:** a assinatura conferiu com a leitura **"texto"** (o segredo `ws_…` usado como texto). O teste vem com a empresa `biz_xxxxxxxxxxxxxx` e o e-mail `…@shinetime.example`, por isso a função o marca `ignored` e não cria cliente nenhuma. **Não há nada para apagar.**
   - **Uma venda REAL**, a primeira depois do webhook (01:07, US$ 37, KashPay), chegou e ficou `processed`: app liberado até 06/11/2027. O aviso real traz `customer_email`, `paid_at` e `metadata.kashpay_checkout_id`.
+- ✅ **Passo 7:** publicado pelo Caio às 01:17, no deploy `6aed54b9d7076544f8de5ec2` (commit `c7b12c8`). A Netlify registrou só as 4 páginas da LATAM e os arquivos delas.
+  - O primeiro envio caiu ("curl 55, Connection was reset", com a internet a 83 KB/s). O segundo passou com `git -c http.version=HTTP/1.1 -c http.postBuffer=157286400 … push`.
+  - Conferido no ar: `/es` leva a `/es-entrar`, a página fala com a `latam-api` da produção (sem erro de CORS) e o e-mail inexistente recebe a mensagem em espanhol. `/login` do Brasil, 200.
+- ✅ **Passo 8:** carga colada pelo Caio, com o SQL fora do repositório. Liberou:
+  - **8 compradoras de antes do webhook**, com `source = 'import'` e 12 meses a partir do pagamento;
+  - **as 4 administradoras do Brasil**, a pedido do Caio: `source = 'manual'`, sem prazo, lidas de `member_admins` e só gravadas nas `latam_`. **Admin nova no Brasil = rodar de novo esse bloco.**
+  - ⚠️ Uma das 8 compras, a "do Rio" (`pay_kLqR2wYd07MaE0`), foi feita com o e-mail de uma administradora: era compra de teste da equipe, com cartão de verdade, na Whop real. No estudo das regras, esse é o risco nº 1 de saldo preso. Não repetir.
+- **Na produção, em 06/11:** 12 acessos (1 `whop` + 8 `import` + 3 `manual`) e 3 avisos da Whop (1 `processed` + 2 testes `ignored`).
 
 ## As funções (Bloco 2)
 **`latam-api`** (`supabase/functions/latam-api/index.ts`)
@@ -165,7 +173,22 @@ Entre o passo 4 e o 5, uma venda real recebe 401, e a Whop tenta de novo por 3 d
 
 Publicadas no projeto de TESTE em 05/11 (`latam-api` v1 e `latam-whop` v1, JWT desligado).
 
-## As telas (Bloco 3)
+## O desenho: cópia do app brasileiro (06/11/2026)
+O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **duplicar o código do Brasil e adaptar**. Desde 06/11 as telas são cópias:
+
+| Endereço | Cópia de | O que mudou |
+|---|---|---|
+| `/es` (`es.html` + `js/es/inicio.js`) | `index.html` | Em espanhol. Ficaram o card "7 Oraciones Sagradas", "Tus materiales en PDF" (`/materiales`) e "Escríbenos". Saíram o grupo, a Mensagem do Dia e os extras |
+| `/es-novena` (`es-novena.html` + `js/es/novena.js`) | `novena.html` | Os mesmos cards com foto, número, ▶, cadeado e "✓ Oración rezada"; o "Antes de continuar, confirma" do Dia 2 em diante; o Material de regalo |
+| `/es-dia?dia=0…7` (`es-dia.html` + `js/es/dia.js`) | `dia.html` | No lugar do vídeo, a foto e a oração completa nos blocos do "Material de Apoio" do Brasil. O "Concluí" virou "Recé esta oración", com o mesmo jeito de marcar e desfazer. O pedido do dia fica só no celular |
+| `/es-entrar` (`es-entrar.html` + `js/es/entrar.js`) | `login.html` | Em espanhol. "No sé qué correo usé" leva ao suporte, porque a LATAM não tem CPF |
+
+- **Visual:** `css/es/app.css` é a cópia de `css/styles.css` (inteiro) mais o que estas telas usam do `css/member.css`.
+- **Efeitos:** `js/es/app.js` é a cópia do `js/app.js` (foco ao rolar, confirmação, voltar ao topo e luz nos cards).
+- **Por que cópia, e não link:** os arquivos do Brasil não são carregados, então mudar o Brasil não muda a LATAM. Se o desenho do Brasil mudar e a LATAM tiver de acompanhar, é preciso copiar de novo.
+- **Fotos:** as das telas são as mesmas do Brasil (`assets/images/…`).
+
+## As telas (Bloco 3, primeira versão, substituída em 06/11 pela cópia acima)
 | Endereço | Arquivo | O que faz |
 |---|---|---|
 | `/es` | `es.html` + `js/es/inicio.js` | **Início:** "Hola, {nome}"; a oração de agora (o Comienza aquí até ela começar; depois, o primeiro dia aberto que ainda não marcou; ou "Por hoy, ya está"; ou a jornada concluída); "Rezaste N de 7"; a jornada (de 0 a 7, com "Abierta", "✓ Ya rezaste" ou "🔒 Se abre mañana"); o Material de regalo (os PDFs); a ajuda; e "Salir" |

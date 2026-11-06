@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>7 Oraciones Sagradas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+</head>
+<body>
+<!-- App em espanhol (LATAM): a lista das 7 madrugadas. CÓPIA do novena.html do
+     Brasil, em espanhol. A trava (uma por dia) vem do servidor (latam-api).
+     Plano e regras: docs/app-es.md -->
+<div id="member-gate" role="status">
+  <p>Verificando tu acceso…</p>
+  <noscript><p>Tu navegador tiene JavaScript desactivado. Actívalo para abrir tus oraciones.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">¿Necesitas ayuda? Escríbenos</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='/es'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Volver</span>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amenes de la Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">7 Oraciones Sagradas</h1>
+        <p class="subtext">Toca un día para abrir la oración completa.</p>
+      </div>
+    </div>
+
+    <div id="dias-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+    <h2 class="section-label">Material de regalo</h2>
+
+    <a href="/assets/latam/pdf/padre-nuestro-completo-v2.pdf" target="_blank" rel="noopener" class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(/assets/images/home-pai-nosso.jpg);">
+      <div class="icon-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="6" y1="9" x2="18" y2="9"/></svg>
+      </div>
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--dark-on-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Padre Nuestro Completo</h3>
+        <p class="card-sub">La oración entera, para rezarla cuando quieras</p>
+      </div>
+    </a>
+
+    <a href="/assets/latam/pdf/una-oracion-dos-lados-v2.pdf" target="_blank" rel="noopener" class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(/assets/images/home-manuscrito.jpg);">
+      <div class="icon-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+      </div>
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--dark-on-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Una oración, dos lados</h3>
+        <p class="card-sub">El Padre Nuestro en arameo y en español</p>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="modal-scrim" id="confirm-modal">
+  <div class="modal-card">
+    <div class="modal-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+    </div>
+    <div class="modal-heading">
+      <h3>Antes de continuar, confirma:</h3>
+    </div>
+    <div class="modal-checklist">
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>¿Ya rezaste la oración anterior?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>¿Estás rezando en el horario correcto?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>¿Estás siguiendo todas las instrucciones?</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="confirm-yes" type="button">SÍ, ¡TODO ESTÁ BIEN!</button>
+      <button class="modal-btn secondary" id="confirm-no" type="button">NO, TENGO DUDAS DE CÓMO HACERLO</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/es/config.js"></script>
+<script src="/js/es/sesion.js"></script>
+<script src="/js/es/dias.js"></script>
+<script src="/js/es/app.js"></script>
+<script src="/js/es/novena.js"></script>
+</body>
+</html>

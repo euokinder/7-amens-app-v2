@@ -1,49 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1a120c">
-<title>Entrar · 7 Amenes de la Madrugada</title>
+<title>Entrar — 7 Amenes de la Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" href="/assets/images/icon-32.png">
 </head>
 <body>
-<!-- App em espanhol (LATAM): a entrada. Também recebe o link de entrada
-     (/es-entrar#CÓDIGO), para quem não consegue digitar o e-mail.
-     Plano e regras: docs/app-es.md -->
-<div class="pagina">
-  <header class="topo" style="--foto:url('/assets/latam/img/capa.jpg')">
-    <div class="selo">7 DÍAS</div>
-    <h1>7 Amenes de la Madrugada</h1>
-    <p>Tu jornada de oración, un día a la vez.</p>
-  </header>
+<!-- App em espanhol (LATAM): a entrada. CÓPIA do login.html do Brasil, em
+     espanhol. Também recebe o link de entrada (/es-entrar#CÓDIGO), para quem
+     não consegue digitar o e-mail. Plano e regras: docs/app-es.md -->
+<main class="app member-login">
+  <img class="brand" src="/assets/images/icon-180.png" alt="7 Amenes de la Madrugada" width="88" height="88">
+  <h1>¡Qué bueno tenerte aquí!</h1>
+  <p>Escribe el correo que usaste en la compra para acceder a tus oraciones.</p>
+  <form id="form-entrar" novalidate>
+    <label for="correo">Tu correo de la compra</label>
+    <input id="correo" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="tunombre@email.com" required maxlength="254">
+    <button class="member-button" type="submit">Entrar a mis oraciones</button>
+    <p id="aviso" class="member-error" role="alert"></p>
+  </form>
+  <a id="boton-ayuda" class="member-button secondary" href="#" style="text-align:center;text-decoration:none;color:var(--ink);">No sé qué correo usé</a>
+</main>
 
-  <main>
-    <form id="form-entrar" class="caixa" novalidate>
-      <h2>Entra con tu correo</h2>
-      <p>Escribe el mismo correo que usaste al pagar. No necesitas contraseña.</p>
-      <label class="campo">
-        <span>Tu correo electrónico</span>
-        <input id="correo" type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="maria@gmail.com" required>
-      </label>
-      <button class="boton" type="submit">Entrar</button>
-      <p id="aviso" class="aviso" role="alert" hidden></p>
-    </form>
-
-    <section class="caixa">
-      <h3>¿No logras entrar?</h3>
-      <p>Usa el correo que recibió el mensaje de tu compra. Si aun así no puedes entrar, escríbenos y te ayudamos.</p>
-      <a class="boton linea" id="boton-ayuda" href="#">Escríbenos</a>
-    </section>
-  </main>
-
-  <p class="pie"><span class="marca">7 Amenes de la Madrugada</span></p>
-</div>
-<noscript><p class="pagina">Para usar la app, activa JavaScript en tu navegador.</p></noscript>
 <script src="/js/es/config.js"></script>
 <script src="/js/es/sesion.js"></script>
 <script src="/js/es/entrar.js"></script>
