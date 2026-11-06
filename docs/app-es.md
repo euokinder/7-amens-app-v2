@@ -75,7 +75,7 @@ Decisão do Caio (05/11): mesmo Netlify, mesmo repositório e mesmo Supabase, co
 | O mesmo navegador abrir os dois apps | chaves próprias (`amenes-es.*`) |
 | O agente não pode escrever na produção | o Caio cola o SQL e as funções, um passo por vez, depois de tudo provado no teste |
 | Função nova nasce com o JWT ligado, ou com nome inventado | escrever o nome antes do *Deploy* e desligar "Verify JWT" (lição de 16/10) |
-| O aviso da Whop vir sem e-mail, ou num formato diferente | antes da produção, o webhook aponta para a função de TESTE e se usa o *Send test event*. O aviso inteiro fica guardado, para refazer |
+| O aviso da Whop vir sem e-mail, ou num formato diferente | o formato foi conferido nas vendas reais, lidas pela API da Whop. Um *Send test event* no dia de ir ao ar confere o envelope e a chave. O aviso inteiro fica guardado, para refazer, e o que falta vira `needs_review`, nunca acesso adivinhado |
 | Aviso repetido | a chave é o `webhook-id`, e a gravação usa `on_conflict` (lição de 16/10) |
 | Compra de teste com cartão da equipe | **nunca**: a Whop marca como fraude e prende o saldo |
 | Cliente digitou o e-mail errado na KashPay | o suporte corrige (Bloco 6); até lá, há SQL pronto para o Caio |
@@ -93,9 +93,9 @@ Cada bloco termina provado, antes do seguinte. Do Bloco 0 ao 4, o custo é zero.
 | 0 | Worktree `latam-app` e este plano | agente | ✅ 05/11 |
 | 1 | Tabelas `latam_*` (`supabase/latam/01-tabelas.sql`) no banco de TESTE, conferidas: 8 tabelas com RLS, sem leitura para `anon`, e as recusas certas | agente | ✅ 05/11 |
 | 2 | Funções `latam-api` e `latam-whop`, com teste automático, publicadas no projeto de TESTE | agente | ✅ 05/11 |
-| 3 | Telas em espanhol: `es.html` (início e jornada), `es-entrar.html` (e-mail e link de entrada) e `es-dia.html` (a oração em texto, "Ya recé" e o PDF). Os textos saem dos PDFs (`_montagem/dias_es.py` e `materiais_es.py`). Visual creme, dourado e preto, com letra grande (skill `ux-45mais`), provado em tamanho de celular | agente | ⏳ |
-| 4 | Prova completa no teste: webhook da Whop → função de TESTE (o Caio cria em *Developer → Webhooks*), *Send test event*, confirmar o e-mail; compra simulada → login → trava ao longo dos dias → progresso | agente + Caio | ⏳ |
-| 5 | Ir ao ar, nesta ordem (cada passo é inofensivo sem o seguinte): (a) SQL na produção; (b) as 2 funções pelo painel, com o nome antes do *Deploy* e o JWT desligado; (c) segredo `LATAM_WHOP_SECRET`; (d) site, com 1 build; (e) webhook da Whop → produção; (f) carga das compradoras de antes, lidas da Whop, com o SQL **fora do repositório**; (g) link do app no e-mail da KashPay | Caio clica, agente prepara | ⏳ |
+| 3 | Telas em espanhol: `es.html` (início e jornada), `es-entrar.html` (e-mail e link de entrada) e `es-dia.html` (a oração em texto, "Ya recé" e o PDF). Os textos saem dos PDFs (`_montagem/dias_es.py` e `materiais_es.py`). Visual creme, dourado e preto, com letra grande (skill `ux-45mais`), provado em tamanho de celular | agente | ✅ 05/11 |
+| 4 | Prova completa no teste. **Mudou em 05/11:** apontar um webhook da Whop para o TESTE levaria vendas REAIS (e-mails de clientes de verdade) para o banco de teste, onde não pode haver cliente real. O formato do pagamento já foi conferido nas vendas reais, lidas pela API da Whop (`customer_email`, `account_id`, `paid_at`, `product_id` nulo), e o caminho todo (venda assinada → login → trava → "Ya recé") foi provado no teste nos Blocos 2 e 3. O que só um aviso de verdade mostra (o envelope e a leitura da chave) fica para o passo (e) do Bloco 5 | agente | ✅ 05/11 |
+| 5 | Ir ao ar, nesta ordem (cada passo é inofensivo sem o seguinte): (a) SQL na produção; (b) as 2 funções pelo painel, com o nome antes do *Deploy* e o JWT desligado; (c) segredo `LATAM_WHOP_SECRET`; (d) site, com 1 build; (e) webhook da Whop → produção (eventos `payment.succeeded`, `refund.created`, `refund.updated` e `dispute.created`), com **um** *Send test event*: conferir em `latam_whop_events` se chegou `processed` e qual leitura da chave conferiu, e depois apagar a cliente de mentira que ele cria; (f) carga das compradoras de antes, lidas da Whop, com o SQL **fora do repositório**; (g) link do app no e-mail da KashPay | Caio clica, agente prepara | ⏳ |
 | 6 | Suporte: achar a cliente, liberar à mão, corrigir o e-mail e gerar o link de entrada | agente | depois de ir ao ar |
 | 7 | Primeira semana: avisos `processed` e nenhum `failed`; o consumo da Netlify, uma vez | agente | depois de ir ao ar |
 
@@ -116,7 +116,7 @@ Cada bloco termina provado, antes do seguinte. Do Bloco 0 ao 4, o custo é zero.
   - falha do banco: 500 (a Whop tenta de novo) e o aviso fica `failed`.
 - **Assinatura:** Standard Webhooks, com o segredo **`LATAM_WHOP_SECRET`**, nome próprio da LATAM.
 - ⚠️ **No banco de TESTE**, enquanto esse segredo não estiver configurado lá, vale um segredo de ensaio escrito no código. Ele nunca vale na produção, que sem o segredo recusa tudo (401).
-- ⛔ **Nunca usar o *Send test event* no webhook da PRODUÇÃO:** o aviso de teste criaria uma cliente de mentira. O teste de verdade é no Bloco 4, apontado para o projeto de TESTE.
+- ⚠️ ***Send test event* no webhook da PRODUÇÃO cria uma cliente de mentira.** Usar **uma vez só**, no passo (e) do Bloco 5, e apagar a cliente logo depois. Nunca apontar o webhook da Whop para o projeto de TESTE: ele receberia as vendas reais, e o banco de teste não pode ter cliente real.
 
 **Provas** (o `node` desta máquina não está no PATH: `"C:\Program Files\nodejs\node.exe" <arquivo>`)
 
@@ -127,6 +127,34 @@ Cada bloco termina provado, antes do seguinte. Do Bloco 0 ao 4, o custo é zero.
 | `supabase/latam/testes/prova-no-teste.mjs` | as funções publicadas no projeto de TESTE | venda → login → sessão → progresso → sair. Imprime o SQL que apaga a cliente de prova | 11 ok; os dados de prova foram apagados |
 
 Publicadas no projeto de TESTE em 05/11 (`latam-api` v1 e `latam-whop` v1, JWT desligado).
+
+## As telas (Bloco 3)
+| Endereço | Arquivo | O que faz |
+|---|---|---|
+| `/es` | `es.html` + `js/es/inicio.js` | **Início:** "Hola, {nome}"; a oração de agora (o Comienza aquí até ela começar; depois, o primeiro dia aberto que ainda não marcou; ou "Por hoy, ya está"; ou a jornada concluída); "Rezaste N de 7"; a jornada (de 0 a 7, com "Abierta", "✓ Ya rezaste" ou "🔒 Se abre mañana"); o Material de regalo (os PDFs); a ajuda; e "Salir" |
+| `/es-entrar` | `es-entrar.html` + `js/es/entrar.js` | **Entrada pelo e-mail.** Também recebe o link de entrada `/es-entrar#CÓDIGO`, inclusive com a página já aberta |
+| `/es-dia?dia=0…7` | `es-dia.html` + `js/es/dia.js` | **Os sete Amenes**, no roteiro do PDF: cómo rezar, antes de empezar, la oración, después, declaración, "Ya recé" (com "Guardando…") e o PDF do dia. **Dia 0:** a guía de inicio. **Dia trancado:** "Se abre mañana", sem a oração |
+
+- **Os textos** estão em `js/es/dias.js`, **gerado** por `7 Améns LATAM\_montagem\app_es.py` a partir do `dias_es.py`, o mesmo programa dos PDFs. Nunca editar à mão: corrigir lá e rodar `python app_es.py "D:\Downloads Certos\PkScale\7amens-latam-app"`.
+- **O resto:** o visual em `css/es/app.css` (o desenho da `/materiales`); a sessão em `js/es/sesion.js`; o endereço do servidor e o contato do suporte em `js/es/config.js`.
+  - ⏳ O contato do suporte é **provisório** (`contact@pkscale.com`), até a decisão do canal.
+- **Os PDFs corrigidos** (`-v2`) e a `/materiales` apontando para eles vão na mesma publicação.
+- **Para ver no computador:**
+  1. `"C:\Program Files\nodejs\node.exe" scripts/build.mjs`, dentro da worktree;
+  2. abrir o preview `latam-app` (porta 3200, no `.claude/launch.json` da pasta principal);
+  3. entrar com a cobaia **`teste.latam@exemplo.com`**, que está no banco de TESTE. O link de entrada dela é `/es-entrar#PruebaEnlace1234`.
+- **Provado em 05/11, em tamanho de celular:**
+  - e-mail errado (mensagem em espanhol);
+  - login com o e-mail em maiúsculas;
+  - início no primeiro dia;
+  - "Ya la leí", "Ya recé" e "desmarcar";
+  - dia trancado;
+  - "Por hoy, ya está";
+  - sair;
+  - link de entrada;
+  - os 10 PDFs da `/materiales` e os do app, todos abrindo.
+
+  Gravar o "Ya recé" leva cerca de 1 segundo; antes de as consultas irem em paralelo, levava 4.
 
 ## Como voltar atrás
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.

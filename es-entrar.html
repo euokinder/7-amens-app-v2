@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1a120c">
+<title>Entrar · 7 Amenes de la Madrugada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/es/app.css">
+</head>
+<body>
+<!-- App em espanhol (LATAM): a entrada. Também recebe o link de entrada
+     (/es-entrar#CÓDIGO), para quem não consegue digitar o e-mail.
+     Plano e regras: docs/app-es.md -->
+<div class="pagina">
+  <header class="topo" style="--foto:url('/assets/latam/img/capa.jpg')">
+    <div class="selo">7 DÍAS</div>
+    <h1>7 Amenes de la Madrugada</h1>
+    <p>Tu jornada de oración, un día a la vez.</p>
+  </header>
+
+  <main>
+    <form id="form-entrar" class="caixa" novalidate>
+      <h2>Entra con tu correo</h2>
+      <p>Escribe el mismo correo que usaste al pagar. No necesitas contraseña.</p>
+      <label class="campo">
+        <span>Tu correo electrónico</span>
+        <input id="correo" type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="maria@gmail.com" required>
+      </label>
+      <button class="boton" type="submit">Entrar</button>
+      <p id="aviso" class="aviso" role="alert" hidden></p>
+    </form>
+
+    <section class="caixa">
+      <h3>¿No logras entrar?</h3>
+      <p>Usa el correo que recibió el mensaje de tu compra. Si aun así no puedes entrar, escríbenos y te ayudamos.</p>
+      <a class="boton linea" id="boton-ayuda" href="#">Escríbenos</a>
+    </section>
+  </main>
+
+  <p class="pie"><span class="marca">7 Amenes de la Madrugada</span></p>
+</div>
+<noscript><p class="pagina">Para usar la app, activa JavaScript en tu navegador.</p></noscript>
+<script src="/js/es/config.js"></script>
+<script src="/js/es/sesion.js"></script>
+<script src="/js/es/entrar.js"></script>
+</body>
+</html>

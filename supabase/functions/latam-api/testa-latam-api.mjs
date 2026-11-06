@@ -192,7 +192,16 @@ await cenario('12. Falha passageira do banco não derruba; falha de verdade avis
   confere('banco fora: 503 com explicação', caiu.status === 503 && caiu.corpo.error.includes('No pudimos conectar'));
 });
 
-await cenario('13. Nenhuma tabela do Brasil é tocada', async () => {
+await cenario('13. Dia além do calendário que ela já tinha marcado continua marcável', async () => {
+  cliente({ timezone: 'America/Lima', first_access_on: diasAntes('America/Lima', 0) });
+  banco.latam_progress.push({ customer_id: 'c1', day: 5 });
+  const token = await entrar();
+  const remarcar = await chamar('progress', { day: 5, done: true }, { token });
+  confere('remarcar o dia 5 (já marcado): 200', remarcar.status === 200 && remarcar.corpo.abierto === 5, `veio ${remarcar.status}`);
+  confere('o dia 6 continua fechado: 409', (await chamar('progress', { day: 6, done: true }, { token })).status === 409);
+});
+
+await cenario('14. Nenhuma tabela do Brasil é tocada', async () => {
   cliente();
   banco.latam_entry_links.push({ customer_id: 'c1', token: 'Abc123Def456Ghi7', uses: 0 });
   const token = await entrar();

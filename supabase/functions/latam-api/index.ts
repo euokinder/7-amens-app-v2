@@ -142,12 +142,21 @@ async function createSession(customerId: string) {
   return token;
 }
 
-// O retrato da jornada. `visit` grava o dia de visita (no login, na entrada
-// pelo link e ao abrir a página); marcar um dia não grava visita de novo.
-async function journey(customer: Customer, reportedZone: unknown, accessUntil: string | null, visit: boolean) {
+// O calendário dela: o fuso, o dia de hoje e até que dia o calendário já abriu.
+function calendar(customer: Customer, reportedZone: unknown) {
   const zone = validTimeZone(customer.timezone) || validTimeZone(reportedZone) || DEFAULT_TZ;
   const today = todayIn(zone);
   const firstDay = customer.first_access_on || today;
+  const open = Math.min(LAST_DAY, Math.max(1, 1 + daysBetween(firstDay, today)));
+  return { zone, today, open };
+}
+
+// O retrato da jornada. `visit` grava o dia de visita (no login, na entrada
+// pelo link e ao abrir a página); marcar um dia não grava visita de novo.
+// Cada consulta ao banco é uma ida e volta pela internet: o que não depende
+// de outra coisa vai junto, em paralelo, para a tela não ficar esperando.
+async function journey(customer: Customer, reportedZone: unknown, accessUntil: string | null, visit: boolean) {
+  const { zone, today, open: calendarOpen } = calendar(customer, reportedZone);
 
   const writes: Promise<unknown>[] = [];
   // Primeiro acesso: fixa a âncora e o fuso, uma vez só. O filtro
@@ -168,7 +177,8 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
     ...writes,
   ]);
   const done = (rows as { day: number }[]).map(row => Number(row.day)).filter(day => day >= 0 && day <= LAST_DAY);
-  const open = Math.min(LAST_DAY, Math.max(1, 1 + daysBetween(firstDay, today), ...done));
+  // Dia já marcado nunca volta a trancar.
+  const open = Math.min(LAST_DAY, Math.max(calendarOpen, ...done));
   return {
     cliente: { nombre: firstName(customer.name), email: customer.email },
     hoy: today,
@@ -210,25 +220,29 @@ Deno.serve(async (req: Request) => {
       if (!email) return respond({ error: MESSAGES.badEmail }, 400);
       // O balde é por pessoa (e-mail) dentro do endereço de internet, como no
       // Brasil: a operadora põe muita gente atrás do mesmo IP.
-      const allowed = await db('rpc/latam_allow_login', 'POST', { bucket_key: await sha256(`login:${ip}|${email}`) });
+      const [allowed, [customer]] = await Promise.all([
+        db('rpc/latam_allow_login', 'POST', { bucket_key: await sha256(`login:${ip}|${email}`) }),
+        db(`latam_customers?email=eq.${eq(email)}&select=${CUSTOMER_FIELDS}&limit=1`),
+      ]);
       if (!allowed) return respond({ error: MESSAGES.tooMany }, 429);
-      const [customer] = await db(`latam_customers?email=eq.${eq(email)}&select=${CUSTOMER_FIELDS}&limit=1`);
       if (!customer) return respond({ error: MESSAGES.notFound }, 403);
       const access = await accessOf(customer.id);
       if (!access.ok) {
         const zone = validTimeZone(customer.timezone) || validTimeZone(body.tz) || DEFAULT_TZ;
         return respond({ error: access.expired ? MESSAGES.expired(asDayMonthYear(access.expired, zone)) : MESSAGES.notFound }, 403);
       }
-      const token = await createSession(customer.id);
-      return respond({ token, ...await journey(customer, body.tz, access.until, true) });
+      const [token, portrait] = await Promise.all([createSession(customer.id), journey(customer, body.tz, access.until, true)]);
+      return respond({ token, ...portrait });
     }
 
     if (body.action === 'entry') {
       const code = typeof body.code === 'string' ? body.code.trim() : '';
       if (!ENTRY_CODE.test(code)) return respond({ error: MESSAGES.badLink }, 400);
-      const allowed = await db('rpc/latam_allow_login', 'POST', { bucket_key: await sha256(`entrada:${ip}|${code}`) });
+      const [allowed, [link]] = await Promise.all([
+        db('rpc/latam_allow_login', 'POST', { bucket_key: await sha256(`entrada:${ip}|${code}`) }),
+        db(`latam_entry_links?token=eq.${code}&select=customer_id,uses&limit=1`),
+      ]);
       if (!allowed) return respond({ error: MESSAGES.tooMany }, 429);
-      const [link] = await db(`latam_entry_links?token=eq.${code}&select=customer_id,uses&limit=1`);
       if (!link) return respond({ error: MESSAGES.deadLink }, 404);
       const [customer] = await db(`latam_customers?id=eq.${link.customer_id}&select=${CUSTOMER_FIELDS}&limit=1`);
       const access = customer ? await accessOf(customer.id) : { ok: false as const, expired: null };
@@ -236,11 +250,14 @@ Deno.serve(async (req: Request) => {
         const zone = validTimeZone(customer?.timezone) || DEFAULT_TZ;
         return respond({ error: access.expired ? MESSAGES.expired(asDayMonthYear(access.expired, zone)) : MESSAGES.deadLink }, 403);
       }
-      const token = await createSession(customer.id);
-      // Só para o suporte saber se ela já tocou no link.
-      await db(`latam_entry_links?customer_id=eq.${customer.id}`, 'PATCH',
-        { last_used_at: nowIso(), uses: (Number(link.uses) || 0) + 1 }, 'return=minimal');
-      return respond({ token, ...await journey(customer, body.tz, access.until, true) });
+      const [token, portrait] = await Promise.all([
+        createSession(customer.id),
+        journey(customer, body.tz, access.until, true),
+        // Só para o suporte saber se ela já tocou no link.
+        db(`latam_entry_links?customer_id=eq.${customer.id}`, 'PATCH',
+          { last_used_at: nowIso(), uses: (Number(link.uses) || 0) + 1 }, 'return=minimal'),
+      ]);
+      return respond({ token, ...portrait });
     }
 
     // --------------------------------------------------------- com sessão
@@ -256,11 +273,13 @@ Deno.serve(async (req: Request) => {
     }
     if (body.action !== 'session' && body.action !== 'progress') return respond({ error: MESSAGES.badRequest }, 400);
 
-    const [customer] = await db(`latam_customers?id=eq.${session.customer_id}&select=${CUSTOMER_FIELDS}&limit=1`);
-    const access = customer ? await accessOf(customer.id) : { ok: false as const, expired: null };
+    const [[customer], access] = await Promise.all([
+      db(`latam_customers?id=eq.${session.customer_id}&select=${CUSTOMER_FIELDS}&limit=1`),
+      accessOf(session.customer_id),
+    ]);
     if (!customer || !access.ok) {
       const zone = validTimeZone(customer?.timezone) || DEFAULT_TZ;
-      return respond({ error: access.expired ? MESSAGES.expired(asDayMonthYear(access.expired, zone)) : MESSAGES.notFound }, 403);
+      return respond({ error: !access.ok && access.expired ? MESSAGES.expired(asDayMonthYear(access.expired, zone)) : MESSAGES.notFound }, 403);
     }
 
     if (body.action === 'progress') {
@@ -269,16 +288,18 @@ Deno.serve(async (req: Request) => {
         return respond({ error: MESSAGES.badRequest }, 400);
       }
       if (body.done) {
-        const before = await journey(customer, body.tz, access.until, false);
-        if (day > before.abierto) return respond({ error: MESSAGES.locked, ...before }, 409);
+        // O calendário resolve sem ir ao banco. Só um dia além do calendário
+        // pede a lista do que ela já marcou (dia marcado nunca volta a trancar).
+        if (day > calendar(customer, body.tz).open) {
+          const before = await journey(customer, body.tz, access.until, false);
+          if (day > before.abierto) return respond({ error: MESSAGES.locked, ...before }, 409);
+        }
         await db('latam_progress?on_conflict=customer_id,day', 'POST',
           { customer_id: customer.id, day }, 'return=minimal,resolution=ignore-duplicates');
       } else {
         await db(`latam_progress?customer_id=eq.${customer.id}&day=eq.${day}`, 'DELETE', undefined, 'return=minimal');
       }
-      // A âncora pode ter acabado de ser gravada pela chamada acima.
-      const [fresh] = await db(`latam_customers?id=eq.${customer.id}&select=${CUSTOMER_FIELDS}&limit=1`);
-      return respond(await journey(fresh || customer, body.tz, access.until, false));
+      return respond(await journey(customer, body.tz, access.until, false));
     }
 
     return respond(await journey(customer, body.tz, access.until, true));
