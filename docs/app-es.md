@@ -192,8 +192,10 @@ O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **d
 - **Onde ficam:** na Bunny, na mesma biblioteca dos vídeos de entrega do Brasil ("7 Améns - entregas", 784501). Nunca na Netlify.
 - **Onde se ligam:** `js/es/video.js`, uma linha por dia em `VIDEOS` (`{ video: '<ID>', formato: '3:4' }`). É uma cópia do `js/video.js` do Brasil, só com a Bunny, e com os botões do player em espanhol (`lang=es`). O `js/es/dias.js` é gerado e não é tocado.
 - **Na tela:** a `/es-dia` põe o vídeo no topo, no lugar da foto. Dia sem vídeo, ou ainda fechado, continua com a foto.
-- **No ar:** Dia 0, "INTRO_esp" (9:20, em pé). Os Dias 1 a 7 vêm depois.
-- **Achar o ID:** na Bunny, a miniatura do vídeo tem o ID no endereço; o formato se confere pelo tamanho dela (1080×1440 = em pé, 3:4).
+- **Ligados:** Dia 0 (Introducción, 9:20) em 06/11; Dias 1, 2 e 3 em 07/11. Todos em pé (3:4). Os Dias 4 a 7 vêm depois.
+- **Nome na Bunny:** todo vídeo da LATAM começa com **`ES · Día N —`** e o nome da oração (ex.: `ES · Día 1 — El Padre Nuestro Completo`). A biblioteca é a mesma do Brasil, e o nome do arquivo que sobe ("Dia 1.mp4") se confunde com os de lá. Renomear assim que subir: no vídeo → *Video info* → *Title*; grava sozinho ao sair do campo. O nome não muda o ID nem o link.
+- **Achar o ID:** na Bunny, a miniatura do vídeo tem o ID no endereço; o formato se confere pelo tamanho dela (1080×1440 = em pé, 3:4). O título da página `player.mediadelivery.net/embed/784501/<ID>` confirma qual vídeo é.
+- ⏳ **Para a revisão nativa:** a capa dos vídeos escreve "LOS 7 AMÉNES"; em espanhol o plural de *amén* é *amenes*, sem acento (é o nome aprovado do produto).
 - **Junto:** a `/materiales` ganhou, no topo, o card "Tu app de oraciones", que leva a `/es`, para quem chega pelo e-mail da compra.
 
 ## As telas (Bloco 3, primeira versão, substituída em 06/11 pela cópia acima)

@@ -15,7 +15,12 @@
   const BIBLIOTECA = '784501';
 
   const VIDEOS = {
-    0: { video: '48b02931-7948-4a14-a8a4-2fd3ea43e2d1', formato: '3:4' }, // Comienza aquí (INTRO_esp, 9:20, 06/11/2026)
+    // Na Bunny, os vídeos da LATAM começam com "ES · Día N —" (renomeados em
+    // 07/11/2026, para não se confundirem com os do Brasil na mesma biblioteca).
+    0: { video: '48b02931-7948-4a14-a8a4-2fd3ea43e2d1', formato: '3:4' }, // ES · Día 0 — Introducción (9:20, 06/11/2026)
+    1: { video: 'aec33453-7fcd-435b-815d-b0089d2442da', formato: '3:4' }, // ES · Día 1 — El Padre Nuestro Completo (5:57, 07/11/2026)
+    2: { video: '2a8e429b-50f5-4b5a-8289-4dacf065a04d', formato: '3:4' }, // ES · Día 2 — La Oración del Perdón (5:28, 07/11/2026)
+    3: { video: '4038b064-df50-4454-a512-d5b44b3b891c', formato: '3:4' }, // ES · Día 3 — La Oración de Sanación (4:48, 07/11/2026)
   };
 
   const FORMATOS = {
