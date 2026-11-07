@@ -12,6 +12,7 @@ import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import {
   banco, tocadas, forcarFalha, travarFreio, carregarFuncao, confere, cenario, fechar,
+  oferecer, pedidosDeOferta,
 } from '../../latam/testes/banco-falso.mjs';
 
 const aqui = dirname(fileURLToPath(import.meta.url));
@@ -92,7 +93,7 @@ await cenario('3. Login certo: sessão, primeiro acesso e o dia de hoje no fuso 
   confere('grava o primeiro acesso e o fuso', banco.latam_customers[0].first_access_on === corpo.hoy && banco.latam_customers[0].timezone === 'America/Bogota');
   confere('grava o dia de visita', banco.latam_visit_days.length === 1 && banco.latam_visit_days[0].visited_on === corpo.hoy);
   const campos = Object.keys(corpo).sort().join(',');
-  confere('não devolve nada além do retrato', campos === 'abierto,acceso_hasta,cliente,completados,hoy,token,zona', campos);
+  confere('não devolve nada além do retrato (e do pop-up)', campos === 'abierto,acceso_hasta,cliente,completados,hoy,oferta,token,zona', campos);
 });
 
 await cenario('4. Fuso inválido vira Cidade do México; fuso já gravado não muda', async () => {
@@ -209,8 +210,65 @@ await cenario('14. Nenhuma tabela do Brasil é tocada', async () => {
   await chamar('progress', { day: 1, done: true }, { token });
   await chamar('entry', { code: 'Abc123Def456Ghi7' });
   await chamar('logout', {}, { token });
-  const fora = [...tocadas].filter(tabela => !tabela.startsWith('latam_') && tabela !== 'rpc/latam_allow_login');
-  confere('só tabelas latam_ e o freio da LATAM', fora.length === 0, fora.join(', '));
+  await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'shown' }, { token: await entrar() });
+  const fora = [...tocadas].filter(tabela => !tabela.startsWith('latam_') && tabela !== 'rpc/latam_allow_login' && tabela !== 'rpc/latam_claim_offer');
+  confere('só tabelas latam_, o freio e o pop-up da LATAM', fora.length === 0, fora.join(', '));
+});
+
+const POPUP = {
+  campaign_key: 'es_arcangeles_novas_1', eyebrow: '🚨 ¡Lee con atención!\nAntes de la primera madrugada',
+  headline: 'El enemigo no necesita impedir tu oración.', body: 'Línea 1\nLínea 2',
+  cta_label: 'Entender antes de empezar', dismiss_label: 'Prefiero arriesgarme sola',
+  target_url: 'https://setemadrugadas.com.br/es-oferta-arcangeles?utm_source=app-es', offer_type: 'product',
+};
+
+await cenario('15. O pop-up vem junto com o retrato, ao abrir a página', async () => {
+  cliente();
+  oferecer(POPUP);
+  const login = await chamar('login', { email: 'maria@ejemplo.com', tz: 'America/Bogota' });
+  confere('no login: vem a oferta', login.corpo.oferta?.campaign_key === 'es_arcangeles_novas_1', JSON.stringify(login.corpo.oferta));
+  confere('o banco recebe o fuso dela', pedidosDeOferta[0]?.p_zone === 'America/Bogota' && pedidosDeOferta[0]?.p_customer_id === 'c1', JSON.stringify(pedidosDeOferta[0]));
+  const token = login.corpo.token;
+  const sessao = await chamar('session', {}, { token });
+  confere('ao abrir a página: vem a oferta, com o texto inteiro', sessao.corpo.oferta?.headline === POPUP.headline && sessao.corpo.oferta?.body === POPUP.body && sessao.corpo.oferta?.dismiss_label === POPUP.dismiss_label);
+  const antes = pedidosDeOferta.length;
+  const marcar = await chamar('progress', { day: 1, done: true }, { token });
+  confere('ao marcar um dia: sem oferta e sem perguntar ao banco', marcar.status === 200 && marcar.corpo.oferta === null && pedidosDeOferta.length === antes);
+  oferecer(null);
+  confere('sem pop-up para ela: oferta null', (await chamar('session', {}, { token })).corpo.oferta === null);
+  oferecer({ ...POPUP, campaign_key: 'X; drop' });
+  confere('nome de campanha estranho: descartado', (await chamar('session', {}, { token })).corpo.oferta === null);
+});
+
+await cenario('16. Pop-up com defeito nunca derruba o app', async () => {
+  cliente();
+  const token = await entrar();
+  forcarFalha({ quando: ({ tabela }) => tabela === 'rpc/latam_claim_offer', status: 404, vezes: 1 });
+  const semFuncao = await chamar('session', {}, { token });
+  confere('função ainda não criada no banco (404): 200 e oferta null', semFuncao.status === 200 && semFuncao.corpo.oferta === null && semFuncao.corpo.abierto === 1, `veio ${semFuncao.status}`);
+  forcarFalha({ quando: ({ tabela }) => tabela === 'rpc/latam_claim_offer', status: 500, vezes: 3 });
+  const erro = await chamar('session', {}, { token });
+  confere('erro no banco (500, três vezes): 200 e oferta null', erro.status === 200 && erro.corpo.oferta === null, `veio ${erro.status}`);
+});
+
+await cenario('17. "oferta": apareceu, tocou, fechou', async () => {
+  cliente();
+  const token = await entrar();
+  banco.latam_offer_events.push({ customer_id: 'c1', campaign_key: 'es_arcangeles_novas_1', claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null });
+  banco.latam_offer_events.push({ customer_id: 'c2', campaign_key: 'es_arcangeles_novas_1', claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null });
+  const mostrou = await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'shown' }, { token });
+  const dela = banco.latam_offer_events.find(l => l.customer_id === 'c1');
+  const outra = banco.latam_offer_events.find(l => l.customer_id === 'c2');
+  confere('apareceu: 200 e a hora gravada', mostrou.status === 200 && Boolean(dela.shown_at));
+  confere('a linha de outra cliente não muda', outra.shown_at === null);
+  dela.shown_at = '2026-01-01T00:00:00.000Z';
+  await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'shown' }, { token });
+  confere('a segunda vez não muda a hora da primeira', dela.shown_at === '2026-01-01T00:00:00.000Z', dela.shown_at);
+  await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'clicked' }, { token });
+  confere('tocou: hora gravada', Boolean(dela.clicked_at));
+  confere('evento inventado: 400', (await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'comprou' }, { token })).status === 400);
+  confere('campanha com nome estranho: 400', (await chamar('oferta', { campaign_key: 'x&shown_at=is.null', event: 'shown' }, { token })).status === 400);
+  confere('sem sessão: 401', (await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'shown' })).status === 401);
 });
 
 fechar();

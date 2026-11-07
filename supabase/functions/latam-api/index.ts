@@ -9,7 +9,14 @@
 //   entry     link de entrada (/es-entrar#código) -> sessão
 //   session   confere a sessão e devolve o retrato da jornada
 //   progress  marca ou desmarca um dia como rezado ("Ya recé")
+//   oferta    registra o que ela fez com o pop-up (apareceu, tocou, fechou)
 //   logout    encerra a sessão
+//
+// OS POP-UPS (07/11/2026): a mesma lógica do Brasil, em tabelas latam_
+// (supabase/latam/03-popups.sql). Ao abrir a página, junto com o retrato, o
+// banco escolhe o pop-up dela (latam_claim_offer) e ele vem em `oferta`.
+// Não custa chamada a mais: vai na mesma ida ao servidor. Se o banco ainda não
+// tiver a função, ou ela falhar, vem `oferta: null` e o app segue normal.
 //
 // A TRAVA (uma oração por dia) é calculada AQUI, no servidor:
 //   - "hoje" é o dia no fuso do celular dela, guardado no primeiro acesso
@@ -172,8 +179,12 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
     writes.push(db('latam_visit_days?on_conflict=customer_id,visited_on', 'POST',
       { customer_id: customer.id, visited_on: today, last_seen_at: nowIso() }, 'return=minimal,resolution=merge-duplicates'));
   }
-  const [rows] = await Promise.all([
+  // O pop-up só vem ao abrir a página (visit), nunca ao marcar um dia. Falhar
+  // aqui nunca derruba a jornada: na dúvida, sem pop-up.
+  const offer = visit ? claimOffer(customer.id, zone) : Promise.resolve(null);
+  const [rows, oferta] = await Promise.all([
     db(`latam_progress?customer_id=eq.${customer.id}&select=day&order=day.asc`),
+    offer,
     ...writes,
   ]);
   const done = (rows as { day: number }[]).map(row => Number(row.day)).filter(day => day >= 0 && day <= LAST_DAY);
@@ -186,7 +197,30 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
     abierto: open,
     completados: done,
     acceso_hasta: accessUntil ? asDayMonthYear(accessUntil, zone) : null,
+    oferta,
   };
+}
+
+const OFFER_KEY = /^[a-z0-9_-]+$/;
+async function claimOffer(customerId: string, zone: string) {
+  try {
+    const rows = await db('rpc/latam_claim_offer', 'POST', { p_customer_id: customerId, p_zone: zone });
+    const row = Array.isArray(rows) ? rows[0] : null;
+    if (!row || !OFFER_KEY.test(row.campaign_key || '')) return null;
+    return {
+      campaign_key: row.campaign_key,
+      eyebrow: row.eyebrow || '',
+      headline: row.headline || '',
+      body: row.body || '',
+      cta_label: row.cta_label || '',
+      dismiss_label: row.dismiss_label || '',
+      target_url: row.target_url || '',
+      offer_type: row.offer_type || 'product',
+    };
+  } catch (error) {
+    console.error('latam-api oferta', error instanceof Error ? error.message : 'error');
+    return null;
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -271,7 +305,7 @@ Deno.serve(async (req: Request) => {
       await db(`latam_sessions?token_hash=eq.${tokenHash}`, 'DELETE', undefined, 'return=minimal');
       return respond({ ok: true });
     }
-    if (body.action !== 'session' && body.action !== 'progress') return respond({ error: MESSAGES.badRequest }, 400);
+    if (body.action !== 'session' && body.action !== 'progress' && body.action !== 'oferta') return respond({ error: MESSAGES.badRequest }, 400);
 
     const [[customer], access] = await Promise.all([
       db(`latam_customers?id=eq.${session.customer_id}&select=${CUSTOMER_FIELDS}&limit=1`),
@@ -280,6 +314,17 @@ Deno.serve(async (req: Request) => {
     if (!customer || !access.ok) {
       const zone = validTimeZone(customer?.timezone) || DEFAULT_TZ;
       return respond({ error: !access.ok && access.expired ? MESSAGES.expired(asDayMonthYear(access.expired, zone)) : MESSAGES.notFound }, 403);
+    }
+
+    if (body.action === 'oferta') {
+      // Como o offer_event do Brasil: só marca a hora, uma vez (a primeira).
+      const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';
+      const event = typeof body.event === 'string' ? body.event : '';
+      if (!OFFER_KEY.test(campaignKey) || !['shown', 'clicked', 'dismissed'].includes(event)) return respond({ error: MESSAGES.badRequest }, 400);
+      const column = `${event}_at`;
+      await db(`latam_offer_events?customer_id=eq.${customer.id}&campaign_key=eq.${eq(campaignKey)}&${column}=is.null`, 'PATCH',
+        { [column]: nowIso() }, 'return=minimal');
+      return respond({ ok: true });
     }
 
     if (body.action === 'progress') {

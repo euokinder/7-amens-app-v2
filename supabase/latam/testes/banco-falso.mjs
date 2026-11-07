@@ -20,6 +20,7 @@ const TRAVAS = {
   latam_login_limits: [['key']],
   latam_visit_days: [['customer_id', 'visited_on']],
   latam_whop_events: [['webhook_id']],
+  latam_offer_events: [['customer_id', 'campaign_key']],
 };
 
 const PADROES = {
@@ -29,19 +30,27 @@ const PADROES = {
   latam_entry_links: () => ({ uses: 0, last_used_at: null, created_by: '' }),
   latam_visit_days: () => ({ first_seen_at: new Date().toISOString(), last_seen_at: new Date().toISOString() }),
   latam_whop_events: () => ({ status: 'received', detail: '', processed_at: null, received_at: new Date().toISOString() }),
+  latam_offer_events: () => ({ claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null }),
 };
 
 export const banco = {};
 export const tocadas = new Set();
 export let falhas = [];
 export let freioLibera = true;
+// O pop-up que a função latam_claim_offer "escolheria" (a regra mora no SQL e
+// é provada no banco de teste; aqui só se confere o caminho na latam-api).
+export let ofertaFalsa = null;
+export const pedidosDeOferta = [];
 
 export function zerarBanco() {
   for (const tabela of Object.keys(TRAVAS)) banco[tabela] = [];
   tocadas.clear();
   falhas = [];
   freioLibera = true;
+  ofertaFalsa = null;
+  pedidosDeOferta.length = 0;
 }
+export const oferecer = oferta => { ofertaFalsa = oferta; };
 export const forcarFalha = falha => falhas.push(falha);
 export const limparFalhas = () => { falhas = []; };
 export const travarFreio = () => { freioLibera = false; };
@@ -78,6 +87,10 @@ globalThis.fetch = async (url, init = {}) => {
   }
 
   if (tabela === 'rpc/latam_allow_login') return json(freioLibera);
+  if (tabela === 'rpc/latam_claim_offer') {
+    pedidosDeOferta.push(init.body ? JSON.parse(init.body) : null);
+    return json(ofertaFalsa ? [ofertaFalsa] : []);
+  }
   if (!(tabela in banco)) return new Response(`{"message":"relation ${tabela} does not exist"}`, { status: 404 });
 
   const linhas = banco[tabela];

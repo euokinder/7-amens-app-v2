@@ -35,7 +35,7 @@ Decisão do Caio (05/11): mesmo Netlify, mesmo repositório e mesmo Supabase, co
 - **PDFs:** o conjunto tem cerca de 2,3 MB. Com 10 vendas por dia, dá ~0,7 GB por mês, ou ~14 créditos. Se crescer, vão para a Bunny.
 
 **Supabase.** A cota de 2 milhões de chamadas por mês é da organização inteira, dividida com o Brasil.
-- **O app em espanhol NÃO confere a sessão de 5 em 5 minutos.** O brasileiro confere por causa dos pop-ups, e a LATAM não tem pop-up. Confere só ao abrir a página: cerca de 3 chamadas por visita.
+- **O app em espanhol NÃO confere a sessão de 5 em 5 minutos.** O brasileiro confere por causa dos pop-ups. A LATAM confere só ao abrir a página: cerca de 3 chamadas por visita. Os pop-ups (desde 07/11) vêm junto nessa mesma ida ao servidor, e só "apareceu" e "tocou/fechou" custam uma chamada cada (no máximo 3 pop-ups por cliente, na vida inteira).
 - **Conta:** 100 clientes ativas × 7 dias × 2 visitas × 3 chamadas ≈ 4.200 chamadas por mês, 0,2% da cota.
 - **Nenhuma consulta pesada.** As tabelas são pequenas e há índice no que se procura.
 
@@ -226,7 +226,52 @@ O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **d
 
   Gravar o "Ya recé" leva cerca de 1 segundo; antes de as consultas irem em paralelo, levava 4.
 
+## Os pop-ups de oferta (07/11/2026)
+Pedido do Caio: "exatamente igual ao Brasil, só traduzindo", nos pop-ups e nas páginas. É a lógica do `member_offer_campaigns` / `claim_member_offer` do Brasil, em tabelas `latam_`.
+
+**As campanhas** (`supabase/latam/03-popups.sql`):
+
+| sort | campanha | equivale no Brasil | quem vê | leva a |
+|---|---|---|---|---|
+| 9 | `es_cantico_dia_4` | `cantico_dia_4` | a partir do 4º dia de app, sem o Cántico | `/es-oferta-cantico` |
+| 10 e 11 | `es_arcangeles_novas_1` e `_2` | `front_novas_1` e `_2` | quem entrou no app a partir do dia em que o SQL rodou, sem extra nenhum | `/es-oferta-arcangeles` |
+| 12 e 13 | `es_arcangeles_antigas_1` e `_2` | `front_antigas_1` e `_2` | quem entrou no app antes desse dia, sem extra nenhum | `/es-oferta-arcangeles` |
+
+**As regras** são as do Brasil:
+- um pop-up por dia, no fuso dela;
+- cada campanha aparece uma vez só (o banco guarda, então outro celular não repete);
+- nunca nas páginas de venda;
+- não muda o desenho (o CSS é cópia do `css/member.css`, e o `js/es/oferta.js` é cópia do `setupMemberOffer`).
+
+**Quem comprou o quê.** O cruzamento é `latam_whop_events` × `latam_kashpay_events`, pelo número do pedido da KashPay. Na dúvida, ela fica sem pop-up:
+- cliente da carga manual (`import`);
+- pagamento sem pedido da KashPay que não seja a própria compra do app.
+
+**As páginas** são cópias traduzidas das do Brasil:
+- **`es-oferta-arcangeles.html`** copia a das cartas, `oferta-arcanjos.html`. O vídeo é o VSL em espanhol de `currentstoryjournal.com/us-up01` (`vid-6ae515a3c7321bec2b3fc67d`), e as cartas aparecem aos 5:54. O checkout é o da KashPay, `checkout-1793936105790` (US$ 27).
+- **`es-oferta-cantico.html`** copia a do Cântico, `oferta-cantico.html`. O vídeo é o de `/us-up02` (`vid-6ae55235a1db2408a3689b3c`), e o botão aparece aos 8:53. O checkout é `checkout-1793936605002` (US$ 27).
+- **O preço na revelação das cartas:** "de US$ 69 por US$ 27" (Caio, 07/11). No Brasil aparece "de R$ 197 por R$ 137".
+- ⚠️ **O UP02 da LATAM é o Cántico, como no Brasil.** Na KashPay ele se chama "Novena a la Virgen Desatanudos" por engano (Caio, 07/11). Por isso o rastreio grava `desatanudos` em `latam_kashpay_events.produtos`: no banco, `desatanudos` quer dizer o Cántico. A 1ª versão do SQL, rodada na produção em 07/11, chamava esse pop-up de Novena (`es_novena_dia_4`). Ela nunca apareceu para ninguém e foi trocada pela `es_cantico_dia_4`.
+
+**A conta:** o toque no pop-up leva `utm_source=app-es&utm_medium=popup&utm_campaign=…&utm_content=…` até o checkout, e a KashPay grava os utm em `latam_kashpay_events`. As consultas de resultado estão no fim do `03-popups.sql`.
+
+**Ordem de publicar:** banco → função → site, e qualquer ordem é inofensiva.
+- Sem a função `latam_claim_offer` no banco, a `latam-api` devolve `oferta: null` e o app segue normal (provado no teste local).
+- Sem a `latam-api` nova, o site novo não recebe oferta e não mostra nada.
+
+**No banco de teste** há 7 cobaias `popup.a` … `popup.g@exemplo.com`, uma por situação:
+- **a:** só o app, nova;
+- **b:** levou os Arcángeles, no 4º dia;
+- **c:** antiga, com 1 pagamento sem pedido da KashPay;
+- **d:** dois pagamentos sem pedido da KashPay;
+- **e:** carga manual;
+- **f:** levou o UP02 (o Cántico);
+- **g:** só o app, no 4º dia.
+
+⚠️ Logo depois de publicar a `latam-api` no projeto de teste, a primeira chamada deu 401 do banco, e a segunda já funcionou. Se acontecer na produção, esperar um minuto e conferir de novo, antes de achar que quebrou.
+
 ## Como voltar atrás
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
 - **Banco:** a seção "DESFAZER" de `supabase/latam/01-tabelas.sql` apaga só o que é `latam_`.
 - **Funções:** apagar `latam-api` e `latam-whop` no painel. O Brasil não usa nenhuma das duas.
+- **Pop-ups:** desligar um é `update public.latam_offer_campaigns set enabled = false where key = '…'`, sem build e sem mexer na função. Para voltar a `latam-api` de antes dos pop-ups, use o arquivo do commit `8580d7b` (`git show 8580d7b:supabase/functions/latam-api/index.ts`).

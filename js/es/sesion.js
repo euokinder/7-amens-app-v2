@@ -41,7 +41,9 @@
     return { ok: true, status: respuesta.status, cuerpo };
   }
 
-  const recordar = retrato => guardar(sessionStorage, RETRATO, JSON.stringify({ en: Date.now(), retrato }));
+  // O último retrato que esta página recebeu: é dele que sai o pop-up.
+  let ultimo = null;
+  const recordar = retrato => { ultimo = retrato; guardar(sessionStorage, RETRATO, JSON.stringify({ en: Date.now(), retrato })); };
   const olvidar = () => { guardar(localStorage, CLAVE, ''); guardar(sessionStorage, RETRATO, ''); };
   const soloRetrato = cuerpo => {
     const copia = Object.assign({}, cuerpo);
@@ -76,7 +78,7 @@
       if (!(opciones && opciones.fresco)) {
         try {
           const guardado = JSON.parse(leer(sessionStorage, RETRATO) || 'null');
-          if (guardado && Date.now() - guardado.en < VIDA_DEL_RETRATO) return guardado.retrato;
+          if (guardado && Date.now() - guardado.en < VIDA_DEL_RETRATO) { ultimo = guardado.retrato; return guardado.retrato; }
         } catch { /* ignora o guardado estragado */ }
       }
       const r = await llamar('session');
@@ -98,6 +100,24 @@
       await llamar('logout');
       olvidar();
       location.replace('/es-entrar');
+    },
+
+    // O pop-up (js/es/oferta.js): "apareceu", "tocou" ou "fechou". Só conta,
+    // não muda nada dela; falhar não atrapalha.
+    registrarOferta(campaign_key, event) {
+      return llamar('oferta', { campaign_key, event }).catch(() => null);
+    },
+    // Depois que o pop-up aparece, ele sai do retrato guardado: sem isto, a
+    // próxima página aberta nos 5 minutos seguintes mostraria o mesmo pop-up.
+    quitarOferta() {
+      if (ultimo) ultimo.oferta = null;
+      try {
+        const guardado = JSON.parse(leer(sessionStorage, RETRATO) || 'null');
+        if (guardado && guardado.retrato && guardado.retrato.oferta) {
+          guardado.retrato.oferta = null;
+          guardar(sessionStorage, RETRATO, JSON.stringify(guardado));
+        }
+      } catch { /* sem armazenamento */ }
     },
 
     mensajePendiente() {
@@ -134,6 +154,9 @@
       document.documentElement.classList.remove('member-checking');
       const portao = document.getElementById('member-gate');
       if (portao) portao.remove();
+      // O pop-up de oferta, como no Brasil. Só nas páginas que carregam
+      // js/es/oferta.js (início, lista e dia); nunca nas páginas de venda.
+      if (window.AMENES_POPUP && ultimo && ultimo.oferta) window.AMENES_POPUP.mostrar(ultimo.oferta);
     },
     falhaNoPortao(mensaje) {
       const portao = document.getElementById('member-gate');
