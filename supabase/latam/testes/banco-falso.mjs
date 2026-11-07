@@ -21,6 +21,9 @@ const TRAVAS = {
   latam_visit_days: [['customer_id', 'visited_on']],
   latam_whop_events: [['webhook_id']],
   latam_offer_events: [['customer_id', 'campaign_key']],
+  latam_admins: [['customer_id']],
+  latam_admin_actions: [['id']],
+  latam_kashpay_events: [['event', 'transaction_id']],
 };
 
 const PADROES = {
@@ -31,6 +34,7 @@ const PADROES = {
   latam_visit_days: () => ({ first_seen_at: new Date().toISOString(), last_seen_at: new Date().toISOString() }),
   latam_whop_events: () => ({ status: 'received', detail: '', processed_at: null, received_at: new Date().toISOString() }),
   latam_offer_events: () => ({ claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null }),
+  latam_admin_actions: () => ({ id: Math.floor(Math.random() * 1e9), details: {}, target_email: '', created_at: new Date().toISOString() }),
 };
 
 export const banco = {};
@@ -91,6 +95,10 @@ globalThis.fetch = async (url, init = {}) => {
     pedidosDeOferta.push(init.body ? JSON.parse(init.body) : null);
     return json(ofertaFalsa ? [ofertaFalsa] : []);
   }
+  // As listas do painel: as contas moram no SQL (provadas no banco de teste);
+  // aqui elas só devolvem o que as tabelas falsas têm.
+  if (tabela === 'rpc/latam_admin_customers') return json((banco.latam_customers || []).map(c => ({ ...c, products: [], payments: 0, unknown_payments: 0 })));
+  if (tabela === 'rpc/latam_admin_offers') return json([]);
   if (!(tabela in banco)) return new Response(`{"message":"relation ${tabela} does not exist"}`, { status: 404 });
 
   const linhas = banco[tabela];

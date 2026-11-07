@@ -251,7 +251,7 @@ Pedido do Caio: "exatamente igual ao Brasil, só traduzindo", nos pop-ups e nas 
 - **`es-oferta-arcangeles.html`** copia a das cartas, `oferta-arcanjos.html`. O vídeo é o VSL em espanhol de `currentstoryjournal.com/us-up01` (`vid-6ae515a3c7321bec2b3fc67d`), e as cartas aparecem aos 5:54. O checkout é o da KashPay, `checkout-1793936105790` (US$ 27).
 - **`es-oferta-cantico.html`** copia a do Cântico, `oferta-cantico.html`. O vídeo é o de `/us-up02` (`vid-6ae55235a1db2408a3689b3c`), e o botão aparece aos 8:53. O checkout é `checkout-1793936605002` (US$ 27).
 - **O preço na revelação das cartas:** "de US$ 69 por US$ 27" (Caio, 07/11). No Brasil aparece "de R$ 197 por R$ 137".
-- ⚠️ **O UP02 da LATAM é o Cántico, como no Brasil.** Na KashPay ele se chama "Novena a la Virgen Desatanudos" por engano (Caio, 07/11). Por isso o rastreio grava `desatanudos` em `latam_kashpay_events.produtos`: no banco, `desatanudos` quer dizer o Cántico. A 1ª versão do SQL, rodada na produção em 07/11, chamava esse pop-up de Novena (`es_novena_dia_4`). Ela nunca apareceu para ninguém e foi trocada pela `es_cantico_dia_4`.
+- ⚠️ **O UP02 da LATAM é o Cántico, como no Brasil.** Na KashPay ele se chamava "Novena a la Virgen Desatanudos" por engano. Na tarde de 07/11 o Caio trocou o nome para "Cántico Angelical", no produto e na oferta. Antes disso, a oferta `a4dfdd71-87e9-4cca-b7e6-08b4a4892321` entrou em `latam_kashpay_offers`: o `latam-kashpay` reconhece o produto pelo nome e só consulta o id quando o nome não bate. Por isso o rastreio grava `desatanudos` em `latam_kashpay_events.produtos`: no banco, `desatanudos` quer dizer o Cántico. A 1ª versão do SQL, rodada na produção em 07/11, chamava esse pop-up de Novena (`es_novena_dia_4`). Ela nunca apareceu para ninguém e foi trocada pela `es_cantico_dia_4`.
 
 **A conta:** o toque no pop-up leva `utm_source=app-es&utm_medium=popup&utm_campaign=…&utm_content=…` até o checkout, e a KashPay grava os utm em `latam_kashpay_events`. As consultas de resultado estão no fim do `03-popups.sql`.
 
@@ -269,6 +269,21 @@ Pedido do Caio: "exatamente igual ao Brasil, só traduzindo", nos pop-ups e nas 
 - **g:** só o app, no 4º dia.
 
 ⚠️ Logo depois de publicar a `latam-api` no projeto de teste, a primeira chamada deu 401 do banco, e a segunda já funcionou. Se acontecer na produção, esperar um minuto e conferir de novo, antes de achar que quebrou.
+
+## O painel da LATAM (`/es-admin`, 07/11/2026)
+Pedido do Caio: um painel só do app em espanhol, com as mesmas funções do painel do Brasil e sem que um interfira no outro.
+- **Onde:** `es-admin.html` + `js/es/admin.js` + `css/es/admin.css`. São cópias adaptadas de `admin.html`, `js/admin.js` e `css/admin.css`.
+- **Servidor:** as ações `admin_*` da `latam-api` (painel, ficha, liberar, revogar, corrigir e-mail, link de entrada). Elas leem e gravam só tabelas `latam_`.
+- **Banco** (`supabase/latam/04-admin.sql`):
+  - `latam_admins` diz quem entra;
+  - `latam_admin_actions` guarda o histórico com quem fez;
+  - `latam_admin_customers()` monta a lista;
+  - `latam_admin_offers()` monta os números dos pop-ups.
+- **Quem entra:** as mesmas 4 administradoras do Brasil (Caio, 07/11). A carga lê a `member_admins` só para achar os e-mails, que não ficam escritos no repositório. Daí em diante as duas listas são independentes. A administradora entra pelo login do app em espanhol, com o e-mail dela.
+- **Liberar na mão** dá 12 meses, como a compra. Quem já tinha um prazo maior não perde nada.
+- **Os extras** (Arcángeles e Cántico) são entregues por e-mail, então o painel mostra quem comprou e não tem botão de liberar.
+- **Corrigir o e-mail** também troca o e-mail nas compras dela (`latam_whop_events.customer_email`). Sem isso, ela "perderia" o que comprou, no painel e na escolha dos pop-ups.
+- **Em português:** quem usa o painel é a equipe. A mensagem pronta do link de entrada é em espanhol, porque vai para a cliente.
 
 ## Como voltar atrás
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.

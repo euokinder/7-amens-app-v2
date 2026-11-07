@@ -102,6 +102,15 @@
       location.replace('/es-entrar');
     },
 
+    // O painel da LATAM (/es-admin): uma ação admin_* da latam-api. Devolve a
+    // resposta ou lança o erro, em português, para a tela mostrar.
+    async admin(action, datos) {
+      const r = await llamar(action, datos);
+      if (r.ok) return r.cuerpo;
+      if (r.status === 401) { irAEntrar(r.error); throw new Error(r.error); }
+      throw new Error(r.error || 'Não foi possível concluir a ação.');
+    },
+
     // O pop-up (js/es/oferta.js): "apareceu", "tocou" ou "fechou". Só conta,
     // não muda nada dela; falhar não atrapalha.
     registrarOferta(campaign_key, event) {

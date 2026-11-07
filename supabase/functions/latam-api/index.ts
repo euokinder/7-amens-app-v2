@@ -11,6 +11,8 @@
 //   progress  marca ou desmarca um dia como rezado ("Ya recé")
 //   oferta    registra o que ela fez com o pop-up (apareceu, tocou, fechou)
 //   logout    encerra a sessão
+//   admin_*   o painel da LATAM (/es-admin), só para quem está em latam_admins
+//             (supabase/latam/04-admin.sql)
 //
 // OS POP-UPS (07/11/2026): a mesma lógica do Brasil, em tabelas latam_
 // (supabase/latam/03-popups.sql). Ao abrir a página, junto com o retrato, o
@@ -202,6 +204,27 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
 }
 
 const OFFER_KEY = /^[a-z0-9_-]+$/;
+
+// O painel (/es-admin). Em português: quem usa é a equipe brasileira.
+const ADMIN_ACTIONS = new Set([
+  'admin_dashboard', 'admin_customer_detail', 'admin_grant_access',
+  'admin_revoke_access', 'admin_update_email', 'admin_entry_link',
+]);
+const ADMIN = {
+  forbidden: 'Acesso administrativo não autorizado.',
+  badCustomer: 'Cliente inválida.',
+  notFound: 'Cliente não encontrada.',
+  badEmail: 'Informe um e-mail válido.',
+  taken: 'Já existe uma cliente com esse e-mail.',
+  noAccess: 'Esta cliente não tem acesso ao app.',
+};
+const UUID = /^[0-9a-f-]{36}$/;
+const KASHPAY_ID = /^[A-Za-z0-9_-]{1,100}$/;
+const MANUAL_ACCESS_MS = 365 * 24 * 60 * 60 * 1000;
+// O código do link de entrada: 16 letras e números (a mesma regra de
+// ENTRY_CODE e da trava do banco), sem os que se confundem (0/O, 1/l/I).
+const ENTRY_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+const newEntryCode = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => ENTRY_LETTERS[b % ENTRY_LETTERS.length]).join('');
 async function claimOffer(customerId: string, zone: string) {
   try {
     const rows = await db('rpc/latam_claim_offer', 'POST', { p_customer_id: customerId, p_zone: zone });
@@ -305,7 +328,8 @@ Deno.serve(async (req: Request) => {
       await db(`latam_sessions?token_hash=eq.${tokenHash}`, 'DELETE', undefined, 'return=minimal');
       return respond({ ok: true });
     }
-    if (body.action !== 'session' && body.action !== 'progress' && body.action !== 'oferta') return respond({ error: MESSAGES.badRequest }, 400);
+    const isAdminAction = typeof body.action === 'string' && ADMIN_ACTIONS.has(body.action);
+    if (body.action !== 'session' && body.action !== 'progress' && body.action !== 'oferta' && !isAdminAction) return respond({ error: MESSAGES.badRequest }, 400);
 
     const [[customer], access] = await Promise.all([
       db(`latam_customers?id=eq.${session.customer_id}&select=${CUSTOMER_FIELDS}&limit=1`),
@@ -325,6 +349,128 @@ Deno.serve(async (req: Request) => {
       await db(`latam_offer_events?customer_id=eq.${customer.id}&campaign_key=eq.${eq(campaignKey)}&${column}=is.null`, 'PATCH',
         { [column]: nowIso() }, 'return=minimal');
       return respond({ ok: true });
+    }
+
+    // ------------------------------------------- o painel (/es-admin, 07/11)
+    // Só para quem está em latam_admins. Lê e grava só tabelas latam_: o painel
+    // do Brasil (admin.html + member-api) não é tocado. Toda ação que muda algo
+    // fica em latam_admin_actions, com quem fez.
+    if (isAdminAction) {
+      const [admin] = await db(`latam_admins?customer_id=eq.${customer.id}&select=customer_id&limit=1`);
+      if (!admin) return respond({ error: ADMIN.forbidden }, 403);
+      const audit = (action: string, target: string | null, email: string, details: Record<string, unknown>) =>
+        db('latam_admin_actions', 'POST',
+          { admin_customer_id: customer.id, target_customer_id: target, target_email: email, action, details }, 'return=minimal');
+      const target = typeof body.customer_id === 'string' && UUID.test(body.customer_id) ? body.customer_id : '';
+      const now = nowIso();
+
+      if (body.action === 'admin_dashboard') {
+        // A lista inteira: os números do topo e a busca saem dela, no navegador.
+        const [customers, campaigns] = await Promise.all([
+          db('rpc/latam_admin_customers', 'POST', {}),
+          db('rpc/latam_admin_offers', 'POST', {}),
+        ]);
+        return respond({ customers, campaigns });
+      }
+
+      if (body.action === 'admin_customer_detail') {
+        if (!target) return respond({ error: ADMIN.badCustomer }, 400);
+        const [person] = await db(`latam_customers?id=eq.${target}&select=id,email,name,country,timezone,first_access_on,created_at&limit=1`);
+        if (!person) return respond({ error: ADMIN.notFound }, 404);
+        const [access, progress, visits, offers, payments, history, links] = await Promise.all([
+          db(`latam_access?customer_id=eq.${target}&product=eq.app&select=status,source,expires_at,granted_at,revoked_at&limit=1`),
+          db(`latam_progress?customer_id=eq.${target}&select=day,completed_at&order=day.asc`),
+          db(`latam_visit_days?customer_id=eq.${target}&select=visited_on,first_seen_at,last_seen_at&order=visited_on.desc&limit=60`),
+          db(`latam_offer_events?customer_id=eq.${target}&select=campaign_key,claimed_at,shown_at,clicked_at,dismissed_at&order=claimed_at.desc`),
+          db(`latam_whop_events?customer_email=eq.${eq(person.email)}&select=event_type,status,detail,received_at,tx:payload->data->metadata->>kashpay_transaction_id&order=received_at.desc&limit=40`),
+          db(`latam_admin_actions?target_customer_id=eq.${target}&select=action,details,created_at&order=created_at.desc&limit=30`),
+          db(`latam_entry_links?customer_id=eq.${target}&select=token,created_at,last_used_at,uses&limit=1`),
+        ]);
+        // O produto de cada pagamento está no pedido da KashPay (a Whop não diz).
+        const ids = [...new Set((payments as { tx?: unknown }[]).map(p => p.tx).filter((id): id is string => typeof id === 'string' && KASHPAY_ID.test(id)))];
+        const orders = ids.length
+          ? await db(`latam_kashpay_events?event=eq.order.paid&transaction_id=in.(${ids.join(',')})&select=transaction_id,produtos,amount_cents,currency,paid_at,utm_source,utm_medium,utm_campaign,utm_content`)
+          : [];
+        return respond({ customer: person, access: access[0] || null, progress, visits, offers, payments, orders, history, entry_link: links[0] || null });
+      }
+
+      if (body.action === 'admin_grant_access' || body.action === 'admin_revoke_access') {
+        const granting = body.action === 'admin_grant_access';
+        let id = target;
+        let email = validEmail(body.email);
+        if (!id) {
+          // Liberar aceita e-mail que ainda não existe: é assim que entra quem
+          // comprou fora do webhook, ou uma cortesia.
+          if (!email) return respond({ error: ADMIN.badEmail }, 400);
+          const [found] = await db(`latam_customers?email=eq.${eq(email)}&select=id&limit=1`);
+          if (found) id = found.id;
+          else if (granting) id = (await db('latam_customers', 'POST', { email }))[0].id;
+          else return respond({ error: ADMIN.notFound }, 404);
+        } else {
+          const [found] = await db(`latam_customers?id=eq.${id}&select=email&limit=1`);
+          if (!found) return respond({ error: ADMIN.notFound }, 404);
+          email = found.email;
+        }
+        const [current] = await db(`latam_access?customer_id=eq.${id}&product=eq.app&select=status,expires_at&limit=1`);
+        if (granting) {
+          // 12 meses a partir de hoje, como na compra. Quem já tinha prazo maior
+          // (ou nenhum prazo) não perde nada.
+          const twelveMonths = new Date(Date.now() + MANUAL_ACCESS_MS).toISOString();
+          const keep = current && (current.expires_at === null || Date.parse(current.expires_at) > Date.parse(twelveMonths));
+          const expires = keep ? current.expires_at : twelveMonths;
+          if (current) {
+            await db(`latam_access?customer_id=eq.${id}&product=eq.app`, 'PATCH',
+              { status: 'active', revoked_at: null, expires_at: expires, updated_at: now }, 'return=minimal');
+          } else {
+            await db('latam_access', 'POST',
+              { customer_id: id, product: 'app', status: 'active', source: 'manual', expires_at: expires, granted_at: now, updated_at: now }, 'return=minimal');
+          }
+          await audit('grant_access', id, email, { expires_at: expires });
+        } else {
+          if (!current) return respond({ error: ADMIN.noAccess }, 404);
+          await db(`latam_access?customer_id=eq.${id}&product=eq.app`, 'PATCH',
+            { status: 'revoked', revoked_at: now, updated_at: now }, 'return=minimal');
+          await audit('revoke_access', id, email, {});
+        }
+        return respond({ ok: true, customer_id: id });
+      }
+
+      if (body.action === 'admin_update_email') {
+        const email = validEmail(body.email);
+        if (!target) return respond({ error: ADMIN.badCustomer }, 400);
+        if (!email) return respond({ error: ADMIN.badEmail }, 400);
+        const [current] = await db(`latam_customers?id=eq.${target}&select=email&limit=1`);
+        if (!current) return respond({ error: ADMIN.notFound }, 404);
+        if (current.email === email) return respond({ ok: true });
+        const [taken] = await db(`latam_customers?email=eq.${eq(email)}&select=id&limit=1`);
+        if (taken && taken.id !== target) return respond({ error: ADMIN.taken }, 409);
+        await db(`latam_customers?id=eq.${target}`, 'PATCH', { email }, 'return=minimal');
+        // As compras dela são achadas pelo e-mail (latam_whop_events): sem levar
+        // o e-mail junto, ela "perderia" o que comprou, no painel e na escolha
+        // dos pop-ups. O aviso original (payload) não muda.
+        await db(`latam_whop_events?customer_email=eq.${eq(current.email)}`, 'PATCH', { customer_email: email }, 'return=minimal');
+        // O e-mail é o login: as sessões abertas não sobrevivem à troca.
+        await db(`latam_sessions?customer_id=eq.${target}`, 'DELETE', undefined, 'return=minimal');
+        await audit('update_email', target, email, { from: current.email, to: email });
+        return respond({ ok: true });
+      }
+
+      if (body.action === 'admin_entry_link') {
+        // Copiar de novo devolve o MESMO link (o que já foi mandado continua
+        // valendo). Com renew: true, sai um código novo e o antigo para na hora.
+        if (!target) return respond({ error: ADMIN.badCustomer }, 400);
+        const [person] = await db(`latam_customers?id=eq.${target}&select=email&limit=1`);
+        if (!person) return respond({ error: ADMIN.notFound }, 404);
+        if (body.renew !== true) {
+          const [existing] = await db(`latam_entry_links?customer_id=eq.${target}&select=token,created_at,last_used_at,uses&limit=1`);
+          if (existing) return respond({ entry_link: existing });
+        }
+        const [created] = await db('latam_entry_links?on_conflict=customer_id', 'POST',
+          { customer_id: target, token: newEntryCode(), created_by: customer.id, created_at: now, last_used_at: null, uses: 0 },
+          'return=representation,resolution=merge-duplicates');
+        await audit(body.renew === true ? 'renew_entry_link' : 'entry_link', target, person.email, {});
+        return respond({ entry_link: { token: created.token, created_at: created.created_at, last_used_at: created.last_used_at, uses: created.uses } });
+      }
     }
 
     if (body.action === 'progress') {

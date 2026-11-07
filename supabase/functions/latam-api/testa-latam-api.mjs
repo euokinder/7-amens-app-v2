@@ -271,4 +271,71 @@ await cenario('17. "oferta": apareceu, tocou, fechou', async () => {
   confere('sem sessão: 401', (await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'shown' })).status === 401);
 });
 
+// ------------------------------------------------------------ o painel
+const ADMIN_ID = '11111111-1111-4111-8111-111111111111';
+const CLIENTE_ID = '22222222-2222-4222-8222-222222222222';
+function cenarioDoPainel() {
+  cliente({ id: ADMIN_ID, email: 'admin@ejemplo.com', name: 'Ana Admin', acesso: { status: 'active', expires_at: null } });
+  cliente({ id: CLIENTE_ID, email: 'maria@ejemplo.com', name: 'María López' });
+  banco.latam_admins.push({ customer_id: ADMIN_ID });
+}
+
+await cenario('18. Painel: só quem está em latam_admins', async () => {
+  cenarioDoPainel();
+  const naoAdmin = await entrar('maria@ejemplo.com');
+  const recusa = await chamar('admin_dashboard', {}, { token: naoAdmin });
+  confere('cliente comum: 403', recusa.status === 403, `veio ${recusa.status}`);
+  confere('sem sessão: 401', (await chamar('admin_dashboard')).status === 401);
+  const token = await entrar('admin@ejemplo.com');
+  const painel = await chamar('admin_dashboard', {}, { token });
+  confere('administradora: 200 com a lista', painel.status === 200 && Array.isArray(painel.corpo.customers) && painel.corpo.customers.length === 2, `veio ${painel.status}`);
+  confere('ação de painel inventada: 400', (await chamar('admin_apagar_tudo', {}, { token })).status === 400);
+});
+
+await cenario('19. Painel: liberar, revogar e liberar e-mail novo', async () => {
+  cenarioDoPainel();
+  const token = await entrar('admin@ejemplo.com');
+  await chamar('admin_revoke_access', { customer_id: CLIENTE_ID }, { token });
+  const dela = () => banco.latam_access.find(a => a.customer_id === CLIENTE_ID);
+  confere('revogar: status revoked', dela().status === 'revoked');
+  await chamar('admin_grant_access', { customer_id: CLIENTE_ID }, { token });
+  confere('liberar de novo: active, sem perder o prazo maior', dela().status === 'active' && Date.parse(dela().expires_at) > Date.now() + 299 * 86_400_000);
+  const nova = await chamar('admin_grant_access', { email: ' Nueva@Ejemplo.com ' }, { token });
+  const criada = banco.latam_customers.find(c => c.email === 'nueva@ejemplo.com');
+  const acesso = criada && banco.latam_access.find(a => a.customer_id === criada.id);
+  confere('e-mail novo: cria a cliente em minúsculas', nova.status === 200 && Boolean(criada));
+  confere('e-mail novo: acesso manual por ~12 meses', acesso && acesso.source === 'manual' && acesso.status === 'active'
+    && Math.abs(Date.parse(acesso.expires_at) - (Date.now() + 365 * 86_400_000)) < 60_000);
+  confere('revogar quem não existe: 404', (await chamar('admin_revoke_access', { email: 'nadie@ejemplo.com' }, { token })).status === 404);
+  confere('histórico: 3 ações com quem fez', banco.latam_admin_actions.length === 3 && banco.latam_admin_actions.every(a => a.admin_customer_id === ADMIN_ID));
+});
+
+await cenario('20. Painel: corrigir e-mail', async () => {
+  cenarioDoPainel();
+  cliente({ id: '33333333-3333-4333-8333-333333333333', email: 'ocupado@ejemplo.com' });
+  banco.latam_whop_events.push({ webhook_id: 'w1', customer_email: 'maria@ejemplo.com', status: 'processed', event_type: 'payment.succeeded' });
+  const sessaoDela = await entrar('maria@ejemplo.com');
+  const token = await entrar('admin@ejemplo.com');
+  confere('e-mail de outra cliente: 409', (await chamar('admin_update_email', { customer_id: CLIENTE_ID, email: 'ocupado@ejemplo.com' }, { token })).status === 409);
+  const troca = await chamar('admin_update_email', { customer_id: CLIENTE_ID, email: 'maria.nueva@ejemplo.com' }, { token });
+  confere('troca: 200 e o e-mail novo gravado', troca.status === 200 && banco.latam_customers.find(c => c.id === CLIENTE_ID).email === 'maria.nueva@ejemplo.com');
+  confere('as compras dela vão junto (latam_whop_events)', banco.latam_whop_events[0].customer_email === 'maria.nueva@ejemplo.com');
+  confere('a sessão dela cai (o e-mail é o login)', (await chamar('session', {}, { token: sessaoDela })).status === 401);
+  confere('a da administradora continua', (await chamar('session', {}, { token })).status === 200);
+});
+
+await cenario('21. Painel: link de entrada', async () => {
+  cenarioDoPainel();
+  const token = await entrar('admin@ejemplo.com');
+  const primeiro = await chamar('admin_entry_link', { customer_id: CLIENTE_ID }, { token });
+  const codigo = primeiro.corpo.entry_link?.token;
+  confere('cria um código de 16 letras e números', /^[A-Za-z0-9]{16}$/.test(codigo || ''), codigo);
+  const deNovo = await chamar('admin_entry_link', { customer_id: CLIENTE_ID }, { token });
+  confere('pedir de novo devolve o MESMO link', deNovo.corpo.entry_link?.token === codigo);
+  const trocado = await chamar('admin_entry_link', { customer_id: CLIENTE_ID, renew: true }, { token });
+  confere('"Trocar link" sorteia outro', trocado.corpo.entry_link?.token && trocado.corpo.entry_link.token !== codigo);
+  confere('o link antigo para de abrir', (await chamar('entry', { code: codigo })).status === 404);
+  confere('o novo abre o app dela', (await chamar('entry', { code: trocado.corpo.entry_link.token })).corpo?.cliente?.email === 'maria@ejemplo.com');
+});
+
 fechar();
