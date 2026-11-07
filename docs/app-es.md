@@ -188,6 +188,14 @@ O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **d
 - **Por que cópia, e não link:** os arquivos do Brasil não são carregados, então mudar o Brasil não muda a LATAM. Se o desenho do Brasil mudar e a LATAM tiver de acompanhar, é preciso copiar de novo.
 - **Fotos:** as das telas são as mesmas do Brasil (`assets/images/…`).
 
+## Os vídeos (desde 06/11/2026)
+- **Onde ficam:** na Bunny, na mesma biblioteca dos vídeos de entrega do Brasil ("7 Améns - entregas", 784501). Nunca na Netlify.
+- **Onde se ligam:** `js/es/video.js`, uma linha por dia em `VIDEOS` (`{ video: '<ID>', formato: '3:4' }`). É uma cópia do `js/video.js` do Brasil, só com a Bunny, e com os botões do player em espanhol (`lang=es`). O `js/es/dias.js` é gerado e não é tocado.
+- **Na tela:** a `/es-dia` põe o vídeo no topo, no lugar da foto. Dia sem vídeo, ou ainda fechado, continua com a foto.
+- **No ar:** Dia 0, "INTRO_esp" (9:20, em pé). Os Dias 1 a 7 vêm depois.
+- **Achar o ID:** na Bunny, a miniatura do vídeo tem o ID no endereço; o formato se confere pelo tamanho dela (1080×1440 = em pé, 3:4).
+- **Junto:** a `/materiales` ganhou, no topo, o card "Tu app de oraciones", que leva a `/es`, para quem chega pelo e-mail da compra.
+
 ## As telas (Bloco 3, primeira versão, substituída em 06/11 pela cópia acima)
 | Endereço | Arquivo | O que faz |
 |---|---|---|

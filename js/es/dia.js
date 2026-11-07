@@ -36,7 +36,10 @@
   const subtitulo = n === 0 ? 'Comienza aquí, antes de la 1.ª madrugada' : d.subtitulo;
   document.title = `${titulo} · ${D.nombre}`;
 
-  const cabecalho = `
+  // No topo, o vídeo do dia (js/es/video.js), como no dia.html do Brasil. Dia
+  // sem vídeo, ou ainda fechado, fica com a foto.
+  const foto = `<img src="${FOTOS[n]}" alt="" style="width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:16px;display:block;">`;
+  const cabecalhoCom = (topo) => `
     <span class="kicker">${esc(kicker)}</span>
     <div class="section-heading" style="margin-top:-8px;">
       <div class="bar"></div>
@@ -45,13 +48,15 @@
         <p class="subtext">${esc(subtitulo)}</p>
       </div>
     </div>
-    <img src="${FOTOS[n]}" alt="" style="width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:16px;display:block;">`;
+    ${topo}`;
+  const cabecalhoFechado = cabecalhoCom(foto);
+  const cabecalho = cabecalhoCom((window.AMENES_VIDEO && window.AMENES_VIDEO.html(n, titulo)) || foto);
   const botaoPdf = `<button class="material-btn lg" type="button" data-pdf="${esc(d.pdf)}">${pdfIcon} Descargar el PDF para guardar o imprimir</button>`;
   const faixa = (texto) => `<div class="banner"><span>${esc(texto)}</span></div>`;
 
   // Um dia que ainda não abriu: como no Brasil, sem a oração.
   function fechado(estado) {
-    content.innerHTML = `${cabecalho}
+    content.innerHTML = `${cabecalhoFechado}
       <div class="heading-block">
         <h2 class="title" style="font-size:20px;">Esta oración todavía no está abierta</h2>
         <p class="subtext">${estado.faltan === 1 ? 'Se abre mañana, a la medianoche.' : `Se abre en ${estado.faltan} días.`} Cada madrugada se abre una oración nueva.</p>
