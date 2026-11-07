@@ -15,6 +15,12 @@
   if (nombre) document.getElementById('saudacao').textContent = `Hola, ${nombre}, ¡que la paz del Señor esté contigo!`;
   if (r.acceso_hasta) document.getElementById('acceso-hasta').textContent = `Tu acceso vale hasta el ${r.acceso_hasta}.`;
 
+  // Os extras (07/11/2026): "DISPONIBLE" para quem tem, "🔒 EXTRA" para quem
+  // não tem (js/es/extras.js). Antes de mostrar a tela, para não piscar.
+  window.AMENES_EXTRAS.desenharCard(r, 'arcangeles', 'card-arcangeles', '/es-arcangeles');
+  window.AMENES_EXTRAS.desenharCard(r, 'cantico', 'card-cantico', '/es-cantico');
+  window.AMENES_EXTRAS.desenharAviso();
+
   window.AMENES.mostrarTela();
   window.AMENES_EFECTOS.iniciar();
 })();

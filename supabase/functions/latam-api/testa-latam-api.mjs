@@ -12,7 +12,7 @@ import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import {
   banco, tocadas, forcarFalha, travarFreio, carregarFuncao, confere, cenario, fechar,
-  oferecer, pedidosDeOferta,
+  oferecer, pedidosDeOferta, comprasFalsas, tirarFuncaoDeExtras,
 } from '../../latam/testes/banco-falso.mjs';
 
 const aqui = dirname(fileURLToPath(import.meta.url));
@@ -93,7 +93,7 @@ await cenario('3. Login certo: sessão, primeiro acesso e o dia de hoje no fuso 
   confere('grava o primeiro acesso e o fuso', banco.latam_customers[0].first_access_on === corpo.hoy && banco.latam_customers[0].timezone === 'America/Bogota');
   confere('grava o dia de visita', banco.latam_visit_days.length === 1 && banco.latam_visit_days[0].visited_on === corpo.hoy);
   const campos = Object.keys(corpo).sort().join(',');
-  confere('não devolve nada além do retrato (e do pop-up)', campos === 'abierto,acceso_hasta,cliente,completados,hoy,oferta,token,zona', campos);
+  confere('não devolve nada além do retrato (do pop-up e dos extras)', campos === 'abierto,acceso_hasta,cantico,cliente,completados,extras,hoy,oferta,token,zona', campos);
 });
 
 await cenario('4. Fuso inválido vira Cidade do México; fuso já gravado não muda', async () => {
@@ -208,11 +208,13 @@ await cenario('14. Nenhuma tabela do Brasil é tocada', async () => {
   const token = await entrar();
   await chamar('session', {}, { token });
   await chamar('progress', { day: 1, done: true }, { token });
+  comprasFalsas.c1 = ['cantico'];
+  await chamar('progress', { day: 1, done: true, journey: 'cantico' }, { token });
   await chamar('entry', { code: 'Abc123Def456Ghi7' });
   await chamar('logout', {}, { token });
   await chamar('oferta', { campaign_key: 'es_arcangeles_novas_1', event: 'shown' }, { token: await entrar() });
-  const fora = [...tocadas].filter(tabela => !tabela.startsWith('latam_') && tabela !== 'rpc/latam_allow_login' && tabela !== 'rpc/latam_claim_offer');
-  confere('só tabelas latam_, o freio e o pop-up da LATAM', fora.length === 0, fora.join(', '));
+  const fora = [...tocadas].filter(tabela => !tabela.startsWith('latam_') && tabela !== 'rpc/latam_allow_login' && tabela !== 'rpc/latam_claim_offer' && tabela !== 'rpc/latam_extras');
+  confere('só tabelas latam_, o freio, o pop-up e os extras da LATAM', fora.length === 0, fora.join(', '));
 });
 
 const POPUP = {
@@ -336,6 +338,68 @@ await cenario('21. Painel: link de entrada', async () => {
   confere('"Trocar link" sorteia outro', trocado.corpo.entry_link?.token && trocado.corpo.entry_link.token !== codigo);
   confere('o link antigo para de abrir', (await chamar('entry', { code: codigo })).status === 404);
   confere('o novo abre o app dela', (await chamar('entry', { code: trocado.corpo.entry_link.token })).corpo?.cliente?.email === 'maria@ejemplo.com');
+});
+
+// ------------------------------------------------- os extras (07/11/2026)
+await cenario('22. Extras no retrato: compra, nada, e banco sem a função', async () => {
+  cliente();
+  const token = await entrar();
+  const nada = await chamar('session', {}, { token });
+  confere('sem compra de extra: extras vazio', Array.isArray(nada.corpo.extras) && nada.corpo.extras.length === 0, JSON.stringify(nada.corpo.extras));
+  confere('o Cántico vem com o calendário (1º acesso hoje = dia 1)', nada.corpo.cantico?.abierto === 1 && nada.corpo.cantico.completados.length === 0, JSON.stringify(nada.corpo.cantico));
+  comprasFalsas.c1 = ['arcangeles'];
+  const comprou = await chamar('session', {}, { token });
+  confere('comprou os Arcángeles: extras = [arcangeles]', JSON.stringify(comprou.corpo.extras) === '["arcangeles"]', JSON.stringify(comprou.corpo.extras));
+  tirarFuncaoDeExtras();
+  const semFuncao = await chamar('session', {}, { token });
+  confere('banco sem latam_extras: a jornada continua (200)', semFuncao.status === 200 && semFuncao.corpo.abierto === 1);
+  confere('banco sem latam_extras: extras = null (a tela abre os dois)', semFuncao.corpo.extras === null);
+});
+
+await cenario('23. Cántico: "Terminé este día", trava e dono', async () => {
+  cliente({ timezone: 'America/Bogota', first_access_on: diasAntes('America/Bogota', 2) });
+  const token = await entrar();
+  const semCantico = await chamar('progress', { day: 1, done: true, journey: 'cantico' }, { token });
+  confere('sem o Cántico: 409 com a explicação', semCantico.status === 409 && semCantico.corpo.error.includes('acceso'), semCantico.corpo?.error);
+  confere('a recusa traz o retrato junto (a tela guarda)', semCantico.corpo.abierto === 3 && Array.isArray(semCantico.corpo.completados));
+  confere('nada gravado', banco.latam_cantico_progress.length === 0);
+  comprasFalsas.c1 = ['cantico'];
+  const marca = await chamar('progress', { day: 3, done: true, journey: 'cantico' }, { token });
+  confere('dia 3 (aberto, 3º dia de app): 200', marca.status === 200 && JSON.stringify(marca.corpo.cantico.completados) === '[3]', JSON.stringify(marca.corpo?.cantico));
+  confere('as madrugadas não mudam', banco.latam_progress.length === 0 && marca.corpo.completados.length === 0);
+  const cedo = await chamar('progress', { day: 5, done: true, journey: 'cantico' }, { token });
+  confere('dia 5, ainda fechado: 409', cedo.status === 409 && cedo.corpo.error.includes('Cántico'), cedo.corpo?.error);
+  const repete = await chamar('progress', { day: 3, done: true, journey: 'cantico' }, { token });
+  confere('marcar de novo não duplica', repete.status === 200 && banco.latam_cantico_progress.length === 1);
+  const desfaz = await chamar('progress', { day: 3, done: false, journey: 'cantico' }, { token });
+  confere('desfazer: 200 e some', desfaz.status === 200 && desfaz.corpo.cantico.completados.length === 0 && banco.latam_cantico_progress.length === 0);
+  confere('jornada inventada: 400', (await chamar('progress', { day: 1, done: true, journey: 'novena' }, { token })).status === 400);
+  tirarFuncaoDeExtras();
+  confere('banco sem latam_extras: 503, nada gravado', (await chamar('progress', { day: 1, done: true, journey: 'cantico' }, { token })).status === 503
+    && banco.latam_cantico_progress.length === 0);
+});
+
+await cenario('24. Painel: liberar e retirar um extra', async () => {
+  cenarioDoPainel();
+  comprasFalsas[CLIENTE_ID] = ['arcangeles'];
+  const token = await entrar('admin@ejemplo.com');
+  const libera = await chamar('admin_grant_extra', { customer_id: CLIENTE_ID, product: 'cantico' }, { token });
+  const linha = produto => banco.latam_access.find(a => a.customer_id === CLIENTE_ID && a.product === produto);
+  confere('liberar o Cántico: linha manual, ativa, sem prazo', libera.status === 200 && linha('cantico')?.status === 'active'
+    && linha('cantico').source === 'manual' && linha('cantico').expires_at === null);
+  await chamar('admin_revoke_extra', { customer_id: CLIENTE_ID, product: 'arcangeles' }, { token });
+  confere('retirar os Arcángeles comprados: linha revoked', linha('arcangeles')?.status === 'revoked');
+  confere('o app dela não muda', linha('app')?.status === 'active');
+  const dela = await chamar('session', {}, { token: await entrar('maria@ejemplo.com') });
+  confere('no retrato dela: só o Cántico', JSON.stringify(dela.corpo.extras) === '["cantico"]', JSON.stringify(dela.corpo.extras));
+  const ficha = await chamar('admin_customer_detail', { customer_id: CLIENTE_ID }, { token });
+  confere('a ficha mostra a origem de cada extra', ficha.corpo.extras?.origem?.cantico === 'manual' && ficha.corpo.extras.origem.arcangeles === 'retirado', JSON.stringify(ficha.corpo.extras));
+  confere('extra inventado: 400', (await chamar('admin_grant_extra', { customer_id: CLIENTE_ID, product: 'app' }, { token })).status === 400);
+  confere('sem cliente: 400', (await chamar('admin_grant_extra', { product: 'cantico' }, { token })).status === 400);
+  const naoAdmin = await entrar('maria@ejemplo.com');
+  confere('cliente comum não libera: 403', (await chamar('admin_grant_extra', { customer_id: CLIENTE_ID, product: 'arcangeles' }, { token: naoAdmin })).status === 403);
+  const historico = banco.latam_admin_actions.map(a => `${a.action}:${a.details?.product}`).join(',');
+  confere('histórico: grant_extra e revoke_extra, com o produto', historico === 'grant_extra:cantico,revoke_extra:arcangeles', historico);
 });
 
 fechar();

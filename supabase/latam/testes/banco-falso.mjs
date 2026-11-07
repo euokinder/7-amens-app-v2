@@ -15,6 +15,7 @@ const TRAVAS = {
   latam_customers: [['id'], ['email']],
   latam_access: [['customer_id', 'product']],
   latam_progress: [['customer_id', 'day']],
+  latam_cantico_progress: [['customer_id', 'day']],
   latam_sessions: [['token_hash']],
   latam_entry_links: [['customer_id'], ['token']],
   latam_login_limits: [['key']],
@@ -30,6 +31,7 @@ const PADROES = {
   latam_customers: () => ({ id: `c-${Math.random().toString(16).slice(2, 10)}`, name: '', country: null, timezone: null, first_access_on: null, whop_user_id: null, created_at: new Date().toISOString() }),
   latam_access: () => ({ product: 'app', status: 'active', expires_at: null, whop_payment_id: null, revoked_at: null, note: '' }),
   latam_progress: () => ({ completed_at: new Date().toISOString() }),
+  latam_cantico_progress: () => ({ completed_at: new Date().toISOString() }),
   latam_entry_links: () => ({ uses: 0, last_used_at: null, created_by: '' }),
   latam_visit_days: () => ({ first_seen_at: new Date().toISOString(), last_seen_at: new Date().toISOString() }),
   latam_whop_events: () => ({ status: 'received', detail: '', processed_at: null, received_at: new Date().toISOString() }),
@@ -45,6 +47,13 @@ export let freioLibera = true;
 // é provada no banco de teste; aqui só se confere o caminho na latam-api).
 export let ofertaFalsa = null;
 export const pedidosDeOferta = [];
+// Os extras que a função latam_extras "acharia" pela compra (a conta da compra
+// e da dúvida mora no SQL e é provada no banco de teste). O que o painel faz à
+// mão (latam_access com product <> 'app') e os dias do Cántico vêm das tabelas
+// falsas, como no SQL. semFuncaoDeExtras imita o banco sem 05-extras.sql.
+export const comprasFalsas = {};
+export let semFuncaoDeExtras = false;
+export const tirarFuncaoDeExtras = () => { semFuncaoDeExtras = true; };
 
 export function zerarBanco() {
   for (const tabela of Object.keys(TRAVAS)) banco[tabela] = [];
@@ -53,6 +62,8 @@ export function zerarBanco() {
   freioLibera = true;
   ofertaFalsa = null;
   pedidosDeOferta.length = 0;
+  for (const chave of Object.keys(comprasFalsas)) delete comprasFalsas[chave];
+  semFuncaoDeExtras = false;
 }
 export const oferecer = oferta => { ofertaFalsa = oferta; };
 export const forcarFalha = falha => falhas.push(falha);
@@ -94,6 +105,22 @@ globalThis.fetch = async (url, init = {}) => {
   if (tabela === 'rpc/latam_claim_offer') {
     pedidosDeOferta.push(init.body ? JSON.parse(init.body) : null);
     return json(ofertaFalsa ? [ofertaFalsa] : []);
+  }
+  if (tabela === 'rpc/latam_extras') {
+    if (semFuncaoDeExtras) return new Response('{"message":"function public.latam_extras does not exist"}', { status: 404 });
+    const { p_customer_id: id } = JSON.parse(init.body || '{}');
+    if (!banco.latam_customers.some(c => c.id === id)) return json(null);
+    const origem = {};
+    for (const produto of comprasFalsas[id] || []) origem[produto] = 'compra';
+    for (const a of banco.latam_access.filter(a => a.customer_id === id && a.product !== 'app')) {
+      if (a.status === 'active') origem[a.product] = origem[a.product] || 'manual';
+      else origem[a.product] = 'retirado';
+    }
+    return json({
+      extras: Object.keys(origem).filter(k => origem[k] !== 'retirado').sort(),
+      origem,
+      cantico_hechos: banco.latam_cantico_progress.filter(p => p.customer_id === id).map(p => Number(p.day)).sort((a, b) => a - b),
+    });
   }
   // As listas do painel: as contas moram no SQL (provadas no banco de teste);
   // aqui elas só devolvem o que as tabelas falsas têm.

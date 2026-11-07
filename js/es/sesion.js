@@ -96,6 +96,16 @@
       return { ok: false, error: r.error };
     },
 
+    // "Terminé este día", no Cántico Angelical. O mesmo caminho do "Ya recé",
+    // com journey: 'cantico' (a latam-api grava em latam_cantico_progress).
+    async marcarCantico(dia, done) {
+      const r = await llamar('progress', { day: dia, done, journey: 'cantico' });
+      if (r.ok) { recordar(r.cuerpo); return { ok: true, retrato: r.cuerpo }; }
+      if (r.status === 401 || r.status === 403) { irAEntrar(r.error); return { ok: false }; }
+      if (r.status === 409 && r.cuerpo) recordar(soloRetrato(r.cuerpo));
+      return { ok: false, error: r.error };
+    },
+
     async salir() {
       await llamar('logout');
       olvidar();

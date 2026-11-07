@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cántico Angelical</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+</head>
+<body>
+<!-- App em espanhol (LATAM): a lista do Cántico Angelical (UP02). CÓPIA do cantico.html do
+     Brasil, em espanhol (07/11/2026): introdução + 7 dias, um por dia (a trava vem
+     da latam-api, em retrato.cantico). Embaixo, de regalo, o PDF da Novena a la
+     Virgen Desatanudos (decisão do Caio). Plano: docs/app-es.md -->
+<div id="member-gate" role="status">
+  <p>Verificando tu acceso…</p>
+  <noscript><p>Tu navegador tiene JavaScript desactivado. Actívalo para abrir tus oraciones.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">¿Necesitas ayuda? Escríbenos</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" id="volver" onclick="history.length > 1 ? history.back() : location.href='/es'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Volver</span>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amenes de la Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">Cántico Angelical</h1>
+        <p class="subtext">Tu jornada de 7 días. Toca un día para abrirlo.</p>
+      </div>
+    </div>
+
+    <div id="cantico-lista" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+    <h2 class="section-label">Material de regalo</h2>
+
+    <a href="/assets/latam/pdf/novena-virgen-desatanudos.pdf" target="_blank" rel="noopener" class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(/assets/images/home/cantico.jpg);">
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--dark-on-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Novena a la Virgen Desatanudos</h3>
+        <p class="card-sub">Nueve días para entregar a María los nudos de tu vida, en PDF</p>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<script src="/js/es/config.js"></script>
+<script src="/js/es/sesion.js"></script>
+<script src="/js/es/oferta.js"></script>
+<script src="/js/es/cantico.js"></script>
+<script src="/js/es/extras.js"></script>
+<script src="/js/es/app.js"></script>
+<script src="/js/es/cantico-lista.js"></script>
+</body>
+</html>

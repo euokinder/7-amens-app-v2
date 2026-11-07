@@ -8,7 +8,8 @@
 //   login     e-mail da compra -> sessão de 90 dias (sem senha, como no Brasil)
 //   entry     link de entrada (/es-entrar#código) -> sessão
 //   session   confere a sessão e devolve o retrato da jornada
-//   progress  marca ou desmarca um dia como rezado ("Ya recé")
+//   progress  marca ou desmarca um dia como rezado ("Ya recé"). Com
+//             journey: 'cantico', um dia do Cántico ("Terminé este día")
 //   oferta    registra o que ela fez com o pop-up (apareceu, tocou, fechou)
 //   logout    encerra a sessão
 //   admin_*   o painel da LATAM (/es-admin), só para quem está em latam_admins
@@ -19,6 +20,16 @@
 // banco escolhe o pop-up dela (latam_claim_offer) e ele vem em `oferta`.
 // Não custa chamada a mais: vai na mesma ida ao servidor. Se o banco ainda não
 // tiver a função, ou ela falhar, vem `oferta: null` e o app segue normal.
+//
+// OS EXTRAS DENTRO DO APP (07/11/2026): o UP01 (Arcángeles) e o UP02 (Cántico
+// Angelical), no mesmo esquema do Brasil. Quem tem cada um sai de
+// latam_extras (supabase/latam/05-extras.sql): a compra, a dúvida (libera os
+// dois, decisão do Caio) e o painel por cima. Vem no retrato, em `extras`
+// (['arcangeles','cantico']), e o Cántico, em `cantico` ({abierto,
+// completados}), com a MESMA âncora e o mesmo calendário das madrugadas.
+// Sem a função no banco, ou se ela falhar, vem `extras: null`: a tela abre
+// os dois (a mesma rede de segurança da trava do Brasil: na dúvida, não
+// tranca quem pagou).
 //
 // A TRAVA (uma oração por dia) é calculada AQUI, no servidor:
 //   - "hoje" é o dia no fuso do celular dela, guardado no primeiro acesso
@@ -137,6 +148,8 @@ const MESSAGES = {
   deadLink: 'Este enlace ya no funciona. Pide uno nuevo a nuestro equipo.',
   signInAgain: 'Tu sesión terminó. Entra de nuevo con tu correo.',
   locked: 'Este día todavía no está abierto. Cada madrugada se abre una oración nueva.',
+  lockedCantico: 'Este día del Cántico todavía no está abierto. Se abre un día a la vez.',
+  notOwned: 'Este contenido todavía no está en tu acceso.',
   badRequest: 'Solicitud inválida.',
   offline: 'No pudimos conectar ahora. Inténtalo de nuevo en unos instantes.',
 };
@@ -159,6 +172,29 @@ function calendar(customer: Customer, reportedZone: unknown) {
   const open = Math.min(LAST_DAY, Math.max(1, 1 + daysBetween(firstDay, today)));
   return { zone, today, open };
 }
+
+// Os extras dela (latam_extras, em 05-extras.sql). Falhar aqui nunca derruba
+// a jornada: vem null, e a tela abre os dois.
+type Extras = { extras: string[]; origem: Record<string, string>; cantico_hechos: number[] };
+const EXTRA_KEYS = new Set(['arcangeles', 'cantico']);
+async function extrasOf(customerId: string): Promise<Extras | null> {
+  try {
+    const answer = await db('rpc/latam_extras', 'POST', { p_customer_id: customerId });
+    if (!answer || !Array.isArray(answer.extras)) return null;
+    return {
+      extras: answer.extras.filter((key: unknown) => typeof key === 'string' && EXTRA_KEYS.has(key)),
+      origem: answer.origem && typeof answer.origem === 'object' ? answer.origem : {},
+      cantico_hechos: (Array.isArray(answer.cantico_hechos) ? answer.cantico_hechos : [])
+        .map(Number).filter((day: number) => Number.isInteger(day) && day >= 0 && day <= LAST_DAY),
+    };
+  } catch (error) {
+    console.error('latam-api extras', error instanceof Error ? error.message : 'error');
+    return null;
+  }
+}
+// Até que dia o Cántico está aberto: o mesmo calendário das madrugadas, e dia
+// já marcado nunca volta a trancar.
+const canticoOpen = (calendarOpen: number, done: number[]) => Math.min(LAST_DAY, Math.max(calendarOpen, ...done));
 
 // O retrato da jornada. `visit` grava o dia de visita (no login, na entrada
 // pelo link e ao abrir a página); marcar um dia não grava visita de novo.
@@ -184,14 +220,16 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
   // O pop-up só vem ao abrir a página (visit), nunca ao marcar um dia. Falhar
   // aqui nunca derruba a jornada: na dúvida, sem pop-up.
   const offer = visit ? claimOffer(customer.id, zone) : Promise.resolve(null);
-  const [rows, oferta] = await Promise.all([
+  const [rows, oferta, extras] = await Promise.all([
     db(`latam_progress?customer_id=eq.${customer.id}&select=day&order=day.asc`),
     offer,
+    extrasOf(customer.id),
     ...writes,
   ]);
   const done = (rows as { day: number }[]).map(row => Number(row.day)).filter(day => day >= 0 && day <= LAST_DAY);
   // Dia já marcado nunca volta a trancar.
   const open = Math.min(LAST_DAY, Math.max(calendarOpen, ...done));
+  const canticoDone = extras ? extras.cantico_hechos : [];
   return {
     cliente: { nombre: firstName(customer.name), email: customer.email },
     hoy: today,
@@ -200,6 +238,8 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
     completados: done,
     acceso_hasta: accessUntil ? asDayMonthYear(accessUntil, zone) : null,
     oferta,
+    extras: extras ? extras.extras : null,
+    cantico: { abierto: canticoOpen(calendarOpen, canticoDone), completados: canticoDone },
   };
 }
 
@@ -209,6 +249,7 @@ const OFFER_KEY = /^[a-z0-9_-]+$/;
 const ADMIN_ACTIONS = new Set([
   'admin_dashboard', 'admin_customer_detail', 'admin_grant_access',
   'admin_revoke_access', 'admin_update_email', 'admin_entry_link',
+  'admin_grant_extra', 'admin_revoke_extra',
 ]);
 const ADMIN = {
   forbidden: 'Acesso administrativo não autorizado.',
@@ -217,6 +258,7 @@ const ADMIN = {
   badEmail: 'Informe um e-mail válido.',
   taken: 'Já existe uma cliente com esse e-mail.',
   noAccess: 'Esta cliente não tem acesso ao app.',
+  badExtra: 'Extra inválido.',
 };
 const UUID = /^[0-9a-f-]{36}$/;
 const KASHPAY_ID = /^[A-Za-z0-9_-]{1,100}$/;
@@ -377,7 +419,7 @@ Deno.serve(async (req: Request) => {
         if (!target) return respond({ error: ADMIN.badCustomer }, 400);
         const [person] = await db(`latam_customers?id=eq.${target}&select=id,email,name,country,timezone,first_access_on,created_at&limit=1`);
         if (!person) return respond({ error: ADMIN.notFound }, 404);
-        const [access, progress, visits, offers, payments, history, links] = await Promise.all([
+        const [access, progress, visits, offers, payments, history, links, extras] = await Promise.all([
           db(`latam_access?customer_id=eq.${target}&product=eq.app&select=status,source,expires_at,granted_at,revoked_at&limit=1`),
           db(`latam_progress?customer_id=eq.${target}&select=day,completed_at&order=day.asc`),
           db(`latam_visit_days?customer_id=eq.${target}&select=visited_on,first_seen_at,last_seen_at&order=visited_on.desc&limit=60`),
@@ -385,13 +427,36 @@ Deno.serve(async (req: Request) => {
           db(`latam_whop_events?customer_email=eq.${eq(person.email)}&select=event_type,status,detail,received_at,tx:payload->data->metadata->>kashpay_transaction_id&order=received_at.desc&limit=40`),
           db(`latam_admin_actions?target_customer_id=eq.${target}&select=action,details,created_at&order=created_at.desc&limit=30`),
           db(`latam_entry_links?customer_id=eq.${target}&select=token,created_at,last_used_at,uses&limit=1`),
+          extrasOf(target),
         ]);
         // O produto de cada pagamento está no pedido da KashPay (a Whop não diz).
         const ids = [...new Set((payments as { tx?: unknown }[]).map(p => p.tx).filter((id): id is string => typeof id === 'string' && KASHPAY_ID.test(id)))];
         const orders = ids.length
           ? await db(`latam_kashpay_events?event=eq.order.paid&transaction_id=in.(${ids.join(',')})&select=transaction_id,produtos,amount_cents,currency,paid_at,utm_source,utm_medium,utm_campaign,utm_content`)
           : [];
-        return respond({ customer: person, access: access[0] || null, progress, visits, offers, payments, orders, history, entry_link: links[0] || null });
+        return respond({
+          customer: person, access: access[0] || null, progress, visits, offers, payments, orders, history,
+          entry_link: links[0] || null,
+          extras: extras ? { origem: extras.origem, cantico_hechos: extras.cantico_hechos } : null,
+        });
+      }
+
+      // Os extras dentro do app (05-extras.sql). O painel manda por cima da
+      // compra: liberar soma, retirar tira mesmo de quem comprou. Sem prazo
+      // próprio: o extra vale enquanto o app valer.
+      if (body.action === 'admin_grant_extra' || body.action === 'admin_revoke_extra') {
+        const granting = body.action === 'admin_grant_extra';
+        const product = typeof body.product === 'string' && EXTRA_KEYS.has(body.product) ? body.product : '';
+        if (!target) return respond({ error: ADMIN.badCustomer }, 400);
+        if (!product) return respond({ error: ADMIN.badExtra }, 400);
+        const [person] = await db(`latam_customers?id=eq.${target}&select=email&limit=1`);
+        if (!person) return respond({ error: ADMIN.notFound }, 404);
+        await db('latam_access?on_conflict=customer_id,product', 'POST', granting
+          ? { customer_id: target, product, status: 'active', source: 'manual', expires_at: null, granted_at: now, revoked_at: null, updated_at: now }
+          : { customer_id: target, product, status: 'revoked', source: 'manual', expires_at: null, revoked_at: now, updated_at: now },
+          'return=minimal,resolution=merge-duplicates');
+        await audit(granting ? 'grant_extra' : 'revoke_extra', target, person.email, { product });
+        return respond({ ok: true });
       }
 
       if (body.action === 'admin_grant_access' || body.action === 'admin_revoke_access') {
@@ -478,6 +543,29 @@ Deno.serve(async (req: Request) => {
       if (typeof day !== 'number' || !Number.isInteger(day) || day < 0 || day > LAST_DAY || typeof body.done !== 'boolean') {
         return respond({ error: MESSAGES.badRequest }, 400);
       }
+      if (body.journey !== undefined && body.journey !== 'cantico') return respond({ error: MESSAGES.badRequest }, 400);
+
+      // Um dia do Cántico ("Terminé este día"). Só para quem tem o Cántico, e
+      // só dia já aberto. A recusa vem com o retrato, como a das madrugadas
+      // (a tela guarda o retrato que chega junto do 409).
+      if (body.journey === 'cantico') {
+        const mine = await extrasOf(customer.id);
+        if (!mine) return respond({ error: MESSAGES.offline }, 503);
+        if (!mine.extras.includes('cantico')) {
+          return respond({ error: MESSAGES.notOwned, ...(await journey(customer, body.tz, access.until, false)) }, 409);
+        }
+        if (body.done && day > canticoOpen(calendar(customer, body.tz).open, mine.cantico_hechos)) {
+          return respond({ error: MESSAGES.lockedCantico, ...(await journey(customer, body.tz, access.until, false)) }, 409);
+        }
+        if (body.done) {
+          await db('latam_cantico_progress?on_conflict=customer_id,day', 'POST',
+            { customer_id: customer.id, day }, 'return=minimal,resolution=ignore-duplicates');
+        } else {
+          await db(`latam_cantico_progress?customer_id=eq.${customer.id}&day=eq.${day}`, 'DELETE', undefined, 'return=minimal');
+        }
+        return respond(await journey(customer, body.tz, access.until, false));
+      }
+
       if (body.done) {
         // O calendário resolve sem ir ao banco. Só um dia além do calendário
         // pede a lista do que ela já marcou (dia marcado nunca volta a trancar).

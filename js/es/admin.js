@@ -5,8 +5,11 @@
 //
 // O que muda em relação ao Brasil:
 //   - o produto que dá acesso é um só, o app ('app' em latam_access), por 12
-//     meses. Os extras (Arcángeles e Cántico) são entregues por e-mail, então
-//     o painel mostra quem COMPROU, sem botão de liberar;
+//     meses;
+//   - os extras (Arcángeles e Cántico) entraram no app em 07/11/2026. Quem tem
+//     cada um sai da compra (o pedido da KashPay) ou da dúvida (venda sem
+//     pedido: libera os dois). A ficha mostra a origem e tem "Liberar" e
+//     "Retirar", que mandam por cima da compra (supabase/latam/05-extras.sql);
 //   - quem comprou o quê sai dos pedidos da KashPay. Venda de antes de 06/11,
 //     22:54 não tem pedido: aparece como "sem registro do produto";
 //   - não há formulário de perfil.
@@ -31,7 +34,20 @@
   const actionLabels = {
     grant_access: 'Liberou o acesso', revoke_access: 'Revogou o acesso', update_email: 'Corrigiu o e-mail',
     entry_link: 'Criou o link de entrada', renew_entry_link: 'Trocou o link de entrada',
+    grant_extra: 'Liberou um extra no app', revoke_extra: 'Retirou um extra do app',
   };
+  // Os extras dentro do app (latam-api: admin_grant_extra / admin_revoke_extra).
+  const EXTRAS_NO_APP = [
+    { key: 'arcangeles', title: 'UP01 · Central de los Cuatro Arcángeles' },
+    { key: 'cantico', title: 'UP02 · Cántico Angelical' },
+  ];
+  const origemLabels = {
+    compra: 'Tem · pela compra',
+    duvida: 'Tem · venda sem registro do produto (liberado na dúvida)',
+    manual: 'Tem · liberado na mão',
+    retirado: 'Retirado na mão',
+  };
+  const nomeDoExtra = { arcangeles: 'Arcángeles', cantico: 'Cántico' };
   const sourceLabels = { whop: 'pela compra', import: 'pela carga inicial', manual: 'liberado na mão' };
 
   let customers = [];
@@ -260,6 +276,35 @@
     return block('Acesso', [row], '');
   }
 
+  // --- os extras dentro do app (07/11/2026) -------------------------------
+  // "Liberar" e "Retirar" mandam por cima da compra: retirar tira até de quem
+  // comprou; liberar de novo devolve. Sem prazo próprio: vale enquanto o app
+  // valer. Não mexe no e-mail de entrega da KashPay.
+  function renderExtras(data) {
+    const customer = data.customer;
+    if (!data.extras) return block('Extras no app', [], 'Não foi possível ler os extras agora (o banco ainda sem 05-extras.sql?).');
+    const linhas = EXTRAS_NO_APP.map(extra => {
+      const origem = data.extras.origem[extra.key];
+      const tem = Boolean(origem) && origem !== 'retirado';
+      const row = element('div', `admin-detail-line${tem ? ' is-active' : ' is-off'}`);
+      row.append(element('span', '', extra.title), element('strong', '', origem ? origemLabels[origem] || origem : 'Não tem'));
+      const button = element('button', 'admin-mini-btn', tem ? 'Retirar' : 'Liberar');
+      button.type = 'button';
+      button.addEventListener('click', () => act(
+        tem ? 'admin_revoke_extra' : 'admin_grant_extra',
+        { customer_id: customer.id, product: extra.key },
+        tem ? `Retirar ${extra.title} do app de ${customer.email}? O card volta a mostrar o cadeado na próxima vez que ela abrir o app.`
+          : `Liberar ${extra.title} no app para ${customer.email}?`,
+        customer.id,
+      ));
+      row.append(button);
+      return row;
+    });
+    const dias = data.extras.cantico_hechos || [];
+    linhas.push(line('Dias do Cántico terminados', dias.length ? dias.join(', ') : 'nenhum'));
+    return block('Extras no app', linhas, '');
+  }
+
   // --- link de entrada ---------------------------------------------------
   // Para quem não consegue digitar o e-mail: o suporte copia e manda; ela toca
   // e entra direto. Copiar de novo devolve o MESMO link; só "Trocar link"
@@ -379,7 +424,8 @@
     });
 
     const history = data.history.map(item => {
-      const extra = item.action === 'update_email' && item.details?.from ? ` — de ${item.details.from}` : '';
+      const extra = item.action === 'update_email' && item.details?.from ? ` — de ${item.details.from}`
+        : item.details?.product ? ` — ${nomeDoExtra[item.details.product] || item.details.product}` : '';
       return line(moment(item.created_at), `${actionLabels[item.action] || item.action}${extra}`);
     });
 
@@ -399,6 +445,7 @@
     detailBody.replaceChildren(
       resume,
       renderAccess(data),
+      renderExtras(data),
       renderEntryLink(data),
       block('Corrigir e-mail', [emailForm], ''),
       block('Compras', compras, 'Nenhum pagamento registrado para este e-mail.'),

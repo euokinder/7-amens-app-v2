@@ -1173,3 +1173,11 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 @media (prefers-reduced-motion: reduce) {
   .member-offer-cta { animation: none; box-shadow: 0 0 28px 6px oklch(0.74 0.18 80 / 0.6), 0 8px 22px oklch(0.25 0.03 55 / 0.22); }
 }
+
+/* Os extras dentro do app (07/11/2026): enquanto a voz de uma oração não
+   chega, o quadro do tocador mostra este aviso no lugar dos botões. */
+.audio-card-aviso { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-muted); }
+.audio-card .material-btn {
+  align-self: stretch; justify-content: center; height: 54px; font-size: 16px;
+  background: var(--bg); border: 1px solid var(--hairline); text-decoration: none;
+}

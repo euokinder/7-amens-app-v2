@@ -59,7 +59,7 @@ Decisão do Caio (05/11): mesmo Netlify, mesmo repositório e mesmo Supabase, co
 | Separação | mesmo Netlify, Supabase e repositório, com as regras acima | Caio, 05/11 |
 | Prazo do acesso | 12 meses a partir da compra, como diz a venda | recomendação, adotada para começar |
 | Reembolso e disputa | **não** tiram o acesso; ficam só registrados (como na Payt). Tirar é à mão | recomendação, adotada para começar |
-| Conteúdo da versão 1 | só texto: Comienza aquí (Día 0), os 7 días, Padre Nuestro e "dos lados"; PDFs para baixar. Ficam fora: Arcanjos, Cântico, grupo, Mensagem do Dia e Desatadora (que é extra pago na LATAM) | recomendação, adotada para começar |
+| Conteúdo da versão 1 | só texto: Comienza aquí (Día 0), os 7 días, Padre Nuestro e "dos lados"; PDFs para baixar. Ficam fora: grupo e Mensagem do Dia. **Os Arcángeles (UP01) e o Cántico (UP02) entraram em 07/11** (ver "Os extras dentro do app") | recomendação, adotada para começar; extras: Caio, 07/11 |
 | Trava | uma oração por dia, contando do primeiro acesso, à meia-noite do fuso do celular dela (guardado no primeiro acesso e conferido pelo servidor; sem fuso válido, vale `America/Mexico_City`). Oração concluída nunca volta a trancar | recomendação, adotada para começar |
 | Idioma | "tú"; "Sanación"; "Material de regalo"; Padre Nuestro na versão litúrgica latino-americana | Caio, 01/11 |
 | Suporte em espanhol | ⏳ **falta**: canal e quem atende | antes de ir ao ar |
@@ -285,8 +285,57 @@ Pedido do Caio: um painel só do app em espanhol, com as mesmas funções do pai
 - **Corrigir o e-mail** também troca o e-mail nas compras dela (`latam_whop_events.customer_email`). Sem isso, ela "perderia" o que comprou, no painel e na escolha dos pop-ups.
 - **Em português:** quem usa o painel é a equipe. A mensagem pronta do link de entrada é em espanhol, porque vai para a cliente.
 
+## Os extras dentro do app (07/11/2026)
+Pedido do Caio: o UP01 e o UP02 dentro do app em espanhol, "seguindo o mesmo esquema do Brasil, fazendo igualzinho o layout". As vozes ele grava à parte (outra conversa transcreve os 19 áudios do Brasil e escreve os roteiros); os PDFs e todo o desenho vão antes.
+
+**Decisões do Caio (07/11):**
+- **Arcángeles: 4 arcanjos, igual ao Brasil** (Miguel, Gabriel, Rafael e Uriel, 3 orações cada). O PDF em espanhol, que só tem os 3 que a Igreja nomeia, entra como material de regalo.
+- **Cántico: o PDF da Novena a la Virgen Desatanudos vai junto**, de regalo. Quem comprou o UP02 até 07/11 recebeu esse PDF por e-mail, porque o checkout tinha esse nome.
+- **Venda sem registro do produto (antes de 06/11, 22:54): libera os dois.** Esconder algo pago gera reclamação na Whop, o maior risco da conta.
+- **Vai ao ar antes das vozes, só com os PDFs.** A tela de cada oração mostra "Audio en preparación" até a voz chegar.
+
+**Como a cliente vê** (cópia do Brasil):
+| Quem | Na home ("Contenidos Exclusivos") | Ao tocar |
+|---|---|---|
+| Tem o extra | "DISPONIBLE", "Acceder al contenido" | entra (`/es-arcangeles` ou `/es-cantico`) |
+| Não tem | "🔒 EXTRA", "Adquirir" | página de venda (`/es-oferta-arcangeles` ou `/es-oferta-cantico`), com `utm_medium=card&utm_content=card-home` |
+- A frase "Los contenidos con 🔒 son extras..." some para quem tem os dois.
+- Quem abre a página de um extra que não tem, por link, vê o convite "Conocer…" (`utm_content=link-directo`), como no Brasil.
+- **O Cántico:** introdução + 7 dias, um por dia, com a **mesma âncora e o mesmo calendário das madrugadas** (como no Brasil: quem compra depois de uma semana encontra os 7 abertos). "Terminé este día" grava em `latam_cantico_progress`. A Introdução não tem áudio no Brasil e fica fora da lista, como lá.
+- **Enquanto a voz não chega**, a oração mostra o quadro "Audio en preparación" (nos arcanjos que estão no PDF, com o botão do PDF), e o dia do Cántico não tem "Terminé" (ainda não há o que terminar).
+
+**Os arquivos:**
+| O quê | Onde |
+|---|---|
+| Banco | `supabase/latam/05-extras.sql`: `latam_access` aceita `arcangeles`/`cantico` (só o que o painel faz à mão), `latam_cantico_progress`, `latam_admin_actions` aceita `grant_extra`/`revoke_extra`, e a função `latam_extras()` |
+| Servidor | `latam-api` v6: o retrato ganha `extras` e `cantico`; `progress` com `journey: 'cantico'`; o painel ganha `admin_grant_extra` e `admin_revoke_extra` |
+| Telas | `es-arcangeles` → `es-arcangel?a=…` → `es-oracion-arcangel?a=…&o=…`; `es-cantico` → `es-cantico-dia?dia=…`; os cards em `es.html` |
+| Conteúdo | `js/es/arcangeles.js` e `js/es/cantico.js` (traduzidos do Brasil) |
+| Regra da tela | `js/es/extras.js` (card, cadeado, convite e "Audio en preparación") |
+| Tocador | `js/es/tocador.js`, cópia do `js/tocador.js` em espanhol, sem cópia do áudio no site |
+| PDFs | `assets/latam/pdf/oraciones-santos-arcangeles.pdf` e `novena-virgen-desatanudos.pdf` |
+| Painel | ficha da cliente → bloco "Extras no app": a origem (compra, dúvida, à mão, retirado) e "Liberar"/"Retirar" |
+
+**Quem tem cada extra** (`latam_extras`, nesta ordem):
+1. **a compra:** o pagamento da Whop cruzado com o pedido da KashPay (a mesma conta dos pop-ups). `desatanudos` = o Cántico;
+2. **a dúvida:** sobra um pagamento sem pedido que não é a compra do app → os dois;
+3. **o painel por cima:** liberado à mão soma; retirado à mão tira, mesmo de quem comprou.
+- A carga manual (`import`) não tem pagamento registrado: os extras dela, se houver, entram pelo painel.
+- Reembolso e disputa não tiram o extra, como não tiram o app. O extra não tem prazo próprio.
+- ⚠️ Liberar à mão **não** tira o pop-up de oferta daquele extra (o `latam_claim_offer` só olha a compra). Raro, e no máximo 3 pop-ups na vida.
+
+**Rede de segurança:** sem `latam_extras` no banco, ou se ela falhar, a `latam-api` manda `extras: null`, e a tela **abre os dois** (como a trava do Brasil: trancar quem pagou é pior). Provado no computador com a função antiga.
+
+**Ordem de publicar: banco → função → site.** Qualquer ordem é inofensiva: sem o banco, a função nova manda `extras: null` (abre); sem a função nova, o site novo também abre; sem o site novo, ninguém vê os cards.
+
+**Quando as vozes chegarem** (19 áudios: 12 dos Arcángeles e 7 do Cántico):
+1. converter (voz mono 96 kbps, como no Brasil) e subir na **Bunny**, nunca na Netlify;
+2. em `js/es/arcangeles.js` e `js/es/cantico.js`: o endereço completo em `audioUrl` e apagar o `pendiente`;
+3. 1 build. O "Terminé este día" aparece sozinho nos dias com áudio.
+
 ## Como voltar atrás
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
 - **Banco:** a seção "DESFAZER" de `supabase/latam/01-tabelas.sql` apaga só o que é `latam_`.
 - **Funções:** apagar `latam-api` e `latam-whop` no painel. O Brasil não usa nenhuma das duas.
+- **Extras:** a `latam-api` de antes deles (v5) é a do commit `310073a` (`git show 310073a:supabase/functions/latam-api/index.ts`); sem ela, o site novo abre os dois extras para todas (rede de segurança). O banco pode ficar: a v5 não usa o que ele ganhou. Desfazer o banco: seção DESFAZER de `05-extras.sql`.
 - **Pop-ups:** desligar um é `update public.latam_offer_campaigns set enabled = false where key = '…'`, sem build e sem mexer na função. Para voltar a `latam-api` de antes dos pop-ups, use o arquivo do commit `8580d7b` (`git show 8580d7b:supabase/functions/latam-api/index.ts`).
