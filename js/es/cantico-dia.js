@@ -68,7 +68,12 @@
     const audioHtml = dia.audioUrl
       ? TOCADOR.html(dia.audioUrl, 'Escucha el Audio del Día')
       : dia.pendiente
-        ? window.AMENES_EXTRAS.audioEnPreparacion('La voz de este día está en preparación y llega muy pronto, aquí mismo.', '', '')
+        // Pedido do Caio (07/11): o PDF da Novena em cada dia, para o dia "ter
+        // alguma coisa", e o aviso de que o áudio está sendo ajustado. Os dois
+        // saem quando a voz entrar (audioUrl preenchido).
+        ? window.AMENES_EXTRAS.audioEnPreparacion(
+          'Ya estamos ajustando el audio de este día: muy pronto estará aquí mismo. Mientras tanto, puedes rezar con la Novena a la Virgen Desatanudos, en PDF.',
+          PDF_NOVENA, 'Abrir la Novena en PDF')
         : '';
 
     const textoHtml = dia.oracion

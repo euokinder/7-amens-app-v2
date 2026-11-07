@@ -25,12 +25,15 @@
     const listaDoArcangel = `/es-arcangel?a=${arcangel.clave}`;
     document.getElementById('volver').setAttribute('onclick', `history.length > 1 ? history.back() : location.href='${listaDoArcangel}'`);
 
-    const avisoDaVoz = 'La voz de esta oración está en preparación y llega muy pronto, aquí mismo.'
-      + (arcangel.enElPdf ? ` Mientras tanto, puedes rezar a ${esc(arcangel.nombre)} con tu PDF.` : '');
+    // Enquanto a voz não chega: o aviso de que o áudio está sendo ajustado e o
+    // PDF dos Arcángeles em todas as orações, para nenhuma ficar sem nada
+    // (Caio, 07/11). No Uriel, que não está no PDF, a frase não promete rezar a ele.
+    const avisoDaVoz = 'Ya estamos ajustando el audio de esta oración: muy pronto estará aquí mismo. '
+      + (arcangel.enElPdf ? `Mientras tanto, puedes rezar a ${esc(arcangel.nombre)} con tu PDF.` : 'Mientras tanto, puedes rezar con el PDF de los Arcángeles.');
     const audioHtml = item.audioUrl
       ? TOCADOR.html(item.audioUrl, 'Escucha la Oración en Audio')
       : item.pendiente
-        ? window.AMENES_EXTRAS.audioEnPreparacion(avisoDaVoz, arcangel.enElPdf ? PDF_ARCANGELES : '', 'Abrir el PDF de los Arcángeles')
+        ? window.AMENES_EXTRAS.audioEnPreparacion(avisoDaVoz, PDF_ARCANGELES, 'Abrir el PDF de los Arcángeles')
         : '';
 
     // Sem texto (oracion nula), a tela fica só com o áudio, como no Brasil.

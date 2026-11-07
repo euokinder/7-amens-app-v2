@@ -20,7 +20,10 @@
         el('div', { class: 'card-body' },
           el('h3', { class: 'card-title', text: tituloDelArcangel(arcangel) }),
           el('p', { class: 'card-sub', text: arcangel.resumen }),
-          el('span', { class: 'cta-btn', text: 'Ver las oraciones' })));
+          // Um <button> de verdade, como no arcanjos.html do Brasil: o estilo
+          // .cta-btn conta com isso para centralizar o texto (com <span>, o
+          // texto ficava no canto, visto pelo Caio em 07/11).
+          el('button', { class: 'cta-btn', type: 'button', tabindex: '-1', text: 'Ver las oraciones' })));
       cartao.style.height = '300px';
       cartao.style.backgroundImage = `${OVERLAY}, url(${arcangel.imagen})`;
       lista.append(cartao);

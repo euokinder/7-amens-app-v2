@@ -26,7 +26,8 @@
 // oracion nula = sem texto na tela (como no Brasil, por enquanto só o áudio).
 // Quando o texto chegar: { apertura, bloques: [...], cierre }.
 // enElPdf = o arcanjo está no PDF "Oraciones a los Santos Arcángeles" (Uriel
-// não está): só esses ganham o botão do PDF enquanto a voz não chega.
+// não está). Enquanto a voz não chega, TODAS as orações mostram o botão do
+// PDF (Caio, 07/11); o enElPdf só muda a frase do aviso.
 // As imagens são as mesmas do Brasil (sem texto escrito nelas).
 
 const ARCANGELES = [

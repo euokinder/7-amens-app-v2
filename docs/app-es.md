@@ -288,6 +288,10 @@ Pedido do Caio: um painel só do app em espanhol, com as mesmas funções do pai
 ## Os extras dentro do app (07/11/2026)
 Pedido do Caio: o UP01 e o UP02 dentro do app em espanhol, "seguindo o mesmo esquema do Brasil, fazendo igualzinho o layout". As vozes ele grava à parte (outra conversa transcreve os 19 áudios do Brasil e escreve os roteiros); os PDFs e todo o desenho vão antes.
 
+✅ **Ajuste no mesmo dia (07/11, à noite):** o botão "Ver las oraciones" da Central (texto fora do lugar) e o PDF em todas as orações e dias. 1 build.
+
+✅ **NO AR desde 07/11/2026, ~17:25 (Brasília):** banco (`05-extras.sql`, colado pelo Caio), `latam-api` **v6** (colada pelo Caio, JWT desligado) e site (deploy `6aef8905465d856e678db524`, commit `7a8ded4`). Ponto de retorno: o deploy `6aef7793…`. Contagem no banco na hora de publicar: Arcángeles 68 (52 pela compra + 16 pela dúvida), Cántico 36 (20 + 16).
+
 **Decisões do Caio (07/11):**
 - **Arcángeles: 4 arcanjos, igual ao Brasil** (Miguel, Gabriel, Rafael e Uriel, 3 orações cada). O PDF em espanhol, que só tem os 3 que a Igreja nomeia, entra como material de regalo.
 - **Cántico: o PDF da Novena a la Virgen Desatanudos vai junto**, de regalo. Quem comprou o UP02 até 07/11 recebeu esse PDF por e-mail, porque o checkout tinha esse nome.
@@ -302,7 +306,7 @@ Pedido do Caio: o UP01 e o UP02 dentro do app em espanhol, "seguindo o mesmo esq
 - A frase "Los contenidos con 🔒 son extras..." some para quem tem os dois.
 - Quem abre a página de um extra que não tem, por link, vê o convite "Conocer…" (`utm_content=link-directo`), como no Brasil.
 - **O Cántico:** introdução + 7 dias, um por dia, com a **mesma âncora e o mesmo calendário das madrugadas** (como no Brasil: quem compra depois de uma semana encontra os 7 abertos). "Terminé este día" grava em `latam_cantico_progress`. A Introdução não tem áudio no Brasil e fica fora da lista, como lá.
-- **Enquanto a voz não chega**, a oração mostra o quadro "Audio en preparación" (nos arcanjos que estão no PDF, com o botão do PDF), e o dia do Cántico não tem "Terminé" (ainda não há o que terminar).
+- **Enquanto a voz não chega**, cada oração e cada dia mostram o quadro "Audio en preparación", com a frase "Ya estamos ajustando el audio…" e um botão de PDF: o dos Arcángeles em todas as 12 orações, e o da Novena Desatanudos nos 7 dias do Cántico (Caio, 07/11: "pra ter alguma coisa e não ficar sem nada"). O dia do Cántico não tem "Terminé" (ainda não há o que terminar). Quando a voz entra (`audioUrl`), o quadro dá lugar ao tocador.
 
 **Os arquivos:**
 | O quê | Onde |
