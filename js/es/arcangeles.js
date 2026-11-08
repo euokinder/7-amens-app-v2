@@ -14,14 +14,16 @@
 // js/es/extras.js, não aqui. ⚠️ Não é cadeado de verdade: este arquivo é
 // público. Guia a cliente; não protege o conteúdo.
 //
-// ⏳ AS VOZES (Caio, 07/11): estão sendo gravadas. Enquanto audioUrl estiver
-// vazio e pendiente: true, a tela mostra "Audio en preparación". Quando cada
-// voz chegar:
-//   1. subir na Bunny (nunca na Netlify, que gasta crédito);
-//   2. escrever o endereço COMPLETO em audioUrl
-//      (ex.: 'https://setemadrugadas.b-cdn.net/latam/arcangeles/miguel-1.mp3');
-//   3. apagar o pendiente.
-// Arquivo novo = NOME novo: o celular guarda os áudios por muito tempo.
+// ✅ AS VOZES chegaram em 08/11/2026 (Padre Santiago, voz de IA, com música de
+// fundo). Moram na Bunny, no armazenamento SÓ da LATAM "setemadrugadas-latam"
+// (Nova York, sem réplica), entregue pela zona "setemadrugadas-latam.b-cdn.net".
+// Nunca na Netlify, e nunca na zona "setemadrugadas", que é do Brasil e puxa do
+// site: ligar o armazenamento a ela trocaria a origem dos áudios do Brasil.
+// Convertidas como as do Brasil: mono, 96 kbps.
+// Enquanto audioUrl estiver vazio e pendiente: true, a tela mostra "Audio en
+// preparación" (com o PDF). Áudio novo: subir na pasta arcangeles/ de lá,
+// escrever o endereço COMPLETO em audioUrl e apagar o pendiente.
+// Arquivo novo = NOME novo: o celular guarda os áudios por 30 dias.
 //
 // oracion nula = sem texto na tela (como no Brasil, por enquanto só o áudio).
 // Quando o texto chegar: { apertura, bloques: [...], cierre }.
@@ -42,17 +44,17 @@ const ARCANGELES = [
       {
         titulo: 'Oración de San Miguel Contra Todo Mal',
         descripcion: 'Protección personal contra ataques, envidia y negatividad.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/miguel-1.mp3', oracion: null,
       },
       {
         titulo: 'Oración de San Miguel por la Protección de la Familia',
         descripcion: 'Por los hijos, los nietos, el esposo y las personas que viven bajo el mismo techo.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/miguel-2.mp3', oracion: null,
       },
       {
         titulo: 'Oración de San Miguel para Proteger tu Casa',
         descripcion: 'Por el hogar, los conflictos, las peleas y todo lo que intenta quitarle la paz a la familia.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/miguel-3.mp3', oracion: null,
       },
     ],
   },
@@ -67,17 +69,17 @@ const ARCANGELES = [
       {
         titulo: 'Oración de San Gabriel para Abrir Nuevos Caminos',
         descripcion: 'Para quien siente la vida estancada o sin salida.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/gabriel-1.mp3', oracion: null,
       },
       {
         titulo: 'Oración de San Gabriel por Trabajo y Buenas Noticias',
         descripcion: 'Empleo, oportunidades, una respuesta esperada, dinero y puertas que necesitan abrirse.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/gabriel-2.mp3', oracion: null,
       },
       {
         titulo: 'Oración de San Gabriel para Recibir la Dirección de Dios',
         descripcion: 'Para los momentos en que no sabes qué camino seguir.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/gabriel-3.mp3', oracion: null,
       },
     ],
   },
@@ -92,17 +94,17 @@ const ARCANGELES = [
       {
         titulo: 'Oración de San Rafael por la Sanación del Cuerpo',
         descripcion: 'Presenta a Dios tu enfermedad, tu dolor o tu preocupación por la salud.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/rafael-1.mp3', oracion: null,
       },
       {
         titulo: 'Oración de San Rafael por la Sanación de Quien Amas',
         descripcion: 'Piensa en el nombre de quien amas, o dilo en voz alta: un hijo, el esposo, un nieto.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/rafael-2.mp3', oracion: null,
       },
       {
         titulo: 'Oración de San Rafael para Restaurar tus Fuerzas',
         descripcion: 'Para el cansancio, el desánimo y la debilidad, del cuerpo y del alma.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/rafael-3.mp3', oracion: null,
       },
     ],
   },
@@ -119,17 +121,17 @@ const ARCANGELES = [
       {
         titulo: 'Oración de Uriel para una Decisión Difícil',
         descripcion: 'Cuando hay dos caminos y no sabes qué hacer.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/uriel-1.mp3', oracion: null,
       },
       {
         titulo: 'Oración de Uriel para Revelar las Trampas',
         descripcion: 'Personas falsas, negocios, malas decisiones y situaciones que pueden traer sufrimiento.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/uriel-2.mp3', oracion: null,
       },
       {
         titulo: 'Oración de Uriel para Iluminar tu Camino',
         descripcion: 'Para pedir sabiduría, claridad y discernimiento.',
-        audioUrl: '', pendiente: true, oracion: null,
+        audioUrl: 'https://setemadrugadas-latam.b-cdn.net/arcangeles/uriel-3.mp3', oracion: null,
       },
     ],
   },

@@ -12,11 +12,17 @@
 // primeiro acesso ao app), como no Brasil. Não aqui.
 // ⚠️ Não é cadeado de verdade: este arquivo é público.
 //
-// ⏳ AS VOZES (Caio, 07/11): estão sendo gravadas. Enquanto audioUrl estiver
-// vazio e pendiente: true, o dia aparece na lista e a tela mostra "Audio en
-// preparación", sem o botão "Terminé este día". Quando cada voz chegar: subir
-// na Bunny, escrever o endereço COMPLETO em audioUrl e apagar o pendiente
-// (ver o mesmo aviso em js/es/arcangeles.js).
+// ✅ OS ÁUDIOS chegaram em 08/11/2026, na Bunny da LATAM (ver o aviso em
+// js/es/arcangeles.js). Cada dia é MONTADO (Caio, 08/11: "você consegue
+// juntar?"): a edição mandou só a fala em espanhol (25 a 49 s, com uma música
+// própria por baixo) e, depois dela, entra uma CÓPIA da parte só instrumental
+// do áudio do mesmo dia do Brasil (de 0:35 em diante; Dia 6 de 0:38, Dia 7 de
+// 0:58, sempre depois que a fala em português acaba), subindo em 3 s.
+// A música de baixo da voz não é a mesma do Brasil: perto de 0:30 ela muda.
+// Se a edição mandar o dia inteiro, é só trocar o arquivo (com NOME novo).
+// Estéreo, 128 kbps, como no Brasil. Mexer no áudio do Brasil não muda nada aqui.
+// Sem áudio e com pendiente: true, a tela volta a mostrar "Audio en
+// preparación", sem o botão "Terminé este día".
 //
 // oracion nula = sem texto na tela. Quando chegar: { apertura, bloques: [...], cierre }.
 // Dia sem áudio, sem texto e sem pendiente (a Introdução, como no Brasil) não
@@ -37,7 +43,7 @@ const CANTICO = {
     subtitulo: 'Entrega lo que más te pesa',
     kicker: 'Cántico Angelical · Día 01',
     imagen: '/assets/images/cantico/provisorio-dia-1.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-1.mp3', oracion: null,
     proximo: 'Mañana: Segundo Día — Paz para el corazón.',
   },
   2: {
@@ -45,7 +51,7 @@ const CANTICO = {
     subtitulo: 'Paz para el corazón',
     kicker: 'Cántico Angelical · Día 02',
     imagen: '/assets/images/cantico/provisorio-dia-2.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-2.mp3', oracion: null,
     proximo: 'Mañana: Tercer Día — Salud.',
   },
   3: {
@@ -53,7 +59,7 @@ const CANTICO = {
     subtitulo: 'Salud',
     kicker: 'Cántico Angelical · Día 03',
     imagen: '/assets/images/cantico/provisorio-dia-3.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-3.mp3', oracion: null,
     proximo: 'Mañana: Cuarto Día — Trabajo y finanzas.',
   },
   4: {
@@ -61,7 +67,7 @@ const CANTICO = {
     subtitulo: 'Trabajo y finanzas',
     kicker: 'Cántico Angelical · Día 04',
     imagen: '/assets/images/cantico/provisorio-dia-4.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-4.mp3', oracion: null,
     proximo: 'Mañana: Quinto Día — Familia.',
   },
   5: {
@@ -69,7 +75,7 @@ const CANTICO = {
     subtitulo: 'Familia',
     kicker: 'Cántico Angelical · Día 05',
     imagen: '/assets/images/cantico/provisorio-dia-5.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-5.mp3', oracion: null,
     proximo: 'Mañana: Sexto Día — Nuevos caminos.',
   },
   6: {
@@ -77,7 +83,7 @@ const CANTICO = {
     subtitulo: 'Nuevos caminos',
     kicker: 'Cántico Angelical · Día 06',
     imagen: '/assets/images/cantico/provisorio-dia-6.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-6.mp3', oracion: null,
     proximo: 'Mañana: Séptimo Día — Gratitud y entrega.',
   },
   7: {
@@ -85,7 +91,7 @@ const CANTICO = {
     subtitulo: 'Gratitud y entrega',
     kicker: 'Cántico Angelical · Día 07',
     imagen: '/assets/images/cantico/provisorio-dia-7.svg',
-    audioUrl: '', pendiente: true, oracion: null,
+    audioUrl: 'https://setemadrugadas-latam.b-cdn.net/cantico/dia-7.mp3', oracion: null,
     proximo: '',
   },
 };
