@@ -337,6 +337,99 @@ Pedido do Caio: o UP01 e o UP02 dentro do app em espanhol, "seguindo o mesmo esq
 2. em `js/es/arcangeles.js` e `js/es/cantico.js`: o endereço completo em `audioUrl` e apagar o `pendiente`;
 3. 1 build. O "Terminé este día" aparece sozinho nos dias com áudio.
 
+## Digistore24 como processadora (plano de 08/11/2026, ainda NÃO executado)
+**Como a venda anda (Caio, 08/11):** a KashPay é o checkout, e quem processa o pagamento é a Whop **ou** a Digistore24. A venda fica **dividida entre as duas, de propósito**. Para a Digistore24 foi criado um **produto novo na KashPay**, separado do da Whop. ✅ **Decisão do Caio (08/11): toda liberação passa a ser feita pelo aviso da KashPay** (o caminho recomendado, abaixo). Até aqui, só a Whop liberava o app sozinha (`latam-whop`). A venda processada pela Digistore24 não libera nada: as 3 clientes de 08/11 tiveram de ser liberadas à mão no `/es-admin` (`source = 'manual'`).
+
+**Medido no banco em 08/11, às 15h:** desde 06/11, os 499 pedidos pagos que o aviso da KashPay registrou (`latam_kashpay_events`) têm **todos** o aviso da Whop correspondente. Ou seja, a venda processada pela Digistore24 **não chega nem ao aviso da KashPay**. A suspeita mais forte é o produto ou oferta nova (no painel, "7 Amenes de la Madrugada D"). O webhook da KashPay só manda os produtos marcados em "Produtos vinculados", e essa oferta nova não está marcada. ⚠️ Pela mesma razão, ela pode estar sem o e-mail de entrega dos PDFs, que é separado por produto no funil "7 Amenes - Entrega dos PDFs", e sem a página depois do pagamento apontada para a `/materiales`.
+
+**Até resolver:** toda venda processada pela Digistore24 é liberada à mão no `/es-admin` ("Liberar acesso na mão", 12 meses).
+
+### O caminho recomendado: quem libera é o aviso da KashPay, seja qual for a processadora
+A KashPay é a única peça presente em toda venda. O aviso dela já está no ar (`latam-kashpay`, desde 06/11), confere assinatura (`X-KashPay-Signature`) e já sabe o produto pelo id ou nome da oferta (`latam_kashpay_offers`). Ele traz o e-mail de quem comprou. Ligar a liberação nele cobre a Whop, a Digistore24 e qualquer processadora futura, sem uma integração nova para cada uma.
+1. **Na KashPay (o Caio, com o agente olhando):**
+   - marcar as ofertas novas da Digistore24 em "Produtos vinculados" do webhook do 7 Amenes;
+   - conferir se elas estão no funil de e-mail de entrega e na página depois do pagamento.
+   Só isso já faz o rastreio enxergar essas vendas.
+2. **A `latam-kashpay` passa a liberar:**
+   - `order.paid` com `principal` libera o app por 12 meses, com a mesma conta do "mais longe" da Whop;
+   - repetir o aviso não duplica nada;
+   - a Whop continua liberando também, e as duas juntas não fazem mal.
+   - O e-mail vai só para `latam_customers`, como já acontece com a Whop. O corpo do aviso continua **não** sendo guardado, e `latam_kashpay_events` ganha só `customer_id`, nunca o e-mail. Isso ajusta a decisão "sem dado pessoal" de 06/11: ⏳ confirmar.
+   - Reembolso e chargeback ficam só registrados (regra de 05/11).
+3. **Quem lê compras passa a ler pela KashPay:** `latam_extras()` (`05-extras.sql`), a fila de pop-ups (`03-popups.sql`) e a ficha do painel (`04-admin.sql`). Hoje elas cruzam `latam_whop_events` × `latam_kashpay_events`, e a venda da Digistore24 não tem aviso da Whop. Com o `customer_id` no pedido da KashPay, o cruzamento deixa de ser necessário.
+4. **As vendas de antes:** pelo export de pedidos da KashPay (ou da Digistore24), com a carga gerada fora do repositório (tem e-mail de cliente). O Caio cola, ou, se forem poucas, o painel resolve.
+
+⚠️ **O código da `latam-kashpay` não está na `main`:** ele está no ramo `claude/latam-kashpay-2fc07a`, na worktree `.claude/worktrees/latam-kashpay-2fc07a`, e a produção roda essa versão. Antes de mexer, trazer esse ramo para cá.
+
+⚠️ **O aviso da KashPay tenta só 3 vezes** (na hora, depois de 30 s e depois de 3 min). Se a função estiver fora por mais que isso, a venda fica de fora. A rede é a própria Whop, para as vendas dela. Para as da Digistore24, a rede é o IPN dela (abaixo) ou uma conferência diária. ⏳ Decidir.
+
+**Ordem de ir ao ar** (cada passo é inofensivo sem o seguinte):
+1. o SQL na produção (`customer_id` no pedido e a leitura nova nas 3 funções do banco), que o Caio cola;
+2. a `latam-kashpay` nova pelo painel do Supabase, com o JWT desligado, que o Caio cola;
+3. as ofertas da Digistore24 vinculadas ao webhook da KashPay;
+4. uma compra de verdade (ou a da equipe) processada pela Digistore24, que tem de chegar `processed` com o app liberado;
+5. a carga das vendas de antes.
+
+Nenhum build: o site não muda.
+
+### ✅ NO AR desde 08/11/2026, ~15:50 (Brasília)
+- **Banco:** o `06-kashpay-libera.sql` foi colado pelo Caio às ~15:30. Conferido logo depois: a coluna, a origem `kashpay`, a visão com `security_invoker=true`, as 3 funções lendo a visão e 641 compras da Whop na visão.
+- **Função:** a `latam-kashpay` **v3** foi colada pelo Caio às 15:36, com o JWT desligado. Ponto de retorno: a v2, que é o arquivo do commit `4c5f710`.
+- **KashPay:** os 3 produtos "D" foram marcados em "Produtos vinculados" do webhook do 7 Amenes, que passou de 3 para 6 produtos. Só os eventos `order.paid`, `order.refunded` e `order.chargeback`.
+  - As ofertas dos "D" se chamam "7 Amenes de la Madrugada", "Oraciones a los Santos Arcángeles" e "Cántico Angelical": a função reconhece as 3 pelo nome.
+  - Na lista de vendas da KashPay o upsell aparece como oferta "Upsell", inclusive o da Whop. Mesmo assim, o aviso traz o nome de verdade: as 155 vendas de upsell da Whop chegaram como `arcangeles`.
+  - ⚠️ **Não usar o "Enviar teste" do webhook:** ele manda um pedido de exemplo para a produção, e um pedido de exemplo com nome de oferta nosso criaria uma cliente de mentira.
+- **As vendas "D" de antes (08/11, de 02:41 a 04:02):** foram 7 vendas, de 4 compradoras. As 4 estão com o app liberado à mão, e os extras foram liberados à mão no `/es-admin`: Arcángeles + Cántico para uma, Arcángeles para outra. Os e-mails ficam fora do repositório.
+- **E-mail de entrega dos "D":** existe o funil "7 Amenes - Entrega dos PDFs [Digi]", criado em 08/11, com os 3 e-mails em "Compra aprovada", cada um com o seu produto "D". Às 15:50 ele mostrava **0 envios**, provavelmente porque foi criado depois das vendas. ⏳ Conferir na primeira venda "D".
+- ⏳ **Falta ver a primeira venda real** passar pela v3 (Whop ou "D") com "App liberado" no `detail`. Até as 15:50 não tinha entrado nenhuma venda desde a troca.
+- ⏳ **O painel da KashPay mostra um produto "7 Amenes de la Madrugada Dd"**, que não aparece na lista do webhook. Perguntar ao Caio o que é.
+
+### Como foi montado e provado (08/11/2026)
+- **`supabase/latam/06-kashpay-libera.sql`:**
+  - `customer_id` no pedido da KashPay;
+  - a origem `kashpay` e a coluna `kashpay_transaction_id` em `latam_access`;
+  - a visão `latam_pedidos_pagos`, com tudo o que ela pagou (Whop + KashPay sem Whop);
+  - `latam_extras`, `latam_claim_offer` e `latam_admin_customers` lendo a visão. O corpo das três foi conferido contra a produção (md5) antes da troca.
+- **`supabase/functions/latam-kashpay/index.ts`** (veio do ramo `claude/latam-kashpay-2fc07a`, idêntico à v2 da produção):
+  - pedido pago e nosso cria ou acha a cliente pelo `data.customer.email` e libera o app por 12 meses ("mais longe");
+  - a liberação vem **antes** de gravar o pedido: se falhar, a resposta 500 faz a KashPay tentar de novo;
+  - sem e-mail, grava e avisa no `detail` ("NÃO foi liberado");
+  - reconhece "Cántico" pelo nome (`desatanudos`).
+- **Teste local:** `testa-latam-kashpay.mjs`, com 112 conferências. As da `latam-api` (121) e da `latam-whop` (57) continuam verdes.
+- **Projeto de TESTE:** o SQL foi rodado e a `latam-kashpay` está na v4. A prova `supabase/latam/testes/prova-libera-no-teste.mjs` deu 6 de 6, e a cliente de mentira foi limpa depois. No banco, conferido:
+  - acesso `kashpay` até 2027-11-08;
+  - os 3 pedidos na visão;
+  - os extras como "compra";
+  - o painel com 3 pagamentos;
+  - nenhum pop-up do que ela já tem;
+  - telefone em lugar nenhum.
+- ⚠️ **A ficha do painel** (`admin_customer_detail`, na `latam-api`) ainda lista só os pagamentos da Whop. A venda da Digistore24 aparece no acesso ("kashpay") e nos extras, mas não na lista de pagamentos. Corrigir na próxima vez que a `latam-api` for publicada. O rótulo da origem `kashpay` no painel (`js/es/admin.js`, `sourceLabels`) também fica para o próximo build.
+
+### Plano B, ou rede de segurança: o IPN da própria Digistore24 (estudo de 08/11)
+Serve se a KashPay não mandar o aviso dessas vendas, ou como segunda rede, já que a Digistore24 repete o aviso por 10 dias. As fontes estão em dev.digistore24.com e help.digistore24.com. Nunca inferir por analogia com Whop, Hubla ou Payt.
+- **Onde:** *Settings → Integrations (IPN) → Add new connection → Generic*. Os campos são URL, **IPN password**, produtos, add-ons, eventos, moeda, timing "Before redirect to thank you page" e e-mail de erro. Os artigos divergem: conferir na tela.
+- **O aviso:** POST com campos de formulário. Os campos são `event` (`on_payment`, `on_refund`, `on_chargeback`, `connection_test`…), `email`, `address_first_name`/`address_last_name`, `order_id`, `transaction_id`, `product_id`, `product_name`, `amount_brutto`/`currency`, `billing_type`, `country`, `custom`, `api_mode` (`live`/`test`) e `sha_sign`.
+- **A assinatura:**
+  1. tirar o `sha_sign`;
+  2. descartar os campos vazios (o "0" fica);
+  3. ordenar pela chave, como no código oficial `sha_sign.php`;
+  4. juntar `chave=valor` + senha;
+  5. calcular o SHA-512 em hexadecimal, em MAIÚSCULAS.
+- **A resposta:** o texto exato `OK`, em até 30 s. Sem ele, ela repete pelo menos 20 vezes em 10 dias. Aviso repetido acontece de verdade: a chave é `transaction_id` + `event`. Depois do `OK`, a resposta pode trazer `loginurl: …`, que aparece no e-mail de confirmação da Digistore24.
+- **Como fica:** a função `latam-digistore`, a tabela `latam_digistore_events` e o segredo `LATAM_DIGISTORE_IPN_PASSWORD`.
+- ⚠️ **Não conferido:** com a KashPay na frente, que `product_id` a Digistore24 manda. Pode ser um produto genérico, como na Whop, onde o `product_id` vinha nulo. Só o aviso real diz.
+- **Teste sem dinheiro:** o botão "Test connection" e a compra Testpay (`api_mode=test`). **As vendas de antes:** a API `listPurchases` (chave `readonly`) ou o export.
+- **Regras da Digistore24 que valem para a venda:**
+  - quem decide o reembolso é ela, e EUA, Canadá, Austrália e Nova Zelândia têm 60 dias de garantia automática;
+  - chargeback sai do vendedor;
+  - acesso vitalício é proibido (limite de 2 anos), e as palavras "lifetime/forever" são vetadas.
+
+### ⏳ Perguntas para o Caio
+- Quais ofertas da KashPay são processadas pela Digistore24 ("7 Amenes de la Madrugada D" e os upsells?), e desde quando?
+- Pode guardar o vínculo pedido → cliente no rastreio da KashPay (o e-mail continua só em `latam_customers`)?
+- Reembolso e chargeback continuam sem tirar o acesso?
+- A rede para aviso perdido da KashPay: o IPN da Digistore24 ou uma conferência diária?
+
 ## Como voltar atrás
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
 - **Banco:** a seção "DESFAZER" de `supabase/latam/01-tabelas.sql` apaga só o que é `latam_`.

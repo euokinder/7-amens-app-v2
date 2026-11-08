@@ -25,6 +25,7 @@ const TRAVAS = {
   latam_admins: [['customer_id']],
   latam_admin_actions: [['id']],
   latam_kashpay_events: [['event', 'transaction_id']],
+  latam_kashpay_offers: [['offer_id']],
 };
 
 const PADROES = {
@@ -37,6 +38,8 @@ const PADROES = {
   latam_whop_events: () => ({ status: 'received', detail: '', processed_at: null, received_at: new Date().toISOString() }),
   latam_offer_events: () => ({ claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null }),
   latam_admin_actions: () => ({ id: Math.floor(Math.random() * 1e9), details: {}, target_email: '', created_at: new Date().toISOString() }),
+  latam_kashpay_events: () => ({ status: 'recorded', detail: '', offers: [], produtos: [], received_at: new Date().toISOString() }),
+  latam_kashpay_offers: () => ({ offer_name: '', note: '', created_at: new Date().toISOString() }),
 };
 
 export const banco = {};
