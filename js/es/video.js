@@ -21,6 +21,9 @@
     1: { video: 'aec33453-7fcd-435b-815d-b0089d2442da', formato: '3:4' }, // ES · Día 1 — El Padre Nuestro Completo (5:57, 07/11/2026)
     2: { video: '2a8e429b-50f5-4b5a-8289-4dacf065a04d', formato: '3:4' }, // ES · Día 2 — La Oración del Perdón (5:28, 07/11/2026)
     3: { video: '4038b064-df50-4454-a512-d5b44b3b891c', formato: '3:4' }, // ES · Día 3 — La Oración de Sanación (4:48, 07/11/2026)
+    4: { video: '56a5efcc-ac52-4ac2-84b8-ceb4dadecaeb', formato: '3:4' }, // ES · Día 4 — La Oración de Liberación (3:02, 08/11/2026; a fala acaba em "ya no tenga poder sobre mí", aprovado pelo Caio assim)
+    5: { video: '52ad9643-5ae1-4ea0-8303-037def01cd50', formato: '3:4' }, // ES · Día 5 — La Oración de la Prosperidad (5:08, 08/11/2026)
+    6: { video: 'c69b1539-341f-4f6e-b299-140e2e046e45', formato: '3:4' }, // ES · Día 6 — La Oración de la Paz (3:03, 08/11/2026)
   };
 
   const FORMATOS = {
