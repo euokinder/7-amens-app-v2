@@ -207,7 +207,7 @@ O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **d
 
 - **Os textos** estão em `js/es/dias.js`, **gerado** por `7 Améns LATAM\_montagem\app_es.py` a partir do `dias_es.py`, o mesmo programa dos PDFs. Nunca editar à mão: corrigir lá e rodar `python app_es.py "D:\Downloads Certos\PkScale\7amens-latam-app"`.
 - **O resto:** o visual em `css/es/app.css` (o desenho da `/materiales`); a sessão em `js/es/sesion.js`; o endereço do servidor e o contato do suporte em `js/es/config.js`.
-  - ⏳ O contato do suporte é **provisório** (`contact@pkscale.com`), até a decisão do canal.
+  - ✅ O contato do suporte é **`soporte@pkscale.com`** (decisão do Caio, 08/11/2026). Ele vale para o app (`js/es/config.js`), o checkout (`amenes-checkout.html`) e o obrigado (`amenes-gracias.html`). Até 08/11 era o provisório `contact@pkscale.com`. Fora do repositório, o e-mail ainda pode aparecer nos e-mails da KashPay e na descrição do produto na Whop.
 - **Os PDFs corrigidos** (`-v2`) e a `/materiales` apontando para eles vão na mesma publicação.
 - **Para ver no computador:**
   1. `"C:\Program Files\nodejs\node.exe" scripts/build.mjs`, dentro da worktree;

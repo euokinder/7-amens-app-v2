@@ -12,7 +12,7 @@
     api: noComputador ? TESTE : PRODUCAO,
     // ⏳ O canal de suporte em espanhol ainda é decisão do Caio (docs/app-es.md).
     // Provisório: o e-mail da PK Scale, o mesmo da página /amenes-gracias.
-    soporte: 'mailto:contact@pkscale.com?subject=Ayuda%20-%207%20Amenes%20de%20la%20Madrugada',
+    soporte: 'mailto:soporte@pkscale.com?subject=Ayuda%20-%207%20Amenes%20de%20la%20Madrugada',
   };
 
   if (noComputador) {
