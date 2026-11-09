@@ -52,6 +52,11 @@ const PELO_NOME: [string, string][] = [
   // ele continua sendo 'desatanudos'. "Cántico Angelical D" é o produto da
   // Digistore24 (08/11).
   ['cantico', 'desatanudos'],
+  // Las 3 Madrugadas de Intercesión (US$ 37, a oferta do fim do vídeo do Dia 7,
+  // 08/11/2026). Reconhecida para o pedido ficar gravado: sem isso, o
+  // pagamento da Whop ficava sem pedido e a regra da "dúvida" (latam_extras)
+  // liberava de graça os Arcángeles e o Cántico para quem comprasse.
+  ['intercesion', 'tres_madrugadas'],
 ];
 // A compra libera o app por 12 meses, como na latam-whop.
 const ACCESS_DAYS = 365;
@@ -60,7 +65,7 @@ const ACCESS_DAYS = 365;
 // sem o id confirmado em latam_kashpay_offers, o pedido fica 'needs_review'
 // (não conta no Hub, mas também não se perde).
 const NOME_DE_PRECO = /^(?:us)?\$?\s*\d+(?:[.,]\d+)?\s*(?:usd|us\$|dolares)?$/;
-const NOSSOS = new Set(['principal', 'arcangeles', 'desatanudos']);
+const NOSSOS = new Set(['principal', 'arcangeles', 'desatanudos', 'tres_madrugadas']);
 
 // A KashPay espera resposta em até 15 s. Cada tentativa no banco tem 3,5 s;
 // três tentativas e as pausas cabem em ~12,5 s.

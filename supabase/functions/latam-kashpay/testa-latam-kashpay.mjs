@@ -411,4 +411,14 @@ await cenario('31. Nome que é e-mail não vira nome', async () => {
   confere('nome em branco', !cliente().name, JSON.stringify(cliente()));
 });
 
+
+await cenario('32. Las 3 Madrugadas de Intercesión (US$ 37, Dia 7): grava como tres_madrugadas', async () => {
+  const r = await (await enviar(aviso('order.paid', pedido({ id: 'tm-1', amount: 3700, offers: [{ id: 'd975ef54-a29c-45da-9eeb-23745cd7d02c', name: 'Las 3 Madrugadas de Intercesión', type: 'main', total: 3700 }] })))).json();
+  const l = eventos().find(e => e.transaction_id === 'tm-1') || {};
+  confere('gravado como tres_madrugadas (e não como outra operação)', r.gravado === true && l.status === 'recorded' && JSON.stringify(l.produtos) === '["tres_madrugadas"]', JSON.stringify({ r, status: l.status, produtos: l.produtos }));
+  confere('não vira o principal nem um extra', !(l.produtos || []).some(p => ['principal', 'arcangeles', 'desatanudos'].includes(p)));
+  confere('a oferta guarda o produto', (l.offers || [])[0]?.produto === 'tres_madrugadas');
+  await enviar(aviso('order.paid', pedido({ id: 'tm-2', offers: [{ id: 'x', name: 'LAS 3 MADRUGADAS DE INTERCESION', type: 'main', total: 3700 }] })));
+  confere('sem acento e em maiúsculas também', JSON.stringify(eventos().find(e => e.transaction_id === 'tm-2')?.produtos) === '["tres_madrugadas"]');
+});
 fechar();

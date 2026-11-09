@@ -51,6 +51,11 @@
     ${topo}`;
   const cabecalhoFechado = cabecalhoCom(foto);
   const cabecalho = cabecalhoCom((window.AMENES_VIDEO && window.AMENES_VIDEO.html(n, titulo)) || foto);
+  // A oferta emendada no vídeo (hoje, só o Dia 7: js/es/oferta-dia.js), logo
+  // abaixo do vídeo, como no Brasil. Ela só existe com o vídeo da VTurb na tela.
+  const oferta = (window.AMENES_OFERTA_DIA && /<vturb-smartplayer/.test(cabecalho)) ? window.AMENES_OFERTA_DIA.para(n) : null;
+  const previaOferta = new URLSearchParams(location.search).get('previa-oferta') === '1';
+  const ofertaHtml = oferta ? window.AMENES_OFERTA_DIA.html(oferta, previaOferta) : '';
   const botaoPdf = `<button class="material-btn lg" type="button" data-pdf="${esc(d.pdf)}">${pdfIcon} Descargar el PDF para guardar o imprimir</button>`;
   const faixa = (texto) => `<div class="banner"><span>${esc(texto)}</span></div>`;
 
@@ -73,6 +78,7 @@
         <input type="text" id="pedido" class="material-input" placeholder="Escribe aquí, si quieres guardarlo...">
       </div>` : '';
     return `${cabecalho}
+      ${ofertaHtml}
       <div>
         <h2 class="section-label" style="margin-bottom:14px;">Cómo rezar este Amén</h2>
         <div class="modal-checklist">${d.reglas.map((regla) => `<div class="item">${checkIcon}<p>${esc(regla)}</p></div>`).join('')}</div>
@@ -199,6 +205,8 @@
 
   content.innerHTML = n === 0 ? guia() : amen();
   content.querySelectorAll('[data-pdf]').forEach((botao) => botao.addEventListener('click', () => window.open(botao.dataset.pdf, '_blank')));
+  // O player da VTurb (Dia 7) só começa depois de o vídeo estar na tela.
+  if (window.AMENES_VIDEO && window.AMENES_VIDEO.carregar) window.AMENES_VIDEO.carregar(n);
 
   // O pedido do dia fica só no celular dela, como no Brasil.
   const pedido = document.getElementById('pedido');
@@ -208,6 +216,13 @@
     pedido.addEventListener('input', () => { try { localStorage.setItem(chave, pedido.value); } catch { /* sem armazenamento */ } });
   }
 
-  botaoDeConcluir(r);
+  if (oferta) {
+    // Com a oferta, sem "Recé esta oración": o dia se marca sozinho no Amén.
+    window.AMENES_OFERTA_DIA.ligar(content, oferta, previaOferta, () => {
+      if (!r.completados.includes(n)) window.AMENES.marcar(n, true).catch(() => null);
+    });
+  } else {
+    botaoDeConcluir(r);
+  }
   window.AMENES_EFECTOS.iniciar();
 })();
