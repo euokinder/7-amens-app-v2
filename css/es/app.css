@@ -1099,6 +1099,18 @@ html.member-checking body > :not(#member-gate):not(script) { display: none !impo
 .member-button.secondary { background: var(--surface-alt); }
 .member-error { color: #922a20; min-height: 24px; font-size: 16px; line-height: 1.6; }
 .member-help { color: var(--ink); text-decoration: underline; text-align: center; font-size: 16px; padding: 12px; }
+/* O e-mail do suporte escrito (08/11/2026): para quem toca no botão e o
+   celular não abre app de e-mail nenhum. Na tela de entrar, um toque
+   seleciona o endereço inteiro, para copiar. */
+.es-correo-escrito strong { font-weight: 800; overflow-wrap: anywhere; }
+.es-correo-entrar { margin: 0; text-align: center; font-size: 17px; line-height: 1.6; color: var(--ink); }
+.es-correo-entrar strong { -webkit-user-select: all; user-select: all; font-size: 18px; }
+/* O pedido de reembolso (es-reembolso.html, 08/11/2026). */
+.es-pasos { margin: 0; padding-left: 26px; display: flex; flex-direction: column; gap: 12px; font-size: 17px; line-height: 1.6; }
+.es-aviso-reembolso { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 14px; background: var(--surface-alt); }
+.es-aviso-reembolso p { font-size: 16px; line-height: 1.6; }
+/* O link para o reembolso no início (/es), embaixo do "Escríbenos" (09/11/2026). */
+.es-link-reembolso { display: block; margin: 4px auto 0; font-size: 17px; }
 .member-sync { color: var(--ink-muted); font-size: 15px; line-height: 1.5; }
 .member-logout { width: 100%; }
 .member-progress { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }

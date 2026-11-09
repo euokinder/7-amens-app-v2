@@ -10,8 +10,11 @@
 
   window.AMENES_CONFIG = {
     api: noComputador ? TESTE : PRODUCAO,
-    // ⏳ O canal de suporte em espanhol ainda é decisão do Caio (docs/app-es.md).
-    // Provisório: o e-mail da PK Scale, o mesmo da página /amenes-gracias.
+    // O suporte em espanhol é soporte@pkscale.com (decisão do Caio, 08/11/2026).
+    // O endereço também aparece ESCRITO no card "Escríbenos" (es.html) e na
+    // tela de entrar (es-entrar.html), para quem não tem app de e-mail no
+    // celular: trocar aqui é trocar lá também (e no es-reembolso.html).
+    correo: 'soporte@pkscale.com',
     soporte: 'mailto:soporte@pkscale.com?subject=Ayuda%20-%207%20Amenes%20de%20la%20Madrugada',
   };
 

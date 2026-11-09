@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reembolso — 7 Amenes de la Madrugada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" href="/assets/images/icon-32.png">
+</head>
+<body>
+<!-- App em espanhol (LATAM): o pedido de reembolso (pedido do Caio, 08/11/2026).
+     O foco é diminuir chargeback: pedir o dinheiro de volta para nós tem de ser
+     mais fácil do que pedir ao banco. Abre SEM login, de propósito: quem não
+     consegue entrar também precisa conseguir pedir. Se ela já entrou, o correo
+     sai com o e-mail da compra preenchido (js/es/reembolso.js).
+     Sem pop-up de oferta aqui: esta página não carrega o js/es/oferta.js.
+     O texto segue a Política de Reembolso (/amenes-reembolso): 7 dias, 100%,
+     sem explicar o motivo, resposta em até 24 horas (desde 09/11), mesmo meio de pagamento.
+     Plano e regras: docs/app-es.md -->
+<main class="app member-login es-reembolso">
+  <img class="brand" src="/assets/images/icon-180.png" alt="7 Amenes de la Madrugada" width="88" height="88">
+  <h1>Pedir un reembolso</h1>
+  <p>Si en los primeros <b>7 días</b> desde la compra sientes que no es para ti, te devolvemos el <b>100%</b> del valor. No necesitas explicar el motivo.</p>
+
+  <ol class="es-pasos">
+    <li>Toca el botón de abajo: se abre un correo ya escrito.</li>
+    <li>Envíalo así como está. Si quieres, cuéntanos el motivo.</li>
+    <li>Te respondemos en hasta 24 horas. El dinero vuelve al mismo medio de pago que usaste.</li>
+  </ol>
+
+  <a id="boton-reembolso" class="member-button" href="mailto:soporte@pkscale.com?subject=Reembolso%20-%207%20Amenes%20de%20la%20Madrugada" style="text-align:center;text-decoration:none;">Pedir mi reembolso</a>
+
+  <p class="es-correo-escrito es-correo-entrar">¿El botón no abre tu correo? Escríbenos a<br><strong>soporte@pkscale.com</strong><br>con el asunto «Reembolso».</p>
+
+  <div class="es-aviso-reembolso">
+    <p><b>¿Ya pasaron los 7 días?</b> Escríbenos igual y lo vemos contigo.</p>
+    <p><b>¿Te cobraron dos veces o no reconoces un cobro?</b> Escríbenos en cualquier momento y lo resolvemos.</p>
+    <p>Antes de pedirle a tu banco que cancele el cobro, escríbenos: lo resolvemos más rápido y sin complicaciones para ti.</p>
+  </div>
+
+  <a class="member-help" href="/es">Volver al inicio</a>
+</main>
+
+<script src="/js/es/config.js"></script>
+<script src="/js/es/reembolso.js"></script>
+</body>
+</html>
