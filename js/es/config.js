@@ -16,6 +16,13 @@
     // celular: trocar aqui é trocar lá também (e no es-reembolso.html).
     correo: 'soporte@pkscale.com',
     soporte: 'mailto:soporte@pkscale.com?subject=Ayuda%20-%207%20Amenes%20de%20la%20Madrugada',
+    // O WhatsApp de suporte da LATAM (pedido do Caio em 10/11/2026). É número
+    // do Brasil: no link vai com o país (55), senão não abre fora do Brasil.
+    // Aparece na entrada (/es-entrar, em todos os passos) e no início (/es: o
+    // cartão do WhatsApp e o link do portão). Trocar aqui troca nos dois.
+    // whatsapp(texto) devolve o link com a mensagem já escrita para ela.
+    whatsappEscrito: '+55 88 99443-2257',
+    whatsapp: texto => 'https://wa.me/5588994432257' + (texto ? '?text=' + encodeURIComponent(texto) : ''),
   };
 
   if (noComputador) {

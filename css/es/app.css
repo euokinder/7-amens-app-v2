@@ -1128,6 +1128,40 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 /* O botão "Concluí" e o "Ir a la Primera Madrugada" ocupam a largura toda. */
 .member-progress .member-button { width: 100%; }
 
+/* O RESGATE na entrada (/es-entrar, 10/11/2026): para quem não acha o e-mail
+   da compra. Uma pergunta por tela, nada em vermelho, sempre um próximo passo.
+   O passo do cartão não pode parecer tela de pagamento (pedido do Caio). */
+.es-paso { display: flex; flex-direction: column; gap: 18px; }
+.es-paso[hidden] { display: none; }
+.es-paso h1:focus { outline: none; }
+.member-login .es-aviso { min-height: 0; font-size: 17px; line-height: 1.6; font-weight: 700; color: var(--ink); }
+.member-login .es-nota { padding: 12px 16px; border-radius: 12px; background: var(--surface-alt); text-align: center; font-size: 16px; line-height: 1.55; overflow-wrap: anywhere; }
+.es-volver { align-self: center; padding: 12px; border: 0; background: none; color: var(--ink); font: inherit; font-size: 17px; text-decoration: underline; cursor: pointer; }
+.es-tarjeta { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: oklch(0.91 0.04 85); }
+.member-login .es-tarjeta label { font-size: 16px; font-weight: 700; color: oklch(0.36 0.04 60); }
+.es-tarjeta-linea { display: flex; align-items: center; gap: 10px; }
+.es-tarjeta-puntos { flex: none; font-size: 24px; color: oklch(0.45 0.03 60); white-space: nowrap; }
+.member-login .es-tarjeta input { flex: 1; min-width: 0; width: auto; padding: 10px 6px; text-align: center; font-size: 26px; font-weight: 800; letter-spacing: 6px; border: 2px solid var(--accent-strong); }
+.member-login .es-garantia { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid oklch(0.82 0.05 80); border-radius: 12px; background: white; font-size: 16px; line-height: 1.55; }
+.es-garantia > span:first-child { flex: none; color: #2f6b12; font-weight: 800; }
+.member-button.es-boton-borde { background: transparent; border: 2px solid var(--ink); color: var(--ink); }
+.member-login .es-ayuda-campo { margin-top: -6px; font-size: 15px; line-height: 1.5; color: var(--ink-muted); }
+.es-correo-guardado { display: inline-block; margin-top: 4px; font-size: 19px; overflow-wrap: anywhere; }
+.es-corregir { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 14px; background: var(--surface-alt); }
+.es-corregir p { overflow-wrap: anywhere; }
+/* O WhatsApp de suporte na entrada (10/11/2026): verde só na borda e no
+   ícone, como o cartão do grupo no início do Brasil. */
+.es-suporte { display: flex; flex-direction: column; gap: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); }
+.member-login .es-suporte-titulo { text-align: center; font-weight: 700; }
+.member-button.es-boton-whatsapp { display: flex; align-items: center; justify-content: center; gap: 10px; background: transparent; border: 2px solid var(--whatsapp); color: var(--ink); text-decoration: none; }
+.es-boton-whatsapp svg { flex: none; color: oklch(0.52 0.14 152); }
+.member-login .es-whatsapp-escrito { margin-top: -4px; text-align: center; font-size: 16px; color: var(--ink-muted); }
+/* Celular estreito (320 a 360 px): os pontos e os números cabem na linha. */
+@media (max-width: 360px) {
+  .es-tarjeta-puntos { font-size: 18px; }
+  .member-login .es-tarjeta input { font-size: 22px; letter-spacing: 3px; }
+}
+
 /* O pop-up de oferta (07/11/2026): CÓPIA do bloco .member-offer-* do
    css/member.css do Brasil, o mesmo desenho. Quem desenha é o js/es/oferta.js. */
 .member-offer-dialog {

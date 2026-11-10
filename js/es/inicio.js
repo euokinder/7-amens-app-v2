@@ -3,8 +3,13 @@
 // Arquivo só da LATAM.
 (async function () {
   const soporte = window.AMENES_CONFIG.soporte;
-  document.getElementById('ayuda-portao').href = soporte;
   document.getElementById('card-ayuda').href = soporte;
+  // O WhatsApp de suporte (10/11/2026): o cartão e o link do portão (o que
+  // aparece quando a tela demora para abrir), com a mensagem já escrita.
+  const whatsapp = window.AMENES_CONFIG.whatsapp;
+  document.getElementById('ayuda-portao').href = whatsapp('Hola, no puedo abrir mi app 7 Amenes de la Madrugada.');
+  document.getElementById('card-whatsapp').href = whatsapp('Hola, tengo una duda sobre mi app 7 Amenes de la Madrugada.');
+  document.getElementById('whatsapp-escrito').textContent = window.AMENES_CONFIG.whatsappEscrito;
   document.getElementById('salir').addEventListener('click', () => window.AMENES.salir());
 
   let r;

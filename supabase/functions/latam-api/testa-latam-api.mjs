@@ -12,7 +12,7 @@ import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import {
   banco, tocadas, forcarFalha, travarFreio, carregarFuncao, confere, cenario, fechar,
-  oferecer, pedidosDeOferta, comprasFalsas, tirarFuncaoDeExtras,
+  oferecer, pedidosDeOferta, comprasFalsas, tirarFuncaoDeExtras, rpcsDoTeste,
 } from '../../latam/testes/banco-falso.mjs';
 
 const aqui = dirname(fileURLToPath(import.meta.url));
@@ -83,7 +83,7 @@ await cenario('3. Login certo: sessão, primeiro acesso e o dia de hoje no fuso 
   confere('200', status === 200, `veio ${status}`);
   confere('código de sessão de 64 letras', /^[a-f0-9]{64}$/.test(corpo.token || ''));
   confere('o banco guarda só a impressão digital', banco.latam_sessions[0]?.token_hash === sha256(corpo.token) && banco.latam_sessions[0]?.token_hash !== corpo.token);
-  confere('sessão de 90 dias', Math.abs(Date.parse(banco.latam_sessions[0].expires_at) - Date.parse(daquiA(90))) < 60_000);
+  confere('sessão de 1 ano (era 90 dias até 10/11/2026)', Math.abs(Date.parse(banco.latam_sessions[0].expires_at) - Date.parse(daquiA(365))) < 60_000);
   confere('saúda pelo primeiro nome', corpo.cliente?.nombre === 'María');
   confere('fuso do celular dela', corpo.zona === 'America/Bogota');
   confere('hoje no fuso dela', corpo.hoy === hojeEm('America/Bogota'));
@@ -400,6 +400,275 @@ await cenario('24. Painel: liberar e retirar um extra', async () => {
   confere('cliente comum não libera: 403', (await chamar('admin_grant_extra', { customer_id: CLIENTE_ID, product: 'arcangeles' }, { token: naoAdmin })).status === 403);
   const historico = banco.latam_admin_actions.map(a => `${a.action}:${a.details?.product}`).join(',');
   confere('histórico: grant_extra e revoke_extra, com o produto', historico === 'grant_extra:cantico,revoke_extra:arcangeles', historico);
+});
+
+// ---------------------------------------------------------------------------
+// O RESGATE (10/11/2026, supabase/latam/09-resgate.sql). As três funções do
+// banco são imitadas aqui com a mesma regra do SQL (que é provada no banco de
+// teste); o que se confere é o caminho na latam-api.
+// ---------------------------------------------------------------------------
+function distancia(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[a.length][b.length];
+}
+const ativa = id => banco.latam_access.some(a => a.customer_id === id && a.product === 'app' && a.status === 'active'
+  && (a.expires_at === null || Date.parse(a.expires_at) > Date.now()));
+const ehAdmin = id => banco.latam_admins.some(a => a.customer_id === id);
+// O freio conta por chave, como latam_permite no SQL; freioDoResgate = false
+// fecha tudo.
+let freioDoResgate = true;
+const pedidosAoFreio = [];
+const contagemDoFreio = new Map();
+rpcsDoTeste['rpc/latam_permite'] = corpo => {
+  pedidosAoFreio.push(corpo);
+  if (!freioDoResgate) return false;
+  const vezes = (contagemDoFreio.get(corpo.p_chave) || 0) + 1;
+  contagemDoFreio.set(corpo.p_chave, vezes);
+  return vezes <= corpo.p_maximo;
+};
+rpcsDoTeste['rpc/latam_resgate_candidatos'] = ({ p_local: local, p_dominio: dominio }) => banco.latam_customers
+  .filter(c => ativa(c.id) && !ehAdmin(c.id))
+  .map(c => ({ c, loc: c.email.split('@')[0], dom: c.email.split('@')[1] }))
+  .flatMap(({ c, loc, dom }) => {
+    const entrou = banco.latam_sessions.some(s => s.customer_id === c.id);
+    if (loc === local && dom !== dominio) return [{ customer_id: c.id, email: c.email, tipo: 'gemeo', entrou }];
+    if (dom === dominio && loc !== local && local.length >= 6 && Math.abs(loc.length - local.length) <= 1 && distancia(loc, local) === 1) {
+      return [{ customer_id: c.id, email: c.email, tipo: 'parecido', entrou }];
+    }
+    return [];
+  });
+rpcsDoTeste['rpc/latam_resgate_cartao'] = ({ p_final: final }) => (/^\d{4}$/.test(final) ? banco.latam_whop_events : [])
+  .filter(w => w.event_type === 'payment.succeeded' && w.payload?.data?.payment_instrument?.card?.last4 === final)
+  .flatMap(w => {
+    const c = banco.latam_customers.find(x => x.email === String(w.customer_email).toLowerCase());
+    return c && ativa(c.id) && !ehAdmin(c.id)
+      ? [{ customer_id: c.id, email: c.email, nome_cliente: c.name, nome_cartao: w.payload.data.billing_address?.name || '' }]
+      : [];
+  });
+const pagamento = (id, email, final, nomeNoCartao) => banco.latam_whop_events.push({
+  webhook_id: `w-${id}`, event_type: 'payment.succeeded', status: 'processed', customer_email: email,
+  payload: { data: { billing_address: { name: nomeNoCartao }, payment_instrument: { card: { last4: final } } } },
+});
+const ligarEmergencia = (campos = {}) => banco.latam_resgate_config.push({ id: 1, emergencia_ligada: true, emergencias_por_dia: 2, ...campos });
+const resgates = () => banco.latam_resgates;
+const zerarResgate = () => { freioDoResgate = true; pedidosAoFreio.length = 0; contagemDoFreio.clear(); };
+
+await cenario('25. Resgate pelo e-mail: os erros comuns de quem digita', async () => {
+  zerarResgate();
+  cliente({ id: 'r1', email: 'maria@gmail.com' });
+  for (const digitado of ['maria@gmial.com', 'Maria @Gmail,com ', 'maria@gmail.con', 'maria@gmail', 'maria@hotmail.com'.replace('hotmail', 'gmsil'), 'maria@gmail.com.te', 'MARÍA@gmail.com']) {
+    const r = await chamar('login', { email: digitado });
+    confere(`"${digitado}" entra na conta de maria@gmail.com`, r.status === 200 && r.corpo.cliente?.email === 'maria@gmail.com', `veio ${r.status} ${r.corpo?.error || ''}`);
+  }
+  const registro = resgates().filter(x => x.metodo === 'corrigido');
+  confere('cada correção fica registrada (corrigido), com o que ela digitou', registro.length >= 5 && registro.every(x => x.customer_id === 'r1' && x.email_digitado), String(registro.length));
+  confere('o e-mail gravado não muda (ela é que digitou errado)', banco.latam_customers.find(c => c.id === 'r1').email === 'maria@gmail.com');
+  cliente({ id: 'r2', email: 'otra@empresa.com' });
+  const empresa = await chamar('login', { email: 'otra@empresa.con' });
+  confere('domínio desconhecido com ".con": vira ".com"', empresa.status === 200 && empresa.corpo.cliente?.email === 'otra@empresa.com');
+  const real = await chamar('login', { email: 'maria@hotmail.com' });
+  confere('domínio de verdade diferente NÃO é corrigido: 403', real.status === 403 && real.corpo.siguiente === 'nombre', `veio ${real.status}`);
+  const mail = await chamar('login', { email: 'maria@mail.com' });
+  confere('mail.com (provedor de verdade) não vira gmail.com: 403', mail.status === 403);
+  cliente({ id: 'r3', email: 'luisa@hotmail.com' });
+  confere('"hotmail.co" é ".com" cortado: entra em hotmail.com', (await chamar('login', { email: 'luisa@hotmail.co' })).corpo?.cliente?.email === 'luisa@hotmail.com');
+  cliente({ id: 'r4', email: 'paz@yahoo.com.mx' });
+  confere('"yajoo.com.mx" vira yahoo.com.mx (o do país, que existe)', (await chamar('login', { email: 'paz@yajoo.com.mx' })).corpo?.cliente?.email === 'paz@yahoo.com.mx');
+  cliente({ id: 'r5', email: 'sol@hotmail.es' });
+  confere('"hotmial.es" vira hotmail.es', (await chamar('login', { email: 'sol@hotmial.es' })).corpo?.cliente?.email === 'sol@hotmail.es');
+});
+
+await cenario('26. Resgate pelo e-mail: o gêmeo (o e-mail GRAVADO tinha o erro)', async () => {
+  zerarResgate();
+  cliente({ id: 'g1', email: 'rosa.lopez@gmsil.com', name: 'Rosa López' });
+  banco.latam_whop_events.push({ webhook_id: 'wg1', customer_email: 'rosa.lopez@gmsil.com', status: 'processed', event_type: 'payment.succeeded' });
+  const r = await chamar('login', { email: 'rosa.lopez@gmail.com' });
+  confere('o e-mail certo entra na conta do e-mail com erro', r.status === 200 && r.corpo.cliente?.nombre === 'Rosa', `veio ${r.status}`);
+  confere('o e-mail gravado é corrigido', banco.latam_customers.find(c => c.id === 'g1').email === 'rosa.lopez@gmail.com');
+  confere('as compras dela vão junto (latam_whop_events)', banco.latam_whop_events[0].customer_email === 'rosa.lopez@gmail.com');
+  const registro = resgates()[0];
+  confere('registro: gemeo, com o e-mail de antes', registro?.metodo === 'gemeo' && registro.email_anterior === 'rosa.lopez@gmsil.com' && registro.customer_id === 'g1', JSON.stringify(registro));
+  confere('da próxima vez entra direto, sem resgate', (await chamar('login', { email: 'rosa.lopez@gmail.com' })).status === 200 && resgates().length === 1);
+  cliente({ id: 'g2', email: 'carmen@hotmail.com.como' });
+  confere('hotmail.com.como também', (await chamar('login', { email: 'carmen@hotmail.com' })).status === 200
+    && banco.latam_customers.find(c => c.id === 'g2').email === 'carmen@hotmail.com');
+  cliente({ id: 'g3', email: 'ines@iclod.con' });
+  confere('iclod.con também, e com ela digitando errado do outro jeito', (await chamar('login', { email: 'ines@icloud.co' })).status === 200
+    && banco.latam_customers.find(c => c.id === 'g3').email === 'ines@icloud.com');
+});
+
+await cenario('27. Resgate pelo e-mail: o parecido (uma letra), só em conta que nunca entrou', async () => {
+  zerarResgate();
+  cliente({ id: 'p1', email: 'mariagarcia@gmail.com' });
+  const r = await chamar('login', { email: 'mariagarsia@gmail.com' });
+  confere('uma letra trocada: entra', r.status === 200 && r.corpo.cliente?.email === 'mariagarcia@gmail.com', `veio ${r.status}`);
+  confere('registro: parecido, sem mudar o e-mail gravado', resgates()[0]?.metodo === 'parecido' && banco.latam_customers.find(c => c.id === 'p1').email === 'mariagarcia@gmail.com');
+  confere('agora que ela entrou, o parecido não vale mais: 403', (await chamar('login', { email: 'mariagarsia@gmail.com' })).status === 403);
+  cliente({ id: 'p2', email: 'anapaula@gmail.com' });
+  cliente({ id: 'p3', email: 'anapaul@gmail.com' });
+  confere('dois parecidos: não adivinha, 403', (await chamar('login', { email: 'anapaulo@gmail.com' })).status === 403);
+  cliente({ id: 'p4', email: 'luz@gmail.com' });
+  confere('antes do @ curto (menos de 6 letras): 403', (await chamar('login', { email: 'lux@gmail.com' })).status === 403);
+});
+
+await cenario('28. Resgate nunca entra em conta de administradora nem em acesso fechado', async () => {
+  zerarResgate();
+  cliente({ id: 'adm', email: 'jefa.equipo@gmsil.com', acesso: { status: 'active', expires_at: null } });
+  banco.latam_admins.push({ customer_id: 'adm' });
+  confere('gêmeo de administradora: 403', (await chamar('login', { email: 'jefa.equipo@gmail.com' })).status === 403);
+  cliente({ id: 'adm2', email: 'directora@gmail.com', acesso: { status: 'active', expires_at: null } });
+  banco.latam_admins.push({ customer_id: 'adm2' });
+  confere('parecido de administradora: 403', (await chamar('login', { email: 'directore@gmail.com' })).status === 403);
+  cliente({ id: 'fech', email: 'cerrada@gmsil.com', acesso: { status: 'revoked', expires_at: daquiA(100) } });
+  confere('gêmeo com acesso fechado: 403', (await chamar('login', { email: 'cerrada@gmail.com' })).status === 403);
+  confere('nada corrigido, nada registrado', banco.latam_customers.find(c => c.id === 'adm').email === 'jefa.equipo@gmsil.com' && resgates().length === 0);
+  freioDoResgate = false;
+  cliente({ id: 'fr', email: 'frenada@gmsil.com' });
+  confere('freio do resgate fechado: 403 e o gêmeo não é procurado', (await chamar('login', { email: 'frenada@gmail.com' })).status === 403
+    && banco.latam_customers.find(c => c.id === 'fr').email === 'frenada@gmsil.com');
+  confere('o freio usa a impressão digital do IP, nunca o IP', pedidosAoFreio.every(p => /^[a-f0-9]{64}$/.test(p.p_chave)) && !JSON.stringify(pedidosAoFreio).includes('200.1.2.3'));
+});
+
+await cenario('29. Resgate pelo cartão: os 4 últimos números + o nome', async () => {
+  zerarResgate();
+  cliente({ id: 'k1', email: 'rosa@gmsil.com', name: 'Rosa' });
+  pagamento('k1', 'rosa@gmsil.com', '4821', 'JUAN PEREZ GOMEZ');
+  const r = await chamar('buscar_compra', { nombre: 'Rosa María Pérez', final: '4821', correos: ['rosa@gmail.com'] });
+  confere('o sobrenome do marido no cartão basta: entra', r.status === 200 && /^[a-f0-9]{64}$/.test(r.corpo.token || ''), `veio ${r.status} ${r.corpo?.error || ''}`);
+  confere('a tela recebe o e-mail gravado e a sugestão (o que ela tentou)', r.corpo.compra?.correo === 'rosa@gmsil.com' && r.corpo.compra.sugerido === 'rosa@gmail.com', JSON.stringify(r.corpo.compra));
+  const registro = resgates()[0];
+  confere('registro: cartao, com o nome que ela escreveu', registro?.metodo === 'cartao' && registro.nome === 'Rosa María Pérez' && registro.customer_id === 'k1');
+  confere('os 4 números não ficam em lugar nenhum novo', !JSON.stringify(resgates()).includes('4821') && !JSON.stringify(banco.latam_sessions).includes('4821'));
+  const acento = await chamar('buscar_compra', { nombre: '  perez ', final: ' 4 8 2 1 ' });
+  confere('sem acento, minúscula e espaço: entra também', acento.status === 200);
+  const outroNome = await chamar('buscar_compra', { nombre: 'Lucía', final: '4821' });
+  confere('nome que não bate: 404, e a tela segue para a emergência', outroNome.status === 404 && outroNome.corpo.siguiente === 'emergencia');
+  confere('final que não existe: 404', (await chamar('buscar_compra', { nombre: 'Rosa', final: '1111' })).status === 404);
+  confere('sem nome ou sem os 4 números: 400', (await chamar('buscar_compra', { nombre: 'Rosa', final: '48' })).status === 400
+    && (await chamar('buscar_compra', { nombre: '', final: '4821' })).status === 400);
+  cliente({ id: 'k2', email: 'rosa.dos@gmail.com', name: 'Rosa Pérez' });
+  pagamento('k2', 'rosa.dos@gmail.com', '4821', 'ROSA PEREZ');
+  confere('duas clientes com o mesmo final e o mesmo nome: não adivinha, 404', (await chamar('buscar_compra', { nombre: 'Rosa Pérez', final: '4821' })).status === 404);
+  confere('o nome desempata: "Juan" acha só a primeira', (await chamar('buscar_compra', { nombre: 'Juan', final: '4821' })).status === 200);
+  freioDoResgate = false;
+  confere('freio fechado: 429', (await chamar('buscar_compra', { nombre: 'Rosa', final: '4821' })).status === 429);
+});
+
+await cenario('30. Depois do cartão, ela troca o e-mail gravado pelo dela', async () => {
+  zerarResgate();
+  cliente({ id: 'k1', email: 'rosa@gmsil.com', name: 'Rosa' });
+  pagamento('k1', 'rosa@gmsil.com', '4821', 'ROSA LOPEZ');
+  const semResgate = await entrar('rosa@gmsil.com');
+  confere('sem resgate pelo cartão: não troca (403)', (await chamar('corregir_correo', { email: 'rosa@gmail.com' }, { token: semResgate })).status === 403);
+  const achou = await chamar('buscar_compra', { nombre: 'Rosa', final: '4821', correos: ['rosa@gmial.com'] });
+  confere('a sugestão já vem corrigida (gmial -> gmail)', achou.corpo.compra?.sugerido === 'rosa@gmail.com', JSON.stringify(achou.corpo.compra));
+  const troca = await chamar('corregir_correo', { email: 'rosa@gmail.com' }, { token: achou.corpo.token });
+  confere('troca: 200, e o retrato já com o e-mail novo', troca.status === 200 && troca.corpo.cliente?.email === 'rosa@gmail.com', `veio ${troca.status}`);
+  confere('gravado: o e-mail novo, e as compras dela junto', banco.latam_customers.find(c => c.id === 'k1').email === 'rosa@gmail.com'
+    && banco.latam_whop_events[0].customer_email === 'rosa@gmail.com');
+  confere('a sessão dela continua (quem trocou foi ela)', (await chamar('session', {}, { token: achou.corpo.token })).status === 200);
+  const registro = resgates().find(x => x.metodo === 'cartao');
+  confere('o registro do resgate guarda o e-mail de antes', registro?.email_anterior === 'rosa@gmsil.com' && registro.contato === 'rosa@gmail.com');
+  confere('trocar de novo: 403 (uma vez só)', (await chamar('corregir_correo', { email: 'rosa.otra@gmail.com' }, { token: achou.corpo.token })).status === 403);
+  cliente({ id: 'k3', email: 'ines@gmsil.com', name: 'Inés' });
+  cliente({ id: 'k4', email: 'ines@gmail.com', name: 'Otra Inés' });
+  pagamento('k3', 'ines@gmsil.com', '7310', 'INES PRUEBA');
+  const outra = await chamar('buscar_compra', { nombre: 'Inés', final: '7310', correos: ['ines@gmail.com'] });
+  confere('e-mail que já é de outra cliente: sem sugestão', outra.status === 200 && outra.corpo.compra?.sugerido === '');
+  confere('e trocar para ele: 409', (await chamar('corregir_correo', { email: 'ines@gmail.com' }, { token: outra.corpo.token })).status === 409);
+});
+
+await cenario('31. A entrada de emergência', async () => {
+  zerarResgate();
+  confere('sem o interruptor no banco: 503 (manda escrever ao suporte)', (await chamar('entrada_emergencia', { nombre: 'Rosa', contacto: 'rosa@gmail.com' })).status === 503);
+  ligarEmergencia();
+  const r = await chamar('entrada_emergencia', { nombre: 'Rosa López', contacto: 'Rosa@Gmial.com', correos: ['rosa@yahoo.com'] }, {});
+  confere('nome + e-mail: entra na hora', r.status === 200 && /^[a-f0-9]{64}$/.test(r.corpo.token || ''), `veio ${r.status} ${r.corpo?.error || ''}`);
+  const criada = banco.latam_customers.find(c => c.email === 'rosa@gmail.com');
+  confere('a conta nasce com o e-mail corrigido e o nome', Boolean(criada) && criada.name === 'Rosa López');
+  const acesso = criada && banco.latam_access.find(a => a.customer_id === criada.id);
+  confere('acesso de emergência: 12 meses, origem emergencia', acesso?.source === 'emergencia' && acesso.status === 'active'
+    && Math.abs(Date.parse(acesso.expires_at) - (Date.now() + 365 * 86_400_000)) < 60_000);
+  confere('sem os extras', Array.isArray(r.corpo.extras) && r.corpo.extras.length === 0, JSON.stringify(r.corpo.extras));
+  confere('saúda pelo nome', r.corpo.cliente?.nombre === 'Rosa');
+  const registro = resgates()[0];
+  confere('registro: emergencia, por confirmar, com o contato e o que ela tentou', registro?.metodo === 'emergencia' && registro.situacao === 'por_confirmar'
+    && registro.contato === 'Rosa@Gmial.com' && registro.email_digitado === 'rosa@yahoo.com', JSON.stringify(registro));
+  const whats = await chamar('entrada_emergencia', { nombre: 'Carmen', contacto: '+52 1 55 1234 5678' });
+  confere('nome + WhatsApp: entra, numa conta sem e-mail de verdade', whats.status === 200
+    && banco.latam_customers.some(c => c.email === 'whatsapp-5215512345678@sin-correo.invalid'));
+  confere('3ª emergência da mesma conexão no dia: 429', (await chamar('entrada_emergencia', { nombre: 'Ana', contacto: 'ana@gmail.com' })).status === 429);
+});
+
+await cenario('32. Emergência com um e-mail que já existe', async () => {
+  zerarResgate();
+  ligarEmergencia({ emergencias_por_dia: 10 });
+  cliente({ id: 'e1', email: 'compradora@gmail.com', name: 'Lucía' });
+  const dela = await chamar('entrada_emergencia', { nombre: 'Lucía', contacto: 'compradora@gmail.com' });
+  confere('a conta é dela e tem o app: entra, sem acesso novo', dela.status === 200 && banco.latam_access.filter(a => a.customer_id === 'e1').length === 1
+    && banco.latam_access.find(a => a.customer_id === 'e1').source === 'whop');
+  confere('e o registro já nasce resolvido', resgates()[0]?.situacao === 'resolvido');
+  cliente({ id: 'e2', email: 'cerrada@gmail.com', acesso: { status: 'revoked', expires_at: daquiA(100) } });
+  confere('acesso fechado pela equipe: não reabre (403)', (await chamar('entrada_emergencia', { nombre: 'Marta', contacto: 'cerrada@gmail.com' })).status === 403
+    && banco.latam_access.find(a => a.customer_id === 'e2').status === 'revoked');
+  cliente({ id: 'e3', email: 'sinacceso@gmail.com', acesso: null });
+  confere('cadastrada sem acesso nenhum: libera', (await chamar('entrada_emergencia', { nombre: 'Elena', contacto: 'sinacceso@gmail.com' })).status === 200
+    && banco.latam_access.find(a => a.customer_id === 'e3')?.source === 'emergencia');
+  confere('sem nome: 400', (await chamar('entrada_emergencia', { nombre: '', contacto: 'x@gmail.com' })).status === 400);
+  confere('contato que não é e-mail nem telefone: 400', (await chamar('entrada_emergencia', { nombre: 'Elena', contacto: 'no sé' })).status === 400);
+  banco.latam_resgate_config[0].emergencia_ligada = false;
+  confere('interruptor desligado: 503', (await chamar('entrada_emergencia', { nombre: 'Elena', contacto: 'nueva@gmail.com' })).status === 503);
+});
+
+await cenario('33. Painel: a lista de resgates e "Marcar como resolvido"', async () => {
+  zerarResgate();
+  cenarioDoPainel();
+  ligarEmergencia();
+  await chamar('entrada_emergencia', { nombre: 'Rosa', contacto: 'rosa@gmail.com' });
+  const token = await entrar('admin@ejemplo.com');
+  const painel = await chamar('admin_dashboard', {}, { token });
+  const lista = painel.corpo.resgates;
+  confere('o painel traz os resgates', Array.isArray(lista) && lista.length === 1 && lista[0].situacao === 'por_confirmar', JSON.stringify(lista));
+  const resolve = await chamar('admin_resolver_resgate', { id: lista[0].id }, { token });
+  confere('marcar como resolvido: 200, com quem e quando', resolve.status === 200 && resgates()[0].situacao === 'resolvido'
+    && resgates()[0].resolvido_por === ADMIN_ID && Boolean(resgates()[0].resolvido_em));
+  confere('id inválido: 400', (await chamar('admin_resolver_resgate', { id: 'x' }, { token })).status === 400);
+  confere('id que não existe: 404', (await chamar('admin_resolver_resgate', { id: 999 }, { token })).status === 404);
+  const naoAdmin = await entrar('maria@ejemplo.com');
+  confere('cliente comum não resolve: 403', (await chamar('admin_resolver_resgate', { id: lista[0].id }, { token: naoAdmin })).status === 403);
+  pagamento('maria', 'maria@ejemplo.com', '5544', 'MARIA LOPEZ');
+  await chamar('buscar_compra', { nombre: 'María', final: '5544' });
+  const ficha = await chamar('admin_customer_detail', { customer_id: CLIENTE_ID }, { token });
+  confere('a ficha dela mostra o resgate pelo cartão', Array.isArray(ficha.corpo.resgates) && ficha.corpo.resgates.length === 1
+    && ficha.corpo.resgates[0].metodo === 'cartao', JSON.stringify(ficha.corpo.resgates));
+});
+
+await cenario('34. Sem o SQL do resgate no banco: tudo como antes', async () => {
+  zerarResgate();
+  const guardadas = { ...rpcsDoTeste };
+  for (const nome of Object.keys(rpcsDoTeste)) delete rpcsDoTeste[nome];
+  delete banco.latam_resgates;
+  delete banco.latam_resgate_config;
+  cliente({ id: 'v1', email: 'vieja@gmsil.com' });
+  cliente({ id: 'v2', email: 'normal@gmail.com' });
+  confere('login normal: 200', (await chamar('login', { email: 'normal@gmail.com' })).status === 200);
+  confere('com erro de digitação comum: ainda entra (a correção não depende do banco)', (await chamar('login', { email: 'normal@gmial.com' })).status === 200);
+  confere('gêmeo: 403 (sem as funções, não procura)', (await chamar('login', { email: 'vieja@gmail.com' })).status === 403);
+  confere('cartão: 503 (a tela manda escrever ao suporte)', (await chamar('buscar_compra', { nombre: 'Rosa', final: '4821' })).status === 503);
+  confere('emergência: 503 (manda escrever ao suporte)', (await chamar('entrada_emergencia', { nombre: 'Rosa', contacto: 'rosa@gmail.com' })).status === 503);
+  const token = await entrar('normal@gmail.com');
+  cenarioDoPainel();
+  const admin = await entrar('admin@ejemplo.com');
+  const painel = await chamar('admin_dashboard', {}, { token: admin });
+  confere('painel abre, sem a seção de resgates', painel.status === 200 && painel.corpo.resgates === null, `veio ${painel.status}`);
+  confere('sessão comum continua', (await chamar('session', {}, { token })).status === 200);
+  Object.assign(rpcsDoTeste, guardadas);
 });
 
 fechar();

@@ -139,6 +139,16 @@
 .admin-detail-block > .admin-empty + .admin-mini-btn { margin-top: 10px; }
 .admin-mini-btn { flex: 0 0 auto; padding: 7px 13px; border: 1px solid var(--hairline); border-radius: 99px; background: var(--bg); color: var(--ink); font: 800 12px/1 'Manrope', sans-serif; cursor: pointer; }
 .admin-mini-btn:hover { border-color: var(--accent); background: var(--accent); color: var(--dark-on-accent); }
+/* O resgate na entrada (10/11/2026): quem não achava o e-mail da compra.
+   O cartão de quem espera a equipe ganha a borda dourada. */
+#secao-resgates .admin-filter-chips { margin-bottom: 12px; }
+.admin-resgates { display: flex; flex-direction: column; gap: 11px; }
+.admin-resgate { display: flex; flex-direction: column; gap: 6px; padding: 16px 17px; border: 1px solid var(--hairline); border-radius: 17px; background: white; }
+.admin-resgate.is-pendente { border: 2px solid var(--accent-strong); }
+.admin-resgate h3 { margin: 0 0 4px; font-size: 16px; line-height: 1.35; }
+.admin-resgate-quando { margin: 0; color: var(--ink-muted); font-size: 13px; }
+.admin-resgate-acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.admin-resgate-ok { border-color: var(--accent-strong); }
 /* Banners do destaque da home. Segue o figurino da .admin-campaign
    (cartão branco, borda de fio de cabelo, raio 17) — mas este é
    editável, então ele ganha campos e botões. */

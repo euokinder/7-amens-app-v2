@@ -5,15 +5,40 @@
 // Brasil. A member-api não sabe que esta função existe, e vice-versa.
 //
 // Ações:
-//   login     e-mail da compra -> sessão de 90 dias (sem senha, como no Brasil)
+//   login     e-mail da compra -> sessão de 1 ano (sem senha, como no Brasil).
+//             Desde 10/11/2026, se o e-mail não acha ninguém, entra o resgate
+//             pelo e-mail (ver O RESGATE, abaixo)
 //   entry     link de entrada (/es-entrar#código) -> sessão
+//   buscar_compra       o resgate pelo cartão: os 4 últimos números + o nome
+//   entrada_emergencia  o resgate sem compra achada: nome + e-mail ou WhatsApp
 //   session   confere a sessão e devolve o retrato da jornada
 //   progress  marca ou desmarca um dia como rezado ("Ya recé"). Com
 //             journey: 'cantico', um dia do Cántico ("Terminé este día")
 //   oferta    registra o que ela fez com o pop-up (apareceu, tocou, fechou)
+//   corregir_correo     logo depois do resgate pelo cartão, ela troca o
+//             e-mail gravado com erro pelo dela
 //   logout    encerra a sessão
 //   admin_*   o painel da LATAM (/es-admin), só para quem está em latam_admins
 //             (supabase/latam/04-admin.sql)
+//
+// O RESGATE (10/11/2026, supabase/latam/09-resgate.sql): para quem não acha o
+// e-mail da compra. Decisão do Caio: o público é idoso e vulnerável, e entrar
+// vem antes de proteger. A escada da /es-entrar:
+//   1. o e-mail, com os erros comuns corrigidos sem ela ver (gmial.com,
+//      .con, espaço, vírgula, acento). Se ainda não achar: o "gêmeo" (o MESMO
+//      e-mail com o domínio gravado errado na compra: gmsil.com) e o
+//      "parecido" (uma letra de diferença antes do @, só em conta que nunca
+//      entrou e se for uma só). O gêmeo tem o e-mail gravado corrigido na hora;
+//   2. o final do cartão + o nome que ela escreve (a Whop manda os dois em
+//      todo pagamento). Entra se sobrar UMA cliente;
+//   3. a entrada de emergência: nome + e-mail ou WhatsApp, e ela entra na
+//      hora, com 12 meses e sem os extras. A equipe confere no painel.
+// Regras que valem para todo resgate:
+//   - conta de administradora NUNCA entra por resgate (só pelo e-mail exato);
+//   - só acha conta com o app ativo e dentro do prazo;
+//   - os 4 números do cartão não são gravados em lugar nenhum;
+//   - tudo fica em latam_resgates, que o painel mostra;
+//   - sem o SQL 09 no banco, o resgate não acha nada e o login segue como antes.
 //
 // OS POP-UPS (07/11/2026): a mesma lógica do Brasil, em tabelas latam_
 // (supabase/latam/03-popups.sql). Ao abrir a página, junto com o retrato, o
@@ -59,7 +84,9 @@ const allowedNetlifyPreview = /^https:\/\/[a-z0-9][a-z0-9-]*--7madrugadas\.netli
 const allowedLocalOrigin = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 
 const DEFAULT_TZ = 'America/Mexico_City';
-const SESSION_MS = 90 * 24 * 60 * 60 * 1000;
+// 1 ano, como o acesso (era 90 dias até 10/11/2026): ela entra uma vez no
+// celular e não precisa digitar de novo.
+const SESSION_MS = 365 * 24 * 60 * 60 * 1000;
 const LAST_DAY = 7;
 const RETRIABLE = new Set([408, 425, 429, 500, 502, 503, 504]);
 const ATTEMPTS = 3;
@@ -152,7 +179,234 @@ const MESSAGES = {
   notOwned: 'Este contenido todavía no está en tu acceso.',
   badRequest: 'Solicitud inválida.',
   offline: 'No pudimos conectar ahora. Inténtalo de nuevo en unos instantes.',
+  // O resgate (10/11/2026). A /es-entrar mostra textos dela; estes são a rede.
+  rescueBad: 'Escribe tu nombre y los 4 últimos números de la tarjeta.',
+  cardNotFound: 'No encontramos una compra con esa tarjeta y ese nombre.',
+  emergencyBad: 'Escribe tu nombre y tu correo o tu número de WhatsApp.',
+  emergencyOff: 'Escríbenos a soporte@pkscale.com y te ayudamos hoy mismo.',
+  emergencyLimit: 'Hoy ya se crearon varios accesos desde esta conexión. Escríbenos a soporte@pkscale.com y te ayudamos.',
+  closed: 'Este acceso fue cerrado. Escríbenos a soporte@pkscale.com y te ayudamos.',
+  fixNotAllowed: 'No pudimos cambiar el correo ahora. Escríbenos y lo cambiamos por ti.',
+  fixTaken: 'Ese correo ya está en otra cuenta. Escríbenos y lo resolvemos.',
 };
+
+// ----------------------------------------------------------- O RESGATE
+// (10/11/2026; o porquê está no topo deste arquivo e em 09-resgate.sql.)
+
+// Quantas letras separam dois textos: trocar, faltar, sobrar ou inverter duas
+// vizinhas conta 1 cada ('gmial' e 'gmail' = 1). A mesma conta de
+// latam_distancia, no banco.
+function distancia(a: string, b: string) {
+  if (a === b) return 0;
+  const la = a.length;
+  const lb = b.length;
+  if (!la) return lb;
+  if (!lb) return la;
+  const d: number[][] = Array.from({ length: la + 1 }, (_, i) => Array.from({ length: lb + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
+  for (let i = 1; i <= la; i += 1) {
+    for (let j = 1; j <= lb; j += 1) {
+      const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + custo);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[la][lb];
+}
+
+// Domínios de e-mail de verdade: o que ela digitar igual a um destes nunca é
+// "corrigido". Na dúvida, um domínio entra na lista: estar aqui só impede a
+// correção, e corrigir um domínio de verdade levaria à conta de outra pessoa.
+const DOMINIOS_CONHECIDOS = new Set([
+  'gmail.com', 'googlemail.com',
+  'hotmail.com', 'hotmail.es', 'hotmail.com.ar', 'hotmail.com.mx', 'hotmail.cl', 'hotmail.com.co', 'hotmail.com.pe', 'hotmail.com.br', 'hotmail.co.uk', 'hotmail.fr', 'hotmail.it', 'hotmail.de',
+  'outlook.com', 'outlook.es', 'outlook.com.ar', 'outlook.com.mx', 'outlook.cl', 'outlook.com.co', 'outlook.com.pe', 'outlook.com.br', 'outlook.com.ve',
+  'live.com', 'live.com.mx', 'live.com.ar', 'live.cl', 'live.com.co', 'live.com.pe', 'live.com.ve', 'live.es',
+  'msn.com', 'passport.com',
+  'yahoo.com', 'yahoo.es', 'yahoo.com.mx', 'yahoo.com.ar', 'yahoo.com.co', 'yahoo.com.pe', 'yahoo.cl', 'yahoo.com.ve', 'yahoo.com.br', 'yahoo.com.ec', 'yahoo.com.uy', 'yahoo.com.py', 'yahoo.com.bo', 'yahoo.com.gt', 'yahoo.com.do', 'yahoo.com.pa', 'yahoo.com.sv', 'yahoo.com.hn', 'yahoo.com.ni', 'yahoo.co.cr', 'yahoo.fr', 'yahoo.it', 'yahoo.de', 'yahoo.co.uk',
+  'ymail.com', 'rocketmail.com', 'myyahoo.com',
+  'icloud.com', 'me.com', 'mac.com',
+  'aol.com', 'mail.com', 'email.com', 'gmx.com', 'gmx.net', 'gmx.es', 'zoho.com', 'yandex.com', 'proton.me', 'protonmail.com', 'tutanota.com', 'inbox.com',
+  'att.net', 'sbcglobal.net', 'bellsouth.net', 'comcast.net', 'verizon.net', 'earthlink.net', 'cox.net', 'charter.net', 'optonline.net', 'twc.com', 'frontier.com', 'juno.com', 'netzero.net',
+  'prodigy.net.mx', 'terra.com', 'terra.com.mx', 'terra.cl', 'terra.com.br', 'speedy.com.ar', 'fibertel.com.ar', 'arnet.com.ar', 'cantv.net', 'etb.net.co', 'une.net.co', 'movistar.cl', 'tutopia.com', 'uol.com.br', 'bol.com.br', 'ig.com.br',
+]);
+// Os provedores grandes, pelo nome antes do ponto: 'gmial' vira gmail.com.
+const PROVEDORES: Record<string, string> = {
+  gmail: 'gmail.com', hotmail: 'hotmail.com', outlook: 'outlook.com', yahoo: 'yahoo.com',
+  icloud: 'icloud.com', ymail: 'ymail.com', live: 'live.com', aol: 'aol.com', msn: 'msn.com',
+};
+// O final digitado errado no lugar de ".com".
+const FINAL_ERRADO = new Set(['con', 'cpm', 'vom', 'xom', 'cim', 'comm', 'coom', 'cmo', 'ocm', 'om', 'cm', 'como', 'conm', 'comn', 'vcom', 'cpom']);
+const SIGLA_DE_PAIS = /^[a-z]{2}$/;
+
+// O provedor que ela quis dizer: o nome exato, ou o grande mais perto (até 2
+// letras), se só um ficar mais perto. Nomes curtos (live, aol, msn) só exatos.
+function provedorDe(nome: string) {
+  if (PROVEDORES[nome]) return nome;
+  if (nome.length < 3) return '';
+  let melhor = '';
+  let menor = 99;
+  let empate = false;
+  for (const provedor of Object.keys(PROVEDORES)) {
+    if (provedor.length < 5) continue;
+    const d = distancia(nome, provedor);
+    if (d < menor) { melhor = provedor; menor = d; empate = false; } else if (d === menor) empate = true;
+  }
+  return melhor && !empate && menor <= 2 ? melhor : '';
+}
+
+// O domínio que ela quis dizer: gmsil.com, gmail.con, gmail.comba,
+// hotmail.com.como e iclod.con viram gmail.com, hotmail.com e icloud.com.
+// yajoo.com.mx vira yahoo.com.mx. Domínio desconhecido só perde o final
+// errado (empresa.con vira empresa.com).
+function corrigirDominio(dominio: string) {
+  if (!dominio || DOMINIOS_CONHECIDOS.has(dominio)) return dominio;
+  const partes = dominio.split('.').filter(Boolean);
+  const ultimo = partes[partes.length - 1] || '';
+  if (partes.length >= 2 && FINAL_ERRADO.has(ultimo)) {
+    const soOFinal = [...partes.slice(0, -1), 'com'].join('.');
+    if (DOMINIOS_CONHECIDOS.has(soOFinal)) return soOFinal;
+  }
+  let nome = partes[0] || '';
+  const resto = partes.slice(1);
+  if (!resto.length && nome.length > 6 && nome.endsWith('com')) nome = nome.slice(0, -3); // hotmailcom
+  const provedor = provedorDe(nome);
+  if (!provedor) return partes.length === 2 && FINAL_ERRADO.has(ultimo) ? `${nome}.com` : dominio;
+  // A variação do provedor no país dela, se existir: yahoo.com.mx, hotmail.es.
+  // "hotmail.co" é ".com" cortado (o erro clássico), não Colômbia: com uma
+  // parte só depois do nome, vale só provedor.país que exista na lista.
+  const pais = resto.length === 2 && SIGLA_DE_PAIS.test(resto[1]) ? resto[1]
+    : resto.length === 1 && SIGLA_DE_PAIS.test(resto[0]) ? resto[0] : '';
+  if (pais) {
+    const opcao = resto.length === 2 ? `${provedor}.com.${pais}` : `${provedor}.${pais}`;
+    if (DOMINIOS_CONHECIDOS.has(opcao)) return opcao;
+  }
+  return PROVEDORES[provedor];
+}
+
+// O e-mail sem os tropeços de quem digita no celular: espaço, aspas, acento,
+// maiúscula, vírgula no lugar do ponto, @ ou ponto repetido.
+function limparCorreo(valor: unknown) {
+  if (typeof valor !== 'string') return '';
+  return valor.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/^mailto:/, '')
+    .replace(/[\s"'<>()[\]]/g, '')
+    .replace(/[,;:]/g, '.')
+    .replace(/@{2,}/g, '@')
+    .replace(/\.{2,}/g, '.')
+    .replace(/\.+@/g, '@')
+    .replace(/@\.+/g, '@')
+    .replace(/^\.+|\.+$/g, '');
+}
+function corrigirCorreo(valor: unknown) {
+  const limpo = limparCorreo(valor);
+  const arroba = limpo.lastIndexOf('@');
+  if (arroba < 1) return limpo;
+  return `${limpo.slice(0, arroba)}@${corrigirDominio(limpo.slice(arroba + 1))}`;
+}
+const dominioDe = (email: string) => email.slice(email.lastIndexOf('@') + 1);
+
+// Os nomes, para comparar o que ela escreveu com o da compra: sem acento, sem
+// maiúscula, sem "de", "la", "del"... Basta UMA palavra igual (ou com uma
+// letra trocada, nas de 5 letras ou mais): o cartão pode estar no nome do
+// marido ou do filho, que costuma dividir o sobrenome com ela.
+const PALAVRAS_VAZIAS = new Set(['de', 'del', 'la', 'las', 'los', 'da', 'das', 'do', 'dos', 'van', 'von', 'sra', 'senora', 'don', 'dona']);
+const palavrasDoNome = (texto: unknown) => (typeof texto === 'string' ? texto : '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]+/g, ' ')
+  .split(' ').filter(palavra => palavra.length >= 3 && !PALAVRAS_VAZIAS.has(palavra));
+const nomesBatem = (dela: string[], daCompra: string[]) =>
+  dela.some(a => daCompra.some(b => a === b || (a.length >= 5 && b.length >= 5 && distancia(a, b) <= 1)));
+const limparNome = (valor: unknown) => (typeof valor === 'string' ? valor : '').replace(/\s+/g, ' ').trim().slice(0, 80);
+
+// Os e-mails que ela tentou na entrada (a tela manda até 3), já limpos.
+const correosTentados = (valor: unknown) => (Array.isArray(valor) ? valor : [])
+  .slice(0, 3).map(item => validEmail(corrigirCorreo(item))).filter(Boolean);
+
+// O registro de cada resgate (latam_resgates), que o painel mostra. Falhar
+// aqui nunca impede a entrada dela.
+async function registrarResgate(dados: Record<string, unknown>) {
+  try {
+    const [linha] = await db('latam_resgates', 'POST', dados);
+    return linha || null;
+  } catch (error) {
+    console.error('latam-api resgate', error instanceof Error ? error.message : 'error');
+    return null;
+  }
+}
+
+// O freio do resgate (latam_permite, em 09-resgate.sql): true (pode), false
+// (passou do limite) ou null (sem a função no banco: o resgate fica desligado,
+// e a entrada pelo e-mail segue normal).
+async function permite(chave: string, maximo: number, minutos: number): Promise<boolean | null> {
+  try {
+    return (await db('rpc/latam_permite', 'POST', { p_chave: await sha256(chave), p_maximo: maximo, p_minutos: minutos })) === true;
+  } catch (error) {
+    console.error('latam-api freio do resgate', error instanceof Error ? error.message : 'error');
+    return null;
+  }
+}
+
+// Troca o e-mail gravado (o login dela). Igual ao admin_update_email do
+// painel: as compras dela (latam_whop_events) vão junto, senão ela "perderia"
+// o que comprou. Não derruba a sessão: quem troca é ela mesma, entrando.
+async function trocarEmailGravado(customerId: string, de: string, para: string) {
+  const [taken] = await db(`latam_customers?email=eq.${eq(para)}&select=id&limit=1`);
+  if (taken && taken.id !== customerId) return false;
+  await db(`latam_customers?id=eq.${customerId}`, 'PATCH', { email: para }, 'return=minimal');
+  await db(`latam_whop_events?customer_email=eq.${eq(de)}`, 'PATCH', { customer_email: para }, 'return=minimal');
+  return true;
+}
+
+// O resgate pelo e-mail, quando o que ela digitou não achou ninguém:
+//   1. o mesmo e-mail limpo e com o domínio corrigido (gmial.com -> gmail.com);
+//   2. o gêmeo: a conta com o MESMO antes do @ e o domínio gravado errado, que
+//      corrigido dá o que ela digitou. O e-mail gravado é corrigido;
+//   3. o parecido: uma letra de diferença antes do @, mesmo domínio, conta que
+//      nunca entrou, e uma só.
+// Devolve a cliente achada e como, ou null.
+type Achada = { customer: Customer; metodo: 'corrigido' | 'gemeo' | 'parecido'; anterior?: string };
+async function resgatarPorCorreo(tentativas: string[], alvo: string, ip: string): Promise<Achada | null> {
+  for (const email of tentativas) {
+    const [customer] = await db(`latam_customers?email=eq.${eq(email)}&select=${CUSTOMER_FIELDS}&limit=1`);
+    if (customer) return { customer, metodo: 'corrigido' };
+  }
+  const arroba = alvo.lastIndexOf('@');
+  if (arroba < 1 || (await permite(`resgate:${ip}`, 30, 60)) !== true) return null;
+  let candidatos: { customer_id: string; email: string; tipo: string; entrou: boolean }[] = [];
+  try {
+    candidatos = await db('rpc/latam_resgate_candidatos', 'POST', { p_local: alvo.slice(0, arroba), p_dominio: alvo.slice(arroba + 1) }) || [];
+  } catch (error) {
+    console.error('latam-api candidatos', error instanceof Error ? error.message : 'error');
+    return null;
+  }
+  const buscar = async (id: string) => (await db(`latam_customers?id=eq.${id}&select=${CUSTOMER_FIELDS}&limit=1`))[0] || null;
+  const gemeos = candidatos.filter(c => c.tipo === 'gemeo' && !DOMINIOS_CONHECIDOS.has(dominioDe(c.email)) && corrigirCorreo(c.email) === alvo);
+  if (gemeos.length === 1) {
+    const customer = await buscar(gemeos[0].customer_id);
+    if (customer) {
+      const anterior = customer.email;
+      try {
+        if (await trocarEmailGravado(customer.id, anterior, alvo)) customer.email = alvo;
+      } catch (error) {
+        console.error('latam-api gemeo', error instanceof Error ? error.message : 'error');
+      }
+      return { customer, metodo: 'gemeo', anterior };
+    }
+  }
+  const parecidos = candidatos.filter(c => c.tipo === 'parecido' && !c.entrou);
+  if (parecidos.length === 1) {
+    const customer = await buscar(parecidos[0].customer_id);
+    if (customer) return { customer, metodo: 'parecido' };
+  }
+  return null;
+}
+
+// O acesso como está no banco, para a entrada de emergência separar "nunca
+// teve" (libera), "fechado" (não reabre) e "vencido" (avisa a data).
+async function acessoBruto(customerId: string) {
+  const [row] = await db(`latam_access?customer_id=eq.${customerId}&product=eq.app&select=status,expires_at&limit=1`);
+  return row as { status: string; expires_at: string | null } | undefined;
+}
+const EMERGENCIA_MS = 365 * 24 * 60 * 60 * 1000;
 
 async function createSession(customerId: string) {
   const token = newSessionToken();
@@ -249,8 +503,11 @@ const OFFER_KEY = /^[a-z0-9_-]+$/;
 const ADMIN_ACTIONS = new Set([
   'admin_dashboard', 'admin_customer_detail', 'admin_grant_access',
   'admin_revoke_access', 'admin_update_email', 'admin_entry_link',
-  'admin_grant_extra', 'admin_revoke_extra',
+  'admin_grant_extra', 'admin_revoke_extra', 'admin_resolver_resgate',
 ]);
+// Os resgates que o painel mostra (09-resgate.sql). Sem a tabela, vem null e
+// o painel só não mostra a seção.
+const RESGATE_FIELDS = 'id,customer_id,metodo,email_digitado,email_anterior,nome,contato,pais,situacao,resolvido_em,created_at';
 const ADMIN = {
   forbidden: 'Acesso administrativo não autorizado.',
   badCustomer: 'Cliente inválida.',
@@ -312,25 +569,153 @@ Deno.serve(async (req: Request) => {
     try { body = JSON.parse(raw); } catch { return respond({ error: MESSAGES.badRequest }, 400); }
     if (!body || typeof body !== 'object' || Array.isArray(body)) return respond({ error: MESSAGES.badRequest }, 400);
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '';
+    // O país da conexão, só para a equipe ler no painel do resgate.
+    const paisDaConexao = (req.headers.get('cf-ipcountry') || '').toUpperCase();
+    const pais = /^[A-Z]{2}$/.test(paisDaConexao) ? paisDaConexao : '';
 
     // --------------------------------------------------------- sem sessão
     if (body.action === 'login') {
-      const email = validEmail(body.email);
+      // Primeiro como ela digitou (o de sempre). Se não achar ninguém, o mesmo
+      // e-mail limpo e com o domínio corrigido, o gêmeo e o parecido (O
+      // RESGATE, no topo deste arquivo).
+      const original = validEmail(body.email);
+      const limpo = validEmail(limparCorreo(body.email));
+      const corrigido = validEmail(corrigirCorreo(body.email));
+      const email = original || limpo || corrigido;
       if (!email) return respond({ error: MESSAGES.badEmail }, 400);
       // O balde é por pessoa (e-mail) dentro do endereço de internet, como no
       // Brasil: a operadora põe muita gente atrás do mesmo IP.
-      const [allowed, [customer]] = await Promise.all([
+      const [allowed, [exata]] = await Promise.all([
         db('rpc/latam_allow_login', 'POST', { bucket_key: await sha256(`login:${ip}|${email}`) }),
         db(`latam_customers?email=eq.${eq(email)}&select=${CUSTOMER_FIELDS}&limit=1`),
       ]);
       if (!allowed) return respond({ error: MESSAGES.tooMany }, 429);
-      if (!customer) return respond({ error: MESSAGES.notFound }, 403);
+      let customer: Customer | null = exata || null;
+      let achada: Achada | null = null;
+      if (!customer) {
+        const tentativas = [...new Set([limpo, corrigido])].filter(outro => outro && outro !== email);
+        achada = await resgatarPorCorreo(tentativas, corrigido || email, ip);
+        customer = achada ? achada.customer : null;
+      }
+      // `siguiente`: a tela segue para o resgate pelo nome e pelo cartão.
+      if (!customer) return respond({ error: MESSAGES.notFound, siguiente: 'nombre' }, 403);
       const access = await accessOf(customer.id);
       if (!access.ok) {
         const zone = validTimeZone(customer.timezone) || validTimeZone(body.tz) || DEFAULT_TZ;
-        return respond({ error: access.expired ? MESSAGES.expired(asDayMonthYear(access.expired, zone)) : MESSAGES.notFound }, 403);
+        if (access.expired) return respond({ error: MESSAGES.expired(asDayMonthYear(access.expired, zone)) }, 403);
+        return respond({ error: MESSAGES.notFound, siguiente: 'nombre' }, 403);
       }
-      const [token, portrait] = await Promise.all([createSession(customer.id), journey(customer, body.tz, access.until, true)]);
+      const digitado = typeof body.email === 'string' ? body.email.trim().slice(0, 254) : '';
+      const [token, portrait] = await Promise.all([
+        createSession(customer.id),
+        journey(customer, body.tz, access.until, true),
+        achada ? registrarResgate({ customer_id: customer.id, metodo: achada.metodo, email_digitado: digitado, email_anterior: achada.anterior || '', pais }) : null,
+      ]);
+      return respond({ token, ...portrait });
+    }
+
+    // O resgate pelo cartão: os 4 últimos números + o nome que ela escreve.
+    // Entra se sobrar UMA cliente com o app ativo. Os números não são gravados.
+    if (body.action === 'buscar_compra') {
+      const final = typeof body.final === 'string' ? body.final.replace(/\D/g, '') : '';
+      const nombre = limparNome(body.nombre);
+      const delas = palavrasDoNome(nombre);
+      if (!/^\d{4}$/.test(final) || !delas.length) return respond({ error: MESSAGES.rescueBad }, 400);
+      const freio = await permite(`cartao:${ip}`, 8, 60);
+      if (freio === null) return respond({ error: MESSAGES.offline }, 503);
+      if (!freio) return respond({ error: MESSAGES.tooMany }, 429);
+      let filas: { customer_id: string; email: string; nome_cliente: string; nome_cartao: string }[] = [];
+      try {
+        filas = await db('rpc/latam_resgate_cartao', 'POST', { p_final: final }) || [];
+      } catch (error) {
+        console.error('latam-api cartao', error instanceof Error ? error.message : 'error');
+        return respond({ error: MESSAGES.offline }, 503);
+      }
+      const ids = [...new Set(filas
+        .filter(fila => nomesBatem(delas, palavrasDoNome(`${fila.nome_cliente || ''} ${fila.nome_cartao || ''}`)))
+        .map(fila => fila.customer_id))];
+      if (ids.length !== 1) return respond({ error: MESSAGES.cardNotFound, siguiente: 'emergencia' }, 404);
+      const [customer] = await db(`latam_customers?id=eq.${ids[0]}&select=${CUSTOMER_FIELDS}&limit=1`);
+      const access = customer ? await accessOf(customer.id) : { ok: false as const, expired: null };
+      if (!customer || !access.ok) return respond({ error: MESSAGES.cardNotFound, siguiente: 'emergencia' }, 404);
+      // Se ela tentou outro e-mail antes, a tela oferece trocar o gravado pelo
+      // dela (corregir_correo), se ele estiver livre.
+      const tentados = correosTentados(body.correos).filter(outro => outro !== customer.email);
+      let sugerido = '';
+      if (tentados[0]) {
+        const [taken] = await db(`latam_customers?email=eq.${eq(tentados[0])}&select=id&limit=1`);
+        if (!taken) sugerido = tentados[0];
+      }
+      const [token, portrait] = await Promise.all([
+        createSession(customer.id),
+        journey(customer, body.tz, access.until, true),
+        registrarResgate({ customer_id: customer.id, metodo: 'cartao', nome: nombre, email_digitado: tentados.join(', '), pais }),
+      ]);
+      return respond({ token, ...portrait, compra: { correo: customer.email, sugerido } });
+    }
+
+    // A entrada de emergência: nada achou a compra. Ela escreve o nome e um
+    // e-mail ou WhatsApp e entra na hora (12 meses, sem os extras). A equipe
+    // confere no painel. Desliga em latam_resgate_config (09-resgate.sql).
+    if (body.action === 'entrada_emergencia') {
+      const nombre = limparNome(body.nombre);
+      const contato = typeof body.contacto === 'string' ? body.contacto.trim().slice(0, 120) : '';
+      const comoEmail = contato.includes('@') ? validEmail(corrigirCorreo(contato)) : '';
+      const digitos = contato.replace(/\D/g, '');
+      const comoTelefone = !contato.includes('@') && digitos.length >= 7 && digitos.length <= 15 ? digitos : '';
+      if (!/[a-zA-ZÀ-ÿ]{2,}/.test(nombre) || (!comoEmail && !comoTelefone)) return respond({ error: MESSAGES.emergencyBad }, 400);
+      let config: { emergencia_ligada?: boolean; emergencias_por_dia?: number } | undefined;
+      try {
+        [config] = await db('latam_resgate_config?id=eq.1&select=emergencia_ligada,emergencias_por_dia&limit=1');
+      } catch (error) {
+        console.error('latam-api config do resgate', error instanceof Error ? error.message : 'error');
+      }
+      if (!config || config.emergencia_ligada !== true) return respond({ error: MESSAGES.emergencyOff }, 503);
+      const freio = await permite(`emergencia:${ip}`, Number(config.emergencias_por_dia) || 0, 24 * 60);
+      if (freio === null) return respond({ error: MESSAGES.emergencyOff }, 503);
+      if (!freio) return respond({ error: MESSAGES.emergencyLimit }, 429);
+      // Sem e-mail, o WhatsApp vira um endereço que não existe (.invalid é
+      // reservado: nada é entregue lá). A equipe acha o número no painel.
+      const email = comoEmail || `whatsapp-${comoTelefone}@sin-correo.invalid`;
+      let [customer] = await db(`latam_customers?email=eq.${eq(email)}&select=${CUSTOMER_FIELDS}&limit=1`);
+      let liberar = true;
+      let situacao = 'por_confirmar';
+      if (customer) {
+        const atual = await acessoBruto(customer.id);
+        if (atual && atual.status !== 'active') return respond({ error: MESSAGES.closed }, 403);
+        if (atual && atual.expires_at && Date.parse(atual.expires_at) <= Date.now()) {
+          const zone = validTimeZone(customer.timezone) || validTimeZone(body.tz) || DEFAULT_TZ;
+          return respond({ error: MESSAGES.expired(asDayMonthYear(atual.expires_at, zone)) }, 403);
+        }
+        if (atual) { liberar = false; situacao = 'resolvido'; } // a conta é dela e tem o app: entra como no login
+        if (!customer.name) await db(`latam_customers?id=eq.${customer.id}`, 'PATCH', { name: nombre }, 'return=minimal');
+      } else {
+        try {
+          [customer] = await db('latam_customers', 'POST', { email, name: nombre });
+        } catch (error) {
+          // Outra aba criou a mesma conta no mesmo instante.
+          [customer] = await db(`latam_customers?email=eq.${eq(email)}&select=${CUSTOMER_FIELDS}&limit=1`);
+          if (!customer) throw error;
+        }
+      }
+      if (liberar) {
+        const agora = nowIso();
+        await db('latam_access', 'POST', {
+          customer_id: customer.id, product: 'app', status: 'active', source: 'emergencia',
+          expires_at: new Date(Date.now() + EMERGENCIA_MS).toISOString(), granted_at: agora, updated_at: agora,
+          note: 'Entrada de emergência: a equipe confere a compra no painel.',
+        }, 'return=minimal');
+      }
+      const access = await accessOf(customer.id);
+      if (!access.ok) return respond({ error: MESSAGES.emergencyOff }, 503);
+      const [token, portrait] = await Promise.all([
+        createSession(customer.id),
+        journey(customer, body.tz, access.until, true),
+        registrarResgate({
+          customer_id: customer.id, metodo: 'emergencia', nome: nombre, contato,
+          email_digitado: correosTentados(body.correos).join(', '), pais, situacao,
+        }),
+      ]);
       return respond({ token, ...portrait });
     }
 
@@ -371,7 +756,8 @@ Deno.serve(async (req: Request) => {
       return respond({ ok: true });
     }
     const isAdminAction = typeof body.action === 'string' && ADMIN_ACTIONS.has(body.action);
-    if (body.action !== 'session' && body.action !== 'progress' && body.action !== 'oferta' && !isAdminAction) return respond({ error: MESSAGES.badRequest }, 400);
+    const comSessao = ['session', 'progress', 'oferta', 'corregir_correo'];
+    if (!comSessao.includes(String(body.action)) && !isAdminAction) return respond({ error: MESSAGES.badRequest }, 400);
 
     const [[customer], access] = await Promise.all([
       db(`latam_customers?id=eq.${session.customer_id}&select=${CUSTOMER_FIELDS}&limit=1`),
@@ -393,6 +779,25 @@ Deno.serve(async (req: Request) => {
       return respond({ ok: true });
     }
 
+    // Logo depois do resgate pelo cartão (30 min), ela troca o e-mail gravado
+    // (que tinha o erro) pelo dela, uma vez. Fora disso, só a equipe troca.
+    if (body.action === 'corregir_correo') {
+      const nuevo = validEmail(corrigirCorreo(body.email));
+      if (!nuevo) return respond({ error: MESSAGES.badEmail }, 400);
+      if (nuevo === customer.email) return respond(await journey(customer, body.tz, access.until, false));
+      const desde = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+      let resgate: { id: number; email_anterior: string } | undefined;
+      try {
+        [resgate] = await db(`latam_resgates?customer_id=eq.${customer.id}&metodo=eq.cartao&created_at=gt.${eq(desde)}&select=id,email_anterior&order=created_at.desc&limit=1`);
+      } catch {
+        resgate = undefined;
+      }
+      if (!resgate || resgate.email_anterior) return respond({ error: MESSAGES.fixNotAllowed }, 403);
+      if (!(await trocarEmailGravado(customer.id, customer.email, nuevo))) return respond({ error: MESSAGES.fixTaken }, 409);
+      await db(`latam_resgates?id=eq.${resgate.id}`, 'PATCH', { email_anterior: customer.email, contato: nuevo }, 'return=minimal');
+      return respond(await journey({ ...customer, email: nuevo }, body.tz, access.until, false));
+    }
+
     // ------------------------------------------- o painel (/es-admin, 07/11)
     // Só para quem está em latam_admins. Lê e grava só tabelas latam_: o painel
     // do Brasil (admin.html + member-api) não é tocado. Toda ação que muda algo
@@ -408,18 +813,28 @@ Deno.serve(async (req: Request) => {
 
       if (body.action === 'admin_dashboard') {
         // A lista inteira: os números do topo e a busca saem dela, no navegador.
-        const [customers, campaigns] = await Promise.all([
+        const [customers, campaigns, resgates] = await Promise.all([
           db('rpc/latam_admin_customers', 'POST', {}),
           db('rpc/latam_admin_offers', 'POST', {}),
+          db(`latam_resgates?select=${RESGATE_FIELDS}&order=created_at.desc&limit=150`).catch(() => null),
         ]);
-        return respond({ customers, campaigns });
+        return respond({ customers, campaigns, resgates });
+      }
+
+      // A equipe conferiu a entrada de emergência (achou a compra, ou decidiu).
+      if (body.action === 'admin_resolver_resgate') {
+        const id = Number(body.id);
+        if (!Number.isInteger(id) || id <= 0) return respond({ error: MESSAGES.badRequest }, 400);
+        const [linha] = await db(`latam_resgates?id=eq.${id}`, 'PATCH', { situacao: 'resolvido', resolvido_por: customer.id, resolvido_em: now });
+        if (!linha) return respond({ error: 'Resgate não encontrado.' }, 404);
+        return respond({ ok: true });
       }
 
       if (body.action === 'admin_customer_detail') {
         if (!target) return respond({ error: ADMIN.badCustomer }, 400);
         const [person] = await db(`latam_customers?id=eq.${target}&select=id,email,name,country,timezone,first_access_on,created_at&limit=1`);
         if (!person) return respond({ error: ADMIN.notFound }, 404);
-        const [access, progress, visits, offers, payments, history, links, extras] = await Promise.all([
+        const [access, progress, visits, offers, payments, history, links, extras, resgates] = await Promise.all([
           db(`latam_access?customer_id=eq.${target}&product=eq.app&select=status,source,expires_at,granted_at,revoked_at&limit=1`),
           db(`latam_progress?customer_id=eq.${target}&select=day,completed_at&order=day.asc`),
           db(`latam_visit_days?customer_id=eq.${target}&select=visited_on,first_seen_at,last_seen_at&order=visited_on.desc&limit=60`),
@@ -428,6 +843,7 @@ Deno.serve(async (req: Request) => {
           db(`latam_admin_actions?target_customer_id=eq.${target}&select=action,details,created_at&order=created_at.desc&limit=30`),
           db(`latam_entry_links?customer_id=eq.${target}&select=token,created_at,last_used_at,uses&limit=1`),
           extrasOf(target),
+          db(`latam_resgates?customer_id=eq.${target}&select=${RESGATE_FIELDS}&order=created_at.desc&limit=20`).catch(() => []),
         ]);
         // O produto de cada pagamento está no pedido da KashPay (a Whop não diz).
         const ids = [...new Set((payments as { tx?: unknown }[]).map(p => p.tx).filter((id): id is string => typeof id === 'string' && KASHPAY_ID.test(id)))];
@@ -438,6 +854,7 @@ Deno.serve(async (req: Request) => {
           customer: person, access: access[0] || null, progress, visits, offers, payments, orders, history,
           entry_link: links[0] || null,
           extras: extras ? { origem: extras.origem, cantico_hechos: extras.cantico_hechos } : null,
+          resgates,
         });
       }
 

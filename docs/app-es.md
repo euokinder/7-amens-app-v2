@@ -461,8 +461,56 @@ Serve se a KashPay não mandar o aviso dessas vendas, ou como segunda rede, já 
 - Reembolso e chargeback continuam sem tirar o acesso?
 - A rede para aviso perdido da KashPay: o IPN da Digistore24 ou uma conferência diária?
 
+## O resgate na entrada (`/es-entrar`, 10/11/2026)
+Pedido do Caio: ajudar quem compra e não consegue entrar, porque isso vira reembolso e alerta de fraude na Whop (US$ 29 cada).
+
+**O que se mediu em 10/11** (consultas leves; nada de pessoa aqui):
+- ~350 de ~820 compradoras nunca tinham entrado. Quem entra leva ~18 min (mediana).
+- Em 24 h, 27 pessoas viram "No encontramos": 16 entraram depois e 11 desistiram.
+- 20 das que nunca entraram compraram com o domínio do e-mail digitado errado no checkout (gmsil.com, hotmail.com.como, iclod.con…). O e-mail CERTO não achava a conta delas, e o e-mail de entrega nunca chegou.
+- O aviso da Whop (`latam_whop_events.payload`) traz, em todo pagamento, o nome no cartão (`data.billing_address.name`) e os 4 últimos números (`data.payment_instrument.card.last4`).
+
+**Decisão do Caio:** o público é idoso e vulnerável. Entrar vem antes de proteger, e nenhuma pode ficar sem saída. Também: não assustar pedindo dados do cartão. Por isso, sem modelo de linguagem (ele teria de ver e-mails de clientes e poderia ser enganado a revelá-los): são regras.
+
+**A escada** (uma pergunta por tela, nada em vermelho, sempre um próximo passo):
+
+| Passo | O que ela vê | O que acontece por trás |
+|---|---|---|
+| 1. E-mail | a tela de sempre | a `latam-api` corrige sozinha os erros comuns (gmial.com, .con, espaço, vírgula, acento) e procura o **gêmeo** (o mesmo e-mail com o domínio gravado errado: o gravado é corrigido na hora) e o **parecido** (uma letra de diferença antes do @, conta que nunca entrou, uma só) |
+| 2. Nome | "Tranquila, tu compra está segura… ¿Cómo te llamas?" | nada; o nome vai para o passo 3 |
+| 3. Cartão | "Tu tarjeta terminada en •••• •••• •••• [____]" + "Nunca te pedimos el número completo, ni la clave, ni el código de atrás. No cobramos nada." | `buscar_compra`: as compras com esse final; entra se UMA bater com uma palavra do nome (o cartão do marido costuma dividir o sobrenome). Os 4 números não são gravados |
+| 4. Achou | "¡Encontramos tu compra!", o e-mail que ficou na compra e, se ela tentou outro, "¿Quieres entrar con … de ahora en adelante?" | `corregir_correo`: troca o e-mail gravado, uma vez, até 30 min depois do resgate pelo cartão |
+| 5. Emergência | "Entra ahora y reza tranquila" (nome + e-mail ou WhatsApp) | `entrada_emergencia`: entra na hora, acesso de 12 meses (origem `emergencia`), sem os extras. A equipe confere no painel |
+
+**Regras que valem para todo resgate:** conta de administradora nunca entra por resgate (só pelo e-mail exato); só acha conta com o app ativo e no prazo; acesso fechado pela equipe não reabre pela emergência; tudo fica em `latam_resgates`.
+
+**Freios** (`latam_permite`, por impressão digital do IP): busca do gêmeo/parecido 30 por hora; cartão 8 por hora; emergência 2 por dia (`latam_resgate_config.emergencias_por_dia`).
+
+**Desligar só a emergência:** `update public.latam_resgate_config set emergencia_ligada = false, updated_at = now();` (sem build, sem mexer na função). A tela passa a mandar escrever ao suporte.
+
+**A sessão passou de 90 dias para 1 ano**, igual ao acesso: ela entra uma vez no celular e não digita de novo.
+
+**No painel (`/es-admin`):** a seção "Quem não achava o e-mail" lista os resgates, com "Esperam a equipe" (as emergências) em destaque, "Abrir a ficha" e "Marcar como resolvido". A ficha de cada cliente mostra o resgate dela. O que a equipe faz com uma emergência: achar a compra na KashPay ou na Whop pelo nome e pelo contato; se ela comprou um extra, liberar na ficha; marcar como resolvido.
+- ⏳ **Fase 2 (não feita):** "Juntar com a compra" no painel (hoje, quando a compra dela está noutro e-mail, a conta de emergência continua sendo a dela, e os extras são liberados à mão).
+
+**Onde mora:** `supabase/latam/09-resgate.sql`; na `latam-api`, a seção O RESGATE e as ações `buscar_compra`, `entrada_emergencia`, `corregir_correo` e `admin_resolver_resgate`; `es-entrar.html` + `js/es/entrar.js` (os passos); `js/es/sesion.js`; `css/es/app.css` (fim); `es-admin.html` + `js/es/admin.js` + `css/es/admin.css`.
+
+**Ordem de publicar:** SQL → função → site. Qualquer ordem é inofensiva: a função nova sem o SQL entra pelo e-mail como antes (corrige os erros comuns, mas não procura gêmeo nem cartão), e o site novo sem a função nova manda escrever ao suporte.
+
+**Testes:** `testa-latam-api.mjs` (cenários 25 a 34); as funções do SQL provadas no banco de TESTE com cobaias de mentira (`prueba.gemela@gmsil.com`, final 4821; `pruebagarcia@gmail.com`; `carmen.prueba@hotmail.com`, final 7310; `pruebaadmin@gmail.com`, administradora que o resgate nunca acha).
+
+## O WhatsApp de suporte (10/11/2026)
+Pedido do Caio, "pra ajudar ao acesso": **+55 88 99443-2257** (número do Brasil, por isso o link leva o 55: `wa.me/5588994432257`).
+- **Onde aparece:**
+  - na `/es-entrar`, embaixo de todos os passos ("Escríbenos por WhatsApp", com o número escrito e o e-mail do soporte@ como segunda opção). A mensagem já sai escrita com o nome que ela deu e o último e-mail que tentou;
+  - no início (`/es`), num cartão verde ("Habla con nosotros por WhatsApp") antes do "Escríbenos" e no link do portão (o que aparece quando a tela demora a abrir).
+- **Onde mora:** `js/es/config.js` (`whatsapp(texto)` e `whatsappEscrito`). Trocar o número é mexer só ali.
+- O reembolso continua pelo e-mail (`/es-reembolso`): o pedido por escrito é a prova.
+- ⚠️ Os textos prometem "Te respondemos en español": alguém da equipe precisa responder nesse número em espanhol.
+
 ## Como voltar atrás
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
+- **Resgate:** a `latam-api` de antes dele é a do commit `28563e3` (`git show 28563e3:supabase/functions/latam-api/index.ts`). O banco pode ficar: a função de antes não usa nada do que o `09-resgate.sql` criou. Desfazer o banco: seção DESFAZER do `09-resgate.sql`.
 - **Banco:** a seção "DESFAZER" de `supabase/latam/01-tabelas.sql` apaga só o que é `latam_`.
 - **Funções:** apagar `latam-api` e `latam-whop` no painel. O Brasil não usa nenhuma das duas.
 - **Extras:** a `latam-api` de antes deles (v5) é a do commit `310073a` (`git show 310073a:supabase/functions/latam-api/index.ts`); sem ela, o site novo abre os dois extras para todas (rede de segurança). O banco pode ficar: a v5 não usa o que ele ganhou. Desfazer o banco: seção DESFAZER de `05-extras.sql`.

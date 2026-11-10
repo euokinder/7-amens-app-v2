@@ -48,9 +48,19 @@
     retirado: 'Retirado na mão',
   };
   const nomeDoExtra = { arcangeles: 'Arcángeles', cantico: 'Cántico' };
-  const sourceLabels = { whop: 'pela compra', import: 'pela carga inicial', manual: 'liberado na mão' };
+  const sourceLabels = { whop: 'pela compra', import: 'pela carga inicial', manual: 'liberado na mão', emergencia: 'pela entrada de emergência (confira a compra)' };
+  // O resgate na entrada (10/11/2026; supabase/latam/09-resgate.sql).
+  const metodoLabels = {
+    corrigido: 'Digitou o e-mail com erro e entrou (corrigido sozinho)',
+    gemeo: 'O e-mail da compra estava errado: entrou e foi corrigido',
+    parecido: 'Digitou o e-mail com uma letra diferente e entrou',
+    cartao: 'Achou a compra pelo final do cartão e o nome',
+    emergencia: 'Entrou pela emergência, sem achar a compra',
+  };
 
   let customers = [];
+  let resgates = null;
+  let soOsQueEsperam = true;
 
   function element(tag, className = '', text = '') {
     const node = document.createElement(tag);
@@ -442,11 +452,16 @@
         `Trocar o e-mail de ${customer.email} para ${input.value.trim().toLowerCase()}? Ela terá que entrar de novo.`, customer.id);
     });
 
+    const resgatesDela = (data.resgates || []).map(r => line(moment(r.created_at),
+      `${metodoLabels[r.metodo] || r.metodo}${r.situacao === 'por_confirmar' ? ' · espera a equipe' : ''}`,
+      r.situacao === 'por_confirmar' ? 'is-off' : ''));
+
     detailBody.replaceChildren(
       resume,
       renderAccess(data),
       renderExtras(data),
       renderEntryLink(data),
+      block('Resgate na entrada', resgatesDela, 'Entrou sem precisar de resgate.'),
       block('Corrigir e-mail', [emailForm], ''),
       block('Compras', compras, 'Nenhum pagamento registrado para este e-mail.'),
       block('Orações rezadas', prayers, 'Ainda não marcou nenhuma oração.'),
@@ -454,6 +469,53 @@
       block('Acesso ao app', visits, 'Nunca abriu o aplicativo.'),
       block('Ações administrativas', history, 'Nenhuma ação manual registrada.'),
     );
+  }
+
+  // --- o resgate na entrada --------------------------------------------
+  function renderResgate(resgate) {
+    const espera = resgate.situacao === 'por_confirmar';
+    const card = element('article', `admin-resgate${espera ? ' is-pendente' : ''}`);
+    card.append(
+      element('p', 'admin-resgate-quando', `${moment(resgate.created_at)}${resgate.pais ? ` · ${resgate.pais}` : ''}${espera ? ' · espera a equipe' : ''}`),
+      element('h3', '', metodoLabels[resgate.metodo] || resgate.metodo),
+    );
+    if (resgate.nome) card.append(line('Nome que ela escreveu', resgate.nome));
+    if (resgate.contato) card.append(line(resgate.metodo === 'cartao' ? 'E-mail que ela escolheu' : 'Contato que ela deu', resgate.contato));
+    if (resgate.email_digitado) card.append(line('O que ela tentou na entrada', resgate.email_digitado));
+    if (resgate.email_anterior) card.append(line('E-mail da compra, antes', resgate.email_anterior));
+    if (!espera && resgate.resolvido_em) card.append(line('Resolvido', moment(resgate.resolvido_em)));
+    const acoes = element('div', 'admin-resgate-acoes');
+    if (resgate.customer_id) {
+      const ficha = element('button', 'admin-mini-btn', 'Abrir a ficha');
+      ficha.type = 'button';
+      ficha.addEventListener('click', () => openDetail(resgate.customer_id));
+      acoes.append(ficha);
+    }
+    if (espera) {
+      const resolver = element('button', 'admin-mini-btn admin-resgate-ok', 'Marcar como resolvido');
+      resolver.type = 'button';
+      resolver.addEventListener('click', () => act('admin_resolver_resgate', { id: resgate.id },
+        'Marcar como resolvido? Faça isso depois de achar a compra dela (ou de decidir o que fazer).'));
+      acoes.append(resolver);
+    }
+    card.append(acoes);
+    return card;
+  }
+
+  function renderResgates() {
+    const secao = document.getElementById('secao-resgates');
+    if (!Array.isArray(resgates)) { secao.hidden = true; return; }
+    secao.hidden = false;
+    const esperam = resgates.filter(r => r.situacao === 'por_confirmar');
+    document.getElementById('resgate-count').textContent = String(esperam.length);
+    document.getElementById('filtro-resgates').replaceChildren(
+      chipDeFiltro('Esperam a equipe', esperam.length, soOsQueEsperam, () => { soOsQueEsperam = true; renderResgates(); }),
+      chipDeFiltro('Todos os resgates', resgates.length, !soOsQueEsperam, () => { soOsQueEsperam = false; renderResgates(); }),
+    );
+    const lista = soOsQueEsperam ? esperam : resgates;
+    const area = document.getElementById('admin-resgates');
+    area.replaceChildren(...lista.map(renderResgate));
+    if (!lista.length) area.append(element('p', 'admin-empty', soOsQueEsperam ? 'Ninguém esperando a equipe.' : 'Nenhum resgate ainda.'));
   }
 
   async function openDetail(customerId) {
@@ -577,6 +639,8 @@
       area.replaceChildren(...campaigns.map(renderCampaign));
       if (!campaigns.length) area.append(element('p', 'admin-empty', 'Nenhum pop-up configurado.'));
       document.getElementById('campaign-count').textContent = campaigns.length;
+      resgates = Array.isArray(data.resgates) ? data.resgates : null;
+      renderResgates();
       renderCustomerList();
       status.hidden = true;
       dashboard.hidden = false;

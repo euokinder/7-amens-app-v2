@@ -13,19 +13,114 @@
 <body>
 <!-- App em espanhol (LATAM): a entrada. CÓPIA do login.html do Brasil, em
      espanhol. Também recebe o link de entrada (/es-entrar#CÓDIGO), para quem
-     não consegue digitar o e-mail. Plano e regras: docs/app-es.md -->
-<main class="app member-login">
+     não consegue digitar o e-mail. Plano e regras: docs/app-es.md
+
+     Desde 10/11/2026, O RESGATE, para quem não acha o e-mail da compra (o
+     público é idoso; decisão do Caio: nenhuma fica sem saída). Uma pergunta
+     por tela, nada em vermelho, sempre um próximo passo:
+       correo -> nombre -> tarjeta (4 últimos números) -> emergencia
+     A conta mora na latam-api; os passos, em js/es/entrar.js. Os textos em
+     espanhol são provisórios até o Caio revisar.
+
+     Os campos NÃO têm `name`, de propósito: se ela tocar no botão antes de a
+     página terminar de carregar, o navegador envia o formulário sozinho, e
+     com `name` o e-mail (ou os números do cartão) iria parar no endereço da
+     página e nos registros do servidor. Sem `name`, não vai nada. -->
+
+<main class="app member-login es-resgate">
   <img class="brand" src="/assets/images/icon-180.png" alt="7 Amenes de la Madrugada" width="88" height="88">
-  <h1>¡Qué bueno tenerte aquí!</h1>
-  <p>Escribe el correo que usaste en la compra para acceder a tus oraciones.</p>
-  <form id="form-entrar" novalidate>
-    <label for="correo">Tu correo de la compra</label>
-    <input id="correo" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="tunombre@email.com" required maxlength="254">
-    <button class="member-button" type="submit">Entrar a mis oraciones</button>
-    <p id="aviso" class="member-error" role="alert"></p>
-  </form>
-  <a id="boton-ayuda" class="member-button secondary" href="#" style="text-align:center;text-decoration:none;color:var(--ink);">No sé qué correo usé</a>
-  <p class="es-correo-escrito es-correo-entrar">¿El botón no abre tu correo? Escríbenos a<br><strong>soporte@pkscale.com</strong></p>
+
+  <!-- 1. O e-mail da compra (como sempre foi). -->
+  <section class="es-paso" data-paso="correo">
+    <h1 tabindex="-1">¡Qué bueno tenerte aquí!</h1>
+    <p>Escribe el correo que usaste en la compra para acceder a tus oraciones.</p>
+    <form id="form-entrar" novalidate>
+      <label for="correo">Tu correo de la compra</label>
+      <input id="correo" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="tunombre@email.com" required maxlength="254">
+      <button class="member-button" type="submit">Entrar a mis oraciones</button>
+      <p id="aviso" class="es-aviso" role="alert"></p>
+    </form>
+    <button id="boton-ayuda" class="member-button secondary" type="button">No sé qué correo usé</button>
+  </section>
+
+  <!-- 2. O nome: o começo da busca pela compra. -->
+  <section class="es-paso" data-paso="nombre" hidden>
+    <p class="es-nota" id="nota-correo" hidden></p>
+    <h1 tabindex="-1">Tranquila, tu compra está segura</h1>
+    <p>Vamos a encontrarla juntas. ¿Cómo te llamas?</p>
+    <form id="form-nombre" novalidate>
+      <label for="nombre">Tu nombre</label>
+      <input id="nombre" type="text" autocomplete="name" autocapitalize="words" spellcheck="false" maxlength="80" placeholder="María López">
+      <button class="member-button" type="submit">Continuar</button>
+      <p id="aviso-nombre" class="es-aviso" role="alert"></p>
+    </form>
+    <button class="es-volver" type="button" data-ir="correo">Probar con otro correo</button>
+  </section>
+
+  <!-- 3. O final do cartão. Só os 4 últimos números: a tela não pode parecer
+       pagamento (sem validade, sem código, sem bandeira), e o que ela digita
+       não é gravado. Pedido do Caio: não assustar. -->
+  <section class="es-paso" data-paso="tarjeta" hidden>
+    <h1 tabindex="-1" id="titulo-tarjeta">Vamos a encontrar tu compra</h1>
+    <p>Mira la tarjeta con la que pagaste. Solo necesitamos el final: los 4 últimos números.</p>
+    <form id="form-tarjeta" novalidate autocomplete="off">
+      <div class="es-tarjeta">
+        <label for="digitos">Tu tarjeta terminada en</label>
+        <div class="es-tarjeta-linea">
+          <span class="es-tarjeta-puntos" aria-hidden="true">•••• •••• ••••</span>
+          <input id="digitos" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-describedby="garantia">
+        </div>
+      </div>
+      <p class="es-garantia" id="garantia"><span aria-hidden="true">✓</span><span>Nunca te pedimos el número completo, ni la clave, ni el código de atrás. No cobramos nada.</span></p>
+      <button class="member-button" type="submit">Buscar mi compra</button>
+      <p id="aviso-tarjeta" class="es-aviso" role="alert"></p>
+    </form>
+    <button class="member-button es-boton-borde" type="button" data-ir="emergencia">Prefiero no usar mi tarjeta</button>
+  </section>
+
+  <!-- 4. Achou pelo cartão. Mostra o e-mail que ficou na compra (às vezes com
+       o erro: "gmsil.com") e oferece trocar pelo que ela tentou. -->
+  <section class="es-paso" data-paso="encontrada" hidden>
+    <h1 tabindex="-1">¡Encontramos tu compra!</h1>
+    <p>Tu compra quedó con el correo<br><strong class="es-correo-guardado" id="correo-guardado"></strong></p>
+    <div class="es-corregir" id="bloque-corregir" hidden>
+      <p>¿Quieres entrar con <strong id="correo-sugerido"></strong> de ahora en adelante?</p>
+      <button class="member-button" type="button" id="boton-corregir">Sí, usar este correo</button>
+    </div>
+    <button class="member-button" type="button" id="boton-entrar-ya">Entrar a mis oraciones</button>
+    <p id="aviso-encontrada" class="es-aviso" role="alert"></p>
+  </section>
+
+  <!-- 5. A entrada de emergência: nada achou a compra, e ela entra assim
+       mesmo. A equipe confere no painel (/es-admin). -->
+  <section class="es-paso" data-paso="emergencia" hidden>
+    <h1 tabindex="-1">Entra ahora y reza tranquila</h1>
+    <p>Nosotros confirmamos tu compra después. No tienes que hacer nada más.</p>
+    <form id="form-emergencia" novalidate>
+      <label for="nombre-emergencia">Tu nombre</label>
+      <input id="nombre-emergencia" type="text" autocomplete="name" autocapitalize="words" spellcheck="false" maxlength="80" placeholder="María López">
+      <label for="contacto">Tu correo o tu número de WhatsApp</label>
+      <input id="contacto" type="text" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" maxlength="120" placeholder="maria@gmail.com">
+      <p class="es-ayuda-campo">Lo usamos solo para ayudarte si hace falta.</p>
+      <button class="member-button" type="submit">Entrar a mis oraciones</button>
+      <p id="aviso-emergencia" class="es-aviso" role="alert"></p>
+    </form>
+    <button class="es-volver" type="button" data-ir="tarjeta">Volver</button>
+  </section>
+
+  <!-- O suporte, em todos os passos (10/11/2026): o WhatsApp primeiro, que é o
+       que elas usam, com a mensagem já escrita com o que ela contou (nome e
+       e-mail tentado); e o e-mail escrito, para quem prefere. O número mora em
+       js/es/config.js. -->
+  <div class="es-suporte">
+    <p class="es-suporte-titulo">¿Prefieres hablar con una persona?</p>
+    <a class="member-button es-boton-whatsapp" id="boton-whatsapp" href="#" target="_blank" rel="noopener">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      <span>Escríbenos por WhatsApp</span>
+    </a>
+    <p class="es-whatsapp-escrito" id="whatsapp-escrito"></p>
+    <p class="es-correo-escrito es-correo-entrar">O por correo:<br><strong>soporte@pkscale.com</strong></p>
+  </div>
   <a class="member-help" href="/es-reembolso">¿Quieres pedir un reembolso?</a>
 </main>
 

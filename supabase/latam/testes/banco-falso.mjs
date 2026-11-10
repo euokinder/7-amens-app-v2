@@ -13,6 +13,9 @@ import { tmpdir } from 'node:os';
 // As travas de repetição de cada tabela, como em supabase/latam/01-tabelas.sql.
 const TRAVAS = {
   latam_customers: [['id'], ['email']],
+  // 09-resgate.sql (10/11/2026).
+  latam_resgates: [['id']],
+  latam_resgate_config: [['id']],
   latam_access: [['customer_id', 'product']],
   latam_progress: [['customer_id', 'day']],
   latam_cantico_progress: [['customer_id', 'day']],
@@ -30,6 +33,11 @@ const TRAVAS = {
 
 const PADROES = {
   latam_customers: () => ({ id: `c-${Math.random().toString(16).slice(2, 10)}`, name: '', country: null, timezone: null, first_access_on: null, whop_user_id: null, created_at: new Date().toISOString() }),
+  latam_resgates: () => ({
+    id: Math.floor(Math.random() * 1e9), customer_id: null, email_digitado: '', email_anterior: '', nome: '', contato: '', pais: '',
+    situacao: 'resolvido', resolvido_por: null, resolvido_em: null, created_at: new Date().toISOString(),
+  }),
+  latam_resgate_config: () => ({ id: 1, emergencia_ligada: true, emergencias_por_dia: 2, updated_at: new Date().toISOString() }),
   latam_access: () => ({ product: 'app', status: 'active', expires_at: null, whop_payment_id: null, revoked_at: null, note: '' }),
   latam_progress: () => ({ completed_at: new Date().toISOString() }),
   latam_cantico_progress: () => ({ completed_at: new Date().toISOString() }),
@@ -105,6 +113,8 @@ globalThis.fetch = async (url, init = {}) => {
   }
 
   if (tabela === 'rpc/latam_allow_login') return json(freioLibera);
+  // Funções do banco que um teste imita por conta própria (rpcsDoTeste).
+  if (rpcsDoTeste[tabela]) return json(await rpcsDoTeste[tabela](init.body ? JSON.parse(init.body) : {}));
   if (tabela === 'rpc/latam_claim_offer') {
     pedidosDeOferta.push(init.body ? JSON.parse(init.body) : null);
     return json(ofertaFalsa ? [ofertaFalsa] : []);
@@ -206,6 +216,11 @@ export async function carregarFuncao(arquivo, env) {
   if (!manipulador) throw new Error('A função não registrou um manipulador com Deno.serve.');
   return manipulador;
 }
+
+// As funções do banco que um teste imita por conta própria (ex.:
+// 'rpc/latam_resgate_cartao' no teste da latam-api). A regra de verdade mora
+// no SQL e é provada no banco de teste; aqui só se confere o caminho na função.
+export const rpcsDoTeste = {};
 
 // Placar.
 export const placar = { passou: 0, falhou: 0 };

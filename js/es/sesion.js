@@ -49,6 +49,7 @@
     const copia = Object.assign({}, cuerpo);
     delete copia.token;
     delete copia.error;
+    delete copia.compra; // o resgate pelo cartão: só a tela de entrar usa
     return copia;
   };
 
@@ -71,6 +72,17 @@
     tieneSesion: () => Boolean(leer(localStorage, CLAVE)),
     entrar: email => entrarCon('login', { email }),
     entrarConEnlace: code => entrarCon('entry', { code }),
+    // O resgate na entrada (10/11/2026; js/es/entrar.js): pelo final do
+    // cartão + o nome, e a entrada de emergência.
+    buscarCompra: datos => entrarCon('buscar_compra', datos),
+    entradaDeEmergencia: datos => entrarCon('entrada_emergencia', datos),
+    // Logo depois de achar a compra pelo cartão, ela troca o e-mail gravado
+    // (que tinha o erro) pelo dela.
+    async corregirCorreo(email) {
+      const r = await llamar('corregir_correo', { email });
+      if (r.ok) recordar(soloRetrato(r.cuerpo));
+      return r;
+    },
 
     // O retrato da jornada: nome, hoje, até que dia está aberto, o que já rezou.
     async retrato(opciones) {
