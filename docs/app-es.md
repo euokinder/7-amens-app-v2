@@ -198,6 +198,17 @@ O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **d
 - ⏳ **Para a revisão nativa:** a capa dos vídeos escreve "LOS 7 AMÉNES"; em espanhol o plural de *amén* é *amenes*, sem acento (é o nome aprovado do produto).
 - **Junto:** a `/materiales` ganhou, no topo, o card "Tu app de oraciones", que leva a `/es`, para quem chega pelo e-mail da compra.
 
+### O Dia 3 com os aportes (09/11/2026, ⏳ faltam 2 dos 3 links)
+- **O vídeo** passa para a VTurb (`vid-6af12083cbb56d66d7f008d6`, 11:07): a oração do padre até o Amén (4:40) e, emendada, a mensagem da hermana Clara pedindo aporte para a obra da "basílica de las 7 oraciones".
+- **Os botões:** US$ 200 (em destaque), US$ 120 e US$ 60, aos **9:37** (pedido do Caio), pelo relógio da VTurb, no desenho das contribuições do Dia 03 do Brasil. Moram em `OFERTAS[3]`, em `js/es/oferta-dia.js`.
+- **Sem "Recé esta oración"**, como o Dia 7: o dia se marca sozinho quando o vídeo passa do Amén.
+- **Rede de segurança:** enquanto faltar algum dos três links, o Dia 3 fica com o vídeo antigo da Bunny e o "Recé esta oración" (a `reserva`, em `js/es/video.js`).
+- **A obra:** o agente parou antes de ligar os pagamentos e perguntou se o dinheiro vai mesmo para uma basílica. **O Caio respondeu, em 09/11, que é obra real.** O vídeo promete coisas que a operação precisa cumprir: que a obra passou da metade, que os nomes de quem contribui podem ser publicados e que cada opção "guarda una sorpresa".
+- ⚠️ **A Whop proíbe doação e arrecadação para obra religiosa** (estudo de 03/11). O agente avisou em 09/11 que o nome da cobrança não resolve: numa revisão, a Whop compara o que foi cobrado com o que foi vendido, e esconder o que se vende é a violação que ela não deixa corrigir. Os dois caminhos honestos: a "sorpresa" vira o produto (e o vídeo vende ela), ou o aporte sai da Whop. **O Caio decidiu o nome "Amenes Sagrados" (09/11).** Ainda não está definido o que esse produto entrega, nem por onde.
+- **Na KashPay:** produto **"Amenes Sagrados"**, adquirente Whop. Checkout de US$ 200: `checkout-1794277715331`. Os de US$ 120 e US$ 60 ainda não chegaram. Em 09/11, o checkout de US$ 200 abria **em português** ("PAGAR AGORA"), e o do Dia 7 abre em espanhol.
+- **Na `latam-kashpay`:** a venda é reconhecida pelo pedaço **"sagrados"** do nome, como `aporte`, numa linha **antes** de "amenes". Sem isso, ela seria lida como compra do app. Não precisa de SQL: nenhuma tabela trava a lista de produtos. O aporte não tem e-mail do app (`COM_EMAIL`), mas renova o acesso ao app por 12 meses, como toda venda do 7 Amenes (e como já faz a `latam-whop`).
+- **A ordem de publicar:** a função (o Caio cola no painel) e o produto marcado em "Produtos vinculados" do webhook da KashPay, **antes** do site. Sem o webhook, o pagamento da Whop chega sem pedido, e a regra da "dúvida" libera os Arcángeles e o Cántico de graça.
+
 ## As telas (Bloco 3, primeira versão, substituída em 06/11 pela cópia acima)
 | Endereço | Arquivo | O que faz |
 |---|---|---|

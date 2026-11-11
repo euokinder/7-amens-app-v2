@@ -44,7 +44,13 @@ const kashpaySecret = (Deno.env.get('LATAM_KASHPAY_SECRET') || (BANCO_DE_TESTE ?
 // Os produtos do 7 Amenes, reconhecidos por um pedaço do nome da oferta (sem
 // acento, minúsculo). Palavras em espanhol que as outras operações da conta,
 // em inglês, não usam ("Archangel" não tem o "arcangel" sem h).
+// A ORDEM IMPORTA: vale o primeiro pedaço que aparecer no nome.
 const PELO_NOME: [string, string][] = [
+  // Amenes Sagrados (US$ 60, 120 e 200, os aportes do fim do vídeo do Dia 3,
+  // 09/11/2026). Fica ANTES de 'amenes': o nome tem "Amenes", e sem isso a
+  // venda seria lida como compra do app. Reconhecida pelo mesmo motivo de As
+  // 3 Madrugadas (abaixo): pedido sem produto vira "dúvida" e libera os extras.
+  ['sagrados', 'aporte'],
   ['amenes', 'principal'],      // as duas ofertas "7 Amenes de la Madrugada"
   ['arcangel', 'arcangeles'],   // Oraciones a los Santos Arcángeles (UP01)
   ['desata', 'desatanudos'],    // Novena a la Virgen Desatanudos (UP02)
@@ -65,7 +71,7 @@ const ACCESS_DAYS = 365;
 // sem o id confirmado em latam_kashpay_offers, o pedido fica 'needs_review'
 // (não conta no Hub, mas também não se perde).
 const NOME_DE_PRECO = /^(?:us)?\$?\s*\d+(?:[.,]\d+)?\s*(?:usd|us\$|dolares)?$/;
-const NOSSOS = new Set(['principal', 'arcangeles', 'desatanudos', 'tres_madrugadas']);
+const NOSSOS = new Set(['principal', 'arcangeles', 'desatanudos', 'tres_madrugadas', 'aporte']);
 
 // A KashPay espera resposta em até 15 s. Cada tentativa no banco tem 3,5 s;
 // três tentativas e as pausas cabem em ~12,5 s.

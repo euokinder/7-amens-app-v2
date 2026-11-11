@@ -421,4 +421,18 @@ await cenario('32. Las 3 Madrugadas de Intercesión (US$ 37, Dia 7): grava como 
   await enviar(aviso('order.paid', pedido({ id: 'tm-2', offers: [{ id: 'x', name: 'LAS 3 MADRUGADAS DE INTERCESION', type: 'main', total: 3700 }] })));
   confere('sem acento e em maiúsculas também', JSON.stringify(eventos().find(e => e.transaction_id === 'tm-2')?.produtos) === '["tres_madrugadas"]');
 });
+
+await cenario('32b. Amenes Sagrados (os aportes do Dia 3): grava como aporte, e não como o app', async () => {
+  const filaAntes = (banco.latam_emails || []).length;
+  const r = await (await enviar(aviso('order.paid', pedido({ id: 'as-1', amount: 20000, offers: [{ id: 'x', name: 'Amenes Sagrados', type: 'main', total: 20000 }] })))).json();
+  const l = eventos().find(e => e.transaction_id === 'as-1') || {};
+  confere('gravado como aporte', r.gravado === true && l.status === 'recorded' && JSON.stringify(l.produtos) === '["aporte"]', JSON.stringify({ r, status: l.status, produtos: l.produtos }));
+  confere('não vira o principal nem um extra', !(l.produtos || []).some(p => ['principal', 'arcangeles', 'desatanudos', 'tres_madrugadas'].includes(p)));
+  confere('a oferta guarda o produto', (l.offers || [])[0]?.produto === 'aporte');
+  await enviar(aviso('order.paid', pedido({ id: 'as-2', offers: [{ id: 'y', name: 'AMÉNES SAGRADOS', type: 'main', total: 6000 }] })));
+  confere('com acento e em maiúsculas também', JSON.stringify(eventos().find(e => e.transaction_id === 'as-2')?.produtos) === '["aporte"]');
+  confere('nenhum e-mail do app para o aporte', (banco.latam_emails || []).length === filaAntes, `fila: ${filaAntes} → ${(banco.latam_emails || []).length}`);
+  await enviar(aviso('order.paid', pedido({ id: 'as-3' })));
+  confere('o "7 Amenes de la Madrugada" continua sendo o app', JSON.stringify(eventos().find(e => e.transaction_id === 'as-3')?.produtos) === '["principal"]');
+});
 fechar();

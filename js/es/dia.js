@@ -51,7 +51,7 @@
     ${topo}`;
   const cabecalhoFechado = cabecalhoCom(foto);
   const cabecalho = cabecalhoCom((window.AMENES_VIDEO && window.AMENES_VIDEO.html(n, titulo)) || foto);
-  // A oferta emendada no vídeo (hoje, só o Dia 7: js/es/oferta-dia.js), logo
+  // A oferta emendada no vídeo (os Dias 3 e 7: js/es/oferta-dia.js), logo
   // abaixo do vídeo, como no Brasil. Ela só existe com o vídeo da VTurb na tela.
   const oferta = (window.AMENES_OFERTA_DIA && /<vturb-smartplayer/.test(cabecalho)) ? window.AMENES_OFERTA_DIA.para(n) : null;
   const previaOferta = new URLSearchParams(location.search).get('previa-oferta') === '1';
@@ -205,7 +205,7 @@
 
   content.innerHTML = n === 0 ? guia() : amen();
   content.querySelectorAll('[data-pdf]').forEach((botao) => botao.addEventListener('click', () => window.open(botao.dataset.pdf, '_blank')));
-  // O player da VTurb (Dia 7) só começa depois de o vídeo estar na tela.
+  // O player da VTurb (Dias 3 e 7) só começa depois de o vídeo estar na tela.
   if (window.AMENES_VIDEO && window.AMENES_VIDEO.carregar) window.AMENES_VIDEO.carregar(n);
 
   // O pedido do dia fica só no celular dela, como no Brasil.

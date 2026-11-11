@@ -14,10 +14,34 @@
 //
 // ⚠️ Ainda não some para quem já comprou: o app em espanhol não sabe dessa
 // compra (o retrato só traz os extras Arcángeles e Cántico).
+//
+// O DIA 3 (09/11/2026, pedido do Caio): o mesmo relógio, com TRÊS botões de
+// aporte no lugar de um (como as contribuições do Dia 03 do Brasil, maior
+// primeiro e em destaque), e a mesma marcação sozinha no Amén. Uma oferta com
+// `opciones` só liga com os três links preenchidos; até lá, o Dia 3 fica com
+// o vídeo antigo da Bunny e o "Recé esta oración" (a `reserva`, em
+// js/es/video.js).
+// ⚠️ A Whop não aceita doação: cada aporte precisa ser um produto. E o nome da
+// oferta na KashPay precisa ser reconhecido pela latam-kashpay ANTES da
+// primeira venda: pedido não gravado vira "dúvida" e libera os Arcángeles e o
+// Cántico de graça.
 (function () {
   'use strict';
 
   const OFERTAS = {
+    3: {
+      produto: 'aporte',
+      titulo: 'Elige tu aporte aquí abajo. ¡Vamos juntos en esta misión!', // PROVISÓRIO: copy do Caio
+      // Checkouts da KashPay, produto "Amenes Sagrados" (09/11/2026, Whop), com
+      // ?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte
+      opciones: [
+        { texto: 'Aporte de US$ 200', link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794277715331?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte', destaque: true },
+        { texto: 'Aporte de US$ 120', link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794277741305?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte' },
+        { texto: 'Aporte de US$ 60', link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794277754350?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte' },
+      ],
+      finDeLaOracion: 280, // 4:40: o Amén da oração do padre (4:40,5); depois vem a hermana Clara
+      segundosDelBoton: 577, // 9:37, pedido do Caio
+    },
     7: {
       produto: 'tres_madrugadas',
       // Checkout da KashPay "Las 3 Madrugadas de Intercesión" (produto
@@ -33,18 +57,25 @@
 
   const esc = (texto) => String(texto ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-  // A oferta do dia, ou null (dia sem oferta, ou oferta desligada).
+  // A oferta do dia, ou null (dia sem oferta, oferta desligada, ou faltando
+  // algum link).
   function para(dia) {
     const o = OFERTAS[dia];
     if (!o || typeof o.segundosDelBoton !== 'number' || typeof o.finDeLaOracion !== 'number') return null;
-    if (!/^https:\/\//.test(o.link || '')) return null;
+    const links = o.opciones ? o.opciones.map((opcion) => opcion.link) : [o.link];
+    if (!links.length || !links.every((link) => /^https:\/\//.test(link || ''))) return null;
     return o;
   }
 
   function html(o, previa) {
+    const botones = o.opciones
+      ? `<div class="oferta-dia__opciones">${o.opciones.map((opcion) => `
+          <a class="oferta-dia__aporte${opcion.destaque ? ' oferta-dia__aporte--destaque' : ''} smartplayer-click-event" href="${esc(opcion.link)}"><strong>${esc(opcion.texto)}</strong></a>`).join('')}
+        </div>`
+      : `<a class="member-button oferta-dia__botao smartplayer-click-event" href="${esc(o.link)}">${esc(o.boton)}</a>`;
     return `<section class="oferta-dia${previa ? '' : ' oferta-dia--oculta'}" id="oferta-del-dia" data-produto="${esc(o.produto)}" aria-labelledby="oferta-del-dia-titulo">
         <h2 class="oferta-dia__titulo" id="oferta-del-dia-titulo">${esc(o.titulo)}</h2>
-        <a class="member-button oferta-dia__botao smartplayer-click-event" href="${esc(o.link)}">${esc(o.boton)}</a>
+        ${botones}
       </section>`;
   }
 
