@@ -569,6 +569,19 @@ Pedido do Arthur (12/11): esse público quer sentir que está CONVERSANDO com al
 **Falta, na ordem:** a conta da API da Anthropic (Arthur) e a chave como segredo `ANTHROPIC_API_KEY` no projeto de TESTE → as conversas difíceis no Sonnet e no Haiku, para escolher → a foto → o Arthur testa no celular → no ar: o SQL 10, o manual, a função (nome antes do Deploy, JWT desligado, segredo `ANTHROPIC_API_KEY`; a chave `lucia-producao` vence em 20/11/2027), o site (1 build) → ligar o interruptor → o relatório diário e a aba do painel.
 - ✅ **13/11, ~01h30:** SQL 10, manual, função `latam-chat` (v3, sem serviço de e-mail) e o segredo `ANTHROPIC_API_KEY` já na produção, com o interruptor DESLIGADO. O site da Lucía vai ao ar no MESMO build do reembolso em um toque (as duas branches juntadas na `latam-reembolso`).
 
+## Os extras do app pela Digistore24 (13/11/2026)
+**Por quê:** com a Whop suspensa (13/11, ~05h20), a LATAM vende só pela Digistore24, direto no checkout dela, sem KashPay (decisão do Arthur, 13/11).
+
+**Os links:** as cartas de `es-oferta-arcangeles` levam ao produto **742832** e o botão de `es-oferta-cantico`, ao **742816**, em `www.checkout-ds24.com/product/…`. São os MESMOS produtos do UP01 e do UP02 do funil. O que separa as duas portas é a etiqueta: a página cola os `utm_*` do pop-up (ou `utm_source=app-es&utm_medium=direto` sem pop-up), e a Digistore guarda os cinco `utm_*` na venda (`getPurchaseTracking`). O funil chega como `utm_source=FB`. Conferido no site local em 13/11: as 4 cartas e o botão saem com a etiqueta, com e sem pop-up, e o checkout da Digistore abre com ela.
+
+**Quem libera o extra:** a automação do Pedro (Make + Brevo), que não está neste repositório. Ela lê a venda da Digistore e libera **produto por produto** em `latam_access` (`source = 'manual'`): o app, os Arcángeles e o Cántico, cerca de 10 s depois da venda. Conferido em 13/11 em 14 compras de extras (11 a 13/11): 13 liberadas, 1 compradora do Cántico (12/11) sem conta no app. ⚠️ Se ela pagar com outro e-mail na Digistore, o extra vai para outra conta (o mesmo vale para o funil).
+
+**O pop-up (SQL 12):** a fila de pop-ups só via as compras da Whop/KashPay e oferecia de novo o extra liberado pela automação ou pelo painel: de 10 a 13/11, 91 vezes os Arcángeles e 19 o Cántico para quem já os tinha. O `12-popup-extras-liberados.sql` soma os extras ativos de `latam_access` ao que ela tem (extra retirado não conta). Prova no TESTE: `supabase/latam/testes/prova-popup-extras-no-teste.sql`, 5 de 5 (com a regra antiga, 3 dos 5 falhavam); as clientes de mentira são apagadas pelo próprio teste.
+
+**Ordem de publicar:** o SQL 12 e o site são independentes; qualquer ordem é inofensiva. O site é 1 build.
+
+**Próximo passo (⏳):** a rede de segurança própria, o IPN da Digistore24 (`latam-digistore`), rodando SEMPRE junto com a automação do Pedro. Liberar duas vezes não faz mal. O estudo está em "Plano B" acima.
+
 ## Como voltar atrás
 - **Reembolso em um toque:** voltar a `es-reembolso.html` e o `js/es/reembolso.js` da `a32b178` (`git show a32b178:es-reembolso.html`), apagar a função `latam-reembolso` no painel e colar de volta nos e-mails da KashPay as versões `-ate-1311`. O banco pode ficar; desfazer: seção DESFAZER de `11-reembolso.sql`.
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
