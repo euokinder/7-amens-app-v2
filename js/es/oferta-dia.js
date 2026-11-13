@@ -3,8 +3,8 @@
 // LATAM: o js/es/dias.js é gerado e não é tocado, por isso a oferta mora aqui.
 //
 // O vídeo do Dia 7 (VTurb, em js/es/video.js) é a oração e, emendada nela, a
-// oferta de "Las 3 Madrugadas de Intercesión" (US$ 37, pagamento único, Whop,
-// checkout da KashPay). O botão de compra aparece em `segundosDelBoton`, pelo
+// oferta de "Las 3 Madrugadas de Intercesión" (US$ 37, pagamento único,
+// checkout da Hubla desde 13/11/2026). O botão de compra aparece em `segundosDelBoton`, pelo
 // relógio do próprio vídeo, e a página desce até ele.
 // Com a oferta ligada, o dia NÃO tem "Recé esta oración" (dois botões
 // disputando o dedo dela, como no Brasil): a oração se marca sozinha quando o
@@ -32,22 +32,24 @@
     3: {
       produto: 'aporte',
       titulo: 'Elige tu aporte aquí abajo. ¡Vamos juntos en esta misión!', // PROVISÓRIO: copy do Caio
-      // Checkouts da KashPay, produto "Amenes Sagrados" (09/11/2026, Whop), com
+      // Checkouts da Hubla, produto "Amenes Sagrados" (desde 13/11/2026; antes,
+      // KashPay + Whop, que foi suspensa), com
       // ?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte
       opciones: [
-        { texto: 'Aporte de US$ 200', link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794277715331?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte', destaque: true },
-        { texto: 'Aporte de US$ 120', link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794277741305?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte' },
-        { texto: 'Aporte de US$ 60', link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794277754350?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte' },
+        { texto: 'Aporte de US$ 200', link: 'https://pay.hub.la/2uC32AQERZcEdrBPhvZU?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte', destaque: true },
+        { texto: 'Aporte de US$ 120', link: 'https://pay.hub.la/EBrjuLdJIlPVgUIWeVeR?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte' },
+        { texto: 'Aporte de US$ 60', link: 'https://pay.hub.la/mFFBfNwFvjelb21dX1GL?utm_source=app&utm_medium=video-dia-3&utm_campaign=aporte' },
       ],
       finDeLaOracion: 280, // 4:40: o Amén da oração do padre (4:40,5); depois vem a hermana Clara
       segundosDelBoton: 577, // 9:37, pedido do Caio
     },
     7: {
       produto: 'tres_madrugadas',
-      // Checkout da KashPay "Las 3 Madrugadas de Intercesión" (produto
-      // 7a982b31-…, oferta d975ef54-…, US$ 37, Whop). Depois de pagar, ela volta
-      // para /es. As UTM chegam ao aviso da KashPay (latam_kashpay_events).
-      link: 'https://pay.setemadrugadas.com.br/checkout/checkout-1794181343516?utm_source=app&utm_medium=video-dia-7&utm_campaign=3-madrugadas',
+      // Checkout da Hubla "Las 3 Madrugadas de Intercesión" (US$ 37, desde
+      // 13/11/2026; antes, KashPay + Whop, que foi suspensa). A entrega é fora
+      // do app. A venda pela Hubla não chega ao app em espanhol, e no Brasil o
+      // hubla-webhook a deixa como "produto não mapeado", sem dar acesso.
+      link: 'https://pay.hub.la/3aTSzyE7DJSHQHe7bv0i?utm_source=app&utm_medium=video-dia-7&utm_campaign=3-madrugadas',
       titulo: 'Continúa tu camino con Dios', // PROVISÓRIO: copy do Caio
       boton: 'Quiero Las 3 Madrugadas de Intercesión', // PROVISÓRIO: copy do Caio
       finDeLaOracion: 290, // 4:50: o Amén da oração (4:51)
