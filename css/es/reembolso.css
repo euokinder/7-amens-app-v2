@@ -1,0 +1,53 @@
+/* O reembolso em um toque (es-reembolso.html, 13/11/2026). Arquivo só da LATAM.
+   Público idoso: letra grande, um toque por compra, nada pequeno. */
+
+.es-reembolso .es-r-paso { display: flex; flex-direction: column; gap: 18px; }
+.es-reembolso .es-r-paso[hidden] { display: none; }
+.es-reembolso h1 { line-height: 1.25; }
+
+.es-r-entrar { margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--hairline); text-align: center; font-size: 16px; color: var(--ink-muted); }
+.es-r-entrar a { color: var(--ink); font-weight: 800; }
+
+.es-r-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.es-r-compra {
+  width: 100%; display: flex; align-items: center; gap: 14px; text-align: left;
+  padding: 18px 16px; border: 2px solid oklch(0.85 0.03 75); border-radius: 16px;
+  background: white; color: var(--ink); font: inherit; cursor: pointer;
+}
+.es-r-compra.marcada { border-color: var(--accent-strong); background: oklch(0.96 0.03 85); }
+.es-r-compra.quieta { opacity: .55; cursor: default; }
+.es-r-textos { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.es-r-textos strong { font-size: 18px; font-weight: 800; line-height: 1.35; }
+.es-r-textos span { font-size: 16px; color: var(--ink-muted); }
+.es-r-caixa {
+  flex: none; width: 34px; height: 34px; border-radius: 9px; border: 2px solid oklch(0.75 0.03 75);
+  display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: white;
+}
+.es-r-compra.marcada .es-r-caixa { background: var(--accent-strong); border-color: var(--accent-strong); }
+.es-r-compra.quieta .es-r-caixa { visibility: hidden; }
+
+.es-r-total { padding: 16px 18px; border-radius: 14px; background: var(--surface-alt); font-size: 19px; }
+.es-r-total[hidden] { display: none; }
+.es-r-total strong { font-weight: 800; }
+
+.member-button.es-r-grande { min-height: 62px; font-size: 19px; }
+.member-button[hidden] { display: none; }
+.es-reembolso .es-r-letra { text-align: center; font-size: 16px; color: var(--ink-muted); }
+.es-reembolso .es-r-volver { background: none; border: 0; font: inherit; cursor: pointer; }
+.es-r-correo { overflow-wrap: anywhere; }
+
+.es-r-check {
+  width: 80px; height: 80px; margin: 0 auto; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: oklch(0.93 0.06 150); color: oklch(0.45 0.12 150); font-size: 46px; font-weight: 800;
+}
+.es-reembolso #paso-listo h1 { text-align: center; }
+.es-r-motivo-titulo { margin-top: 6px; }
+.es-r-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.es-r-chip {
+  padding: 12px 16px; border: 2px solid oklch(0.85 0.03 75); border-radius: 999px;
+  background: white; color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.es-r-gracias { text-align: center; font-weight: 700; }
+.es-r-bendicion { text-align: center; }
+#caja-motivo[hidden], .es-r-gracias[hidden], .es-nota[hidden] { display: none; }

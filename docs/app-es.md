@@ -221,7 +221,7 @@ O Caio perguntou por que o app em espanhol tinha outro desenho, e pediu para **d
   - ✅ O contato do suporte é **`soporte@pkscale.com`** (decisão do Caio, 08/11/2026). Ele vale para o app (`js/es/config.js`), o checkout (`amenes-checkout.html`) e o obrigado (`amenes-gracias.html`). Até 08/11 era o provisório `contact@pkscale.com`.
     - **O endereço aparece ESCRITO desde 08/11, à noite** (pedido do Caio): no card "Escríbenos" da `/es` ("Nuestro correo: …") e embaixo do "No sé qué correo usé" da `/es-entrar` ("¿El botón no abre tu correo? Escríbenos a …"; um toque seleciona o endereço). Serve para quem não tem app de e-mail no celular, porque aí o botão `mailto:` não faz nada. O estilo é `.es-correo-escrito` / `.es-correo-entrar`, em `css/es/app.css`. Trocar o e-mail = `config.js` + essas duas telas.
     - Dentro das páginas de oração (`/es-dia`, Cántico, Arcángeles), o contato só aparece na tela de carregamento. Depois de entrar, só pelo card do início.
-  - ✅ **Reembolso fácil, para diminuir chargeback** (pedido do Caio, 08/11/2026):
+  - ✅ **Reembolso fácil, para diminuir chargeback** (pedido do Caio, 08/11/2026). ⚠️ **Desde 13/11 a página mudou:** o botão que abria um e-mail virou o reembolso em um toque (seção "O reembolso em um toque", abaixo). O que segue é o histórico de 08 e 09/11:
     - **Onde aparece:** o link "¿Quieres pedir un reembolso?" na `/es` (embaixo do card "Escríbenos") e na `/es-entrar`. Os dois levam à `/es-reembolso` (`es-reembolso.html` + `js/es/reembolso.js`).
       - **Link, e não card, desde 09/11** (decisão do Caio): com 0,5% de reembolso (6 em 1.110 pagamentos na Whop, de 05 a 09/11) e nenhum estorno, um card "te devolvemos el dinero" para todas, todo dia, convidaria reembolso de quem não ia pedir. Quem procura acha pelo link, pela tela de entrar e pelo suporte.
     - **O que a página diz:** segue a Política de Reembolso (7 dias, 100%, sem explicar o motivo, **resposta em até 24 horas** desde 09/11, mesmo meio de pagamento), mais "¿Ya pasaron los 7 días? Escríbenos igual", cobrança dupla a qualquer momento e "antes de pedirle a tu banco… escríbenos".
@@ -516,10 +516,38 @@ Pedido do Caio, "pra ajudar ao acesso": **+55 88 99443-2257** (número do Brasil
   - na `/es-entrar`, embaixo de todos os passos ("Escríbenos por WhatsApp", com o número escrito e o e-mail do soporte@ como segunda opção). A mensagem já sai escrita com o nome que ela deu e o último e-mail que tentou;
   - no início (`/es`), num cartão verde ("Habla con nosotros por WhatsApp") antes do "Escríbenos" e no link do portão (o que aparece quando a tela demora a abrir).
 - **Onde mora:** `js/es/config.js` (`whatsapp(texto)` e `whatsappEscrito`). Trocar o número é mexer só ali.
-- O reembolso continua pelo e-mail (`/es-reembolso`): o pedido por escrito é a prova.
+- O reembolso continua pelo e-mail (`/es-reembolso`): o pedido por escrito é a prova. (Desde 13/11, pela página em um toque; o pedido fica no banco.)
 - ⚠️ Os textos prometem "Te respondemos en español": alguém da equipe precisa responder nesse número em espanhol.
 
+## O reembolso em um toque (13/11/2026)
+Pedido do Caio: pedir o dinheiro de volta para nós tem de ser MAIS FÁCIL que pedir ao banco.
+
+**Por quê** (medido em 12/11): de 05 a 09/11, 12 clientes da Whop foram ao banco ("não fui eu"): 2 chargebacks e 14 alertas, 1,4% das vendas, quase na linha de 1,5% da Whop e das bandeiras. 10 das 12 tinham aberto o e-mail de entrega, e nenhuma escreveu ao suporte. Na Digistore, que põe o link de reembolso no recibo, houve 0 chargeback. Cada chargeback custa a venda + US$ 15 de taxa (+ US$ 29 se vier como alerta) e pesa na saúde da conta.
+
+**Como a cliente usa** (público idoso: uma coisa por tela, letra grande, nunca beco sem saída):
+1. **O e-mail.** Do e-mail de entrega ela toca "Quiero mi dinero de vuelta" e cai na `/es-reembolso`, escreve o e-mail da compra e toca "Ver mis compras". Os erros comuns (gmial.com, .con, espaço, acento) são corrigidos sem ela ver. Se veio do app na mesma aba, ou pelo link com `?correo=`, este passo some.
+2. **As compras.** Todas as cobranças dela, uma por linha: o nome do produto, o valor COBRADO no cartão (com o imposto que alguns estados dos EUA somam: US$ 69 viram 75,21) e o dia. Ela marca uma ou várias, e "Te devolvemos: US$ X" muda na hora. Uma compra só já vem marcada; com várias, nenhuma (ninguém devolve tudo sem querer quando só queria os Arcángeles). O que já foi devolvido ou já está pedido aparece apagado, no fim.
+3. **Pronto.** "¡Listo! Recibimos tu pedido", o valor, "en hasta 24 horas", "No necesitas hacer nada más" e o motivo opcional, de um toque, só DEPOIS do pedido.
+- **Sem compra achada:** "Corregir mi correo" ou "Pedir mi reembolso igual" (a equipe procura a compra).
+- **Servidor fora:** o caminho de sempre, WhatsApp e soporte@, com a mensagem já escrita.
+- **Embaixo do passo 1:** "¿El problema es que no pudiste entrar a tu app?" leva à `/es-entrar`. Uma linha só, para não parecer barreira.
+
+**Quem devolve:** a equipe, em até 24 horas. **Nada é devolvido sozinho.** No chat do dia, o agente lê a fila (consulta leve, no fim de `supabase/latam/11-reembolso.sql`), mostra ao Caio o total e, com o "sim" dele, devolve na Whop (pela API: devolve o total cobrado, imposto incluído), marca o pedido como `feito` e prepara o e-mail "Listo: te devolvimos tu dinero" no soporte@. Pedido com `origem = 'kashpay'` não passou pela Whop (em geral, Digistore pela KashPay): o Caio ou o Pedro devolvem no painel da Digistore. O acesso ao app continua (regra de 05/11).
+
+**Decisão do Caio (13/11):** quem digitar o e-mail de outra pessoa vê as compras dela. Risco muito baixo, aceito: o dinheiro só volta para o cartão de quem pagou, e todo pedido passa pelo "sim" dele.
+
+**Onde mora:**
+- Banco: `supabase/latam/11-reembolso.sql` (a tabela `latam_refund_requests`, a função `latam_reembolso_compras(email)` e um índice do e-mail em `latam_whop_events`). Usa o freio `latam_permite`, de `09-resgate.sql`.
+- Função própria, **`latam-reembolso`** (`supabase/functions/latam-reembolso/index.ts`), separada da `latam-api` de propósito: entrar, rezar e os pop-ups não dependem dela. Ações `compras`, `pedir` e `motivo`. Freios: buscar 30 por hora, pedir 10 por hora, por IP. A correção do e-mail é CÓPIA da `latam-api`: se mudar lá, mudar aqui.
+- Site: `es-reembolso.html`, `js/es/reembolso.js`, `css/es/reembolso.css` (novo) e a linha `reembolso` em `js/es/config.js`.
+- E-mails de entrega da KashPay (fora do repositório): `7 Améns LATAM\KashPay\email-*.html` ganharam o bloco "¿Algo no salió como esperabas?" (front) e "¿No esperabas este cobro?" (upsells), entre o "Cómo empezar" e o "Guarda este correo". As versões de antes estão em `versoes-antigas\*-ate-1311.html`.
+
+**Provado em 13/11, no banco de TESTE** (cobaias `reembolso.prueba@exemplo.com`, com 4 cobranças, uma devolvida e uma de US$ 40,05 com imposto, e `reembolso.digi@exemplo.com`, venda só da KashPay): e-mail com ".con" corrigido; compras com o valor certo; a devolvida apagada; pedido sem marcar recusado; pedido repetido não duplica; motivo gravado; pedido sem compra gravado; origem estranha recusada (403); a página inteira no celular (375 px), sem erro no console. A busca também foi conferida, só lendo, numa cliente real da produção: os Arcángeles devolvidos em 12/11 apareceram como devolvidos.
+
+**Ordem de publicar:** SQL → função → site → e-mails da KashPay. Qualquer ordem é inofensiva: sem o SQL ou sem a função, a página mostra o caminho de sempre (WhatsApp e e-mail).
+
 ## Como voltar atrás
+- **Reembolso em um toque:** voltar a `es-reembolso.html` e o `js/es/reembolso.js` da `a32b178` (`git show a32b178:es-reembolso.html`), apagar a função `latam-reembolso` no painel e colar de volta nos e-mails da KashPay as versões `-ate-1311`. O banco pode ficar; desfazer: seção DESFAZER de `11-reembolso.sql`.
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
 - **Resgate:** a `latam-api` de antes dele é a do commit `28563e3` (`git show 28563e3:supabase/functions/latam-api/index.ts`). O banco pode ficar: a função de antes não usa nada do que o `09-resgate.sql` criou. Desfazer o banco: seção DESFAZER do `09-resgate.sql`.
 - **Banco:** a seção "DESFAZER" de `supabase/latam/01-tabelas.sql` apaga só o que é `latam_`.

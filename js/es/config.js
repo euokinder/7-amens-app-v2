@@ -10,6 +10,9 @@
 
   window.AMENES_CONFIG = {
     api: noComputador ? TESTE : PRODUCAO,
+    // O reembolso em um toque (13/11/2026): função própria, separada da
+    // latam-api. Só a /es-reembolso usa.
+    reembolso: (noComputador ? TESTE : PRODUCAO).replace(/latam-api$/, 'latam-reembolso'),
     // O suporte em espanhol é soporte@pkscale.com (decisão do Caio, 08/11/2026).
     // O endereço também aparece ESCRITO no card "Escríbenos" (es.html) e na
     // tela de entrar (es-entrar.html), para quem não tem app de e-mail no

@@ -4,42 +4,98 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Reembolso — 7 Amenes de la Madrugada</title>
+<title>Tu dinero de vuelta — 7 Amenes de la Madrugada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/es/app.css">
+<link rel="stylesheet" href="/css/es/reembolso.css">
 <link rel="icon" href="/assets/images/icon-32.png">
 </head>
 <body>
-<!-- App em espanhol (LATAM): o pedido de reembolso (pedido do Caio, 08/11/2026).
-     O foco é diminuir chargeback: pedir o dinheiro de volta para nós tem de ser
-     mais fácil do que pedir ao banco. Abre SEM login, de propósito: quem não
-     consegue entrar também precisa conseguir pedir. Se ela já entrou, o correo
-     sai com o e-mail da compra preenchido (js/es/reembolso.js).
-     Sem pop-up de oferta aqui: esta página não carrega o js/es/oferta.js.
-     O texto segue a Política de Reembolso (/amenes-reembolso): 7 dias, 100%,
-     sem explicar o motivo, resposta em até 24 horas (desde 09/11), mesmo meio de pagamento.
-     Plano e regras: docs/app-es.md -->
+<!-- App em espanhol (LATAM): o reembolso em um toque (pedido do Caio, 13/11/2026).
+     Era um botão que abria um e-mail (08/11). Agora: ela escreve o e-mail da
+     compra, vê TODAS as compras dela (nome, valor cobrado e dia), marca o que
+     quer e toca um botão. O pedido vai para latam_refund_requests, e a equipe
+     devolve em até 24 horas (o agente mostra a fila ao Caio no chat do dia).
+     Por quê: pedir para nós tem de ser mais fácil que pedir ao banco
+     (chargeback = venda + até US$ 44 de taxas). Público idoso: uma coisa por
+     tela, letra grande, nunca beco sem saída.
+     Abre SEM login, de propósito, e não carrega sesion.js nem oferta.js.
+     Se ela veio do app (mesma aba), o e-mail já vem do retrato e ela cai
+     direto na lista. O link do e-mail de entrega pode trazer ?correo=.
+     Servidor: a função latam-reembolso (js/es/config.js -> reembolso).
+     Plano e regras: docs/app-es.md, "O reembolso em um toque". -->
 <main class="app member-login es-reembolso">
   <img class="brand" src="/assets/images/icon-180.png" alt="7 Amenes de la Madrugada" width="88" height="88">
-  <h1>Pedir un reembolso</h1>
-  <p>Si en los primeros <b>7 días</b> desde la compra sientes que no es para ti, te devolvemos el <b>100%</b> del valor. No necesitas explicar el motivo.</p>
 
-  <ol class="es-pasos">
-    <li>Toca el botón de abajo: se abre un correo ya escrito.</li>
-    <li>Envíalo así como está. Si quieres, cuéntanos el motivo.</li>
-    <li>Te respondemos en hasta 24 horas. El dinero vuelve al mismo medio de pago que usaste.</li>
-  </ol>
+  <!-- Passo 1: o e-mail -->
+  <section id="paso-correo" class="es-r-paso">
+    <h1>Tu dinero de vuelta</h1>
+    <p>Tranquila, es muy fácil. Escribe tu correo y te mostramos tus compras.</p>
+    <form id="form-correo" novalidate>
+      <label for="correo">Tu correo de la compra</label>
+      <input id="correo" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="tunombre@email.com" maxlength="254">
+      <p class="es-ayuda-campo">Es el mismo correo donde recibiste tus oraciones.</p>
+      <p id="error-correo" class="member-error" role="alert"></p>
+      <button id="boton-ver" class="member-button" type="submit">Ver mis compras</button>
+    </form>
+    <p class="es-r-entrar">¿El problema es que no pudiste entrar a tu app?<br><a href="/es-entrar">Toca aquí y te ayudamos a entrar</a></p>
+  </section>
 
-  <a id="boton-reembolso" class="member-button" href="mailto:soporte@pkscale.com?subject=Reembolso%20-%207%20Amenes%20de%20la%20Madrugada" style="text-align:center;text-decoration:none;">Pedir mi reembolso</a>
+  <!-- Passo 2: as compras -->
+  <section id="paso-compras" class="es-r-paso" hidden>
+    <h1>Tus compras</h1>
+    <p id="texto-compras">Toca lo que quieres que te devolvamos. Puedes marcar más de una.</p>
+    <p id="correo-usado" class="es-nota" hidden></p>
+    <ul id="lista-compras" class="es-r-lista"></ul>
+    <div id="caja-total" class="es-r-total" hidden><span>Te devolvemos:</span> <strong id="total"></strong></div>
+    <p id="error-compras" class="member-error" role="alert"></p>
+    <button id="boton-pedir" class="member-button es-r-grande" type="button">Pedir mi dinero de vuelta</button>
+    <p class="es-r-letra">Te devolvemos exactamente lo que se cobró, en la misma tarjeta. No tienes que explicar nada.</p>
+    <button class="member-help es-r-volver" type="button" data-volver>Usar otro correo</button>
+  </section>
 
-  <p class="es-correo-escrito es-correo-entrar">¿El botón no abre tu correo? Escríbenos a<br><strong>soporte@pkscale.com</strong><br>con el asunto «Reembolso».</p>
+  <!-- Passo 2b: nenhuma compra -->
+  <section id="paso-nada" class="es-r-paso" hidden>
+    <h1>No encontramos compras con este correo</h1>
+    <p>Escribiste: <strong id="correo-nada" class="es-r-correo"></strong></p>
+    <button class="member-button" type="button" data-volver>Corregir mi correo</button>
+    <button id="boton-igual" class="member-button es-boton-borde" type="button">Pedir mi reembolso igual</button>
+    <p id="error-nada" class="member-error" role="alert"></p>
+    <p class="es-r-letra">Tranquila: con tu pedido, nosotros buscamos tu compra y te escribimos.</p>
+  </section>
 
-  <div class="es-aviso-reembolso">
-    <p><b>¿Ya pasaron los 7 días?</b> Escríbenos igual y lo vemos contigo.</p>
-    <p><b>¿Te cobraron dos veces o no reconoces un cobro?</b> Escríbenos en cualquier momento y lo resolvemos.</p>
-    <p>Antes de pedirle a tu banco que cancele el cobro, escríbenos: lo resolvemos más rápido y sin complicaciones para ti.</p>
-  </div>
+  <!-- Passo 3: pronto -->
+  <section id="paso-listo" class="es-r-paso" hidden>
+    <div class="es-r-check" aria-hidden="true">✓</div>
+    <h1>¡Listo! Recibimos tu pedido</h1>
+    <p id="texto-listo">En hasta 24 horas te devolvemos el dinero en la misma tarjeta con la que pagaste. Te avisamos por correo cuando esté hecho.</p>
+    <div class="es-aviso-reembolso">
+      <p><b>No necesitas hacer nada más.</b></p>
+      <p>Tu banco puede tardar de 5 a 10 días en mostrar el dinero. Es normal.</p>
+    </div>
+    <div id="caja-motivo">
+      <p class="es-r-motivo-titulo"><b>Si quieres, cuéntanos qué pasó.</b> No es obligatorio.</p>
+      <div class="es-r-chips">
+        <button type="button" class="es-r-chip" data-motivo="no_pude_entrar">No pude entrar</button>
+        <button type="button" class="es-r-chip" data-motivo="no_era_lo_que_esperaba">No era lo que esperaba</button>
+        <button type="button" class="es-r-chip" data-motivo="no_reconozco">No reconozco el cobro</button>
+        <button type="button" class="es-r-chip" data-motivo="cobro_de_mas">Me cobraron de más</button>
+        <button type="button" class="es-r-chip" data-motivo="otro">Otro motivo</button>
+      </div>
+    </div>
+    <p id="gracias-motivo" class="es-r-gracias" hidden>Gracias por contarnos 🙏</p>
+    <p class="es-r-bendicion">Gracias por tu confianza. Que Dios te bendiga.</p>
+  </section>
+
+  <!-- Se o servidor falhar: o caminho de sempre (WhatsApp e e-mail). -->
+  <section id="paso-error" class="es-r-paso" hidden>
+    <h1>No pudimos conectar ahora</h1>
+    <p>Tu pedido es importante. Escríbenos y te devolvemos el dinero igual, en hasta 24 horas.</p>
+    <a id="boton-whatsapp" class="member-button es-boton-whatsapp" href="#">Escribir por WhatsApp</a>
+    <p class="es-correo-entrar">O escríbenos a<br><strong>soporte@pkscale.com</strong><br>con el asunto «Reembolso».</p>
+    <button class="member-help" type="button" data-volver>Intentar de nuevo</button>
+  </section>
 
   <a class="member-help" href="/es">Volver al inicio</a>
 </main>
