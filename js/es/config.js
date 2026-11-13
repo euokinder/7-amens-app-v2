@@ -10,6 +10,12 @@
 
   window.AMENES_CONFIG = {
     api: noComputador ? TESTE : PRODUCAO,
+    // A Lucía, o chat de suporte (12/11/2026, js/es/lucia.js). Apagar a linha
+    // `chat` tira a Lucía de todas as telas (com 1 build). Desligar SEM build
+    // é no banco: latam_chat_config.ligado = false (ela passa a mostrar o
+    // WhatsApp e o e-mail). luciaFoto: a foto dela (vazia = a letra "L").
+    chat: (noComputador ? TESTE : PRODUCAO).replace(/latam-api$/, 'latam-chat'),
+    luciaFoto: '',
     // O suporte em espanhol é soporte@pkscale.com (decisão do Caio, 08/11/2026).
     // O endereço também aparece ESCRITO no card "Escríbenos" (es.html) e na
     // tela de entrar (es-entrar.html), para quem não tem app de e-mail no

@@ -29,6 +29,10 @@ const TRAVAS = {
   latam_admin_actions: [['id']],
   latam_kashpay_events: [['event', 'transaction_id']],
   latam_kashpay_offers: [['offer_id']],
+  // 10-chat.sql (12/11/2026): a Lucía.
+  latam_chat_config: [['id']],
+  latam_chat_conversas: [['id']],
+  latam_chat_mensagens: [['id']],
 };
 
 const PADROES = {
@@ -48,7 +52,10 @@ const PADROES = {
   latam_admin_actions: () => ({ id: Math.floor(Math.random() * 1e9), details: {}, target_email: '', created_at: new Date().toISOString() }),
   latam_kashpay_events: () => ({ status: 'recorded', detail: '', offers: [], produtos: [], received_at: new Date().toISOString() }),
   latam_kashpay_offers: () => ({ offer_name: '', note: '', created_at: new Date().toISOString() }),
+  latam_chat_conversas: () => ({ id: crypto.randomUUID(), pagina: 'app', pais: '', conexao: '', mensagens: 0, equipe: 'nao', equipe_motivo: '', equipe_resumo: '', equipe_contato: '', equipe_email: '', equipe_em: null, resolvido_em: null, created_at: new Date().toISOString() }),
+  latam_chat_mensagens: () => ({ id: ++sequencia, modelo: '', tokens_entrada: 0, tokens_cache: 0, tokens_saida: 0, created_at: new Date().toISOString() }),
 };
+let sequencia = 0;
 
 export const banco = {};
 export const tocadas = new Set();
