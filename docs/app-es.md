@@ -546,6 +546,29 @@ Pedido do Caio: pedir o dinheiro de volta para nós tem de ser MAIS FÁCIL que p
 
 **Ordem de publicar:** SQL → função → site → e-mails da KashPay. Qualquer ordem é inofensiva: sem o SQL ou sem a função, a página mostra o caminho de sempre (WhatsApp e e-mail).
 
+## A Lucía, o chat de suporte (12/11/2026, ⏳ construída e provada só no TESTE)
+Pedido do Arthur (12/11): esse público quer sentir que está CONVERSANDO com alguém; FAQ fixo não serve. É **só suporte**: a Lucía nunca vende nem oferece nada.
+
+**Por quê:** de 05 a 12/11, ~67 clientes escreveram ao soporte com dúvida real. Metade não conseguia entrar; 13% cobrança dupla ou upsell de 1 clique sem perceber; 10% a trava ("o dia não abre"); o resto, extras, reembolso, PDF e presentes físicos. ~7 e-mails chegaram VAZIOS: o botão "Escríbenos" abria o e-mail do celular e ela enviava sem escrever.
+
+**As peças (nada do Brasil muda):**
+- `supabase/latam/10-chat.sql`: `latam_chat_config` (o interruptor, que nasce DESLIGADO, o modelo, o manual e os freios), `latam_chat_conversas`, `latam_chat_mensagens` e `latam_chat_posicao(id)` (a posição da compra dela; os presentes físicos são das 50 primeiras). ✅ No banco de TESTE.
+- `supabase/functions/latam-chat/index.ts`: a função, separada da `latam-api` (se o chat cair, o login não cai). Biblioteca da Anthropic `@anthropic-ai/sdk@1.3.0`. Teste local: `testa-latam-chat.mjs` (75 conferências, banco e IA de mentira).
+- `js/es/lucia.js` + `css/es/lucia.css`: o botão "¿Dudas? Habla con Lucía" e a conversa em tela cheia, com os atalhos para quem não gosta de digitar. Carregados em `/es`, `/es-entrar`, `/es-dia` e `/es-novena`. O cartão "Escríbenos" da home passa a abrir a Lucía. O endereço da função está em `js/es/config.js` (`chat`); a foto, em `luciaFoto`.
+- **O manual da Lucía NÃO está no repositório** (é público): `7 Améns LATAM\Chat\manual-lucia.md`. Ele entra no banco em `latam_chat_config.manual`, por um SQL que também fica fora daqui. Muda sem build.
+
+**Decisões do Arthur (12/11):**
+- é a "Lucía, del equipo" dos e-mails, com a foto da freira da equipe de suporte; se perguntarem, diz que é a assistente do equipo e que pessoas de verdade leem as conversas;
+- cobrança, reembolso, raiva, presentes a confirmar ou o que não resolve em duas tentativas vão para a equipe: o caso fica salvo em `latam_chat_conversas` e ela ganha DOIS botões, WhatsApp e e-mail, com a mensagem JÁ ESCRITA (o resumo da Lucía, o e-mail da compra e o número curto do caso). **Sem serviço de e-mail** (Arthur, 13/11: nem Postmark nem Brevo): quem envia é o celular dela. O que ela não enviar, a equipe vê no relatório diário da manhã;
+- reembolso: pergunta uma vez o que aconteceu; se ela insiste, pergunta se quer ver o caminho ou se prefere que a equipe faça por ela;
+- presentes físicos: só as 50 primeiras compradoras desde o começo, e já foram enviados. A Lucía CONFERE a posição: fora das 50 (+10 de margem), diz com carinho; dentro ou na margem, passa para a equipe. Nunca afirma o que não conferiu: a conversa vira prova numa disputa;
+- relatório diário das conversas para o soporte e um resumo na rotina da manhã do Arthur (⏳ ainda não construído).
+
+**Custo:** Sonnet 5.5 (US$ 2 / 10 por milhão de tokens; leitura do cache US$ 0,10): ~US$ 0,04 por conversa, ~US$ 25–40/mês. Haiku 5.5: ~US$ 2/mês. Trocar é um `update` no banco. Teto de gasto na conta da Anthropic.
+
+**Falta, na ordem:** a conta da API da Anthropic (Arthur) e a chave como segredo `ANTHROPIC_API_KEY` no projeto de TESTE → as conversas difíceis no Sonnet e no Haiku, para escolher → a foto → o Arthur testa no celular → no ar: o SQL 10, o manual, a função (nome antes do Deploy, JWT desligado, segredo `ANTHROPIC_API_KEY`; a chave `lucia-producao` vence em 20/11/2027), o site (1 build) → ligar o interruptor → o relatório diário e a aba do painel.
+- ✅ **13/11, ~01h30:** SQL 10, manual, função `latam-chat` (v3, sem serviço de e-mail) e o segredo `ANTHROPIC_API_KEY` já na produção, com o interruptor DESLIGADO. O site da Lucía vai ao ar no MESMO build do reembolso em um toque (as duas branches juntadas na `latam-reembolso`).
+
 ## Como voltar atrás
 - **Reembolso em um toque:** voltar a `es-reembolso.html` e o `js/es/reembolso.js` da `a32b178` (`git show a32b178:es-reembolso.html`), apagar a função `latam-reembolso` no painel e colar de volta nos e-mails da KashPay as versões `-ate-1311`. O banco pode ficar; desfazer: seção DESFAZER de `11-reembolso.sql`.
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
@@ -554,3 +577,4 @@ Pedido do Caio: pedir o dinheiro de volta para nós tem de ser MAIS FÁCIL que p
 - **Funções:** apagar `latam-api` e `latam-whop` no painel. O Brasil não usa nenhuma das duas.
 - **Extras:** a `latam-api` de antes deles (v5) é a do commit `310073a` (`git show 310073a:supabase/functions/latam-api/index.ts`); sem ela, o site novo abre os dois extras para todas (rede de segurança). O banco pode ficar: a v5 não usa o que ele ganhou. Desfazer o banco: seção DESFAZER de `05-extras.sql`.
 - **Pop-ups:** desligar um é `update public.latam_offer_campaigns set enabled = false where key = '…'`, sem build e sem mexer na função. Para voltar a `latam-api` de antes dos pop-ups, use o arquivo do commit `8580d7b` (`git show 8580d7b:supabase/functions/latam-api/index.ts`).
+- **Lucía:** desligar sem build é `update public.latam_chat_config set ligado = false where id = 1` (as telas passam a mostrar o WhatsApp e o e-mail). Tirar das telas: apagar a linha `chat` de `js/es/config.js` (1 build). Desfazer o banco: seção DESFAZER de `10-chat.sql`.
