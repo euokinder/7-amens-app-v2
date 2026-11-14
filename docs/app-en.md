@@ -121,8 +121,8 @@ Registro: inglês americano, católico, "you" acolhedor, frases curtas e letra g
 | 3 | Prova no computador (`localhost`, 375 px): entrar, home, lista, Dia 1 com "I prayed this prayer" e desfazer, trava ("It unlocks in 2 days"), Arcanjos, Cântico, cliente sem extras (cadeado e "Learn more"), reembolso, sair. Sem erro no console | ✅ 13/11 |
 | 4 | PDFs em inglês (`assets/en/pdf/`, 12 arquivos, ~1 MB no total) e a página de entrega `/en-materials` (cópia da `/materiales`) | ✅ 13/11 |
 | 5 | Vídeos, áudios dos Arcanjos e do Cântico, quando chegarem (Bunny, armazenamento próprio do inglês) | ⏳ |
-| 6 | Checkout: Digistore24 dos EUA, função `en-digistore` e `13-digistore.sql` (ver "A venda pela Digistore24") | ✅ 14/11 no TESTE; ⏳ produção junto com o bloco 7 |
-| 7 | Ir ao ar: SQL e funções na produção (o Arthur cola), segredos, 1 build | ⏳ |
+| 6 | Checkout: Digistore24 dos EUA, função `en-digistore` e `13-digistore.sql` (ver "A venda pela Digistore24") | ✅ 14/11 |
+| 7 | **NO AR desde 14/11/2026, ~01h50 (Brasília).** Banco: os 9 arquivos num SQL só (01 → … → 11 → 13), colado pelo Arthur, 20 tabelas com RLS. Funções `en-api` (v4, com o e-mail novo), `en-refund`, `en-digistore`, `en-chat` (Lucy desligada), todas com o JWT desligado. Segredo `EN_DIGISTORE_IPN_PASSWORD` e a conexão IPN na conta da Digistore dos EUA ("Test connection" OK). 4 administradores (os mesmos do Brasil e da LATAM, pela carga do `04-admin.sql`). Site: `cb3b354..0602b4e`; ponto de retorno na Netlify: o deploy `6af7794a…` de 13/11, 17h55 | ✅ 14/11 |
 
 ## Os PDFs em inglês (13/11/2026)
 A oficina mora FORA do repositório, em `D:\Downloads Certos\PkScale\7 Améns EUA\_montagem\` (como a do espanhol, em `7 Améns LATAM\_montagem\`). Os PDFs prontos ficam em `7 Améns EUA\PDFs in English\`, e uma cópia de cada vai para `assets/en/pdf/`.
@@ -228,7 +228,18 @@ Cada passo é inofensivo sem o seguinte. Nenhum build a mais: os links das pági
 - **A função:** apagar a `en-digistore` no painel (o aviso passa a dar erro, e a Digistore repete por 10 dias).
 - **O banco:** seção DESFAZER do `13-digistore.sql` (a visão volta a ser a vazia rodando o `02-compras.sql`). O acesso de quem já foi liberado fica.
 
+## Revisão de 14/11/2026, ~02h (logo depois de ir ao ar)
+- **No ar, sem banco:** as 14 páginas `en` e os 90 arquivos que elas citam respondem (0 quebrados); o Brasil (`/`, `/login`) e a LATAM (`/es`) seguem 200; o e-mail novo e os links da Digistore (741399 ×4, 741401) estão no ar.
+- **Funções no ar (3 chamadas, e-mail inventado, nenhuma cliente criada):** `en-api` recusa e-mail desconhecido em inglês e segue para o resgate (403, 1,3 s); `en-refund` devolve lista vazia (0,3 s); `en-chat` responde `desligado` (1,5 s). `en-digistore`: teste de conexão assinado = `OK`.
+- **No computador (localhost, banco de TESTE, 375 px, mesmo código do ar), sem erro no console:** home com o nome; lista com "Unlocks tomorrow" (a virada é à meia-noite do fuso dela: em Nova York ainda era 13/11); Dia 1 com o vídeo da Bunny; Dia 0; Dia 3 trancado ("It unlocks in 2 days"); Arcanjos e Cântico com "Audio coming soon" e o PDF; `/en-materials`; painel `/en-admin` (pop-ups desligados, resgate esperando); cliente sem extras com cadeado e "Learn more"; o botão do Cântico e as 4 cartas dos Arcanjos saem com a etiqueta (`utm_source=app-en`, `utm_term=pagina-vsl` no Cântico).
+- **Achados (para o Arthur decidir):**
+  1. ✅ Página de venda dos Arcanjos: aparecia **"from [US$ ?] to [US$ ?]"** depois de tocar na carta. Resolvido no mesmo dia (Arthur): **"from $69 to $27"** e **"60% off"** no lugar de "30%" (a conta agora bate; no espanhol continua "30%"). Ainda: sem o VSL, as cartas só aparecem ~8 min depois de a página abrir, e a headline diz "Please listen:" sem nada para ouvir.
+  2. 🟡 A Lucy está desligada: quem toca em "Questions? Talk to Lucy" lê "I can't answer here right now" e recebe os botões de WhatsApp e e-mail. Para ligar: um SQL com o manual versão 3 (montado fora do repositório, no scratchpad da sessão de 14/11, `producao-ligar-lucy.sql`).
+  3. O WhatsApp do suporte é o da LATAM (atende em espanhol).
+  4. Nome do produto: o app diz "7 Amens Before Dawn"; a Digistore e as capas dos vídeos, "The 7 Amens of the Early Morning".
+- O e-mail `sevenamenssuport@gmail.com` foi escrito exatamente como o Arthur mandou ("suport" com um "p"): conferir que é a conta certa.
+
 ## O que fica pendente de informação do Arthur
-- E-mail e WhatsApp do suporte americano.
-- Checkout: ✅ front, front de US$ 27, Arcanjos e Cântico (14/11). Faltam os produtos, os links e os preços das contribuições do Dia 3 e de Three Mornings of Intercession, e o preço "de … por …" da revelação dos Arcanjos ("from [US$ ?] to [US$ ?]").
+- WhatsApp do suporte americano (o e-mail já é o dos EUA desde 14/11).
+- Checkout: ✅ front, front de US$ 27, Arcanjos e Cântico (14/11). Faltam os produtos, os links e os preços das contribuições do Dia 3 e de Three Mornings of Intercession. (O preço da revelação dos Arcanjos: ✅ $69 → $27, 14/11.)
 - Os IDs dos vídeos, quando prontos.
