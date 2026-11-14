@@ -22,26 +22,28 @@
 (function () {
   'use strict';
 
-  // ⏳ EUA: a biblioteca da Bunny e a conta da VTurb são as do Brasil e do
-  // espanhol. O plano (docs/app-en.md, bloco 5) fala em armazenamento próprio
-  // do inglês: conferir e trocar aqui quando os vídeos em inglês chegarem.
+  // A biblioteca da Bunny é a mesma do Brasil e do espanhol ("7 Améns -
+  // entregas"), como no espanhol: todo vídeo do inglês se chama
+  // "EN · Day N — <oração>" lá, para não se misturar (14/11/2026).
+  // ⏳ EUA: a conta da VTurb ainda é a do Brasil e do espanhol (só os Dias 3
+  // e 7, com a oferta, usam a VTurb).
   const BIBLIOTECA = '784501';
   const CONTA_VTURB = '3fe9f7a6-c604-479d-b1c4-ccd47fcf7108';
 
-  // ⏳ EUA: os vídeos em inglês ainda não existem (roteiros aprovados, em
-  // produção). Por isso NENHUM dia tem linha aqui: todos mostram a foto e o
-  // texto, e os Dias 3 e 7 ficam sem oferta e com o "I prayed this prayer"
-  // (a oferta só liga com o player da VTurb na tela; ver js/en/dia.js).
-  // Os IDs do espanhol NÃO servem aqui: o padre fala em espanhol.
-  // Quando chegarem, o modelo das linhas (o mesmo do espanhol):
-  //   0: { video: '<ID na Bunny>', formato: '3:4' }, // EN · Day 0 — Start Here
-  //   1: { video: '<ID na Bunny>', formato: '3:4' }, // EN · Day 1 — The Complete Our Father
-  //   ...
+  // Os vídeos em inglês, com a voz do Father James. Dia sem linha mostra a
+  // foto e o texto. Os IDs do espanhol NÃO servem aqui.
+  // Os Dias 3 e 7 vêm da VTurb, com a oferta (o modelo do espanhol):
   //   3: { vturb: '<id do player>', formato: '3:4', reserva: { video: '<ID na Bunny, só a oração>', formato: '3:4' } },
   //   7: { vturb: '<id do player>', formato: '3:4' },
   // O Dia 3 com `reserva` só troca para a VTurb quando os três links de aporte
   // em js/en/oferta-dia.js estiverem preenchidos com o checkout americano.
-  const VIDEOS = {};
+  // ⏳ EUA: faltam o Dia 0 (Start Here), o 3, o 6 e o 7.
+  const VIDEOS = {
+    1: { video: '2a2fe00c-7984-42df-b7e4-7cdcfc25aa3d', formato: '3:4' }, // EN · Day 1 — The Complete Our Father (6:11, 14/11)
+    2: { video: 'c8432043-dcb2-42dc-94cd-3419be99af92', formato: '3:4' }, // EN · Day 2 — The Prayer for Forgiveness (5:25, 14/11)
+    4: { video: '17646ed9-b21f-48cf-a28c-6f1154dd1712', formato: '3:4' }, // EN · Day 4 — The Prayer for Deliverance (3:35, 14/11)
+    5: { video: '41c5990e-ca7c-411f-8037-bd71f70bd339', formato: '3:4' }, // EN · Day 5 — The Prayer for Prosperity (3:53, 14/11)
+  };
 
   const FORMATOS = {
     '3:4': { altura: '133.3333%', larguraMaxima: '400px' },
