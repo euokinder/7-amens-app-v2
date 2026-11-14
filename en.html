@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Home — 7 Amens Before Dawn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/lucia.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+</head>
+<body>
+<!-- App em inglês (EUA): o início. CÓPIA do es.html (que é cópia do
+     index.html do Brasil), traduzida. Sem o que o app dos EUA não tem (grupo,
+     Mensagem do Dia). Os dois extras (Four Archangels e Angelic Canticle)
+     vieram junto do espanhol.
+     Abre em setemadrugadas.com.br/en. Plano e regras: docs/app-en.md -->
+<div id="member-gate" role="status">
+  <p>Checking your access…</p>
+  <noscript><p>Your browser has JavaScript turned off. Please turn it on to open your prayers.</p></noscript>
+  <!-- ⏳ EUA: nasce escondido; o js/en/inicio.js mostra quando houver contato
+       de suporte em js/en/config.js. -->
+  <a class="member-gate-help" id="ayuda-portao" href="#" target="_blank" rel="noopener" hidden>Need help? Contact us</a>
+</div>
+<div class="app">
+
+  <div class="header" style="justify-content:flex-end;">
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amens Before Dawn" width="44" height="44"></div>
+  </div>
+
+  <div class="content home">
+
+    <div class="heading-block heading-home">
+      <span class="eyebrow" id="saudacao">Hello! May the peace of the Lord be with you.</span>
+      <h1 class="title">Choose what to open</h1>
+      <p class="subtext">Tap any card to open it and begin.</p>
+    </div>
+
+    <a href="/en-journey" class="card-produto">
+      <img class="card-produto-foto" src="/assets/images/home/7-oracoes.jpg" alt="" width="960" height="960" fetchpriority="high" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo">AVAILABLE</span>
+        <h3 class="card-produto-titulo">The Seven Prayers</h3>
+        <p class="card-produto-descricao">Open the Start Here guide and the 7 early-morning prayers.</p><!-- ⏳ EUA: quando os PDFs em inglês voltarem, devolver ", and your bonus material" -->
+        <span class="card-produto-botao"><span>Open</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </div>
+    </a>
+
+    <!-- ⏳ EUA: o card dos PDFs fica DESLIGADO até existirem os PDFs em inglês
+         (assets/en/pdf/) e a página deles. No espanhol, ele levava a
+         /materiales, que é a página em ESPANHOL. Para religar: tirar este
+         comentário em volta do card e trocar o href pelo endereço da página
+         em inglês.
+    <a href="#" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2.5H7a1.5 1.5 0 0 0-1.5 1.5v16A1.5 1.5 0 0 0 7 21.5h10a1.5 1.5 0 0 0 1.5-1.5V7Z"/><path d="M14.5 2.5V7H19"/><line x1="8.5" y1="12.5" x2="15.5" y2="12.5"/><line x1="8.5" y1="16" x2="15.5" y2="16"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Your PDF materials</h3>
+      <p class="card-contato-descricao">All the prayers as PDFs, to save on your phone or print.</p>
+      <span class="card-contato-botao"><span>See my PDFs</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+    -->
+
+    <div class="heading-block heading-home secao">
+      <h2 class="title">Exclusive Content</h2>
+      <!-- A frase some sozinha quando não há nenhum 🔒 na tela, isto é, para
+           quem já tem os dois extras (js/en/extras.js, desenharAviso). -->
+      <p class="subtext" id="aviso-extras">Items marked with 🔒 are extras. Tap “Learn more” to see what's inside.</p>
+    </div>
+
+    <!-- THE FOUR ARCHANGELS (UP01) e ANGELIC CANTICLE (UP02). CÓPIA dos dois
+         cards do es.html. Quem decide é o js/en/extras.js: quem comprou entra;
+         quem não comprou vê o cadeado e vai para a página de venda. Os textos
+         das duas situações moram nos data-liberado / data-trancado. O
+         endereço escrito é o de quem comprou, de propósito: se o JS falhar, o
+         card abre o conteúdo em vez de trancar uma cliente que pagou. -->
+    <a href="/en-archangels" id="card-arcangeles" class="card-produto">
+      <img class="card-produto-foto" src="/assets/images/home/arcanjos.jpg" alt="" width="960" height="960" loading="lazy" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo" data-liberado="AVAILABLE" data-trancado="🔒 EXTRA">AVAILABLE</span>
+        <h3 class="card-produto-titulo">The Four Archangels</h3>
+        <p class="card-produto-descricao">Open the 12 prayers of the Four Archangels: protection, guidance, healing, and wisdom.</p>
+        <span class="card-produto-botao"><span data-liberado="Open" data-trancado="Learn more">Open</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </div>
+    </a>
+
+    <a href="/en-canticle" id="card-cantico" class="card-produto">
+      <img class="card-produto-foto" src="/assets/images/home/cantico.jpg" alt="" width="960" height="960" loading="lazy" decoding="async">
+      <div class="card-produto-texto">
+        <span class="card-produto-selo" data-liberado="AVAILABLE" data-trancado="🔒 EXTRA">AVAILABLE</span>
+        <h3 class="card-produto-titulo">Angelic Canticle</h3>
+        <p class="card-produto-descricao">Your 7-day journey, with one recording for each day.</p>
+        <span class="card-produto-botao"><span data-liberado="Open" data-trancado="Learn more">Open</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+      </div>
+    </a>
+
+    <!-- O WhatsApp de suporte. O desenho do cartão do grupo do Brasil: verde
+         só na borda, no ícone e no botão. O número e o link moram em
+         js/en/config.js.
+         ⏳ EUA: nasce escondido (hidden); o js/en/inicio.js mostra quando o
+         número do suporte americano existir. -->
+    <a href="#" id="card-whatsapp" class="card-contato whatsapp" target="_blank" rel="noopener" hidden>
+      <span class="card-contato-icone">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Talk to us on WhatsApp</h3>
+      <p class="card-contato-descricao">Questions or a problem? We're happy to help.</p>
+      <p class="card-contato-descricao es-correo-escrito">Our WhatsApp: <strong id="whatsapp-escrito"></strong></p>
+      <span class="card-contato-botao"><span>Open WhatsApp</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+    <!-- "Contact us": o padre fala deste card no vídeo de boas-vindas, então
+         ele fica SEMPRE na tela. O toque abre a Lucy, o chat de suporte
+         (js/en/lucia.js). -->
+    <a href="#" id="card-ayuda" class="card-contato">
+      <span class="card-contato-icone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/></svg>
+      </span>
+      <h3 class="card-contato-titulo">Contact us</h3>
+      <p class="card-contato-descricao">Questions, or trouble getting in? Our team is here to help you.</p>
+      <!-- ⏳ EUA: o e-mail do suporte americano ainda não existe; a linha nasce
+           escondida e o js/en/inicio.js a mostra com o e-mail do config. -->
+      <p class="card-contato-descricao es-correo-escrito" id="linha-correo" hidden>Our email: <strong id="correo-escrito"></strong></p>
+      <span class="card-contato-botao"><span>Talk to our team</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+
+    <!-- Reembolso: para diminuir chargeback, pedir o dinheiro para nós tem de
+         ser mais fácil do que pedir ao banco. É um link discreto, e não um
+         card (decisão do Caio no espanhol): um card que oferece o dinheiro de
+         volta para todas, todo dia, convida reembolso de quem não ia pedir.
+         Quem procura acha aqui, na tela de entrar e no suporte. -->
+    <a href="/en-refund" id="link-reembolso" class="member-help es-link-reembolso">Would you like to request a refund?</a>
+
+    <p class="subtext" id="acceso-hasta" style="text-align:center;"></p>
+    <button class="member-help es-salir" id="salir" type="button">Sign out</button>
+  </div>
+</div>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/oferta.js"></script>
+<script src="/js/en/extras.js"></script>
+<script src="/js/en/app.js"></script>
+<script src="/js/en/inicio.js"></script>
+<script src="/js/en/lucia.js"></script>
+</body>
+</html>

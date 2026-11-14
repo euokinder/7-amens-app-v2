@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Special Message — 7 Amens Before Dawn</title>
+<!-- App em inglês (EUA): a venda de The Four Archangels (os Arcanjos). CÓPIA
+     TRADUZIDA do es-oferta-arcangeles.html (que copia o oferta-arcanjos.html do
+     Brasil: "exatamente igual, só traduzindo"). Só se chega aqui pelo pop-up, pelo
+     card da home ou pelo convite das páginas trancadas. Não aparece no Google.
+     ⏳ EUA: AINDA NÃO VENDE, de propósito:
+       - vídeo: não existe VSL em inglês. O player da VTurb (no espanhol,
+         vid-6ae515a3c7321bec2b3fc67d, da página de 1 clique) e o script dele estão
+         comentados abaixo. A headline em inglês precisa conversar com o VSL em inglês;
+       - checkout: não existe em inglês. As cartas estão SEM href e, sem checkout,
+         o painel das cartas nunca aparece (?previa=1 mostra para conferir a tela,
+         mas a revelação não sai da página). No espanhol era a Digistore24,
+         produto 742832: NÃO usar;
+       - o minuto das cartas (segundosDaCarta, no script do fim): 5:54 era o do VSL
+         em espanhol; medir no VSL em inglês;
+       - preço: "de US$ 69 por US$ 27" no espanhol. Em inglês, "[US$ ?]" nos dois
+         até o Arthur mandar. ⚠️ O "30% off" da headline das cartas precisa bater
+         com os dois preços (no espanhol, 69 → 27 dá 61%, não 30%).
+     A etiqueta (utm_source=app-en, no espanhol app-es) continua sendo guardada e
+     vai colada no link de cada carta quando ele existir. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/oferta.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+<!-- DE ONDE ELA VEIO: a etiqueta do pop-up (utm_*), guardada antes de o player
+     da VTurb carregar e mexer no endereço. Segue até o checkout. -->
+<script>
+window.ETIQUETAS_DE_ORIGEM = (function () {
+  var permitidas = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  var chegaram = new URLSearchParams(location.search);
+  var guardadas = {};
+  permitidas.forEach(function (nome) {
+    var valor = (chegaram.get(nome) || '').trim();
+    if (valor && valor.length <= 80 && /^[A-Za-z0-9._-]+$/.test(valor)) guardadas[nome] = valor;
+  });
+  return guardadas;
+})();
+</script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Checking your access…</p>
+  <noscript><p>Your browser has JavaScript turned off. Please turn it on to open this page.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">Need help? Contact us</a>
+</div>
+
+<div class="app">
+
+  <div class="header">
+    <!-- O X leva direto ao início do app, sem passar pelo histórico. -->
+    <button class="oferta-fechar" type="button" aria-label="Close and go back to the home screen" onclick="location.href='/en'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amens Before Dawn" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <span class="kicker">7 Amens Before Dawn · A special message</span>
+
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <!-- ⏳ EUA: tradução fiel do espanhol e do Brasil. Rever junto com o VSL em
+             inglês: dizer que o Papa pediu é uma afirmação sobre uma pessoa real. -->
+        <h1 class="title oferta-headline">The Pope asked me to share this with you. Please listen:</h1>
+      </div>
+    </div>
+
+    <!-- VÍDEO (VSL). ⏳ EUA: ainda não existe o VSL em inglês. Quando existir,
+         tirar o comentário e trocar ID_DO_VIDEO pelo ID da VTurb (nos dois lugares).
+    <div class="video-wrap-embed">
+      <vturb-smartplayer id="vid-ID_DO_VIDEO" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
+      <div class="corner-mask bl"></div><div class="corner-mask br"></div>
+    </div>
+    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/ID_DO_VIDEO/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+    -->
+
+    <!-- CARTAS: invisíveis até o minuto do pitch no vídeo. "smartplayer-click-event"
+         faz a VTurb contar o toque como "Clique no Botão" (nome exato da
+         documentação dela).
+         ⏳ EUA: as quatro cartas estão SEM href (checkout em inglês ainda não
+         existe). Quando existir, pôr o MESMO link do checkout no href das quatro. -->
+    <div class="cartas-painel esconder">
+      <div class="cartas-headline">Discover your guardian angel and get 30% off now</div>
+
+      <div class="cartas-container" id="cartas-container">
+        <a class="carta smartplayer-click-event" data-carta="1"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 1 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a class="carta smartplayer-click-event" data-carta="2"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 2 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a class="carta smartplayer-click-event" data-carta="3"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 3 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a class="carta smartplayer-click-event" data-carta="4"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 4 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+      </div>
+
+      <div class="revelacao" id="revelacao" style="display:none;" role="status" aria-live="polite" tabindex="-1">
+        <div class="revelacao-anjo"><span aria-hidden="true">✨</span> Saint Michael <span aria-hidden="true">✨</span></div>
+        <div class="revelacao-texto">
+          Your guardian angel is <strong>Saint Michael the Archangel</strong>! Your <strong>30% discount</strong> has already been applied:
+          <br>
+          <!-- O preço riscado e o novo. ⏳ EUA: "[US$ ?]" até o Arthur mandar os
+               preços do inglês (no espanhol, "de US$ 69 por US$ 27"; no Brasil,
+               "de R$ 197 por R$ 137"). Os três pedaços moram dentro de
+               .preco-bloco para o "from ... to" não quebrar longe do valor. -->
+          <span class="preco-bloco">from <span class="preco-de">[US$ ?]</span> to <span class="preco-por">[US$ ?]</span></span>
+        </div>
+        <div class="revelacao-loading">Preparing your protection, please wait a moment…</div>
+      </div>
+
+      <div class="cartas-instrucao" id="cartas-instrucao">
+        Tap one of the cards above to reveal your guardian angel. Right away, he will draw close to you and transform your whole life.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/oferta-pagina.js"></script>
+
+<!-- O RELÓGIO DAS CARTAS e A REVELAÇÃO: cópia do código do Brasil
+     (oferta-arcanjos.html), via es-oferta-arcangeles.html. -->
+<script>
+(() => {
+  'use strict';
+
+  // ⏳ EUA: o checkout em inglês ainda não existe (as cartas estão sem href).
+  // Sem checkout, o painel das cartas nunca aparece (nem pela VTurb nem pela
+  // rede de segurança) e a carta não leva a lugar nenhum. ?previa=1 mostra o
+  // painel para conferir a tela, mas a revelação não sai da página.
+  var primeiraCarta = document.querySelector('.carta');
+  var temCheckout = /^https:\/\//.test((primeiraCarta && primeiraCarta.getAttribute('href')) || '');
+
+  // A etiqueta vai colada no link de cada carta. Sem etiqueta nenhuma (digitou
+  // o endereço), vai "sem-popup" de propósito.
+  var SEM_POPUP = {
+    utm_source: 'app-en',
+    utm_medium: 'direto',
+    utm_campaign: 'arcangeles',
+    utm_content: 'sem-popup'
+  };
+
+  var etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
+  if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.carta'), function (carta) {
+    if (!/^https:\/\//.test(carta.getAttribute('href') || '')) return;
+    var destino;
+    try { destino = new URL(carta.href); } catch (e) { return; }
+    Object.keys(etiquetas).forEach(function (nome) {
+      destino.searchParams.set(nome, etiquetas[nome]);
+    });
+    carta.href = destino.href;
+  });
+
+  // ⏳ EUA: 5:54 era o minuto do VSL em espanhol. Medir no VSL em inglês.
+  var segundosDaCarta = 354;
+
+  var painel = document.querySelector('.cartas-painel');
+  var player = document.querySelector('vturb-smartplayer');
+
+  // ?previa=1 no fim do endereço mostra as cartas na hora (só para conferir).
+  var soParaConferir = new URLSearchParams(location.search).get('previa') === '1';
+
+  function descerAtePainel() {
+    var suave = !window.matchMedia || !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try {
+      painel.scrollIntoView({ block: 'start', behavior: suave ? 'smooth' : 'auto' });
+    } catch (e) {
+      painel.scrollIntoView();
+    }
+    setTimeout(function () {
+      if (painel.getBoundingClientRect().top > window.innerHeight * 0.5) {
+        try { painel.scrollIntoView({ block: 'start', behavior: 'auto' }); }
+        catch (e) { painel.scrollIntoView(); }
+      }
+    }, 1200);
+  }
+
+  function acompanharAparecimento() {
+    var olho = setInterval(function () {
+      if (!painel || painel.offsetHeight === 0) return;
+      clearInterval(olho);
+      descerAtePainel();
+    }, 1000);
+  }
+
+  if (soParaConferir) {
+    painel.classList.remove('esconder');
+  } else if (temCheckout) {
+    acompanharAparecimento();
+
+    // Rede de segurança: se a VTurb não carregar, as cartas aparecem 2 minutos
+    // depois do pitch (tempo de página aberta). Desliga quando o player responde.
+    var redeDeSeguranca = setTimeout(function () {
+      if (painel && painel.offsetHeight === 0) {
+        painel.classList.remove('esconder');
+        painel.classList.add('cartas-aparecem');
+      }
+    }, (segundosDaCarta + 120) * 1000);
+
+    if (player) {
+      player.addEventListener('player:ready', function () {
+        if (typeof player.displayHiddenElements === 'function') {
+          player.displayHiddenElements(segundosDaCarta, ['.esconder'], { persist: true });
+          clearTimeout(redeDeSeguranca);
+        }
+      });
+    }
+  }
+
+  // Tocou na carta: some a fileira, aparece o Arcanjo, e só então ela segue
+  // para o pagamento (5 segundos de leitura, como no Brasil).
+  var segundosDaRevelacao = 5;
+
+  var cartas = document.getElementById('cartas-container');
+  var revelacao = document.getElementById('revelacao');
+  var instrucao = document.getElementById('cartas-instrucao');
+  var indoPagar = false;
+  var partida = null;
+
+  if (cartas && revelacao) {
+    cartas.addEventListener('click', function (evento) {
+      var carta = evento.target.closest('.carta');
+      if (!carta || indoPagar) return;
+      evento.preventDefault();
+      indoPagar = true;
+
+      cartas.style.display = 'none';
+      if (instrucao) instrucao.style.display = 'none';
+      revelacao.style.display = 'block';
+      try { revelacao.focus(); } catch (e) {}
+
+      partida = setTimeout(function () {
+        if (temCheckout) location.href = carta.href; // ⏳ EUA: sem checkout, fica na revelação
+      }, segundosDaRevelacao * 1000);
+    });
+
+    // Voltando do checkout, a página volta congelada: aqui rearma tudo.
+    window.addEventListener('pageshow', function (evento) {
+      if (!evento.persisted) return;
+      clearTimeout(partida);
+      indoPagar = false;
+      revelacao.style.display = 'none';
+      cartas.style.display = '';
+      if (instrucao) instrucao.style.display = '';
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

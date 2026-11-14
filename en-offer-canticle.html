@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angelic Canticle — 7 Amens Before Dawn</title>
+<!-- App em inglês (EUA): a venda do Angelic Canticle (o Cântico Angelical). CÓPIA
+     TRADUZIDA do es-oferta-cantico.html (que copia o oferta-cantico.html do Brasil):
+     headline, VSL e botão no minuto do pitch.
+     ⏳ EUA: AINDA NÃO VENDE, de propósito:
+       - vídeo: não existe VSL em inglês. O player da VTurb (no espanhol,
+         vid-6ae55235a1db2408a3689b3c) e o script dele estão comentados abaixo;
+       - checkout: não existe em inglês (data-link vazio). Sem link, o
+         js/en/oferta-vsl.js deixa o botão escondido e inerte (?previa=1 mostra
+         apagado). No espanhol era a Digistore24, produto 742816: NÃO usar;
+       - data-segundos vazio: o minuto do pitch no VSL em inglês (no espanhol,
+         533 s = 8:53, que não serve);
+       - preço: não aparece nesta página.
+     A etiqueta (utm_*) continua sendo guardada e vai colada no link quando ele
+     existir. Quem faz o trabalho é js/en/oferta-vsl.js. Não aparece no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/oferta.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+<script src="/js/en/oferta-vsl.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Checking your access…</p>
+  <noscript><p>Your browser has JavaScript turned off. Please turn it on to open this page.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">Need help? Contact us</a>
+</div>
+
+<div class="app">
+
+  <div class="header">
+    <!-- O X leva direto ao início, sem passar pelo histórico. -->
+    <button class="oferta-fechar" type="button" aria-label="Close and go back to the home screen" onclick="location.href='/en'">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amens Before Dawn" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <span class="kicker">Angelic Canticle · Your 7-day journey</span>
+
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title oferta-headline">Give God what weighs heaviest on your heart, one day at a time</h1>
+      </div>
+    </div>
+
+    <!-- VÍDEO (VSL). ⏳ EUA: ainda não existe o VSL em inglês. Quando existir,
+         tirar o comentário e trocar ID_DO_VIDEO pelo ID da VTurb (nos dois lugares,
+         aqui e no script do fim da página).
+    <div class="video-wrap-embed">
+      <vturb-smartplayer id="vid-ID_DO_VIDEO" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
+      <div class="corner-mask bl"></div><div class="corner-mask br"></div>
+    </div>
+    -->
+
+    <!-- O BOTÃO DE COMPRA. ⏳ EUA: data-link (o checkout em inglês) e
+         data-segundos (o minuto do pitch no VSL em inglês) ainda vazios: o botão
+         fica escondido até o link existir. -->
+    <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;"
+       data-link=""
+       data-campanha="cantico"
+       data-segundos="">I want the Angelic Canticle</a>
+
+  </div>
+</div>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/oferta-pagina.js"></script>
+<script>OFERTA_VSL.ligar();</script>
+<!-- ⏳ EUA: o script do player da VTurb, desligado junto com o vídeo (acima).
+<script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/ID_DO_VIDEO/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
+-->
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign in — 7 Amens Before Dawn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/lucia.css">
+<link rel="icon" href="/assets/images/icon-32.png">
+</head>
+<body>
+<!-- App em inglês (EUA): a entrada. CÓPIA do es-entrar.html (que é cópia do
+     login.html do Brasil), traduzida. Também recebe o link de entrada
+     (/en-login#CÓDIGO), para quem não consegue digitar o e-mail.
+     Plano e regras: docs/app-en.md
+
+     O RESGATE, para quem não acha o e-mail da compra (o público é idoso;
+     decisão do Caio: nenhuma fica sem saída). Uma pergunta por tela, nada em
+     vermelho, sempre um próximo passo:
+       correo -> nombre -> tarjeta (4 últimos números) -> emergencia
+     A conta mora na en-api; os passos, em js/en/entrar.js.
+
+     Os campos NÃO têm `name`, de propósito: se ela tocar no botão antes de a
+     página terminar de carregar, o navegador envia o formulário sozinho, e
+     com `name` o e-mail (ou os números do cartão) iria parar no endereço da
+     página e nos registros do servidor. Sem `name`, não vai nada. -->
+
+<main class="app member-login es-resgate">
+  <img class="brand" src="/assets/images/icon-180.png" alt="7 Amens Before Dawn" width="88" height="88">
+
+  <!-- 1. O e-mail da compra (como sempre foi). -->
+  <section class="es-paso" data-paso="correo">
+    <h1 tabindex="-1">We're so glad you're here!</h1>
+    <p>Type the email you used for your purchase to open your prayers.</p>
+    <form id="form-entrar" novalidate>
+      <label for="correo">The email you used for your purchase</label>
+      <input id="correo" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="yourname@email.com" required maxlength="254">
+      <button class="member-button" type="submit">Open my prayers</button>
+      <p id="aviso" class="es-aviso" role="alert"></p>
+    </form>
+    <!-- "I don't know which email I used": o padre diz esta frase no vídeo de
+         boas-vindas. Não mudar. -->
+    <button id="boton-ayuda" class="member-button secondary" type="button">I don't know which email I used</button>
+  </section>
+
+  <!-- 2. O nome: o começo da busca pela compra. -->
+  <section class="es-paso" data-paso="nombre" hidden>
+    <p class="es-nota" id="nota-correo" hidden></p>
+    <h1 tabindex="-1">Don't worry, your purchase is safe</h1>
+    <p>Let's find it together. What is your name?</p>
+    <form id="form-nombre" novalidate>
+      <label for="nombre">Your name</label>
+      <input id="nombre" type="text" autocomplete="name" autocapitalize="words" spellcheck="false" maxlength="80" placeholder="Mary Johnson">
+      <button class="member-button" type="submit">Continue</button>
+      <p id="aviso-nombre" class="es-aviso" role="alert"></p>
+    </form>
+    <button class="es-volver" type="button" data-ir="correo">Try a different email</button>
+  </section>
+
+  <!-- 3. O final do cartão. Só os 4 últimos números: a tela não pode parecer
+       pagamento (sem validade, sem código, sem bandeira), e o que ela digita
+       não é gravado. Pedido do Caio: não assustar. -->
+  <section class="es-paso" data-paso="tarjeta" hidden>
+    <h1 tabindex="-1" id="titulo-tarjeta">Let's find your purchase</h1>
+    <p>Look at the card you paid with. We only need the end of the number: the last 4 digits.</p>
+    <form id="form-tarjeta" novalidate autocomplete="off">
+      <div class="es-tarjeta">
+        <label for="digitos">Your card ending in</label>
+        <div class="es-tarjeta-linea">
+          <span class="es-tarjeta-puntos" aria-hidden="true">•••• •••• ••••</span>
+          <input id="digitos" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-describedby="garantia">
+        </div>
+      </div>
+      <p class="es-garantia" id="garantia"><span aria-hidden="true">✓</span><span>We will never ask for your full card number, your PIN, or the code on the back. We won't charge you anything.</span></p>
+      <button class="member-button" type="submit">Find my purchase</button>
+      <p id="aviso-tarjeta" class="es-aviso" role="alert"></p>
+    </form>
+    <button class="member-button es-boton-borde" type="button" data-ir="emergencia">I'd rather not use my card</button>
+  </section>
+
+  <!-- 4. Achou pelo cartão. Mostra o e-mail que ficou na compra (às vezes com
+       o erro: "gmsil.com") e oferece trocar pelo que ela tentou. -->
+  <section class="es-paso" data-paso="encontrada" hidden>
+    <h1 tabindex="-1">We found your purchase!</h1>
+    <p>Your purchase was made with the email<br><strong class="es-correo-guardado" id="correo-guardado"></strong></p>
+    <div class="es-corregir" id="bloque-corregir" hidden>
+      <p>Would you like to sign in with <strong id="correo-sugerido"></strong> from now on?</p>
+      <button class="member-button" type="button" id="boton-corregir">Yes, use this email</button>
+    </div>
+    <button class="member-button" type="button" id="boton-entrar-ya">Open my prayers</button>
+    <p id="aviso-encontrada" class="es-aviso" role="alert"></p>
+  </section>
+
+  <!-- 5. A entrada de emergência: nada achou a compra, e ela entra assim
+       mesmo. A equipe confere no painel (/en-admin). -->
+  <section class="es-paso" data-paso="emergencia" hidden>
+    <h1 tabindex="-1">Come in now and pray in peace</h1>
+    <p>We will confirm your purchase later. You don't need to do anything else.</p>
+    <form id="form-emergencia" novalidate>
+      <label for="nombre-emergencia">Your name</label>
+      <input id="nombre-emergencia" type="text" autocomplete="name" autocapitalize="words" spellcheck="false" maxlength="80" placeholder="Mary Johnson">
+      <label for="contacto">Your email or phone number</label>
+      <input id="contacto" type="text" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" maxlength="120" placeholder="mary@gmail.com">
+      <p class="es-ayuda-campo">We only use it to help you if needed.</p>
+      <button class="member-button" type="submit">Open my prayers</button>
+      <p id="aviso-emergencia" class="es-aviso" role="alert"></p>
+    </form>
+    <button class="es-volver" type="button" data-ir="tarjeta">Go back</button>
+  </section>
+
+  <!-- O suporte, em todos os passos: o WhatsApp primeiro, com a mensagem já
+       escrita com o que ela contou (nome e e-mail tentado); e o e-mail
+       escrito, para quem prefere. Os contatos moram em js/en/config.js.
+       ⏳ EUA: o suporte americano ainda não existe. O bloco nasce escondido
+       (hidden), e o js/en/entrar.js mostra só o que existir no config. Até
+       lá, quem precisa de ajuda tem a Lucy (o botão do chat). -->
+  <div class="es-suporte" id="bloque-suporte" hidden>
+    <p class="es-suporte-titulo">Would you rather talk to a person?</p>
+    <a class="member-button es-boton-whatsapp" id="boton-whatsapp" href="#" target="_blank" rel="noopener" hidden>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      <span>Message us on WhatsApp</span>
+    </a>
+    <p class="es-whatsapp-escrito" id="whatsapp-escrito" hidden></p>
+    <p class="es-correo-escrito es-correo-entrar" id="linha-correo" hidden><span id="correo-rotulo">Or by email:</span><br><strong id="correo-escrito"></strong></p>
+  </div>
+  <a class="member-help" href="/en-refund">Would you like to request a refund?</a>
+</main>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/entrar.js"></script>
+<script src="/js/en/lucia.js"></script>
+</body>
+</html>

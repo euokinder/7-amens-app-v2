@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Seven Prayers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/lucia.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+</head>
+<body>
+<!-- App em inglês (EUA): a lista das 7 madrugadas ("7 mornings"). CÓPIA do
+     es-novena.html, traduzida. A trava (uma por dia) vem do servidor (en-api).
+     Plano e regras: docs/app-en.md -->
+<div id="member-gate" role="status">
+  <p>Checking your access…</p>
+  <noscript><p>JavaScript is turned off in your browser. Please turn it on to open your prayers.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">Need help? Contact us</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='/en'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Back</span>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amens Before Dawn" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="section-heading">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">The Seven Prayers</h1>
+        <p class="subtext">Tap a day to open the full prayer.</p>
+      </div>
+    </div>
+
+    <div id="dias-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+    <!-- ⏳ EUA: o "Bonus material" são dois PDFs, e os PDFs em inglês ainda não
+         existem (os do espanhol não servem). O bloco inteiro fica escondido
+         (`hidden` na caixa de fora: o .card tem display:block e venceria um
+         hidden posto nele mesmo), e os cards estão sem endereço.
+         Quando os PDFs chegarem (/assets/en/pdf/): pôr o href de cada card
+         (com target="_blank" rel="noopener"), tirar o hidden e, no mesmo
+         passo, dar à caixa style="display:flex;flex-direction:column;gap:22px;"
+         (o espaçamento do .content), para o desenho ficar igual ao espanhol.
+         ⚠️ Enquanto estiver escondida, nada de display no style desta caixa:
+         venceria o hidden e o bloco apareceria. -->
+    <div id="material-de-regalo" hidden>
+
+    <h2 class="section-label">Bonus material</h2>
+
+    <a class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(/assets/images/home-pai-nosso.jpg);">
+      <div class="icon-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"/><line x1="6" y1="9" x2="18" y2="9"/></svg>
+      </div>
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--dark-on-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">The Complete Our Father</h3>
+        <p class="card-sub">The whole prayer, to pray whenever you like</p>
+      </div>
+    </a>
+
+    <a class="card static" style="height:280px;background-image:linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%), url(/assets/images/home-manuscrito.jpg);">
+      <div class="icon-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+      </div>
+      <div class="play-btn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--dark-on-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">One Prayer, Two Languages</h3>
+        <p class="card-sub">The Our Father in Aramaic and in English</p>
+      </div>
+    </a>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-scrim" id="confirm-modal">
+  <div class="modal-card">
+    <div class="modal-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+    </div>
+    <div class="modal-heading">
+      <h3>Before you continue, please confirm:</h3>
+    </div>
+    <div class="modal-checklist">
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Have you already prayed the previous prayer?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Are you praying at the right time?</p>
+      </div>
+      <div class="item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+        <p>Are you following all the instructions?</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="confirm-yes" type="button">YES, I'M ALL SET!</button>
+      <button class="modal-btn secondary" id="confirm-no" type="button">NO, I'M NOT SURE HOW TO DO IT</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/oferta.js"></script>
+<script src="/js/en/dias.js"></script>
+<script src="/js/en/app.js"></script>
+<script src="/js/en/novena.js"></script>
+<script src="/js/en/lucia.js"></script>
+</body>
+</html>

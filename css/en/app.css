@@ -1,0 +1,1236 @@
+/* App em inglês (7 Amens Before Dawn): o VISUAL DO APP BRASILEIRO, COPIADO.
+   Cópia do css/es/app.css (que veio de css/styles.css e css/member.css do Brasil,
+   commit c7b12c8). É CÓPIA de propósito, e não um link para os arquivos do Brasil
+   nem do espanhol: assim nenhuma mudança neles mexe no inglês, e vice-versa
+   (docs/app-en.md). Nenhuma página do Brasil nem do espanhol carrega este arquivo. */
+
+:root {
+  --bg: oklch(0.97 0.014 75);
+  --surface-alt: oklch(0.93 0.012 70);
+  --ink: oklch(0.26 0.02 50);
+  --ink-muted: oklch(0.52 0.012 60);
+  --accent: oklch(0.72 0.14 85);
+  --accent-strong: oklch(0.58 0.15 82);
+  --on-accent: oklch(0.99 0 0);
+  --dark-on-accent: oklch(0.22 0.03 55);
+  --hairline: oklch(0 0 0 / 0.08);
+  --card-ink: oklch(0.97 0.01 85);
+  --card-muted: oklch(0.85 0.02 75 / 0.78);
+  --whatsapp: oklch(0.70 0.15 152);
+  --badge-bg: oklch(0.13 0.02 45 / 0.55);
+  --muted-btn-bg: oklch(0.32 0.02 50 / 0.55);
+  --muted-btn-border: oklch(0.60 0.02 60 / 0.35);
+  --muted-btn-ink: oklch(0.78 0.02 70);
+  --locked-badge: oklch(0.42 0.01 60 / 0.7);
+  /* O painel marrom dos cards da home (desenho de 24/09/2026). Um pouco mais
+     claro que o da referência (#322318), a pedido do Caio: no creme da
+     página, o marrom mais escuro parecia preto. */
+  --painel: oklch(0.32 0.036 57);
+  --painel-borda: oklch(0.72 0.14 85 / 0.38);
+  --painel-suave: oklch(0.84 0.025 75);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Manrope', -apple-system, sans-serif;
+  min-height: 100%;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-strong); }
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  flex: 0 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--hairline);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 20;
+}
+
+.back-btn {
+  height: 44px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  color: var(--ink);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--on-accent);
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1 1 auto;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.eyebrow {
+  font-style: italic;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* A SAUDACAO DA HOME -- "Ola Maria, que a paz do Senhor esteja com voce!"
+   Regra propria, e nao a ".eyebrow" acima, porque aquela classe tambem veste
+   o titulo do painel administrativo, que nao deve mudar junto.
+
+   Por que diferente da .eyebrow:
+
+   1. COR. O dourado --accent sobre o creme do fundo da 2,31 de contraste,
+      quando o minimo aceitavel para texto e 4,5. Passava enquanto a linha
+      dizia so "Bem-vindo(a)" e ninguem precisava ler. Agora ela traz o nome
+      da cliente e uma bencao -- e o publico e de senhoras 45+, para quem
+      enxergar e limitacao real, nao preferencia. Este dourado mais fundo
+      da 5,08 e continua dentro da paleta creme + dourado + preto.
+      (Medido no navegador, sobre o fundo real, nao estimado.)
+
+   2. TAMANHO. 14px era etiqueta; agora e uma frase que se le. 16px.
+
+   3. LARGURA. O limite de 30ch faz a frase quebrar sempre em 2 linhas,
+      com nome curto ou comprido. Sem ele, "Ola Ana" cabia em 1 linha e
+      "Ola Conceicao" ia para 2 -- e a home inteira descia um degrau
+      dependendo de quem entrasse. */
+#saudacao {
+  display: block;
+  font-size: 16px;
+  line-height: 1.45;
+  max-width: 30ch;
+  color: oklch(0.52 0.14 82);
+}
+
+h1.title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.subtext {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+.heading-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.section-heading .bar {
+  width: 4px;
+  height: 44px;
+  border-radius: 3px;
+  background: var(--accent-strong);
+  margin-top: 2px;
+  flex: 0 0 auto;
+}
+
+.kicker {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* Cards (Home + Novena) */
+.card {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  opacity: 0.5;
+  transform: scale(0.96);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  transform-origin: center center;
+  display: block;
+  color: inherit;
+  background-size: cover;
+  background-position: center;
+}
+
+.card.static { opacity: 1; transform: scale(1); }
+
+.card.locked {
+  filter: grayscale(35%) brightness(0.9);
+  pointer-events: none;
+}
+
+.icon-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--badge-bg);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.num-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--dark-on-accent);
+}
+
+.card.locked .num-badge {
+  background: var(--locked-badge);
+  color: var(--card-muted);
+}
+
+.pill-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  backdrop-filter: blur(6px);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--card-ink);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* O selo do cartão travado deixou de ser enfeite: com a trava das madrugadas
+   ele diz "Abre amanhã" ou "Em breve", que é a instrução de quando voltar.
+   Quem lê tem 45+ e está no celular, e 11px — o tamanho do selo comum — é
+   pequeno demais para um recado que ela precisa agir em cima.
+   Contraste medido no navegador em 20/09/2026: 7,84:1, folgado para o mínimo
+   de 4,5 do texto pequeno. O que faltava era tamanho, não cor. */
+.card.locked .pill-badge {
+  color: var(--card-muted);
+  font-size: 14px;
+  padding: 7px 14px;
+}
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px -6px rgba(0,0,0,.5);
+}
+
+.card.locked .play-btn {
+  background: var(--locked-badge);
+  box-shadow: none;
+}
+
+.card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20px 18px;
+  background: linear-gradient(to top, oklch(0.06 0.01 40 / 0.97) 0%, oklch(0.06 0.01 40 / 0.86) 45%, oklch(0.06 0.01 40 / 0.15) 85%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-body.row {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--card-ink);
+  text-shadow: 0 1px 3px rgba(0,0,0,.5), 0 2px 10px rgba(0,0,0,.35);
+}
+
+.card.locked .card-title { color: var(--card-muted); }
+
+.card-sub {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: oklch(0.93 0.008 80);
+  text-shadow: 0 1px 4px rgba(0,0,0,.7), 0 1px 2px rgba(0,0,0,.9);
+}
+
+.card.locked .card-sub { color: var(--card-muted); text-shadow: none; }
+
+.cta-btn {
+  margin-top: 6px;
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  background: var(--accent-strong);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 15px;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+}
+
+.cta-btn.muted {
+  background: var(--muted-btn-bg);
+  border: 1px solid var(--muted-btn-border);
+  color: var(--muted-btn-ink);
+  cursor: not-allowed;
+}
+
+.chevron { flex: 0 0 auto; color: var(--card-muted); }
+
+/* HOME — os cards no desenho de 24/09/2026, pedido pelo Caio a partir de uma
+   referência: foto em cima e o texto num painel separado, embaixo, para os
+   conteúdos (.card-produto); card "limpo", sem foto, com um ícone, para os
+   contatos (.card-contato).
+   Classes próprias, e não a .card: aquela nasce apagada (opacity 0.5) para o
+   efeito de foco do js/app.js, que só procura ".card". Estes ficam sempre
+   nítidos.
+   Contraste medido no navegador em 24/09/2026 (o mínimo para texto é 4,5).
+   No painel marrom: título 11,8; descrição 7,9; botões 6,9; selo LIBERADO
+   5,2; selo 🔒 EXTRA 8,8. No WhatsApp, sobre o creme: título 14,4;
+   descrição 8,5. O botão tem texto ESCURO também no verde do WhatsApp:
+   branco sobre esse verde daria 2,5, pouco para quem tem 45+. */
+.heading-home .subtext { font-size: 16px; line-height: 1.45; }
+.heading-home.secao { margin-top: 18px; }
+
+h2.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.card-produto,
+.card-contato {
+  flex: 0 0 auto;
+  position: relative;
+  margin-bottom: 10px;
+  border-radius: 22px;
+  background: var(--painel);
+  border: 1px solid var(--painel-borda);
+  color: var(--card-ink);
+  box-shadow: 0 12px 28px -18px oklch(0.2 0.03 50 / 0.6);
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-produto:hover,
+.card-contato:hover { color: var(--card-ink); }
+.card-produto:active,
+.card-contato:active { transform: scale(0.985); }
+.card-produto:focus-visible,
+.card-contato:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 3px; }
+
+.card-produto { display: block; }
+/* O card da Live do Arcanjo São Rafael nasce escondido e só aparece para
+   quem comprou (js/member.js). Sem esta linha, o display: block acima
+   venceria o atributo hidden e o card apareceria para todas. */
+.card-produto[hidden] { display: none; }
+
+/* A foto arredonda os próprios cantos de cima (22px do card menos 1px de
+   borda), em vez de o card cortar com overflow: hidden, que cortaria
+   também a luz de fundo, mais abaixo. */
+.card-produto-foto {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 21px 21px 0 0;
+  background: oklch(0.2 0.02 55);
+}
+
+.card-produto-texto {
+  padding: 22px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-produto-selo {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: oklch(0.72 0.14 85 / 0.16);
+  /* Dourado mais claro que o --accent: no painel marrom, o --accent ficaria
+     abaixo do mínimo de contraste (3,9). */
+  color: oklch(0.80 0.13 85);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+
+/* "🔒 EXTRA": quem pôs o 🔒 foi o js/member.js, lendo o data-trancado. */
+.card-produto[data-situacao="trancado"] .card-produto-selo {
+  background: oklch(0.97 0.01 85 / 0.10);
+  color: var(--card-ink);
+}
+
+.card-produto-titulo,
+.card-contato-titulo {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--card-ink);
+}
+.card-produto-titulo { font-size: 22px; }
+.card-contato-titulo { font-size: 19px; }
+
+.card-produto-descricao,
+.card-contato-descricao {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--painel-suave);
+}
+
+.card-produto-botao,
+.card-contato-botao {
+  margin-top: 6px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--dark-on-accent);
+  font-size: 17px;
+  font-weight: 700;
+}
+.card-produto-botao { padding: 0 22px 0 26px; }
+.card-contato-botao { align-self: stretch; padding: 0 20px; }
+
+.card-contato {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px 22px;
+}
+
+.card-contato-icone {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 4px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--dark-on-accent);
+}
+
+/* O Grupo no WhatsApp não tem painel (pedido do Caio, 24/09/2026): o creme
+   da página aparece por trás, as letras são escuras, e a borda, o ícone e o
+   botão são verdes. A borda usa um verde mais fundo que o do botão, para
+   aparecer no creme (3,1:1; o verde do botão daria 2,3). */
+.card-contato.whatsapp {
+  background: transparent;
+  border: 1.5px solid oklch(0.62 0.15 152);
+  box-shadow: none;
+}
+.card-contato.whatsapp .card-contato-titulo { color: var(--ink); }
+.card-contato.whatsapp .card-contato-descricao { color: oklch(0.40 0.015 55); }
+.card-contato.whatsapp .card-contato-icone { background: var(--whatsapp); color: oklch(0.99 0 0); }
+.card-contato.whatsapp .card-contato-botao { background: var(--whatsapp); }
+
+/* A LUZ DE FUNDO (pedido do Caio, 24/09/2026): o card que ela está olhando
+   ganha um brilho esfumaçado em volta, dourado (verde, no WhatsApp). Um card
+   aceso por vez: rolando a tela, o mais perto do meio; com o mouse, o que
+   está debaixo dele. Quem escolhe o card é o js/app.js
+   (initDestaqueDosCards), com a classe .em-destaque.
+   A luz é a sombra de um ::before atrás do card, e só a opacidade e o
+   tamanho animam: o celular não redesenha a sombra a cada quadro.
+   ⚠️ Duas peças seguram isto: o card não tem overflow: hidden (cortaria a
+   luz) e o .content da home isola as camadas (sem isso, a luz ficaria
+   escondida atrás do creme da página). */
+.content.home { isolation: isolate; }
+
+.card-produto::before,
+.card-contato::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow:
+    0 0 22px 2px oklch(0.78 0.15 80 / 0.55),
+    -18px -14px 56px 6px oklch(0.84 0.13 88 / 0.45),
+    18px 20px 64px 8px oklch(0.70 0.16 65 / 0.40);
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+.card-contato.whatsapp::before {
+  box-shadow:
+    0 0 22px 2px oklch(0.72 0.16 152 / 0.50),
+    -18px -14px 56px 6px oklch(0.80 0.13 150 / 0.40),
+    18px 20px 64px 8px oklch(0.64 0.15 160 / 0.35);
+}
+.card-produto.em-destaque::before,
+.card-contato.em-destaque::before,
+.card-produto:focus-visible::before,
+.card-contato:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-produto::before,
+  .card-contato::before { transition: none; }
+}
+
+.section-label {
+  margin: 8px 0 -6px;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+/* Day detail page */
+.video-wrap {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+  flex: 0 0 auto;
+  background-image: radial-gradient(120% 100% at 50% 30%, oklch(0.40 0.10 50) 0%, oklch(0.19 0.04 42) 55%, oklch(0.11 0.02 30) 100%);
+}
+
+.video-wrap-embed {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  clip-path: inset(0 round 24px);
+  contain: paint;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* O player externo às vezes desenha os controles numa camada que ignora
+   o recorte acima (comum em players com vídeo acelerado por hardware).
+   Como reforço, pintamos por cima 4 cantos curvos da cor do fundo do
+   app, disfarçando qualquer canto quadrado que escape do recorte. */
+.video-wrap-embed .corner-mask {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.video-wrap-embed .corner-mask.tl {
+  top: 0;
+  left: 0;
+  background: radial-gradient(circle at 24px 24px, transparent 24px, var(--bg) 24.5px);
+}
+
+.video-wrap-embed .corner-mask.tr {
+  top: 0;
+  right: 0;
+  background: radial-gradient(circle at 0 24px, transparent 24px, var(--bg) 24.5px);
+}
+
+.video-wrap-embed .corner-mask.bl {
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at 24px 0, transparent 24px, var(--bg) 24.5px);
+}
+
+.video-wrap-embed .corner-mask.br {
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(circle at 0 0, transparent 24px, var(--bg) 24.5px);
+}
+
+.video-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.audio-card {
+  border-radius: 18px;
+  background: var(--surface-alt);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audio-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.audio-card-label svg { color: var(--accent-strong); flex: 0 0 auto; }
+
+.audio-card audio { display: none; }
+
+/* O TOCADOR (js/tocador.js, 24/09/2026): a barra em cima e, embaixo, os
+   botões — recomeçar, voltar 10 s, tocar/pausar, avançar 10 s e a
+   velocidade (1x, 1,5x, 2x, como no áudio do WhatsApp). Botões de 48px, o
+   mínimo para o dedo acertar sem errar; o de tocar, maior, no meio. */
+.audio-botoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.audio-botao {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.audio-botao:active { background: oklch(0 0 0 / 0.07); }
+
+.audio-velocidade {
+  width: auto;
+  min-width: 58px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--muted-btn-border);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.audio-botao:focus-visible,
+.audio-play-btn:focus-visible,
+.audio-progress-track:focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.audio-play-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-accent);
+  flex: 0 0 auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.audio-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.audio-progress-track {
+  position: relative;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--muted-btn-border);
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* A área de toque da barra é bem mais alta que a barra desenhada: o dedo
+   acerta a barra de 8px mesmo tocando um pouco acima ou abaixo dela. */
+.audio-progress-track::before {
+  content: '';
+  position: absolute;
+  inset: -16px 0;
+}
+
+.audio-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  width: 0%;
+  pointer-events: none;
+}
+
+.audio-progress-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0,0,0,.35);
+  pointer-events: none;
+}
+
+.audio-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.material-btn {
+  align-self: center;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  color: var(--ink);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.material-btn.lg {
+  height: 56px;
+  padding: 0 24px;
+  font-size: 16px;
+  gap: 10px;
+}
+
+.material-btn.lg svg {
+  width: 21px;
+  height: 21px;
+}
+
+.prayer-card {
+  border-radius: 18px;
+  background: var(--surface-alt);
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.prayer-card p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.prayer-card p.opening {
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.prayer-card p.closing {
+  font-weight: 700;
+  text-align: center;
+}
+
+.banner {
+  border-radius: 16px;
+  background: oklch(0.22 0.02 50);
+  padding: 16px 20px;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.banner span {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: .03em;
+  color: var(--card-ink);
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.declaration-card {
+  border-radius: 18px;
+  background: oklch(0.22 0.02 50);
+  padding: 26px 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.declaration-card p {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--card-ink);
+  line-height: 1.45;
+}
+
+.material-input {
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--muted-btn-border);
+  background: var(--bg);
+  padding: 0 16px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.material-input:focus {
+  outline: none;
+  border-color: var(--accent-strong);
+}
+
+/* Confirmation modal */
+.modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: oklch(0.10 0.01 40 / 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+
+.modal-scrim.open { display: flex; }
+
+/* Painel de tela cheia (material de apoio, etc.) — mesma base do
+   modal-scrim, mas sem o padding/centralização do card pequeno. */
+.modal-scrim.sheet { padding: 0; }
+
+.material-sheet {
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.material-sheet-header {
+  flex: 0 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--bg);
+}
+
+.material-sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.material-sheet-body > * { flex: 0 0 auto; }
+
+.modal-card {
+  width: 100%;
+  max-width: 340px;
+  border-radius: 26px;
+  background: var(--bg);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,.45);
+}
+
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-on-accent);
+  flex: 0 0 auto;
+}
+
+.modal-heading {
+  text-align: center;
+}
+
+.modal-heading h3 {
+  margin: 0;
+  font-weight: 800;
+  font-size: 19px;
+  color: var(--ink);
+}
+
+.modal-checklist {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-checklist .item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.modal-checklist svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--accent-strong);
+}
+
+.modal-checklist p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.modal-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-btn {
+  height: 52px;
+  border-radius: 14px;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  width: 100%;
+}
+
+.modal-btn.primary {
+  background: var(--accent-strong);
+  color: var(--on-accent);
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.modal-btn.secondary {
+  background: transparent;
+  border: 1px solid var(--muted-btn-border);
+  color: var(--ink-muted);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* Botão flutuante "voltar ao topo" */
+.back-to-top {
+  position: fixed;
+  right: max(20px, calc(50% - 240px + 20px));
+  bottom: 24px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  color: var(--on-accent);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px -8px rgba(0,0,0,.45);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 50;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* O destaque da home nasce invisível e só aparece quando o js/banner.js
+   monta pelo menos um banner de verdade, vindo do painel — é ele que põe
+   o data-pronto. Enquanto não houver banner cadastrado, a home não tem
+   esta seção: nem buraco, nem imagem de reserva que ninguém escolheu.
+
+   Isto também é a rede contra o JS não carregar. Sem a regra, a seção
+   ficaria na tela com as setas e os pontinhos sem função nenhuma. */
+.destaque:not([data-pronto]) { display: none; }
+
+
+/* ===================== do css/member.css ===================== */
+html.member-checking body > :not(#member-gate):not(script) { display: none !important; }
+#member-gate { max-width: 440px; margin: 20vh auto 0; padding: 28px; text-align: center; font-size: 18px; line-height: 1.6; }
+#member-gate p { margin: 0 0 14px; }
+/* Enquanto tudo vai bem, o portão some em um segundo e ninguém repara neste
+   link. Quando algo trava, ele é a única saída que a cliente tem. */
+.member-gate-help { display: inline-block; margin-top: 10px; color: var(--accent-strong); font-weight: 700; }
+#member-gate .member-button { margin: 6px auto 0; }
+.member-login { justify-content: center; padding: 36px 24px; gap: 24px; }
+.member-login .brand { width: 88px; height: 88px; border-radius: 24px; margin: 0 auto; }
+.member-login h1 { font-size: 30px; margin: 0; text-align: center; }
+.member-login p { line-height: 1.7; font-size: 17px; margin: 0; }
+.member-login form { display: flex; flex-direction: column; gap: 14px; }
+.member-login label { font-weight: 800; font-size: 17px; }
+.member-login input { width: 100%; min-height: 58px; padding: 16px; border: 1px solid #a39784; border-radius: 12px; font: inherit; font-size: 18px; background: white; }
+.member-button { min-height: 54px; padding: 14px 18px; border: 0; border-radius: 12px; background: var(--accent); color: var(--dark-on-accent); font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; }
+.member-button:disabled { opacity: .65; cursor: wait; }
+.member-button.secondary { background: var(--surface-alt); }
+.member-error { color: #922a20; min-height: 24px; font-size: 16px; line-height: 1.6; }
+.member-help { color: var(--ink); text-decoration: underline; text-align: center; font-size: 16px; padding: 12px; }
+/* O e-mail do suporte escrito (08/11/2026): para quem toca no botão e o
+   celular não abre app de e-mail nenhum. Na tela de entrar, um toque
+   seleciona o endereço inteiro, para copiar. */
+.es-correo-escrito strong { font-weight: 800; overflow-wrap: anywhere; }
+.es-correo-entrar { margin: 0; text-align: center; font-size: 17px; line-height: 1.6; color: var(--ink); }
+.es-correo-entrar strong { -webkit-user-select: all; user-select: all; font-size: 18px; }
+/* O pedido de reembolso (en-refund.html, 08/11/2026). */
+.es-pasos { margin: 0; padding-left: 26px; display: flex; flex-direction: column; gap: 12px; font-size: 17px; line-height: 1.6; }
+.es-aviso-reembolso { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 14px; background: var(--surface-alt); }
+.es-aviso-reembolso p { font-size: 16px; line-height: 1.6; }
+/* O link para o reembolso no início (/en), embaixo do "Contact us". */
+.es-link-reembolso { display: block; margin: 4px auto 0; font-size: 17px; }
+.member-sync { color: var(--ink-muted); font-size: 15px; line-height: 1.5; }
+.member-logout { width: 100%; }
+.member-progress { display: flex; flex-direction: column; gap: 10px; padding: 20px 0; }
+.member-progress p { margin: 0; line-height: 1.6; font-size: 16px; }
+.member-done { position: absolute; right: 14px; top: 14px; z-index: 2; background: #e5f4df; color: #214a24; border-radius: 99px; padding: 8px 12px; font-weight: 800; font-size: 14px; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #76531b; outline-offset: 4px; }
+
+/* ===================== só do app em espanhol/inglês ===================== */
+/* "Salir", discreto no fim do início (no Brasil a saída mora no menu do avatar). */
+.es-salir { display: block; margin: 8px auto 0; background: none; border: 0; font: inherit; }
+/* O pedido do dia fica só no celular dela, como no Brasil. */
+.es-pedido { display: flex; flex-direction: column; gap: 8px; }
+/* Aviso que não é erro ("Entrando con tu enlace…"). */
+.member-error.es-info { color: var(--ink-muted); }
+/* O botão "Concluí" e o "Ir a la Primera Madrugada" ocupam a largura toda. */
+.member-progress .member-button { width: 100%; }
+
+/* O RESGATE na entrada (/en-login, 10/11/2026): para quem não acha o e-mail
+   da compra. Uma pergunta por tela, nada em vermelho, sempre um próximo passo.
+   O passo do cartão não pode parecer tela de pagamento (pedido do Caio). */
+.es-paso { display: flex; flex-direction: column; gap: 18px; }
+.es-paso[hidden] { display: none; }
+.es-paso h1:focus { outline: none; }
+.member-login .es-aviso { min-height: 0; font-size: 17px; line-height: 1.6; font-weight: 700; color: var(--ink); }
+.member-login .es-nota { padding: 12px 16px; border-radius: 12px; background: var(--surface-alt); text-align: center; font-size: 16px; line-height: 1.55; overflow-wrap: anywhere; }
+.es-volver { align-self: center; padding: 12px; border: 0; background: none; color: var(--ink); font: inherit; font-size: 17px; text-decoration: underline; cursor: pointer; }
+.es-tarjeta { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: oklch(0.91 0.04 85); }
+.member-login .es-tarjeta label { font-size: 16px; font-weight: 700; color: oklch(0.36 0.04 60); }
+.es-tarjeta-linea { display: flex; align-items: center; gap: 10px; }
+.es-tarjeta-puntos { flex: none; font-size: 24px; color: oklch(0.45 0.03 60); white-space: nowrap; }
+.member-login .es-tarjeta input { flex: 1; min-width: 0; width: auto; padding: 10px 6px; text-align: center; font-size: 26px; font-weight: 800; letter-spacing: 6px; border: 2px solid var(--accent-strong); }
+.member-login .es-garantia { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid oklch(0.82 0.05 80); border-radius: 12px; background: white; font-size: 16px; line-height: 1.55; }
+.es-garantia > span:first-child { flex: none; color: #2f6b12; font-weight: 800; }
+.member-button.es-boton-borde { background: transparent; border: 2px solid var(--ink); color: var(--ink); }
+.member-login .es-ayuda-campo { margin-top: -6px; font-size: 15px; line-height: 1.5; color: var(--ink-muted); }
+.es-correo-guardado { display: inline-block; margin-top: 4px; font-size: 19px; overflow-wrap: anywhere; }
+.es-corregir { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 14px; background: var(--surface-alt); }
+.es-corregir p { overflow-wrap: anywhere; }
+/* O WhatsApp de suporte na entrada (10/11/2026): verde só na borda e no
+   ícone, como o cartão do grupo no início do Brasil. */
+.es-suporte { display: flex; flex-direction: column; gap: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); }
+.member-login .es-suporte-titulo { text-align: center; font-weight: 700; }
+.member-button.es-boton-whatsapp { display: flex; align-items: center; justify-content: center; gap: 10px; background: transparent; border: 2px solid var(--whatsapp); color: var(--ink); text-decoration: none; }
+.es-boton-whatsapp svg { flex: none; color: oklch(0.52 0.14 152); }
+.member-login .es-whatsapp-escrito { margin-top: -4px; text-align: center; font-size: 16px; color: var(--ink-muted); }
+/* Celular estreito (320 a 360 px): os pontos e os números cabem na linha. */
+@media (max-width: 360px) {
+  .es-tarjeta-puntos { font-size: 18px; }
+  .member-login .es-tarjeta input { font-size: 22px; letter-spacing: 3px; }
+}
+/* ⏳ EUA: o suporte americano (e-mail e WhatsApp) ainda não existe. O que
+   depende dele nasce com o atributo hidden e o JS mostra quando houver o
+   contato em js/en/config.js. Sem estas linhas, o display das regras acima
+   venceria o hidden e o link quebrado apareceria. */
+.card-contato[hidden],
+.member-gate-help[hidden],
+.es-suporte[hidden],
+.member-button.es-boton-whatsapp[hidden] { display: none; }
+
+/* O pop-up de oferta (07/11/2026): CÓPIA do bloco .member-offer-* do
+   css/member.css do Brasil, o mesmo desenho. Quem desenha é o js/en/oferta.js. */
+.member-offer-dialog {
+  width: min(430px, calc(100% - 32px));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  background: linear-gradient(160deg, #fffaf1 0%, var(--bg) 58%, #f4ead9 100%);
+  color: var(--ink);
+  box-shadow: 0 28px 80px oklch(0.16 0.04 55 / 0.36);
+  /* Rolagem lateral nunca; a vertical continua quando a copy for longa. */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.member-offer-dialog::backdrop { background: oklch(0.16 0.04 55 / 0.62); backdrop-filter: blur(4px); }
+.member-offer-sheet { display: flex; flex-direction: column; gap: 18px; padding: 30px 26px 24px; text-align: center; }
+.member-offer-eyebrow { display: flex; flex-direction: column; gap: 8px; color: var(--accent-strong); font-size: 13px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+/* Chamada de alerta: em vermelho, maior e sem caixa alta, para ler como aviso
+   e não como rótulo de seção. */
+.member-offer-alert {
+  align-self: center; padding: 7px 14px; border-radius: 99px;
+  background: oklch(0.58 0.2 27 / 0.12); color: oklch(0.47 0.2 27);
+  font-size: 15px; letter-spacing: 0; text-transform: none;
+}
+.member-offer-sheet h2 { margin: 0; font-size: 27px; line-height: 1.18; }
+.member-offer-copy { display: flex; flex-direction: column; gap: 14px; margin: 0; }
+.member-offer-copy p { margin: 0; color: var(--ink-muted); font-size: 17px; line-height: 1.6; }
+/* A última frase é a que conduz ao clique, então ganha peso e cor plena. */
+.member-offer-copy .member-offer-lead { color: var(--ink); font-size: 18px; font-weight: 700; }
+.member-offer-cta {
+  width: 100%; margin-top: 6px; min-height: 60px; font-size: 18px;
+  animation: member-offer-pulse 2.2s ease-in-out infinite;
+}
+/* Todo o destaque vem de box-shadow: sombra não ocupa espaço no layout, então
+   o brilho nunca empurra a largura nem cria rolagem lateral no pop-up. */
+@keyframes member-offer-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.66 0.17 80 / 0.7),
+                0 0 18px 2px oklch(0.74 0.18 80 / 0.35),
+                0 6px 18px oklch(0.25 0.03 55 / 0.2);
+  }
+  55% {
+    box-shadow: 0 0 0 16px oklch(0.66 0.17 80 / 0),
+                0 0 36px 10px oklch(0.74 0.18 80 / 0.75),
+                0 14px 32px oklch(0.25 0.03 55 / 0.3);
+  }
+}
+.member-offer-dismiss { align-self: center; min-height: 44px; padding: 8px 18px; border: 0; background: transparent; color: var(--ink-muted); font: inherit; font-size: 15px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+@media (max-width: 520px) {
+  .member-offer-dialog { width: calc(100% - 24px); margin: auto; }
+  .member-offer-sheet { padding: 26px 22px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .member-offer-cta { animation: none; box-shadow: 0 0 28px 6px oklch(0.74 0.18 80 / 0.6), 0 8px 22px oklch(0.25 0.03 55 / 0.22); }
+}
+
+/* Os extras dentro do app (07/11/2026): enquanto a voz de uma oração não
+   chega, o quadro do tocador mostra este aviso no lugar dos botões. */
+.audio-card-aviso { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-muted); }
+.audio-card .material-btn {
+  align-self: stretch; justify-content: center; height: 54px; font-size: 16px;
+  background: var(--bg); border: 1px solid var(--hairline); text-decoration: none;
+}

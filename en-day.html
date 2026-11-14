@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>7 Amens Before Dawn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/lucia.css">
+<link rel="stylesheet" href="/css/en/oferta-dia.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+</head>
+<body>
+<!-- App em inglês (EUA): um dia da jornada (/en-day?dia=0 a 7). CÓPIA do
+     es-dia.html, traduzida. No topo, o vídeo do dia (js/en/video.js; dia sem
+     vídeo fica com a foto). Embaixo, a oração completa (os blocos do
+     "Material de Apoio" brasileiro), com o texto de js/en/dias.js (traduzido
+     à mão, com as palavras dos roteiros dos vídeos em inglês).
+     ⏳ EUA: ainda não há vídeo em inglês. O js/en/oferta-dia.js continua
+     carregado, mas parado: sem o player da VTurb na tela, os Dias 3 e 7 não
+     mostram oferta e têm o "I prayed this prayer" como os outros.
+     Plano e regras: docs/app-en.md -->
+<div id="member-gate" role="status">
+  <p>Checking your access…</p>
+  <noscript><p>JavaScript is turned off in your browser. Please turn it on to open your prayers.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#">Need help? Contact us</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='/en-journey'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Back</span>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amens Before Dawn" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Loading...</p>
+  </div>
+
+</div>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/oferta.js"></script>
+<script src="/js/en/dias.js"></script>
+<script src="/js/en/video.js"></script>
+<script src="/js/en/oferta-dia.js"></script>
+<script src="/js/en/app.js"></script>
+<script src="/js/en/dia.js"></script>
+<script src="/js/en/lucia.js"></script>
+</body>
+</html>

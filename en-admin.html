@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>US Panel — 7 Amens Before Dawn</title>
+<!-- O painel do app em inglês. CÓPIA do es-admin.html (que é cópia do
+     admin.html do Brasil), com os dados dos EUA: lê e grava só tabelas en_,
+     pela en-api (ações admin_*). Só entra quem está em en_admins. O painel do
+     Brasil e o do espanhol não são tocados. Em inglês, a pedido do Arthur
+     (tudo do app dos EUA em inglês). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/en/app.css">
+<link rel="stylesheet" href="/css/en/admin.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Checking your access…</p>
+  <noscript><p>JavaScript is turned off. Turn it on to open the panel.</p></noscript>
+</div>
+<main class="app admin-app">
+  <header class="header">
+    <a class="back-btn" href="/en" aria-label="Back to the app home">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Home
+    </a>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amens Before Dawn" width="44" height="44"></div>
+  </header>
+
+  <div class="admin-content">
+    <div class="admin-title-row">
+      <div>
+        <span class="eyebrow">Admin view · US</span>
+        <h1>English app panel</h1>
+        <p>Customers, purchases, and pop-ups for 7 Amens Before Dawn.</p>
+      </div>
+      <button class="admin-refresh" id="admin-refresh" type="button" aria-label="Refresh panel">↻</button>
+    </div>
+
+    <div class="admin-status" id="admin-status" role="status">Loading…</div>
+
+    <section class="admin-dashboard" id="admin-dashboard" hidden>
+      <section class="admin-section">
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Customer base</span><h2>Who bought what</h2></div>
+        </div>
+        <div class="admin-analise" id="admin-analise"></div>
+      </section>
+
+      <div class="admin-kpis" aria-label="App usage">
+        <article class="admin-kpi"><span>Customers</span><strong id="kpi-customers">0</strong><small>registered</small></article>
+        <article class="admin-kpi"><span>With access</span><strong id="kpi-active">0</strong><small>active now</small></article>
+        <article class="admin-kpi"><span>Signed in</span><strong id="kpi-entered">0</strong><small>to the app</small></article>
+        <article class="admin-kpi"><span>Prayers</span><strong id="kpi-prayers">0</strong><small>marked as prayed</small></article>
+      </div>
+
+      <section class="admin-section">
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Inside the app</span><h2>Offer pop-ups</h2></div>
+          <span class="admin-count" id="campaign-count">0</span>
+        </div>
+        <div class="admin-campaigns" id="admin-campaigns"></div>
+      </section>
+
+      <section class="admin-section">
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Operations</span><h2>Grant access manually</h2></div>
+        </div>
+        <form class="admin-form" id="grant-form">
+          <label for="grant-email">Customer email</label>
+          <input id="grant-email" type="email" required placeholder="email@example.com" autocomplete="off">
+          <button type="submit">Grant access</button>
+          <p class="admin-form-hint">Opens the English app for 12 months, just like a purchase. Use it for someone who bought and couldn't get in on her own, or as a courtesy. If the email doesn't exist yet, the customer is created.</p>
+          <p class="admin-form-status" id="grant-status" role="status" hidden></p>
+        </form>
+      </section>
+
+      <!-- O resgate na entrada: quem não achava o e-mail da compra. Some
+           sozinha se o banco ainda não tiver 09-resgate.sql. -->
+      <section class="admin-section" id="secao-resgates" hidden>
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Sign-in</span><h2>Couldn't find their email</h2></div>
+          <span class="admin-count" id="resgate-count">0</span>
+        </div>
+        <!-- ⏳ EUA: dizer o nome da plataforma de checkout americana quando
+             existir (no espanhol: "na KashPay ou na Whop"). -->
+        <p class="admin-form-hint">People who came in through the emergency sign-in are waiting for the team. Find her purchase in the checkout platform by name and contact. If she bought an extra, unlock it on her profile. Then tap “Mark as resolved”.</p>
+        <div class="admin-filter-chips" id="filtro-resgates"></div>
+        <div class="admin-resgates" id="admin-resgates"></div>
+      </section>
+
+      <section class="admin-section">
+        <div class="admin-section-heading">
+          <div><span class="admin-kicker">Audience</span><h2>Customers</h2></div>
+          <span class="admin-count" id="customer-count">0</span>
+        </div>
+        <input class="admin-search" id="customer-search" type="search" placeholder="Search by name or email…" autocomplete="off" aria-label="Search customers">
+        <div class="admin-filters" id="admin-filters">
+          <div class="admin-filter-group"><span class="admin-filter-label">Bought</span><div class="admin-filter-chips" id="filter-produto"></div></div>
+          <div class="admin-filter-group"><span class="admin-filter-label">Days in the app</span><div class="admin-filter-chips" id="filter-dias"></div></div>
+          <div class="admin-filter-group"><span class="admin-filter-label">Prayers prayed</span><div class="admin-filter-chips" id="filter-oracoes"></div></div>
+          <button class="admin-filter-clear" id="filter-clear" type="button" hidden>Clear filters</button>
+        </div>
+        <div class="admin-customers" id="admin-customers"></div>
+      </section>
+    </section>
+  </div>
+</main>
+
+<dialog class="admin-detail" id="customer-detail" aria-label="Customer details">
+  <div class="admin-detail-head">
+    <div>
+      <h2 id="detail-name">Customer</h2>
+      <p id="detail-email"></p>
+    </div>
+    <button type="button" id="detail-close" aria-label="Close">✕</button>
+  </div>
+  <div class="admin-detail-body" id="detail-body"></div>
+</dialog>
+
+<script src="/js/en/config.js"></script>
+<script src="/js/en/sesion.js"></script>
+<script src="/js/en/admin.js"></script>
+</body>
+</html>
