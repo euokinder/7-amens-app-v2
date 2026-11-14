@@ -33,7 +33,8 @@ const alvo = resolve(aqui, 'index.ts');
 const ENV = { SUPABASE_URL: 'https://lbaudlocfbjunnaoyrtz.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'chave-falsa' };
 const chat = await carregarFuncao(alvo, { ...ENV, EN_ANTHROPIC_API_KEY: 'sk-falsa' });
 const chatSemChave = await carregarFuncao(alvo, ENV);
-// Só com a chave da LATAM (ANTHROPIC_API_KEY): o app em inglês não usa a dela.
+// Só com a chave da Lucía (ANTHROPIC_API_KEY): desde 14/11/2026 o inglês usa a mesma
+// (decisão do Arthur), e EN_ANTHROPIC_API_KEY, se existir, vem primeiro.
 const chatComChaveDaLatam = await carregarFuncao(alvo, { ...ENV, ANTHROPIC_API_KEY: 'sk-da-latam' });
 
 // Um serviço de e-mail de mentira (o Postmark), por cima do banco de mentira:
@@ -132,7 +133,7 @@ await cenario('2. O interruptor', async () => {
   banco.en_chat_config = [];
   preparar();
   confere('sem a chave da Anthropic: desligado', (await falar('hola', { funcao: chatSemChave })).corpo.desligado === true);
-  confere('só com a chave da LATAM (ANTHROPIC_API_KEY): desligado (o inglês usa EN_ANTHROPIC_API_KEY)', (await falar('hola', { funcao: chatComChaveDaLatam })).corpo.desligado === true);
+  confere('só com a chave da Lucía (ANTHROPIC_API_KEY): a Lucy responde (mesma chave)', (await falar('hello', { funcao: chatComChaveDaLatam })).corpo.desligado !== true);
 
   banco.en_chat_config = [];
   forcarFalha({ quando: ({ tabela }) => tabela === 'en_chat_config', status: 404 });
@@ -176,7 +177,7 @@ await cenario('4. Dentro do app (com sessão): o retrato dela', async () => {
   confere('Sonnet: com a troca automática se o filtro recusar', pedido.fallbacks === 'default' && pedido.betas.includes('server-side-fallback-2026-07-01'));
   confere('esforço baixo (resposta curta e barata)', pedido.output_config.effort === 'low');
   confere('a ferramenta da equipe é oferecida', pedido.tools.length === 1 && pedido.tools[0].name === 'hand_to_team');
-  confere('a ferramenta e os motivos em inglês', JSON.stringify(pedido.tools[0].input_schema.properties.reason.enum) === '["access","billing","refund","gifts","other"]'
+  confere('a ferramenta e os motivos em inglês', JSON.stringify(pedido.tools[0].input_schema.properties.reason.enum) === '["access","billing","refund","gifts","crisis","other"]'
     && semEspanhol(JSON.stringify(pedido.tools[0])));
   const conversa = banco.en_chat_conversas[0];
   confere('a conversa é dela', conversa.customer_id === 'c1' && conversa.pagina === 'app');
@@ -374,7 +375,8 @@ await cenario('15. As regras da Lucy: inglês, o produto e TODAS as regras de se
     ['her life matters', 'perigo: acolhe primeiro'],
     ['do NOT talk about timeframes, 24 hours or buttons', 'perigo: sem prazos nem botões'],
   ]) confere(`regra: ${rotulo}`, regras.includes(trecho), trecho);
-  confere('a Lucía do espanhol não aparece', !/Luc[ií]a|Amenes|Madrugada/.test(regras));
+  // O nome do produto em espanhol só aparece na regra do idioma (desde 14/11/2026), para mandar quem escreve em espanhol ao app dela.
+  confere('a Lucía do espanhol não aparece', !/Luc[ií]a|Padre Santiago/.test(regras) && (regras.match(/Amenes/g) || []).length === 1);
 });
 
 fechar();

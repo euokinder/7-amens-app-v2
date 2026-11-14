@@ -9,8 +9,10 @@
   const TESTE = 'https://wyiqwsgfictcfkytldnu.supabase.co/functions/v1/en-api';
   const noComputador = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-  // ⏳ EUA: o suporte americano (e-mail e WhatsApp) ainda não existe; o Arthur
-  // manda depois. ESTE É O ÚNICO LUGAR onde os contatos moram: as telas leem
+  // ⏳ EUA: PROVISÓRIO (Arthur, 14/11/2026): enquanto o suporte americano não
+  // existe, o inglês usa o e-mail e o WhatsApp da LATAM (os mesmos de
+  // js/es/config.js). Quando o Arthur mandar os contatos dos EUA, trocar aqui.
+  // ESTE É O ÚNICO LUGAR onde os contatos moram: as telas leem
   // daqui (o card "Contact us" e o do WhatsApp no início, a entrada, o
   // reembolso e a Lucy). Enquanto estiverem vazios:
   //   - o card "Contact us" do início continua na tela e abre a Lucy (o chat);
@@ -19,9 +21,9 @@
   //     de ajuda do portão ("Need help?") ficam escondidos, em vez de abrir um
   //     link quebrado.
   // Preencher é só escrever aqui (1 build). Cada contato aparece sozinho.
-  const CORREO = '';            // ⏳ EUA: o e-mail do suporte (ex.: 'support@exemplo.com')
-  const WHATSAPP_ESCRITO = '';  // ⏳ EUA: o número como ela lê (ex.: '+1 (555) 123-4567')
-  const WHATSAPP_NUMERO = '';   // ⏳ EUA: só os dígitos, com o país (EUA = 1; ex.: '15551234567')
+  const CORREO = 'soporte@pkscale.com';         // ⏳ EUA: provisório, o da LATAM
+  const WHATSAPP_ESCRITO = '+55 88 99443-2257';  // ⏳ EUA: provisório, o da LATAM
+  const WHATSAPP_NUMERO = '5588994432257';       // ⏳ EUA: provisório, o da LATAM (só os dígitos, com o país)
 
   const whatsapp = texto => (WHATSAPP_NUMERO
     ? `https://wa.me/${WHATSAPP_NUMERO}${texto ? `?text=${encodeURIComponent(texto)}` : ''}`

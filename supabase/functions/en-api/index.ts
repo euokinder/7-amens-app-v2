@@ -184,7 +184,7 @@ const asUsDate = (iso: string, zone: string) =>
 // ⏳ EUA: o e-mail do suporte americano (o Arthur manda depois; WhatsApp
 // também não há ainda). Vazio, as mensagens dizem só "contact our team", sem
 // canal. Preenchido, elas dizem o e-mail.
-const SUPPORT_EMAIL = '';
+const SUPPORT_EMAIL = 'soporte@pkscale.com'; // ⏳ EUA: provisório, o da LATAM (Arthur, 14/11/2026)
 const writeToUs = SUPPORT_EMAIL ? `write to us at ${SUPPORT_EMAIL}` : 'contact our team';
 
 // A /en-login (js/en/entrar.js) segue para o resgate SÓ quando vem

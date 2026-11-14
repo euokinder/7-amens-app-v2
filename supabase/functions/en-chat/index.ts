@@ -21,9 +21,9 @@
 //     não tem presente físico decidido; en_chat_config.presentes_ate nasce 0,
 //     e com 0 ela não confirma nem nega nada e passa o caso à equipe.
 //
-// ⏳ EUA: os canais do suporte americano (e-mail, WhatsApp) ainda não foram
-// definidos (o Arthur manda depois). Por isso os textos que a cliente lê
-// falam em "os botões de contato abaixo", sem nomear o canal. O campo
+// Os canais do suporte: provisoriamente os da LATAM (Arthur, 14/11/2026;
+// js/en/config.js e o manual). Os textos que a cliente lê falam em "os
+// botões de contato abaixo", sem nomear o canal, e a tela mostra os dois. O campo
 // `equipe: { whatsapp: true, texto }` da resposta continua com o nome do
 // espanhol: é o que a tela (js/en/lucia.js) lê para mostrar os botões.
 //
@@ -39,22 +39,24 @@
 // O MANUAL da Lucy (os fatos, os passos, os exemplos) mora no banco, em
 // en_chat_config.manual, e fora deste repositório público. Aqui ficam só
 // as regras que não mudam (quem ela é e o que nunca faz).
-// ⏳ EUA: o manual em inglês ainda não existe.
+// O manual em inglês (14/11/2026) está em "7 Améns EUA/Chat/manual-lucy.md", fora do
+// repositório, e é colado no banco.
 //
 // Interruptor: en_chat_config.ligado (supabase/en/10-chat.sql), que nasce
 // DESLIGADO. Desligado, sem manual ou sem a chave da Anthropic, a resposta é
 // { desligado: true } e a tela mostra os contatos do suporte.
 //
-// Segredo: EN_ANTHROPIC_API_KEY (com o prefixo EN_, como os outros segredos
-// do app em inglês: o gasto fica separado do da LATAM, que usa
-// ANTHROPIC_API_KEY no mesmo projeto). ⏳ EUA: a chave ainda não existe.
+// Segredo: a MESMA chave da Lucía, ANTHROPIC_API_KEY (decisão do Arthur,
+// 14/11/2026: uma chave só; o gasto de cada app já sai separado no banco, em
+// en_chat_*). Se um dia o inglês ganhar chave própria, é só criar o segredo
+// EN_ANTHROPIC_API_KEY: ele vem primeiro.
 
 import Anthropic from 'npm:@anthropic-ai/sdk@1.3.0';
 
 const base = Deno.env.get('SUPABASE_URL')!;
 const secret = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}').default
   || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const anthropicKey = (Deno.env.get('EN_ANTHROPIC_API_KEY') || '').trim();
+const anthropicKey = (Deno.env.get('EN_ANTHROPIC_API_KEY') || Deno.env.get('ANTHROPIC_API_KEY') || '').trim();
 
 const allowedOrigins = new Set(['https://setemadrugadas.com.br', 'https://www.setemadrugadas.com.br']);
 const allowedNetlifyPreview = /^https:\/\/[a-z0-9][a-z0-9-]*--7madrugadas\.netlify\.app$/;
@@ -205,14 +207,14 @@ async function retrato(customer: Customer, accessUntil: string | null, config: C
 // Tradução fiel das regras da Lucía do espanhol. O que mudou para os EUA:
 // o produto, o padre, os nomes das telas (glossário de docs/app-en.md), os
 // números de emergência (911 e a linha 988 dos EUA, no lugar da lista de
-// países) e os canais de contato, que não são nomeados (⏳ EUA: ainda não
-// definidos).
+// países), a regra do idioma e o motivo "crisis" (sem botões na tela; 14/11/2026).
 const REGRAS = `You are Lucy, from the support team of "7 Amens Before Dawn", a Catholic prayer app in English. In the app, Father James Brennan guides seven early-morning prayers, the 7 Amens, best prayed out loud between four and seven in the morning. One new prayer unlocks each day, at midnight in the time zone of her phone. You talk with older women and men in the United States, often with little practice using a phone. Your job is SUPPORT: to help, to explain and to reassure.
 
 HOW YOU SPEAK
 - Simple, warm and respectful American English, like a sister from church who helps with patience.
 - Short messages: 1 to 3 sentences, never more than 60 words. One step at a time. No long lists, no bold, no odd symbols. You may use 🙏 or 🤍 now and then.
 - If she is distressed or upset, first comfort her ("I understand, don't worry, we'll sort this out together") and then help.
+- Answer in the language she writes in. If she writes in Spanish, help her in Spanish (use the informal form of address, as the Spanish app does) and also tell her that if she bought "7 Amenes de la Madrugada", her app is setemadrugadas.com.br/es. If she writes in Portuguese, help her in Portuguese and tell her that the Brazilian app is setemadrugadas.com.br. Never say that you can only help in English.
 - Call her by her name when you know it.
 - Use the same words the app uses: "Start Here", "First Amen" through "Seventh Amen", "Unlocks tomorrow", "I prayed this prayer", "I don't know which email I used", "Contact us".
 
@@ -239,14 +241,14 @@ Never argue with her or make her feel guilty.
 HANDING THE CASE TO THE TEAM (the hand_to_team tool)
 Use it when: it is a billing problem (a double charge, a charge she does not recognize), a refund the team must make, she is very upset or talks about a complaint or a dispute with her bank, physical gifts need to be confirmed, we cannot find her purchase, or you tried to solve it twice and could not.
 Before using it, confirm an email (or a phone number) so the team can reply to her. In "summary", write in English everything the team needs to know, in 2 to 5 sentences.
-Then tell her that her case is now with the team, that her message has been saved for the team and that they reply within 24 hours. Do not say whether it is day or night for her.
+Then tell her that her case is now with the team, that they reply within 24 hours, and that the contact buttons appear below, with the message already written: she should tap the one she prefers and send it, so they can reply faster. Do not say whether it is day or night for her.
 
 IF SHE IS IN DANGER
 If she talks about taking her own life, hurting herself, violence or an emergency, THAT is the only thing that matters in your reply:
 1. Begin with great warmth: she is not alone, and her life matters.
 2. In the same reply, ask her to call 911 RIGHT NOW (or the emergency number of the country she is in), or to call or text 988 (the Suicide and Crisis Lifeline in the United States), or to call someone she trusts who can be with her now.
 3. Stay with her: ask whether there is someone nearby.
-Also use hand_to_team with reason "other", without first asking her for an email (use the one on her account if you have it), but in your reply do NOT talk about timeframes, 24 hours or buttons: talk only about her.
+Also use hand_to_team with reason "crisis", without first asking her for an email (use the one on her account if you have it), but in your reply do NOT talk about timeframes, 24 hours or buttons: talk only about her.
 
 Below is your MANUAL, with the facts about the app and the steps for each question. Follow it.`;
 
@@ -254,11 +256,11 @@ const SEM_SESSAO = `THIS PERSON HAS NOT SIGNED IN TO THE APP YET (she is on the 
 
 const FERRAMENTA = {
   name: 'hand_to_team',
-  description: 'Saves the case for the human support team and shows the customer the contact buttons with the message already written with your summary. Use it only in the cases of the HANDING THE CASE TO THE TEAM rule, after confirming a contact email or phone number.',
+  description: 'Saves the case for the human support team and (except for reason "crisis") shows the customer the contact buttons with the message already written with your summary. Use it only in the cases of the HANDING THE CASE TO THE TEAM rule, after confirming a contact email or phone number, or in the IF SHE IS IN DANGER rule with reason "crisis".',
   input_schema: {
     type: 'object' as const,
     properties: {
-      reason: { type: 'string', enum: ['access', 'billing', 'refund', 'gifts', 'other'], description: 'The type of case.' },
+      reason: { type: 'string', enum: ['access', 'billing', 'refund', 'gifts', 'crisis', 'other'], description: 'The type of case. "crisis" only for the IF SHE IS IN DANGER rule.' },
       summary: { type: 'string', description: 'What the team needs to know, in English, 2 to 5 sentences.' },
       contact: { type: 'string', description: 'The email or phone number she confirmed for the reply.' },
     },
@@ -268,10 +270,10 @@ const FERRAMENTA = {
   strict: true,
 };
 // O motivo, como fica no banco (en_chat_conversas.equipe_motivo, 10-chat.sql).
-const MOTIVO_NO_BANCO: Record<string, string> = { access: 'access', billing: 'billing', refund: 'refund', gifts: 'gifts', other: 'other' };
+// "crisis" fica como 'other' no banco (a trava da coluna), com [CRISIS] no começo do resumo.
+const MOTIVO_NO_BANCO: Record<string, string> = { access: 'access', billing: 'billing', refund: 'refund', gifts: 'gifts', crisis: 'other', other: 'other' };
 
-// ⏳ EUA: os canais do suporte ainda não foram definidos. Por isso estas
-// respostas não citam canal nem botão: a tela pode não ter botão nenhum.
+// Estas respostas não citam canal nem botão: a tela escreve os contatos.
 const RESPOSTAS = {
   badRequest: 'I could not read your message. Please try again.',
   muitas: 'We have talked a lot here today 🙏. If you still need help, please contact our team, and a real person will answer you.',
@@ -322,7 +324,9 @@ async function conversar(client: Anthropic, modelo: string, sistema: string, con
       let resultado = 'Unknown tool.';
       if (pedido.name === FERRAMENTA.name && !equipe) {
         equipe = await aoPedirEquipe(pedido.input || {});
-        resultado = 'Done: the case is saved for the team. Below your message, the contact buttons will appear with the message already written: ask her to tap one and send it, so they can reply faster.';
+        resultado = String((pedido.input || {}).reason) === 'crisis'
+          ? 'Done: the case is saved for the team. No buttons will appear. Do not mention buttons, the team or timeframes: talk only about her and her safety.'
+          : 'Done: the case is saved for the team. Below your message, the contact buttons will appear with the message already written: ask her to tap one and send it, so they can reply faster.';
       } else if (equipe) {
         resultado = 'The case was already sent to the team in this conversation.';
       }
@@ -425,11 +429,13 @@ Deno.serve(async (req: Request) => {
     const contextoComHora = `${contexto}\nCurrent time for her: ${agora}.${conversa!.equipe !== 'nao' ? '\nIn this conversation you already passed the case to the team.' : ''}`;
 
     let pediuEquipe = false;
+    let crise = false; // crise: o caso vai para a equipe, mas a tela NÃO mostra botões nem a mensagem pronta (teste de 14/11/2026)
     let textoParaEquipe = '';
     const aoPedirEquipe = async (input: { reason?: string; summary?: string; contact?: string }) => {
       pediuEquipe = true;
+      crise = String(input.reason) === 'crisis';
       const motivo = MOTIVO_NO_BANCO[String(input.reason)] || 'other';
-      const resumen = limpar(input.summary, 1500);
+      const resumen = (crise ? '[CRISIS] ' : '') + limpar(input.summary, 1500);
       const contacto = limpar(input.contact, 200) || (customer ? customer.email : '');
       // A mensagem que ela manda à equipe pelo celular dela, já escrita (em
       // inglês, porque é ela quem manda): o resumo da Lucy, o e-mail e o
@@ -468,7 +474,7 @@ Deno.serve(async (req: Request) => {
     ]);
     // (O texto vem só quando ela foi passada à equipe; na falha, a tela
     // escreve uma mensagem simples.)
-    const mostrarBotoes = pediuEquipe || resposta === RESPOSTAS.falhou;
+    const mostrarBotoes = (pediuEquipe && !crise) || resposta === RESPOSTAS.falhou;
     return respond({
       conversa: conversaId,
       resposta,

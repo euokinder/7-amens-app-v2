@@ -93,7 +93,7 @@ Saem dos roteiros em inglês já aprovados no Drive. **O app usa as mesmas palav
 Primeiro acesso das duas: 13/11/2026.
 
 ### Como funciona sem checkout
-Toda leitura de compra passa pela visão `en_pedidos_pagos` (`02-compras.sql`), hoje vazia. O checkout entra trocando o select dessa visão. Até lá: extras só liberados à mão no painel; pop-ups nascem desligados; o resgate pelo cartão não acha ninguém e segue para a emergência; o reembolso grava o pedido e a equipe procura. A Lucy nasce desligada e precisa do segredo próprio `EN_ANTHROPIC_API_KEY`.
+Toda leitura de compra passa pela visão `en_pedidos_pagos` (`02-compras.sql`), hoje vazia. O checkout entra trocando o select dessa visão. Até lá: extras só liberados à mão no painel; pop-ups nascem desligados; o resgate pelo cartão não acha ninguém e segue para a emergência; o reembolso grava o pedido e a equipe procura. A Lucy nasce desligada (ver "A Lucy", abaixo).
 
 ### Para o Arthur decidir (vem do original em espanhol)
 - Página de venda dos Arcanjos: "The Pope asked me to share this with you" (fala por uma pessoa real), "Your guardian angel is Saint Michael" (para a Igreja, o anjo da guarda não é arcanjo) e "he will transform your whole life" (promessa).
@@ -145,10 +145,24 @@ A oficina mora FORA do repositório, em `D:\Downloads Certos\PkScale\7 Améns EU
 - Ficou no banco de teste a cliente de prova da emergência, `teste.en.emergencia@exemplo.com` (nome "Ann Test"), esperando no painel.
 
 ## 🔴 Antes de ir ao ar (sem isto, não publicar)
-1. **Um canal de ajuda que funcione.** Hoje o "Contact us" abre a Lucy, e com o chat desligado ela responde "I can't answer here right now". Sem e-mail nem WhatsApp no `js/en/config.js`, a cliente fica sem saída. Resolver com os contatos do suporte americano, ou com a Lucy ligada (segredo `EN_ANTHROPIC_API_KEY` + `en_chat_config`), ou os dois.
+1. ✅ **Canal de ajuda (provisório, 14/11):** o Arthur mandou usar, por enquanto, o e-mail e o WhatsApp da LATAM (`soporte@pkscale.com` e +55 88 99443-2257), em `js/en/config.js` e no `SUPPORT_EMAIL` da `en-api`. Conferido na tela: "Contact us" abre o e-mail com o assunto em inglês, e o card do WhatsApp leva a mensagem já escrita em inglês. ⚠️ Quem atende fala espanhol; trocar quando o suporte americano existir. A Lucy está pronta e provada no TESTE (ver "A Lucy").
 2. **Checkout** ligado à visão `en_pedidos_pagos` (`supabase/en/02-compras.sql`), com a função que recebe a venda. Sem ele, ninguém compra nem entra sozinha.
 3. **Desligar o bloqueio do limite de gasto do Supabase** (ver "Decisões").
 4. As páginas de venda dos extras (`/en-offer-archangels`, `/en-offer-canticle`) hoje só mostram o título: precisam do vídeo e do checkout, ou o card "Learn more" leva a uma página vazia.
+
+## A Lucy, o chat de suporte (14/11/2026, ✅ provada só no TESTE)
+Cópia da Lucía do espanhol (`supabase/functions/en-chat/`, `supabase/en/10-chat.sql`, `js/en/lucia.js`).
+- **Chave:** a MESMA da Lucía, o segredo `ANTHROPIC_API_KEY`, que já existe no teste e na produção (decisão do Arthur, 14/11: uma chave só; o gasto do inglês sai separado no banco, em `en_chat_mensagens`). Se um dia o inglês tiver chave própria, basta criar `EN_ANTHROPIC_API_KEY`: ela vem primeiro.
+- **Manual:** `D:\Downloads Certos\PkScale\7 Améns EUA\Chat\manual-lucy.md` (versão 3), FORA do repositório público, colado em `en_chat_config.manual`. Adaptado do manual da Lucía, com os nomes das telas em inglês, o suporte provisório e sem prometer número de dias de garantia (a Digistore dá 60 dias nos EUA; quem confirma é a equipe).
+- **Diferenças da Lucía (14/11):**
+  - **crise:** motivo próprio `crisis` (gravado como `other`, com `[CRISIS]` no começo do resumo); a tela NÃO mostra botões nem a mensagem pronta, e o aviso interno manda não falar de botões nem de prazo;
+  - **idioma:** responde no idioma em que a cliente escreve; em espanhol, trata por "tú" e aponta `/es`; em português, aponta o app brasileiro;
+  - **manual §11:** só diz que a compra está registrada quando tem os dados da cliente (quem ainda não entrou não ouve isso).
+- **Provas:** `testa-en-chat.mjs` 110 ok; no TESTE, 12 conversas difíceis e depois as 5 corrigidas, todas certas (~US$ 0,004 por resposta, 4 a 10 s).
+- **Estado do TESTE:** `en-chat` v3 com o manual versão 2 e `ligado = true`, com freios aumentados para testar (500 mensagens/dia, 100 conversas/h; os da produção são 40 e 6). Depois da v3 o arquivo ganhou só textos (o aviso interno da crise, o "tú", comentários) e o manual a versão 3 ("Welcome her calmly"): na produção, colar os arquivos atuais.
+- **Para ligar na produção (o Arthur cola, no dia de ir ao ar):** o `10-chat.sql` já entra com o resto do banco; depois `update en_chat_config set manual = <o manual>, ligado = true where id = 1;` e a função `en-chat` pelo painel (nome antes do *Deploy*, "Verify JWT" desligado). A chave já está lá.
+- ⚠️ A Lucía do espanhol (no ar) tem as mesmas duas falhas que foram corrigidas aqui (botões na crise e "compra registrada" para quem não entrou). Anotado no cérebro em 14/11.
+- Ainda igual à Lucía (menor): a mensagem pronta para a equipe começa na voz dela ("Hello, I am…") e segue com o resumo na terceira pessoa; e um segundo caso na mesma conversa sobrescreve o motivo do primeiro.
 
 ## O que fica pendente de informação do Arthur
 - E-mail e WhatsApp do suporte americano.

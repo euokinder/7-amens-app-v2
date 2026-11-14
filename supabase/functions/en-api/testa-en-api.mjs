@@ -54,7 +54,9 @@ const compra = (campos = {}) => banco.en_pedidos_pagos.push({
 // Mensagem em inglês: sem acento nem pontuação do espanhol, e sem as palavras
 // que o espanhol usava.
 const emIngles = texto => typeof texto === 'string' && texto.length > 0
-  && !/[áéíóúñ¿¡]/i.test(texto) && !/\b(correo|compra|acceso|intentos|enlace|soporte|Escr[ií]benos)\b/i.test(texto);
+  && !/[áéíóúñ¿¡]/i.test(texto)
+  // o endereço do e-mail de suporte (provisório desde 14/11/2026, o da LATAM) não conta como espanhol
+  && !/\b(correo|compra|acceso|intentos|enlace|soporte|Escr[ií]benos)\b/i.test(texto.replace('soporte@pkscale.com', ''));
 async function entrar(email = 'maria@ejemplo.com', tz = 'America/Bogota') {
   const { corpo } = await chamar('login', { email, tz });
   return corpo.token;
@@ -91,7 +93,9 @@ await cenario('2. Login que não entra, com a explicação em inglês', async ()
   const vencida = await chamar('login', { email: 'vencida@ejemplo.com' });
   confere('acesso vencido: 403 com a data por extenso (EUA)', vencida.status === 403 && vencida.corpo.error.includes('January 15, 2026') && emIngles(vencida.corpo.error), vencida.corpo?.error);
   confere('acesso vencido: SEM siguiente (a tela mostra a data, não o resgate)', vencida.corpo.siguiente === undefined);
-  confere('acesso vencido: sem e-mail nem WhatsApp do espanhol', !/pkscale|whatsapp/i.test(vencida.corpo.error), vencida.corpo.error);
+  // Desde 14/11/2026 o e-mail de suporte é, provisoriamente, o da LATAM (SUPPORT_EMAIL);
+  // as mensagens do servidor nunca falam em WhatsApp.
+  confere('acesso vencido: sem WhatsApp na mensagem', !/whatsapp/i.test(vencida.corpo.error), vencida.corpo.error);
   confere('nenhuma sessão criada', banco.en_sessions.length === 0);
 });
 
@@ -639,7 +643,7 @@ await cenario('31. A entrada de emergência', async () => {
     && banco.en_customers.some(c => c.email === 'whatsapp-5215512345678@no-email.invalid'));
   const limite = await chamar('entrada_emergencia', { nombre: 'Ana', contacto: 'ana@gmail.com' });
   confere('3ª emergência da mesma conexão no dia: 429, em inglês e sem contato do espanhol', limite.status === 429 && emIngles(limite.corpo.error)
-    && !/pkscale|whatsapp/i.test(limite.corpo.error), limite.corpo?.error);
+    && !/whatsapp/i.test(limite.corpo.error), limite.corpo?.error);
 });
 
 await cenario('32. Emergência com um e-mail que já existe', async () => {
@@ -661,7 +665,7 @@ await cenario('32. Emergência com um e-mail que já existe', async () => {
   banco.en_resgate_config[0].emergencia_ligada = false;
   const desligada = await chamar('entrada_emergencia', { nombre: 'Elena', contacto: 'nueva@gmail.com' });
   confere('interruptor desligado: 503, em inglês e sem contato do espanhol', desligada.status === 503 && emIngles(desligada.corpo.error)
-    && !/pkscale|whatsapp/i.test(desligada.corpo.error), desligada.corpo?.error);
+    && !/whatsapp/i.test(desligada.corpo.error), desligada.corpo?.error);
 });
 
 await cenario('33. Painel: a lista de resgates e "Marcar como resolvido"', async () => {
@@ -757,7 +761,7 @@ await cenario('36. Toda mensagem que a cliente lê vem em inglês', async () => 
   pega(await chamar('login', { email: 'yy@ejemplo.com' }));
   const ruins = erros.filter(e => !emIngles(e));
   confere(`${erros.length} mensagens de erro, todas em inglês`, erros.length >= 12 && ruins.length === 0, ruins.join(' | '));
-  confere('nenhuma cita o e-mail ou o WhatsApp do suporte do espanhol', !erros.some(e => /pkscale|soporte|whatsapp/i.test(e)), erros.join(' | '));
+  confere('nenhuma cita WhatsApp, e o e-mail citado é só o SUPPORT_EMAIL', !erros.some(e => /whatsapp/i.test(e) || (/@/.test(e.replace('mary@gmail.com', '')) && !e.includes('soporte@pkscale.com'))), erros.join(' | '));
 });
 
 fechar();
