@@ -145,7 +145,7 @@ A oficina mora FORA do repositório, em `D:\Downloads Certos\PkScale\7 Améns EU
 - Ficou no banco de teste a cliente de prova da emergência, `teste.en.emergencia@exemplo.com` (nome "Ann Test"), esperando no painel.
 
 ## 🔴 Antes de ir ao ar (sem isto, não publicar)
-1. ✅ **Canal de ajuda (14/11):** e-mail próprio dos EUA, `sevenamenssuport@gmail.com` (Arthur, na noite de ir ao ar), em `js/en/config.js`, no `SUPPORT_EMAIL` da `en-api` e no manual da Lucy. O WhatsApp continua o provisório da LATAM (+55 88 99443-2257): ⚠️ quem atende fala espanhol; trocar quando houver número americano. Conferido na tela (com o e-mail antigo): "Contact us" abre o e-mail com o assunto em inglês, e o card do WhatsApp leva a mensagem já escrita em inglês. A Lucy está pronta e provada no TESTE (ver "A Lucy").
+1. ✅ **Canal de ajuda (14/11):** e-mail próprio dos EUA, `sevenamenssupport@gmail.com` (Arthur, na noite de ir ao ar), em `js/en/config.js`, no `SUPPORT_EMAIL` da `en-api` e no manual da Lucy. O WhatsApp continua o provisório da LATAM (+55 88 99443-2257): ⚠️ quem atende fala espanhol; trocar quando houver número americano. Conferido na tela (com o e-mail antigo): "Contact us" abre o e-mail com o assunto em inglês, e o card do WhatsApp leva a mensagem já escrita em inglês. A Lucy está pronta e provada no TESTE (ver "A Lucy").
 2. ✅ **Checkout (14/11, provado só no TESTE):** Digistore24 dos EUA, a função `en-digistore` e o `13-digistore.sql`, que liga a visão `en_pedidos_pagos` aos pagamentos. Falta colar na produção: os passos estão em "A venda pela Digistore24". Sem isso, ninguém entra sozinha.
 3. **Desligar o bloqueio do limite de gasto do Supabase** (ver "Decisões").
 4. As páginas de venda dos extras (`/en-offer-archangels`, `/en-offer-canticle`) hoje só mostram o título: precisam do vídeo. O checkout já está ligado (14/11). Sem o vídeo, o botão do Cântico aparece desde o começo, e as cartas dos Arcanjos só depois de ~8 min de página aberta (a rede de segurança).
@@ -237,7 +237,7 @@ Cada passo é inofensivo sem o seguinte. Nenhum build a mais: os links das pági
   2. 🟡 A Lucy está desligada: quem toca em "Questions? Talk to Lucy" lê "I can't answer here right now" e recebe os botões de WhatsApp e e-mail. Para ligar: um SQL com o manual versão 3 (montado fora do repositório, no scratchpad da sessão de 14/11, `producao-ligar-lucy.sql`).
   3. O WhatsApp do suporte é o da LATAM (atende em espanhol).
   4. Nome do produto: o app diz "7 Amens Before Dawn"; a Digistore e as capas dos vídeos, "The 7 Amens of the Early Morning".
-- O e-mail `sevenamenssuport@gmail.com` foi escrito exatamente como o Arthur mandou ("suport" com um "p"): conferir que é a conta certa.
+- O e-mail saiu primeiro como `sevenamenssuport` (com um "p"); o Arthur corrigiu na mesma madrugada: é `sevenamenssupport@gmail.com`, com dois "p".
 
 ## O que fica pendente de informação do Arthur
 - WhatsApp do suporte americano (o e-mail já é o dos EUA desde 14/11).

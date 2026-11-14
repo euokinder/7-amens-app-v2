@@ -56,7 +56,7 @@ const compra = (campos = {}) => banco.en_pedidos_pagos.push({
 const emIngles = texto => typeof texto === 'string' && texto.length > 0
   && !/[áéíóúñ¿¡]/i.test(texto)
   // o endereço do e-mail de suporte (o dos EUA desde 14/11/2026) não conta como espanhol
-  && !/\b(correo|compra|acceso|intentos|enlace|soporte|Escr[ií]benos)\b/i.test(texto.replace('sevenamenssuport@gmail.com', ''));
+  && !/\b(correo|compra|acceso|intentos|enlace|soporte|Escr[ií]benos)\b/i.test(texto.replace('sevenamenssupport@gmail.com', ''));
 async function entrar(email = 'maria@ejemplo.com', tz = 'America/Bogota') {
   const { corpo } = await chamar('login', { email, tz });
   return corpo.token;
@@ -761,7 +761,7 @@ await cenario('36. Toda mensagem que a cliente lê vem em inglês', async () => 
   pega(await chamar('login', { email: 'yy@ejemplo.com' }));
   const ruins = erros.filter(e => !emIngles(e));
   confere(`${erros.length} mensagens de erro, todas em inglês`, erros.length >= 12 && ruins.length === 0, ruins.join(' | '));
-  confere('nenhuma cita WhatsApp, e o e-mail citado é só o SUPPORT_EMAIL', !erros.some(e => /whatsapp/i.test(e) || (/@/.test(e.replace('mary@gmail.com', '')) && !e.includes('sevenamenssuport@gmail.com'))), erros.join(' | '));
+  confere('nenhuma cita WhatsApp, e o e-mail citado é só o SUPPORT_EMAIL', !erros.some(e => /whatsapp/i.test(e) || (/@/.test(e.replace('mary@gmail.com', '')) && !e.includes('sevenamenssupport@gmail.com'))), erros.join(' | '));
 });
 
 fechar();

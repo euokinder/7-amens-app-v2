@@ -21,7 +21,7 @@
   //     de ajuda do portão ("Need help?") ficam escondidos, em vez de abrir um
   //     link quebrado.
   // Preencher é só escrever aqui (1 build). Cada contato aparece sozinho.
-  const CORREO = 'sevenamenssuport@gmail.com';  // o suporte dos EUA (Arthur, 14/11/2026). Mudou aqui, mudar também o SUPPORT_EMAIL da en-api
+  const CORREO = 'sevenamenssupport@gmail.com';  // o suporte dos EUA (Arthur, 14/11/2026). Mudou aqui, mudar também o SUPPORT_EMAIL da en-api
   const WHATSAPP_ESCRITO = '+55 88 99443-2257';  // ⏳ EUA: provisório, o da LATAM
   const WHATSAPP_NUMERO = '5588994432257';       // ⏳ EUA: provisório, o da LATAM (só os dígitos, com o país)
 

@@ -184,7 +184,7 @@ const asUsDate = (iso: string, zone: string) =>
 // O e-mail do suporte dos EUA (Arthur, 14/11/2026). Vazio, as mensagens dizem
 // só "contact our team", sem canal. Preenchido, elas dizem o e-mail. É o
 // mesmo CORREO de js/en/config.js: mudou lá, mudar aqui.
-const SUPPORT_EMAIL = 'sevenamenssuport@gmail.com';
+const SUPPORT_EMAIL = 'sevenamenssupport@gmail.com';
 const writeToUs = SUPPORT_EMAIL ? `write to us at ${SUPPORT_EMAIL}` : 'contact our team';
 
 // A /en-login (js/en/entrar.js) segue para o resgate SÓ quando vem
