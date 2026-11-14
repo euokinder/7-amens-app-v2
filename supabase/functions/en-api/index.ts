@@ -181,10 +181,10 @@ async function accessOf(customerId: string) {
 const asUsDate = (iso: string, zone: string) =>
   new Intl.DateTimeFormat('en-US', { timeZone: zone, month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(iso));
 
-// ⏳ EUA: o e-mail do suporte americano (o Arthur manda depois; WhatsApp
-// também não há ainda). Vazio, as mensagens dizem só "contact our team", sem
-// canal. Preenchido, elas dizem o e-mail.
-const SUPPORT_EMAIL = 'soporte@pkscale.com'; // ⏳ EUA: provisório, o da LATAM (Arthur, 14/11/2026)
+// O e-mail do suporte dos EUA (Arthur, 14/11/2026). Vazio, as mensagens dizem
+// só "contact our team", sem canal. Preenchido, elas dizem o e-mail. É o
+// mesmo CORREO de js/en/config.js: mudou lá, mudar aqui.
+const SUPPORT_EMAIL = 'sevenamenssuport@gmail.com';
 const writeToUs = SUPPORT_EMAIL ? `write to us at ${SUPPORT_EMAIL}` : 'contact our team';
 
 // A /en-login (js/en/entrar.js) segue para o resgate SÓ quando vem

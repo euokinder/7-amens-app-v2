@@ -9,9 +9,9 @@
   const TESTE = 'https://wyiqwsgfictcfkytldnu.supabase.co/functions/v1/en-api';
   const noComputador = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-  // ⏳ EUA: PROVISÓRIO (Arthur, 14/11/2026): enquanto o suporte americano não
-  // existe, o inglês usa o e-mail e o WhatsApp da LATAM (os mesmos de
-  // js/es/config.js). Quando o Arthur mandar os contatos dos EUA, trocar aqui.
+  // O e-mail é o do suporte dos EUA (Arthur, 14/11/2026, na noite de ir ao ar).
+  // ⏳ EUA: o WhatsApp continua PROVISÓRIO, o da LATAM (o mesmo de
+  // js/es/config.js), até existir um número americano: trocar aqui.
   // ESTE É O ÚNICO LUGAR onde os contatos moram: as telas leem
   // daqui (o card "Contact us" e o do WhatsApp no início, a entrada, o
   // reembolso e a Lucy). Enquanto estiverem vazios:
@@ -21,7 +21,7 @@
   //     de ajuda do portão ("Need help?") ficam escondidos, em vez de abrir um
   //     link quebrado.
   // Preencher é só escrever aqui (1 build). Cada contato aparece sozinho.
-  const CORREO = 'soporte@pkscale.com';         // ⏳ EUA: provisório, o da LATAM
+  const CORREO = 'sevenamenssuport@gmail.com';  // o suporte dos EUA (Arthur, 14/11/2026). Mudou aqui, mudar também o SUPPORT_EMAIL da en-api
   const WHATSAPP_ESCRITO = '+55 88 99443-2257';  // ⏳ EUA: provisório, o da LATAM
   const WHATSAPP_NUMERO = '5588994432257';       // ⏳ EUA: provisório, o da LATAM (só os dígitos, com o país)
 
