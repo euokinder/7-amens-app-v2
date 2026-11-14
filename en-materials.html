@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1a120c">
+<title>7 Amens Before Dawn · Your materials</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --creme: #FBF4EB;
+    --tinta: #2A2018;
+    --tinta-suave: #5A4A3C;
+    --ouro: #C9A23A;
+    --ouro-forte: #8F6614;
+    --painel: #412E21;
+    --painel-txt: #F7F0E2;
+    --painel-suave: #E3D3B6;
+    --linha: #E6D8C4;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--creme);
+    color: var(--tinta);
+    font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+  .pagina { max-width: 560px; margin: 0 auto; padding: 0 16px 40px; }
+
+  /* topo com a foto: o degradê escuro garante a leitura do título */
+  .topo {
+    position: relative;
+    margin: 0 -16px;
+    min-height: 360px;
+    padding: 28px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: #fff;
+    background: #1a120c url('/assets/en/img/capa.jpg') center 30% / cover no-repeat;
+  }
+  .topo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(16,10,6,.10) 0%, rgba(16,10,6,.55) 45%, rgba(16,10,6,.93) 100%);
+  }
+  .topo > * { position: relative; }
+  .selo {
+    align-self: flex-start;
+    background: var(--ouro);
+    color: #1d140c;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .06em;
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+  .topo h1 { font-size: 34px; line-height: 1.12; font-weight: 800; margin: 14px 0 10px; }
+  .topo p { font-size: 19px; line-height: 1.45; margin: 0; color: #F3EADB; }
+
+  /* como usar */
+  .como {
+    background: #fff;
+    border: 1px solid var(--linha);
+    border-radius: 18px;
+    padding: 22px 18px 18px;
+    margin-top: 24px;
+  }
+  .como h2 { margin: 0 0 14px; font-size: 23px; line-height: 1.25; }
+  .passos { list-style: none; margin: 0; padding: 0; }
+  .passos li { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .passos .n {
+    flex: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--ouro-forte);
+    color: #fff;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dica {
+    margin: 4px 0 0;
+    padding: 14px 16px;
+    background: #F7E7B2;
+    border-radius: 14px;
+    font-size: 17px;
+  }
+
+  /* blocos */
+  .bloco { margin-top: 38px; }
+  .bloco > h2 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; }
+  .bloco > .apoio { margin: 0 0 18px; color: var(--tinta-suave); }
+
+  /* card: foto em cima, painel escuro embaixo; o card inteiro é o link */
+  .card {
+    display: block;
+    margin-bottom: 22px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--painel);
+    color: var(--painel-txt);
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(65,46,33,.18);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card:active { transform: scale(.99); }
+  .card:focus-visible { outline: 4px solid var(--ouro); outline-offset: 3px; }
+  .card img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+  .card .painel { padding: 18px 18px 20px; }
+  .etiqueta {
+    display: inline-block;
+    background: var(--ouro);
+    color: #1d140c;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .06em;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .card h3 { margin: 12px 0 4px; font-size: 25px; line-height: 1.2; font-weight: 800; color: #fff; }
+  .card p { margin: 0; color: var(--painel-suave); font-size: 18px; }
+  .boton {
+    margin-top: 16px;
+    min-height: 56px;
+    border-radius: 14px;
+    background: var(--ouro);
+    color: #1d140c;
+    font-weight: 800;
+    font-size: 19px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .card.destaque { border: 3px solid var(--ouro); }
+  .bloco.app { margin-top: 24px; }
+
+  .fim { margin-top: 30px; text-align: center; color: var(--tinta-suave); }
+  .fim strong { display: block; margin-top: 10px; font-size: 20px; color: var(--ouro-forte); }
+</style>
+</head>
+<body>
+<main class="pagina">
+
+  <header class="topo">
+    <span class="selo">7 DAYS</span>
+    <h1>7 Amens Before Dawn</h1>
+    <p>All your materials are here. Tap the one you want to open.</p>
+  </header>
+
+  <!-- Copia em ingles da /materiales (pagina de entrega do espanhol). O caminho
+       para o app em ingles (/en), para quem chega aqui pelo e-mail da compra.
+       Entra com o mesmo e-mail da compra. -->
+  <section class="bloco app">
+    <a class="card destaque" href="/en">
+      <div class="painel">
+        <span class="etiqueta">NEW</span>
+        <h3>Your prayer app</h3>
+        <p>Pray each early morning from your phone, with the prayer for the day. Sign in with the same email you used for your purchase.</p>
+        <span class="boton">Open the app</span>
+      </div>
+    </a>
+  </section>
+
+  <section class="como">
+    <h2>How to use your materials</h2>
+    <ol class="passos">
+      <li><span class="n">1</span><span>Start with the <b>Getting Started Guide</b>. Read it before your first early morning.</span></li>
+      <li><span class="n">2</span><span>Pray <b>one prayer a day</b>, in order: from Day 1 to Day 7.</span></li>
+      <li><span class="n">3</span><span>Missed a day? <b>Pick up the next day</b>, right where you left off. Never pray two on the same day.</span></li>
+    </ol>
+    <p class="dica">When you tap <b>“Open the PDF,”</b> the material opens on your phone. If your phone downloads it instead, tap the notice that appears on the screen to open it.</p>
+  </section>
+
+  <section class="bloco">
+    <h2>Start Here</h2>
+    <p class="apoio">Read this first, before Day 1.</p>
+    <a class="card destaque" href="/assets/en/pdf/start-here-guide.pdf">
+      <img src="/assets/en/img/guia.jpg" alt="" width="800" height="450">
+      <div class="painel">
+        <span class="etiqueta">READ FIRST</span>
+        <h3>Getting Started Guide</h3>
+        <p>Everything you need to know before your first early morning.</p>
+        <span class="boton">Open the PDF</span>
+      </div>
+    </a>
+  </section>
+
+  <section class="bloco">
+    <h2>Your 7 early mornings</h2>
+    <p class="apoio">One prayer a day, between four and seven in the morning.</p>
+
+    <a class="card" href="/assets/en/pdf/day-1-first-amen.pdf">
+      <img src="/assets/en/img/dia-1.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 1</span><h3>First Amen</h3><p>The Complete Our Father</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/day-2-second-amen.pdf">
+      <img src="/assets/en/img/dia-2.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 2</span><h3>Second Amen</h3><p>The Prayer for Forgiveness</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/day-3-third-amen.pdf">
+      <img src="/assets/en/img/dia-3.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 3</span><h3>Third Amen</h3><p>The Prayer for Healing</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/day-4-fourth-amen.pdf">
+      <img src="/assets/en/img/dia-4.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 4</span><h3>Fourth Amen</h3><p>The Prayer for Deliverance</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/day-5-fifth-amen.pdf">
+      <img src="/assets/en/img/dia-5.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 5</span><h3>Fifth Amen</h3><p>The Prayer for Prosperity</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/day-6-sixth-amen.pdf">
+      <img src="/assets/en/img/dia-6.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 6</span><h3>Sixth Amen</h3><p>The Prayer for Peace</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/day-7-seventh-amen.pdf">
+      <img src="/assets/en/img/dia-7.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">DAY 7</span><h3>Seventh Amen</h3><p>The Covenant Prayer</p><span class="boton">Open the PDF</span></div>
+    </a>
+  </section>
+
+  <section class="bloco">
+    <h2>Bonus material</h2>
+    <p class="apoio">To pray whenever you need it, even after the 7 days.</p>
+    <a class="card" href="/assets/en/pdf/complete-our-father.pdf">
+      <img src="/assets/en/img/padre-nuestro.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">BONUS</span><h3>The Complete Our Father</h3><p>The whole prayer, to pray whenever you need it.</p><span class="boton">Open the PDF</span></div>
+    </a>
+    <a class="card" href="/assets/en/pdf/one-prayer-two-languages.pdf">
+      <img src="/assets/en/img/dos-lados.jpg" alt="" width="800" height="450" loading="lazy">
+      <div class="painel"><span class="etiqueta">BONUS</span><h3>One Prayer, Two Languages</h3><p>The Our Father in Aramaic and in English, side by side.</p><span class="boton">Open the PDF</span></div>
+    </a>
+  </section>
+
+  <footer class="fim">
+    Save the link to this page so you can come back anytime.
+    <strong>7 Amens Before Dawn</strong>
+  </footer>
+
+</main>
+</body>
+</html>

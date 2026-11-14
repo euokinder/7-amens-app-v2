@@ -4,9 +4,9 @@
 // As orações seguem, palavra por palavra, os roteiros dos vídeos em inglês já
 // aprovados (o que o Father James lê no vídeo é o que aparece na tela). Os
 // termos fixos estão no glossário de docs/app-en.md.
-// ⏳ EUA: os PDFs em inglês ainda não existem. Todo `pdf` está em null, e o
-// botão de baixar some sozinho (js/en/dia.js). Quando chegarem, em
-// /assets/en/pdf/, é só pôr o endereço de cada um aqui.
+// Os PDFs em inglês (13/11/2026) moram em /assets/en/pdf/ e são gerados a
+// partir DESTE arquivo ("7 Améns EUA/_montagem", dias_en.py e materiais_en.py):
+// mudou um texto aqui, gerar os PDFs de novo para o app e o PDF dizerem o mesmo.
 window.AMENES_DIAS = {
  "nombre": "7 Amens Before Dawn",
  "dias": [
@@ -15,7 +15,7 @@ window.AMENES_DIAS = {
    "titulo": "Start Here",
    "subtitulo": "Before your first morning",
    "imagen": "/assets/en/img/guia.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/start-here-guide.pdf",
    "intro": "You don't need to memorize anything. Read this guide once. Then take it one day at a time.",
    "frase": "7 mornings. 7 prayers. One prayer a day.",
    "apoyo": "No rush. No making up for missed days. No starting over if you miss one.",
@@ -106,7 +106,7 @@ window.AMENES_DIAS = {
    "titulo": "First Amen",
    "subtitulo": "The Complete Our Father",
    "imagen": "/assets/en/img/dia-1.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-1-first-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 8 to 10 minutes, with no rush.",
@@ -140,7 +140,7 @@ window.AMENES_DIAS = {
    "titulo": "Second Amen",
    "subtitulo": "The Prayer for Forgiveness",
    "imagen": "/assets/en/img/dia-2.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-2-second-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 9 to 11 minutes, with no rush.",
@@ -173,7 +173,7 @@ window.AMENES_DIAS = {
    "titulo": "Third Amen",
    "subtitulo": "The Prayer for Healing",
    "imagen": "/assets/en/img/dia-3.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-3-third-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 8 to 10 minutes, with no rush.",
@@ -206,7 +206,7 @@ window.AMENES_DIAS = {
    "titulo": "Fourth Amen",
    "subtitulo": "The Prayer for Deliverance",
    "imagen": "/assets/en/img/dia-4.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-4-fourth-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 8 to 10 minutes, with no rush.",
@@ -238,7 +238,7 @@ window.AMENES_DIAS = {
    "titulo": "Fifth Amen",
    "subtitulo": "The Prayer for Prosperity",
    "imagen": "/assets/en/img/dia-5.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-5-fifth-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 8 to 10 minutes, with no rush.",
@@ -271,7 +271,7 @@ window.AMENES_DIAS = {
    "titulo": "Sixth Amen",
    "subtitulo": "The Prayer for Peace",
    "imagen": "/assets/en/img/dia-6.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-6-sixth-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 8 to 10 minutes, much of it in silence.",
@@ -301,7 +301,7 @@ window.AMENES_DIAS = {
    "titulo": "Seventh Amen",
    "subtitulo": "The Covenant Prayer",
    "imagen": "/assets/en/img/dia-7.jpg",
-   "pdf": null,
+   "pdf": "/assets/en/pdf/day-7-seventh-amen.pdf",
    "reglas": [
     "Time: between four and seven in the morning.",
     "Length: about 9 to 11 minutes, with no rush.",
@@ -336,13 +336,13 @@ window.AMENES_DIAS = {
    "titulo": "The Complete Our Father",
    "texto": "The whole prayer, to pray whenever you need it.",
    "imagen": "/assets/en/img/padre-nuestro.jpg",
-   "pdf": null
+   "pdf": "/assets/en/pdf/complete-our-father.pdf"
   },
   {
    "titulo": "One Prayer, Two Languages",
    "texto": "The Our Father in Aramaic and in English, side by side.",
    "imagen": "/assets/en/img/dos-lados.jpg",
-   "pdf": null
+   "pdf": "/assets/en/pdf/one-prayer-two-languages.pdf"
   }
  ]
 };

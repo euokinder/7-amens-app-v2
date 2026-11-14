@@ -105,11 +105,11 @@ const CANTICO = {
 
 // O PDF que vai junto, de presente. No espanhol era a Novena a la Virgen
 // Desatanudos (/assets/latam/pdf/novena-virgen-desatanudos.pdf), porque o
-// checkout de lá tinha esse nome. ⏳ EUA: não existe PDF em inglês (em inglês a
-// devoção se chama "Mary, Undoer of Knots"). null = sem botão de PDF no aviso do
-// dia (js/en/extras.js, audioEnPreparacion). O cartão "Bonus material" do
-// en-canticle.html também está desligado (comentado) pelo mesmo motivo.
-const PDF_NOVENA = null;
+// checkout de lá tinha esse nome. Em inglês: Novena to Mary, Undoer of Knots
+// (13/11/2026; "7 Améns EUA/_montagem", extras_en.py). null = sem botão de PDF
+// no aviso do dia (js/en/extras.js, audioEnPreparacion), e o cartão "Bonus
+// material" do en-canticle.html leva ao mesmo arquivo.
+const PDF_NOVENA = '/assets/en/pdf/novena-mary-undoer-of-knots.pdf';
 
 // Tem o que entregar na tela: o áudio, o texto, ou o aviso de que a voz vem.
 const diaDelCanticoVisible = (dia) => Boolean(dia && (dia.audioUrl || dia.oracion || dia.pendiente));

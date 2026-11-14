@@ -119,10 +119,36 @@ Registro: inglês americano, católico, "you" acolhedor, frases curtas e letra g
 | 1 | Tradução das telas, dos textos e das mensagens, mais uma revisão independente (17 correções) | ✅ 13/11 |
 | 2 | Banco `en_*` (18 tabelas, ordem 01 → 02 → 03 → 04 → 05 → 09 → 10 → 11) e funções `en-api`, `en-chat`, `en-refund` (v1, JWT desligado) no banco de TESTE. Provas: `testa-en-api` 219 ok, `testa-en-chat` 110 ok, `testa-en-refund` 24 ok, `supabase/en/testes/prova-http.mjs` 14 ok | ✅ 13/11 |
 | 3 | Prova no computador (`localhost`, 375 px): entrar, home, lista, Dia 1 com "I prayed this prayer" e desfazer, trava ("It unlocks in 2 days"), Arcanjos, Cântico, cliente sem extras (cadeado e "Learn more"), reembolso, sair. Sem erro no console | ✅ 13/11 |
-| 4 | PDFs em inglês (`assets/en/pdf/`) | ⏳ |
+| 4 | PDFs em inglês (`assets/en/pdf/`, 12 arquivos, ~1 MB no total) e a página de entrega `/en-materials` (cópia da `/materiales`) | ✅ 13/11 |
 | 5 | Vídeos, áudios dos Arcanjos e do Cântico, quando chegarem (Bunny, armazenamento próprio do inglês) | ⏳ |
 | 6 | Checkout e a função que libera a venda | ⏳ por último |
 | 7 | Ir ao ar: SQL e funções na produção (o Arthur cola), segredos, 1 build | ⏳ |
+
+## Os PDFs em inglês (13/11/2026)
+A oficina mora FORA do repositório, em `D:\Downloads Certos\PkScale\7 Améns EUA\_montagem\` (como a do espanhol, em `7 Améns LATAM\_montagem\`). Os PDFs prontos ficam em `7 Améns EUA\PDFs in English\`, e uma cópia de cada vai para `assets/en/pdf/`.
+
+| Arquivo no app | Gerado por | Onde aparece |
+|---|---|---|
+| `start-here-guide.pdf` (6 p.) | `materiais_en.py` | Dia 0 e `/en-materials` |
+| `day-1-first-amen.pdf` … `day-7-seventh-amen.pdf` (2 p. cada) | `dias_en.py` | cada dia e `/en-materials` |
+| `complete-our-father.pdf`, `one-prayer-two-languages.pdf` | `materiais_en.py` | "Bonus material" da lista e `/en-materials` |
+| `prayers-to-the-holy-archangels.pdf` (6 p.) | `extras_en.py` | Central dos Arcanjos (Michael, Gabriel e Raphael; Uriel não está, como no espanhol) |
+| `novena-mary-undoer-of-knots.pdf` (12 p.) | `extras_en.py` | Cântico (o presente; no espanhol, a Novena a la Virgen Desatanudos) |
+
+⚠️ **Os PDFs dos dias e o guia leem o texto de `js/en/dias.js`.** Mudou um texto lá, rodar `dias_en.py` e `materiais_en.py` de novo e copiar para `assets/en/pdf/` (o `LEIA-ME.txt` da oficina diz como). Assim o app e o PDF nunca dizem coisas diferentes.
+
+⚠️ A primeira página de cada dia fica meio vazia: a oração vai inteira para a página 2. É igual no espanhol (o desenho não parte a oração).
+
+## Revisão de 13/11/2026 (depois dos PDFs)
+- **Varredura do código:** nenhum link quebrado, nenhum arquivo do espanhol ou do Brasil referenciado, nenhum texto visível em espanhol.
+- **No navegador (localhost, banco de TESTE, 375 px):** home com o card "Your PDF materials"; Dia 0 com o botão do PDF; os 12 PDFs e a `/en-materials` respondem 200; "Bonus material" na lista; Arcanjos e Cântico com o PDF no aviso "Audio coming soon"; cliente sem extras com cadeado; resgate de quem esqueceu o e-mail (nome → cartão → "I'd rather not use my card" → entrada de emergência), que entra e aparece no painel; painel `/en-admin` em inglês. Nenhum erro no console.
+- Ficou no banco de teste a cliente de prova da emergência, `teste.en.emergencia@exemplo.com` (nome "Ann Test"), esperando no painel.
+
+## 🔴 Antes de ir ao ar (sem isto, não publicar)
+1. **Um canal de ajuda que funcione.** Hoje o "Contact us" abre a Lucy, e com o chat desligado ela responde "I can't answer here right now". Sem e-mail nem WhatsApp no `js/en/config.js`, a cliente fica sem saída. Resolver com os contatos do suporte americano, ou com a Lucy ligada (segredo `EN_ANTHROPIC_API_KEY` + `en_chat_config`), ou os dois.
+2. **Checkout** ligado à visão `en_pedidos_pagos` (`supabase/en/02-compras.sql`), com a função que recebe a venda. Sem ele, ninguém compra nem entra sozinha.
+3. **Desligar o bloqueio do limite de gasto do Supabase** (ver "Decisões").
+4. As páginas de venda dos extras (`/en-offer-archangels`, `/en-offer-canticle`) hoje só mostram o título: precisam do vídeo e do checkout, ou o card "Learn more" leva a uma página vazia.
 
 ## O que fica pendente de informação do Arthur
 - E-mail e WhatsApp do suporte americano.

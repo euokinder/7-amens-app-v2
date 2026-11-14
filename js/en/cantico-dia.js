@@ -69,8 +69,6 @@
     // Enquanto a voz não chega: o aviso de que o áudio está sendo preparado e,
     // se houver PDF, o botão dele (no espanhol, o PDF da Novena em cada dia,
     // pedido do Caio em 07/11). Os dois saem quando a voz entrar.
-    // ⏳ EUA: sem PDF em inglês (PDF_NOVENA = null), o aviso fica só com a
-    // primeira frase, e o botão do PDF não aparece.
     const avisoDaVoz = 'We\'re finishing the audio for this day. It will be right here very soon.'
       + (PDF_NOVENA ? ' In the meantime, you can pray with the PDF of the Novena to Mary, Undoer of Knots.' : '');
     const audioHtml = dia.audioUrl

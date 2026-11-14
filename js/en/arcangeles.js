@@ -28,10 +28,8 @@
 //
 // oracion nula = sem texto na tela (como no Brasil, por enquanto só o áudio).
 // Quando o texto chegar: { apertura, bloques: [...], cierre }.
-// enElPdf = o arcanjo está no PDF dos Arcanjos. ⏳ EUA: os valores abaixo são
-// os do PDF em ESPANHOL (Uriel não estava nele); ainda não existe PDF em
-// inglês, e enquanto PDF_ARCANGELES for null o aviso não fala de PDF nenhum.
-// Conferir quando o PDF em inglês existir.
+// enElPdf = o arcanjo está no PDF dos Arcanjos. O PDF em inglês (13/11/2026)
+// tem os mesmos três do espanhol: Michael, Gabriel e Raphael (Uriel não está).
 // As imagens são as mesmas do Brasil (sem texto escrito nelas).
 
 const ARCANGELES = [
@@ -139,11 +137,10 @@ const ARCANGELES = [
   },
 ];
 
-// O PDF dos Arcanjos. ⏳ EUA: ainda não existe PDF em inglês (o do espanhol
-// era /assets/latam/pdf/oraciones-santos-arcangeles.pdf: NÃO usar aqui). null =
-// sem botão de PDF (js/en/extras.js, audioEnPreparacion) e sem frase sobre o
-// PDF no aviso (js/en/oracion-arcangel.js). Quando existir: '/assets/en/pdf/...'.
-const PDF_ARCANGELES = null;
+// O PDF dos Arcanjos em inglês (13/11/2026; feito em "7 Améns EUA/_montagem",
+// extras_en.py). null = sem botão de PDF (js/en/extras.js, audioEnPreparacion)
+// e sem frase sobre o PDF no aviso (js/en/oracion-arcangel.js).
+const PDF_ARCANGELES = '/assets/en/pdf/prayers-to-the-holy-archangels.pdf';
 
 // "Saint Michael — Protection", do jeito que aparece nos títulos.
 function tituloDelArcangel(arcangel) {

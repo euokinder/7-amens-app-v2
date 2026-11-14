@@ -29,8 +29,6 @@
     // se houver PDF, o botão dele (no espanhol, o PDF dos Arcanjos em todas as
     // orações, Caio, 07/11). No Uriel, que não estava no PDF, a frase não
     // promete rezar a ele.
-    // ⏳ EUA: sem PDF em inglês (PDF_ARCANGELES = null), o aviso fica só com a
-    // primeira frase, e o botão do PDF não aparece.
     const avisoDaVoz = 'We\'re finishing the audio for this prayer. It will be right here very soon.'
       + (!PDF_ARCANGELES
         ? ''
