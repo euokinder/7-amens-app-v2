@@ -30,7 +30,12 @@
     { key: 'arcangeles', codigo: 'UP01', title: 'The Four Archangels' },
     { key: 'cantico', codigo: 'UP02', title: 'Angelic Canticle' },
   ];
-  const nomeDoProduto = { principal: 'App (7 Amens)', arcangeles: 'UP01 · Four Archangels', cantico: 'UP02 · Angelic Canticle' };
+  // aporte e tres_madrugadas: as ofertas dos Dias 3 e 7 pela Digistore
+  // (supabase/en/13-digistore.sql); renovam o app, não abrem extra.
+  const nomeDoProduto = {
+    principal: 'App (7 Amens)', arcangeles: 'UP01 · Four Archangels', cantico: 'UP02 · Angelic Canticle',
+    aporte: 'Day 3 · Contribution', tres_madrugadas: 'Day 7 · Three Mornings of Intercession',
+  };
   const dayLabels = [
     'Start Here',
     'First Amen · The Complete Our Father',

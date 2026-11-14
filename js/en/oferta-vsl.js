@@ -13,10 +13,10 @@
    nossa etiqueta (utm_*) precisa estar guardada antes do player carregar.
    Toda venda daqui leva utm_term=pagina-vsl.
 
-   ⏳ EUA: o checkout em inglês ainda não existe (data-link vazio). Sem link,
-   o botão fica ESCONDIDO e, sem href, não leva a lugar nenhum; com ?previa=1
-   ele aparece apagado, só para conferir a tela. Quando o link existir, tudo
-   volta a funcionar como no espanhol, sem mexer aqui.
+   Sem link (data-link vazio), o botão fica ESCONDIDO e, sem href, não leva a
+   lugar nenhum; com ?previa=1 ele aparece apagado, só para conferir a tela.
+   Desde 14/11/2026 o link é a Digistore24 dos EUA (en-offer-canticle.html,
+   produto 741401).
    ===================================================================== */
 (function () {
   'use strict';
@@ -41,8 +41,8 @@
     var destino;
     try { destino = new URL(botao.dataset.link); } catch (e) { destino = null; }
     if (!destino) {
-      // ⏳ EUA: sem checkout. O botão fica escondido (classe "esconder") e
-      // inerte; só a prévia o mostra, apagado.
+      // Sem checkout: o botão fica escondido (classe "esconder") e inerte;
+      // só a prévia o mostra, apagado.
       botao.style.opacity = '0.5';
       botao.setAttribute('aria-disabled', 'true');
       if (previa) botao.classList.remove('esconder');

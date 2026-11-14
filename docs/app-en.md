@@ -121,7 +121,7 @@ Registro: inglês americano, católico, "you" acolhedor, frases curtas e letra g
 | 3 | Prova no computador (`localhost`, 375 px): entrar, home, lista, Dia 1 com "I prayed this prayer" e desfazer, trava ("It unlocks in 2 days"), Arcanjos, Cântico, cliente sem extras (cadeado e "Learn more"), reembolso, sair. Sem erro no console | ✅ 13/11 |
 | 4 | PDFs em inglês (`assets/en/pdf/`, 12 arquivos, ~1 MB no total) e a página de entrega `/en-materials` (cópia da `/materiales`) | ✅ 13/11 |
 | 5 | Vídeos, áudios dos Arcanjos e do Cântico, quando chegarem (Bunny, armazenamento próprio do inglês) | ⏳ |
-| 6 | Checkout e a função que libera a venda | ⏳ por último |
+| 6 | Checkout: Digistore24 dos EUA, função `en-digistore` e `13-digistore.sql` (ver "A venda pela Digistore24") | ✅ 14/11 no TESTE; ⏳ produção junto com o bloco 7 |
 | 7 | Ir ao ar: SQL e funções na produção (o Arthur cola), segredos, 1 build | ⏳ |
 
 ## Os PDFs em inglês (13/11/2026)
@@ -146,9 +146,9 @@ A oficina mora FORA do repositório, em `D:\Downloads Certos\PkScale\7 Améns EU
 
 ## 🔴 Antes de ir ao ar (sem isto, não publicar)
 1. ✅ **Canal de ajuda (provisório, 14/11):** o Arthur mandou usar, por enquanto, o e-mail e o WhatsApp da LATAM (`soporte@pkscale.com` e +55 88 99443-2257), em `js/en/config.js` e no `SUPPORT_EMAIL` da `en-api`. Conferido na tela: "Contact us" abre o e-mail com o assunto em inglês, e o card do WhatsApp leva a mensagem já escrita em inglês. ⚠️ Quem atende fala espanhol; trocar quando o suporte americano existir. A Lucy está pronta e provada no TESTE (ver "A Lucy").
-2. **Checkout** ligado à visão `en_pedidos_pagos` (`supabase/en/02-compras.sql`), com a função que recebe a venda. Sem ele, ninguém compra nem entra sozinha.
+2. ✅ **Checkout (14/11, provado só no TESTE):** Digistore24 dos EUA, a função `en-digistore` e o `13-digistore.sql`, que liga a visão `en_pedidos_pagos` aos pagamentos. Falta colar na produção: os passos estão em "A venda pela Digistore24". Sem isso, ninguém entra sozinha.
 3. **Desligar o bloqueio do limite de gasto do Supabase** (ver "Decisões").
-4. As páginas de venda dos extras (`/en-offer-archangels`, `/en-offer-canticle`) hoje só mostram o título: precisam do vídeo e do checkout, ou o card "Learn more" leva a uma página vazia.
+4. As páginas de venda dos extras (`/en-offer-archangels`, `/en-offer-canticle`) hoje só mostram o título: precisam do vídeo. O checkout já está ligado (14/11). Sem o vídeo, o botão do Cântico aparece desde o começo, e as cartas dos Arcanjos só depois de ~8 min de página aberta (a rede de segurança).
 
 ## A Lucy, o chat de suporte (14/11/2026, ✅ provada só no TESTE)
 Cópia da Lucía do espanhol (`supabase/functions/en-chat/`, `supabase/en/10-chat.sql`, `js/en/lucia.js`).
@@ -164,7 +164,71 @@ Cópia da Lucía do espanhol (`supabase/functions/en-chat/`, `supabase/en/10-cha
 - ⚠️ A Lucía do espanhol (no ar) tem as mesmas duas falhas que foram corrigidas aqui (botões na crise e "compra registrada" para quem não entrou). Anotado no cérebro em 14/11.
 - Ainda igual à Lucía (menor): a mensagem pronta para a equipe começa na voz dela ("Hello, I am…") e segue com o resumo na terceira pessoa; e um segundo caso na mesma conversa sobrescreve o motivo do primeiro.
 
+## A venda pela Digistore24 (`en-digistore`, 14/11/2026, ✅ provada só no TESTE)
+**Em uma frase:** a cliente paga na Digistore24 dos EUA, o aviso da Digistore (IPN) chega na função `en-digistore`, e o app abre sozinho para o e-mail da compra, com o extra quando ela comprou os Arcanjos ou o Cântico.
+
+### Decisões do Arthur (14/11/2026)
+- **Conta da Digistore própria dos EUA**, separada da da LATAM: outra senha do aviso e outros números de produto.
+- **Os números** (print do Arthur), cadastrados na tabela `en_digistore_products`:
+
+  | Número | Nome na Digistore | No app |
+  |---|---|---|
+  | 741394 | The 7 Amens of the Early Morning | `principal` (front) |
+  | 741402 | The 7 Amens of the Early Morning 27 | `principal` (front com outro preço) |
+  | 741399 | Protection of the Four Archangels | `arcangeles` (Up 01) |
+  | 741401 | Angelic Canticle | `cantico` (Up 02) |
+
+- **Os extras dentro do app usam os MESMOS produtos do funil** (741399 e 741401), no link padrão `https://www.checkout-ds24.com/product/…`, como no espanhol. O que separa a venda do app da do funil é a etiqueta `utm_source=app-en`, que as páginas já colam (`en-offer-archangels.html`, as 4 cartas; `en-offer-canticle.html` + `js/en/oferta-vsl.js`, o botão).
+- **Só a nossa função libera.** A automação do Pedro (Make + Brevo) NÃO roda nos EUA. Se a função falhar, a rede é a própria Digistore, que repete o aviso até receber `OK` (pelo menos 20 vezes em 10 dias), e a lista `needs_review` (consultas no fim do `13-digistore.sql`).
+- **A página de obrigado e o e-mail da Digistore** já levam a `/en` e a `/en-materials` (Arthur, 14/11).
+- Ainda **sem produto na Digistore**: as três contribuições do Dia 3 (`aporte`) e Three Mornings of Intercession (`tres_madrugadas`). Os botões de `js/en/oferta-dia.js` continuam vazios. Quando existirem, cadastrar os números ANTES da primeira venda (o molde está no `13-digistore.sql`) e pôr os links com as etiquetas que o próprio arquivo descreve.
+
+### Como funciona
+- **Produto conhecido = está na tabela.** Nada é reconhecido pelo nome. Número que não está lá fica `needs_review` e não libera nada (a equipe cadastra e libera à mão no `/en-admin`; a Digistore não reenvia um aviso que já recebeu `OK`). Oferta nova = uma linha de SQL, sem publicar a função.
+- Todo produto conhecido libera o app por **12 meses**, "ativo até a data mais longe" (comprar de novo nunca encurta). Arcanjos e Cântico também liberam o extra. Contribuição e Three Mornings só renovam o app.
+- **A origem em `en_access` é `checkout`**, a que o app em inglês reservou para "a venda" desde o começo: o painel mostra "from the purchase" e a Lucy conta como compradora (`en_chat_posicao`). Por isso a trava de origem e o `10-chat.sql` não mudaram. Quem cobrou fica em `en_digistore_events`.
+- **Reembolso e disputa só registram** (a regra do espanhol). Na visão, a compra vira `devuelto = true` (o reembolso em um toque mostra como devolvida). Tirar o acesso é o "Remove" do `/en-admin`.
+- **Compra de teste (Testpay) na produção fica `ignored`** e não libera, de propósito. No banco de TESTE ela libera, para dar para provar o caminho.
+- **A visão `en_pedidos_pagos` lê os pagamentos da Digistore**: os extras, os pop-ups (não oferecem o que ela já comprou), o painel e o reembolso enxergam a compra. ⚠️ Rodar o `02-compras.sql` de novo depois do `13` volta a visão para a vazia.
+- **Dado pessoal, o mínimo:** e-mail, nome e país vão só para `en_customers`. A linha do aviso guarda o `customer_id` e os NOMES dos campos (`campos`), nunca o e-mail.
+- A assinatura é a do espanhol (SHA-512 do guia oficial), com a senha no segredo **`EN_DIGISTORE_IPN_PASSWORD`**. A resposta é o texto exato `OK`.
+
+### O que o aviso da Digistore NÃO traz (guia oficial, relido em 14/11)
+- **Os números do cartão.** O resgate pelo cartão (`/en-login` → "I don't know which email I used") não acha quem comprou pela Digistore e segue para a entrada de emergência.
+- **As etiquetas `utm_*`**: o guia não lista. ⏳ Conferir no primeiro aviso real (coluna `campos`). Se não vierem, o painel conta 0 vendas por pop-up.
+- **O upsell tem o MESMO pedido (`order_id`) da compra principal**, com transação própria: por isso a "compra" do app é a transação, não o pedido.
+
+### Arquivos
+| Arquivo | O quê |
+|---|---|
+| `supabase/functions/en-digistore/index.ts` | a função (cópia da `latam-digistore`, com a tabela de produtos e vários produtos por pagamento) |
+| `supabase/functions/en-digistore/testa-en-digistore.mjs` | teste local, banco de mentira: 69 conferências |
+| `supabase/en/13-digistore.sql` | `en_digistore_products` (com os 4 números), `en_digistore_events` e a visão `en_pedidos_pagos` de verdade |
+| `supabase/en/testes/prova-digistore-no-teste.mjs` | prova de ponta a ponta no banco de TESTE |
+| `js/en/admin.js` | o painel ganhou os nomes das ofertas dos Dias 3 e 7 |
+
+### Provado (14/11/2026)
+- **Local:** `testa-en-digistore` 69 ok; `testa-en-api` 219 ok e `testa-en-refund` 24 ok continuam verdes.
+- **Banco de TESTE:** `13-digistore.sql` rodado (as 2 tabelas com RLS, a visão com `security_invoker`); `en-digistore` v1 publicada com o JWT desligado; `prova-digistore-no-teste.mjs` 15 de 15: teste de conexão, venda do front, ela entra no app pelo e-mail da compra (acesso até 2027), Arcanjos no mesmo pedido e a repetição (nada duplica), Arcanjos aparecem na sessão, o reembolso enxerga as 2 compras, o reembolso dos Arcanjos só registra (o acesso continua e a compra aparece devolvida), produto desconhecido não libera ninguém, senha errada recusada. No banco: app e Arcanjos com origem `checkout`, o painel com 2 pagamentos e os 2 produtos, `en_extras` com "compra". As clientes de mentira (`@exemplo.com`) foram apagadas.
+- ⏳ **Não conferido no navegador:** as cartas e o botão saindo com a etiqueta. O código que cola a etiqueta é o do espanhol, conferido no navegador em 13/11; só o endereço mudou.
+
+### ⏳ Ir ao ar (junto com o resto do app em inglês, bloco 7; o Arthur clica, uma tela por vez, com foto; nunca entre 3h e 8h de Brasília)
+1. **O banco.** Depois dos outros arquivos `en_` (01 → 02 → 03 → 04 → 05 → 09 → 10 → 11), o `13-digistore.sql` no *SQL Editor* da produção. O agente põe o arquivo na área de transferência; o Arthur cola e roda. O agente confere com as consultas "CONFERIR" do fim do arquivo (leves).
+2. **A função.** *Edge Functions → Deploy a new function → Via Editor*. Apagar o exemplo e colar `supabase/functions/en-digistore/index.ts` (o agente põe na área de transferência). **Escrever o nome `en-digistore` no campo do nome ANTES do *Deploy function*** (renomear depois não muda o endereço). Depois, aba *Settings* → desligar **"Verify JWT with legacy secret"** → *Save changes*. O agente confere a versão e o JWT desligado.
+3. **A senha.** O agente gera uma senha longa e põe na área de transferência. O Arthur cola a MESMA em dois lugares: no Supabase, *Edge Functions → Secrets*, com o nome `EN_DIGISTORE_IPN_PASSWORD`; e na Digistore, no campo da senha da conexão (passo 4). Sem ela, todo aviso volta recusado (401), e a Digistore fica repetindo.
+4. **A conexão na Digistore dos EUA.** *Settings → Integrations (IPN) → Add new connection → Generic*: URL `https://lbaudlocfbjunnaoyrtz.supabase.co/functions/v1/en-digistore`, a senha do passo 3, os 4 produtos, os eventos de pagamento, reembolso e disputa, timing **"Before redirect to thank you page"**. Salvar e clicar **"Test connection"**: tem de dar OK. Os artigos da Digistore divergem nos nomes dos campos: conferir na tela, com foto.
+5. **A primeira venda real.** O agente confere `en_digistore_events` (consulta leve, com `limit`): `recorded`, "App: acesso até…", e se a coluna `campos` traz os `utm_*`. Provar com Testpay na produção NÃO serve (fica `ignored`). Prova real = uma compra da equipe e depois o reembolso pela Digistore (só registra; tirar o acesso dela é no `/en-admin`).
+
+Cada passo é inofensivo sem o seguinte. Nenhum build a mais: os links das páginas entram no build do app em inglês.
+
+**Opção não usada:** depois do `OK`, a resposta pode levar linhas `loginurl:` e `username:`, que a Digistore mostra no e-mail de compra (só com o timing "Before redirect to thank you page" e "group by upsells" desligado). Não faz falta enquanto o e-mail já leva ao app.
+
+### Voltar atrás
+- **Parar de liberar:** desativar a conexão na Digistore. Quem já entrou continua com o acesso.
+- **A função:** apagar a `en-digistore` no painel (o aviso passa a dar erro, e a Digistore repete por 10 dias).
+- **O banco:** seção DESFAZER do `13-digistore.sql` (a visão volta a ser a vazia rodando o `02-compras.sql`). O acesso de quem já foi liberado fica.
+
 ## O que fica pendente de informação do Arthur
 - E-mail e WhatsApp do suporte americano.
-- Links e preços do checkout (principal, Arcanjos, Cântico, contribuições do Dia 3, Three Mornings).
+- Checkout: ✅ front, front de US$ 27, Arcanjos e Cântico (14/11). Faltam os produtos, os links e os preços das contribuições do Dia 3 e de Three Mornings of Intercession, e o preço "de … por …" da revelação dos Arcanjos ("from [US$ ?] to [US$ ?]").
 - Os IDs dos vídeos, quando prontos.

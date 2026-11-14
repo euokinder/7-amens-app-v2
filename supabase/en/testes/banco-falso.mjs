@@ -37,6 +37,9 @@ const TRAVAS = {
   en_chat_mensagens: [['id']],
   // 11-reembolso.sql.
   en_refund_requests: [['id']],
+  // 13-digistore.sql: os avisos da Digistore e os números dos produtos.
+  en_digistore_events: [['event', 'transaction_id']],
+  en_digistore_products: [['product_id']],
 };
 // Visões: só leitura. Uma função que tente gravar nelas recebe erro.
 const VISOES = new Set(['en_pedidos_pagos']);

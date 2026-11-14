@@ -33,6 +33,11 @@
 --   - índices na tabela de avisos para o que as funções procuram:
 --     customer_id, lower(email), final_cartao e o pedido.
 --
+-- ✅ O CHECKOUT CHEGOU (14/11/2026): a Digistore24. O 13-digistore.sql cria
+-- en_digistore_events e troca esta visão pela que lê os pagamentos de lá.
+-- ⚠️ Rodar ESTE arquivo de novo depois do 13 volta a visão para a vazia (e o
+-- app para de enxergar as compras). Se rodar, rodar o 13 em seguida.
+--
 -- Pode rodar mais de uma vez. Só cria a visão en_pedidos_pagos.
 -- =====================================================================
 

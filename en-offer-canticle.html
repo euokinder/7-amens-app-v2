@@ -10,9 +10,11 @@
      ⏳ EUA: AINDA NÃO VENDE, de propósito:
        - vídeo: não existe VSL em inglês. O player da VTurb (no espanhol,
          vid-6ae55235a1db2408a3689b3c) e o script dele estão comentados abaixo;
-       - checkout: não existe em inglês (data-link vazio). Sem link, o
-         js/en/oferta-vsl.js deixa o botão escondido e inerte (?previa=1 mostra
-         apagado). No espanhol era a Digistore24, produto 742816: NÃO usar;
+       - ✅ checkout (14/11/2026, Arthur): Digistore24 dos EUA, produto 741401
+         ("Angelic Canticle"), o MESMO do Up 02 do funil, como no espanhol. O
+         que separa a venda do app da do funil é a etiqueta utm_source=app-en.
+         A venda libera o app e o extra sozinha (en-digistore). ⚠️ Sem o VSL e
+         com data-segundos vazio, o botão aparece desde o começo;
        - data-segundos vazio: o minuto do pitch no VSL em inglês (no espanhol,
          533 s = 8:53, que não serve);
        - preço: não aparece nesta página.
@@ -65,11 +67,11 @@
     </div>
     -->
 
-    <!-- O BOTÃO DE COMPRA. ⏳ EUA: data-link (o checkout em inglês) e
-         data-segundos (o minuto do pitch no VSL em inglês) ainda vazios: o botão
-         fica escondido até o link existir. -->
+    <!-- O BOTÃO DE COMPRA. data-link: a Digistore24 dos EUA, produto 741401
+         (14/11/2026). ⏳ EUA: data-segundos (o minuto do pitch no VSL em inglês)
+         ainda vazio: até o VSL existir, o botão aparece desde o começo. -->
     <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;"
-       data-link=""
+       data-link="https://www.checkout-ds24.com/product/741401"
        data-campanha="cantico"
        data-segundos="">I want the Angelic Canticle</a>
 

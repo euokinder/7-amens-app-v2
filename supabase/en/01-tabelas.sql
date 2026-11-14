@@ -21,10 +21,12 @@
 --   09-resgate.sql                o resgate de quem não acha o e-mail
 --   10-chat.sql                   a Lucy, o chat de suporte (nasce DESLIGADA)
 --   11-reembolso.sql              o reembolso em um toque
+--   13-digistore.sql              a venda pela Digistore24 (o checkout dos
+--                                 EUA): avisos, números dos produtos e a
+--                                 visão en_pedidos_pagos de verdade
 -- Os números seguem os do espanhol, para comparar arquivo com arquivo.
--- Faltam de propósito: 06, 07, 08 e 13 (pagamento: KashPay, Whop e
--- Digistore no espanhol) e o 12 (no espanhol, uma correção do pop-up; aqui
--- já entra pronta no 03).
+-- Faltam de propósito: 06, 07 e 08 (pagamento no espanhol: KashPay e Whop)
+-- e o 12 (no espanhol, uma correção do pop-up; aqui já entra pronta no 03).
 --
 -- POR QUE PREFIXO, E NÃO UM SCHEMA "en" SEPARADO
 -- Um schema novo precisaria entrar na configuração da API do Supabase
@@ -73,9 +75,10 @@ create table if not exists public.en_customers (
 --    Reembolso e disputa NÃO tiram o acesso (a mesma regra do espanhol):
 --    ficam só registrados. Tirar é à mão: status 'revoked'.
 --    source (de onde veio o acesso):
---      'checkout'   ⏳ EUA: checkout — a venda, liberada pela função de
---                   pagamento que ainda vai nascer (se ela usar outro nome,
---                   trocar aqui e em en_chat_posicao, de 10-chat.sql)
+--      'checkout'   a venda, liberada pela função de pagamento: desde
+--                   14/11/2026, a en-digistore (13-digistore.sql). Quem
+--                   cobrou fica em en_digistore_events. É o nome que o painel
+--                   e a Lucy (en_chat_posicao, 10-chat.sql) já contam.
 --      'import'     carga de quem comprou antes da função de pagamento
 --      'manual'     liberado à mão no painel
 --      'emergencia' a entrada de emergência do resgate (09-resgate.sql)

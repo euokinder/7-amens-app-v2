@@ -12,10 +12,12 @@
        - vídeo: não existe VSL em inglês. O player da VTurb (no espanhol,
          vid-6ae515a3c7321bec2b3fc67d, da página de 1 clique) e o script dele estão
          comentados abaixo. A headline em inglês precisa conversar com o VSL em inglês;
-       - checkout: não existe em inglês. As cartas estão SEM href e, sem checkout,
-         o painel das cartas nunca aparece (?previa=1 mostra para conferir a tela,
-         mas a revelação não sai da página). No espanhol era a Digistore24,
-         produto 742832: NÃO usar;
+       - ✅ checkout (14/11/2026, Arthur): Digistore24 dos EUA, produto 741399
+         ("Protection of the Four Archangels"), o MESMO do Up 01 do funil, como
+         no espanhol. O que separa a venda do app da do funil é a etiqueta
+         utm_source=app-en. A venda libera o app e o extra sozinha (en-digistore).
+         ⚠️ Sem o VSL, o painel das cartas só aparece pela rede de segurança
+         (segundosDaCarta + 2 min de página aberta);
        - o minuto das cartas (segundosDaCarta, no script do fim): 5:54 era o do VSL
          em espanhol; medir no VSL em inglês;
        - preço: "de US$ 69 por US$ 27" no espanhol. Em inglês, "[US$ ?]" nos dois
@@ -88,16 +90,16 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
     <!-- CARTAS: invisíveis até o minuto do pitch no vídeo. "smartplayer-click-event"
          faz a VTurb contar o toque como "Clique no Botão" (nome exato da
          documentação dela).
-         ⏳ EUA: as quatro cartas estão SEM href (checkout em inglês ainda não
-         existe). Quando existir, pôr o MESMO link do checkout no href das quatro. -->
+         O MESMO link do checkout nas quatro: Digistore24 dos EUA, produto 741399
+         (14/11/2026). A etiqueta é colada pelo script do fim da página. -->
     <div class="cartas-painel esconder">
       <div class="cartas-headline">Discover your guardian angel and get 30% off now</div>
 
       <div class="cartas-container" id="cartas-container">
-        <a class="carta smartplayer-click-event" data-carta="1"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 1 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a class="carta smartplayer-click-event" data-carta="2"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 2 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a class="carta smartplayer-click-event" data-carta="3"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 3 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a class="carta smartplayer-click-event" data-carta="4"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 4 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="1"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 1 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="2"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 2 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="3"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 3 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
+        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="4"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 4 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
       </div>
 
       <div class="revelacao" id="revelacao" style="display:none;" role="status" aria-live="polite" tabindex="-1">
@@ -133,10 +135,10 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 (() => {
   'use strict';
 
-  // ⏳ EUA: o checkout em inglês ainda não existe (as cartas estão sem href).
-  // Sem checkout, o painel das cartas nunca aparece (nem pela VTurb nem pela
-  // rede de segurança) e a carta não leva a lugar nenhum. ?previa=1 mostra o
-  // painel para conferir a tela, mas a revelação não sai da página.
+  // Sem checkout (carta sem href), o painel das cartas nunca aparece (nem pela
+  // VTurb nem pela rede de segurança) e a carta não leva a lugar nenhum.
+  // ?previa=1 mostra o painel para conferir a tela. Desde 14/11/2026 as cartas
+  // levam à Digistore24 dos EUA (produto 741399).
   var primeiraCarta = document.querySelector('.carta');
   var temCheckout = /^https:\/\//.test((primeiraCarta && primeiraCarta.getAttribute('href')) || '');
 
@@ -241,7 +243,7 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
       try { revelacao.focus(); } catch (e) {}
 
       partida = setTimeout(function () {
-        if (temCheckout) location.href = carta.href; // ⏳ EUA: sem checkout, fica na revelação
+        if (temCheckout) location.href = carta.href; // sem checkout, fica na revelação
       }, segundosDaRevelacao * 1000);
     });
 
