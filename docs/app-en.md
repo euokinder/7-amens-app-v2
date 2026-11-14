@@ -95,9 +95,9 @@ Primeiro acesso das duas: 13/11/2026.
 ### Como funciona sem checkout
 Toda leitura de compra passa pela visão `en_pedidos_pagos` (`02-compras.sql`), hoje vazia. O checkout entra trocando o select dessa visão. Até lá: extras só liberados à mão no painel; pop-ups nascem desligados; o resgate pelo cartão não acha ninguém e segue para a emergência; o reembolso grava o pedido e a equipe procura. A Lucy nasce desligada (ver "A Lucy", abaixo).
 
-### Para o Arthur decidir (vem do original em espanhol)
-- Página de venda dos Arcanjos: "The Pope asked me to share this with you" (fala por uma pessoa real), "Your guardian angel is Saint Michael" (para a Igreja, o anjo da guarda não é arcanjo) e "he will transform your whole life" (promessa).
-- Roteiro de São Miguel 1 (Drive): "I declare that my life belongs to the Lord" — "I declare" soa evangélico; vale trocar antes de gravar.
+### Decidido pelo Arthur (14/11/2026): fica igual ao espanhol
+- Página de venda dos Arcanjos: "The Pope asked me to share this with you", "Your guardian angel is Saint Michael" e "he will transform your whole life" ficam como estão, tradução fiel do espanhol. Os agentes tinham apontado o risco (fala por pessoa real, anjo da guarda não é arcanjo, promessa); o Arthur decidiu manter. Não "corrigir".
+- Roteiro de São Miguel 1 (Drive): "I declare that my life belongs to the Lord" fica, igual ao espanhol.
 - "your husband or wife" no Dia 7, num público de mulheres (está no roteiro do vídeo).
 
 Registro: inglês americano, católico, "you" acolhedor, frases curtas e letra grande (mulheres 45+). Nunca vocabulário evangélico ou de autoajuda (born again, breakthrough, I declare, manifest, the universe, energy). Grafia dos EUA.
