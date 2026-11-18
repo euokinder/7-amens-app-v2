@@ -9,3 +9,7 @@ verify_jwt = false
 [functions.payt-webhook]
 # Payt authenticates with the integration_key inside the body and never sends a JWT.
 verify_jwt = false
+
+[functions.suporte-email]
+# The Gmail reader (Apps Script) authenticates with its own x-suporte-token header and never sends a JWT.
+verify_jwt = false
