@@ -35,6 +35,9 @@
     grant_access: 'Liberou o acesso', revoke_access: 'Revogou o acesso', update_email: 'Corrigiu o e-mail',
     entry_link: 'Criou o link de entrada', renew_entry_link: 'Trocou o link de entrada',
     grant_extra: 'Liberou um extra no app', revoke_extra: 'Retirou um extra do app',
+    // O painel de reembolsos (/es-reembolsos, 18/11/2026).
+    refund_create: 'Registrou um pedido de reembolso', refund_update: 'Mudou um pedido de reembolso',
+    refund_delete: 'Excluiu um pedido de reembolso',
   };
   // Os extras dentro do app (latam-api: admin_grant_extra / admin_revoke_extra).
   const EXTRAS_NO_APP = [

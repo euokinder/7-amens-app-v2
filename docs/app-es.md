@@ -546,6 +546,60 @@ Pedido do Caio: pedir o dinheiro de volta para nós tem de ser MAIS FÁCIL que p
 
 **Ordem de publicar:** SQL → função → site → e-mails da KashPay. Qualquer ordem é inofensiva: sem o SQL ou sem a função, a página mostra o caminho de sempre (WhatsApp e e-mail).
 
+## O painel de reembolsos do suporte (`/es-reembolsos`, 18/11/2026)
+Pedido do Arthur (18/11): os pedidos da `/es-reembolso` só existiam numa tabela que ninguém via sem o agente, e nada avisava o suporte. Agora o suporte tem um painel próprio, claro, no estilo das ferramentas de IA.
+
+**Decisões do Arthur (18/11):**
+- **O suporte faz tudo**, inclusive liberar e retirar produtos. Quem entra é quem está em `latam_admins`, a mesma lista do `/es-admin`.
+- **A devolução continua à mão**, na Whop ou na Digistore. O painel não tem chave da Whop e não devolve nada: só guarda e mostra.
+- **Excluir apaga de vez**, e a foto inteira do pedido fica em `latam_admin_actions` (`refund_delete`), com quem apagou e quando.
+
+**O que o painel mostra:** os números do topo (pendentes, atrasados com mais de 24 h, a devolver, reembolsado e desistências em 30 dias); as abas Pendentes, Atrasados, Reembolsados, Desistiu, Recusados e Todos; e a busca por e-mail, nome ou ID do pagamento. O detalhe de cada pedido traz:
+- o relógio das 24 h;
+- cada compra, com o valor cobrado, se está dentro dos 7 dias, onde devolver (Whop ou Digistore) e o ID para copiar;
+- o aviso de **disputa aberta no banco** (nesse caso, não devolver por fora) e o de **"a Whop já registrou a devolução"**;
+- o passo a passo, a cliente (país, motivo, acesso ao app) e o e-mail pronto em espanhol, que muda conforme o estado;
+- "Acesso e produtos": liberar ou retirar o app e os extras, e copiar o link de entrada, pelas mesmas ações `admin_*` da `latam-api`;
+- editar (e-mail, valor pedido, valor devolvido, motivo, anotação) e excluir.
+
+"Novo pedido" registra um pedido que chegou por e-mail ou WhatsApp (`canal = 'manual'`).
+
+**Estados:** `pendente`, `feito` (na tela, "Reembolsado"), `desistiu` e `recusado`. Voltar a pendente apaga quem resolveu.
+
+**Onde mora:**
+- Banco: `supabase/latam/14-painel-reembolsos.sql` (o estado `desistiu`, as colunas `canal`, `valor_devolvido_cents`, `resuelto_por` e `atualizado_em`, as ações novas do histórico e `latam_admin_reembolsos()`).
+- Função: as ações `admin_*` da `latam-reembolso` (a sessão vem no cabeçalho `x-latam-session`). Teste local: `supabase/functions/latam-reembolso/testa-latam-reembolso.mjs`, 47 conferências.
+- Site: `es-reembolsos.html`, `js/es/reembolsos-painel.js` e `css/es/reembolsos-painel.css`.
+
+**Sem atualização sozinha:** a lista vem ao abrir, no botão "Atualizar" e depois de cada ação, o que poupa a cota do Supabase. "Acesso e produtos" é a consulta mais pesada (a ficha da `latam-api`) e só roda no toque.
+
+**Pôr alguém do suporte no painel:** a pessoa precisa de acesso ao app, porque entra pela sessão do app. Primeiro, "Liberar acesso" no `/es-admin` com o e-mail dela. Depois, o insert em `latam_admins` que está no fim do SQL 14. O e-mail nunca fica no repositório.
+
+**Provado em 18/11, no banco de TESTE:** entrar com `admin.teste@exemplo.com`; ver a lista com pedido atrasado, sem compra e já devolvido na Whop; marcar reembolsado com valor e anotação; liberar 12 meses de app; excluir; registrar pedido novo com ".con" corrigido; celular a 375 px sem rolagem para o lado; console sem erro; o histórico com as quatro ações.
+
+**Ordem de publicar:** SQL 14 → função `latam-reembolso` → site. Antes do SQL, a função nova responde erro só no painel (a página da cliente continua igual). Antes da função, o painel mostra o erro e nada mais quebra.
+
+### Devolver pela API, do próprio painel (18/11/2026)
+Pedido do time (18/11): o suporte devolve sem entrar em conta nenhuma. No pedido, o bloco **"Devolver pela API"**:
+1. **Procurar** (`admin_localizar`, só lê): busca as compras do e-mail do pedido na **Whop nova** e nas **2 contas da Digistore** (LATAM e inglês), ao mesmo tempo. Marca "✓ É deste pedido" quando a compra da Whop tem a mesma transação da KashPay, ou quando o valor bate, com no máximo 2 dias de diferença. Uma conta que falha aparece em vermelho e não derruba as outras.
+2. **Devolver** (`admin_reembolsar`): pede a **senha do painel**. O servidor procura a compra DE NOVO no e-mail do pedido e nunca devolve um número que veio só da tela. Recusa compra com disputa ou já devolvida. Depois devolve o total: na Whop, `POST /payments/{id}/refund`, com `Idempotency-Key` contra clique duplo; na Digistore, `refundPurchase`, com o e-mail de quem fez em `operator`. O pedido vira "Reembolsado" sozinho, somando o valor e anotando onde foi devolvido.
+
+**Por que procurar pelo e-mail:** desde 13/11 a Whop antiga está travada e nenhuma venda da Whop chega ao app. A Whop nova e a Digistore da LATAM ainda não mandam aviso de venda, e a KashPay não diz quem cobrou. Quando esses avisos forem ligados, a busca pode passar a usar o número exato. As cobranças da Whop antiga (`pay_` guardados) não têm chave: o painel manda devolver à mão.
+
+**Segredos (nunca no código, que é público):** `WHOP_NOVA_API_KEY`, `DIGISTORE_LATAM_API_KEY`, `DIGISTORE_EN_API_KEY` e `PAINEL_REEMBOLSO_SENHA`.
+- Whop: chave de conta com `payment:manage`, `payment:basic:read`, `payment:dispute:read` e `member:email:read` (sem esta última, a busca por e-mail não funciona).
+- Digistore: chave **writable** (a única além de readonly) em cada conta.
+- **Senha:** uma só para a equipe (decisão do Arthur, 18/11). 5 erradas em 15 min travam a pessoa por 15 min. Quem devolveu fica registrado pelo login de cada um.
+- No banco de TESTE não há chave nenhuma, e a senha é de ensaio (`ensaio-do-painel`, só vale lá): dinheiro de verdade nunca sai do teste.
+
+**Registro:** cada tentativa, deu certo ou não, fica em `latam_refund_api_log` (SQL 15), e a que deu certo também em `latam_admin_actions` (`refund_api`).
+
+**Provado:** `testa-latam-reembolso.mjs`, com 80 conferências e a Whop e a Digistore de mentira (procurar, a trava da senha, devolver nas duas, devolver duas vezes, compra de outra pessoa, disputa, conta errada, plataforma fora do ar). A tela foi conferida no computador com respostas simuladas. ⚠️ **A chamada de verdade às APIs só se prova na produção:** a primeira busca e a primeira devolução são do Arthur, num pedido que já ia ser devolvido.
+
+⚠️ **Não conferido:** o formato exato da resposta do `listPurchasesOfEmail` da Digistore (a documentação não detalha). O código aceita os formatos mais prováveis; se a busca na Digistore vier vazia para uma compra que existe, olhar a resposta real.
+
+**Ordem de publicar:** SQL 15 → os 4 segredos → função → site.
+
 ## A Lucía, o chat de suporte (12/11/2026, ⏳ construída e provada só no TESTE)
 Pedido do Arthur (12/11): esse público quer sentir que está CONVERSANDO com alguém; FAQ fixo não serve. É **só suporte**: a Lucía nunca vende nem oferece nada.
 
@@ -594,6 +648,7 @@ Roda SEMPRE, junto com a automação do Pedro. Liberar duas vezes não faz mal: 
 - ⚠️ **Não conferido ainda:** se o aviso real traz os `utm_*` (o guia de 2018 não lista; a API `getPurchaseTracking` traz). Só o primeiro aviso real diz, pela coluna `campos`.
 
 ## Como voltar atrás
+- **Painel de reembolsos:** a função de antes dele é a da `origin/main` de 18/11 (`git show e013c55:supabase/functions/latam-reembolso/index.ts`); o site, apagar as 3 páginas novas. O banco pode ficar; desfazer: seção DESFAZER de `14-painel-reembolsos.sql`.
 - **Reembolso em um toque:** voltar a `es-reembolso.html` e o `js/es/reembolso.js` da `a32b178` (`git show a32b178:es-reembolso.html`), apagar a função `latam-reembolso` no painel e colar de volta nos e-mails da KashPay as versões `-ate-1311`. O banco pode ficar; desfazer: seção DESFAZER de `11-reembolso.sql`.
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.
 - **Resgate:** a `latam-api` de antes dele é a do commit `28563e3` (`git show 28563e3:supabase/functions/latam-api/index.ts`). O banco pode ficar: a função de antes não usa nada do que o `09-resgate.sql` criou. Desfazer o banco: seção DESFAZER do `09-resgate.sql`.

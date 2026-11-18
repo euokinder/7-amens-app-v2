@@ -35,6 +35,10 @@ const TRAVAS = {
   latam_chat_config: [['id']],
   latam_chat_conversas: [['id']],
   latam_chat_mensagens: [['id']],
+  // 11-reembolso.sql e 14-painel-reembolsos.sql: os pedidos de reembolso.
+  latam_refund_requests: [['id']],
+  // 15-reembolso-pela-api.sql: cada tentativa de devolver pela API.
+  latam_refund_api_log: [['id']],
 };
 
 const PADROES = {
@@ -55,6 +59,12 @@ const PADROES = {
   latam_kashpay_events: () => ({ status: 'recorded', detail: '', offers: [], produtos: [], received_at: new Date().toISOString() }),
   latam_kashpay_offers: () => ({ offer_name: '', note: '', created_at: new Date().toISOString() }),
   latam_digistore_events: () => ({ status: 'recorded', detail: '', campos: '', customer_id: null, received_at: new Date().toISOString() }),
+  latam_refund_requests: () => ({
+    id: crypto.randomUUID(), created_at: new Date().toISOString(), customer_id: null, itens: [], total_cents: 0, moneda: 'USD',
+    sin_compra: false, motivo: null, motivo_en: null, status: 'pendente', resuelto_en: null, nota: '', pais: '',
+    canal: 'pagina', valor_devolvido_cents: null, resuelto_por: null, atualizado_em: null,
+  }),
+  latam_refund_api_log: () => ({ id: ++sequencia, created_at: new Date().toISOString(), resposta: '', ok: false }),
   latam_chat_conversas: () => ({ id: crypto.randomUUID(), pagina: 'app', pais: '', conexao: '', mensagens: 0, equipe: 'nao', equipe_motivo: '', equipe_resumo: '', equipe_contato: '', equipe_email: '', equipe_em: null, resolvido_em: null, created_at: new Date().toISOString() }),
   latam_chat_mensagens: () => ({ id: ++sequencia, modelo: '', tokens_entrada: 0, tokens_cache: 0, tokens_saida: 0, created_at: new Date().toISOString() }),
 };
