@@ -64,11 +64,12 @@
       // ⏳ EUA: checkout de "Three Mornings of Intercession" (US$ 27) ainda não
       // existe (o do espanhol era da Hubla, "Las 3 Madrugadas de Intercesión":
       // NÃO usar). A entrega é fora do app.
-      link: '',
+      // Checkout da Hubla "Three Mornings of Intercession" (US$ 27, criado em 18/11/2026).
+      link: 'https://pay.hub.la/Q4yKyAd7GkCQYAnHbZty?utm_source=app-en&utm_medium=video-dia-7&utm_campaign=3-madrugadas',
       titulo: 'Continue your walk with God', // PROVISÓRIO: copy do Caio
       boton: 'I want the Three Mornings of Intercession', // PROVISÓRIO: copy do Caio
-      finDeLaOracion: null, // ⏳ EUA: o Amen da oração no vídeo em inglês
-      segundosDelBoton: null, // ⏳ EUA: a fala "...twenty-seven dollars, in one payment." no vídeo em inglês
+      finDeLaOracion: 263, // 4:23: o Amen da oração (4:25) no vídeo da VTurb de 18/11
+      segundosDelBoton: 662, // 11:02: "Tap the button below...", o mesmo ponto do pitch do espanhol (Arthur, 18/11)
     },
   };
 

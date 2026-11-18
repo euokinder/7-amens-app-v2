@@ -37,12 +37,16 @@
   //   7: { vturb: '<id do player>', formato: '3:4' },
   // O Dia 3 com `reserva` só troca para a VTurb quando os três links de aporte
   // em js/en/oferta-dia.js estiverem preenchidos com o checkout americano.
-  // ⏳ EUA: faltam o Dia 0 (Start Here), o 3, o 6 e o 7.
+  // ⏳ EUA: faltam o Dia 0 (Start Here) e o 3.
   const VIDEOS = {
     1: { video: '2a2fe00c-7984-42df-b7e4-7cdcfc25aa3d', formato: '3:4' }, // EN · Day 1 — The Complete Our Father (6:11, 14/11)
     2: { video: 'c8432043-dcb2-42dc-94cd-3419be99af92', formato: '3:4' }, // EN · Day 2 — The Prayer for Forgiveness (5:25, 14/11)
     4: { video: '17646ed9-b21f-48cf-a28c-6f1154dd1712', formato: '3:4' }, // EN · Day 4 — The Prayer for Deliverance (3:35, 14/11)
     5: { video: '41c5990e-ca7c-411f-8037-bd71f70bd339', formato: '3:4' }, // EN · Day 5 — The Prayer for Prosperity (3:53, 14/11)
+    6: { video: 'f1055761-261b-4904-a395-b3d0831b1fa2', formato: '3:4' }, // EN · Day 6 — The Prayer for Peace (2:04, 18/11)
+    // Dia 7 na VTurb (11:19, 18/11/2026): a oração e, emendada nela, a oferta
+    // de "Three Mornings of Intercession" (botão em js/en/oferta-dia.js).
+    7: { vturb: '6afdad97d47be1f668f1a133', formato: '3:4' }, // Seventh Amen (18/11/2026)
   };
 
   const FORMATOS = {
