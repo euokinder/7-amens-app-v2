@@ -1,0 +1,73 @@
+/* O guia do suporte, a segunda aba do /es-reembolsos (18/11/2026).
+   Usa as cores e os cartões do reembolsos-painel.css; aqui só o que é
+   do guia. Arquivo só da LATAM. */
+
+/* A troca entre "Reembolsos" e "Guia do suporte", no topo */
+.troca { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #eceef4; border: 1px solid var(--linha); }
+.troca-botao {
+  border: 0; background: none; cursor: pointer; border-radius: 999px;
+  padding: 7px 14px; font-size: 13.5px; font-weight: 500; color: var(--texto-2); white-space: nowrap;
+}
+.troca-botao:hover { color: var(--texto); }
+.troca-botao[aria-pressed="true"] { background: var(--cartao); color: var(--texto); box-shadow: var(--sombra); }
+.troca-botao:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+
+.guia .numeros.guia-basico { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.guia-titulo { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin: 34px 0 12px; }
+
+/* Produtos */
+.guia-produtos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.guia-produto { border-radius: var(--raio-grande); padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.guia-produto-topo { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.guia-preco { font-family: var(--mono); font-size: 15px; font-weight: 500; }
+.guia-produto h3 { margin: 4px 0 0; font-size: 18px; letter-spacing: -0.02em; line-height: 1.25; }
+.guia-produto p { margin: 0; color: var(--texto-2); font-size: 14px; }
+.guia-produto .guia-quando { color: var(--texto); background: var(--azul-fundo); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; }
+.guia-acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
+
+/* Links */
+.guia-links { border-radius: var(--raio-grande); padding: 4px 18px; }
+.guia-link { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid var(--linha); }
+.guia-link:first-child { border-top: 0; }
+.guia-link b { display: block; }
+.guia-link span { display: block; color: var(--texto-3); font-size: 13px; }
+.guia-link code { font-family: var(--mono); font-size: 12.5px; color: var(--texto-2); overflow-wrap: anywhere; }
+
+/* Dúvidas */
+.guia-duvidas { display: grid; gap: 8px; }
+.guia-duvida { border-radius: var(--raio); padding: 0 18px; }
+.guia-duvida summary { cursor: pointer; padding: 16px 0; font-weight: 600; font-size: 15.5px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.guia-duvida summary::-webkit-details-marker { display: none; }
+.guia-duvida summary::after { content: "+"; font-family: var(--mono); color: var(--texto-3); font-weight: 400; }
+.guia-duvida[open] summary::after { content: "–"; }
+.guia-duvida summary:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 6px; }
+.guia-duvida p { margin: 0 0 12px; color: var(--texto-2); font-size: 14.5px; max-width: 72ch; }
+.guia-duvida blockquote {
+  margin: 0 0 12px; padding: 12px 14px; border-radius: 12px; background: var(--cartao-2);
+  border: 1px solid var(--linha); font-size: 14.5px; max-width: 72ch;
+}
+.guia-duvida .botao { margin-bottom: 16px; }
+
+/* Contatos e "nunca prometer" */
+.guia-rodape { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.guia-contatos, .guia-nunca { border-radius: var(--raio-grande); padding: 4px 20px 18px; }
+.guia-rodape .guia-titulo { margin-top: 16px; }
+.guia-rodape p { margin: 6px 0 0; color: var(--texto-2); font-size: 14.5px; }
+.guia-rodape p b { color: var(--texto); margin-right: 6px; }
+.guia-nunca { background: var(--vermelho-fundo); border-color: #f5c0bd; }
+
+/* O botão copiado */
+.botao.copiado { background: var(--verde-fundo); border-color: #a9e5c9; color: #0b7a4f; }
+
+@media (max-width: 980px) {
+  .guia-produtos { grid-template-columns: minmax(0, 1fr); }
+  .guia .numeros.guia-basico { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .topo { flex-wrap: wrap; }
+  .troca { order: 3; width: 100%; }
+  .troca-botao { flex: 1; }
+  .guia-link { grid-template-columns: minmax(0, 1fr) auto; }
+  .guia-link code { grid-column: 1 / -1; grid-row: 2; }
+  .guia-rodape { grid-template-columns: minmax(0, 1fr); }
+}

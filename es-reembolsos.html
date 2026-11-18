@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/es/reembolsos-painel.css">
+<link rel="stylesheet" href="/css/es/guia-suporte.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
 </head>
 <body>
@@ -42,6 +43,12 @@
 <div class="painel" id="tela-painel" hidden>
   <header class="topo">
     <div class="marca"><span class="marca-ponto"></span>reembolsos<span class="marca-sufixo">.latam</span></div>
+    <!-- A troca entre a fila e o guia do suporte (18/11/2026). Quem troca é
+         o js/es/guia-suporte.js; o reembolsos-painel.js não sabe do guia. -->
+    <nav class="troca" aria-label="Seções">
+      <button class="troca-botao" type="button" data-tela="aba-pedidos" aria-pressed="true">Reembolsos</button>
+      <button class="troca-botao" type="button" data-tela="aba-guia" aria-pressed="false">Guia do suporte</button>
+    </nav>
     <div class="topo-direita">
       <span class="quem" id="quem"></span>
       <a class="botao botao-fantasma botao-pequeno" href="/es-admin">Painel completo</a>
@@ -53,7 +60,7 @@
     </div>
   </header>
 
-  <main class="conteudo">
+  <main class="conteudo" id="aba-pedidos">
     <section class="cabeca">
       <div>
         <p class="sobre">Suporte · 7 Amenes de la Madrugada</p>
@@ -79,6 +86,130 @@
     <p class="estado" id="estado" role="status">Carregando…</p>
     <section class="lista" id="lista" aria-live="polite"></section>
   </main>
+
+  <!-- O guia do suporte (18/11/2026, pedido do Arthur): o que a cliente
+       comprou, os links e as respostas prontas. Texto fixo, sem dado de
+       cliente: este arquivo é público, como o resto do repositório. -->
+  <main class="conteudo guia" id="aba-guia" hidden>
+    <section class="cabeca">
+      <div>
+        <p class="sobre">Suporte · 7 Amenes de la Madrugada</p>
+        <h1>Guia do suporte</h1>
+        <p class="sub">O que a cliente comprou, os links que você vai mandar e o que responder.</p>
+      </div>
+    </section>
+
+    <section class="numeros guia-basico" aria-label="O básico">
+      <div class="numero vidro"><div class="numero-rotulo">Acesso</div><div class="numero-valor">12 meses</div><div class="numero-nota">não é para sempre</div></div>
+      <div class="numero vidro"><div class="numero-rotulo">Orações</div><div class="numero-valor">1 por dia</div><div class="numero-nota">abre à meia-noite dela</div></div>
+      <div class="numero vidro"><div class="numero-rotulo">Reembolso</div><div class="numero-valor">não tira</div><div class="numero-nota">o acesso continua</div></div>
+      <div class="numero vidro"><div class="numero-rotulo">Garantia</div><div class="numero-valor">7 dias</div><div class="numero-nota">Digistore: 60 dias nos EUA</div></div>
+    </section>
+
+    <h2 class="guia-titulo">Produtos</h2>
+    <section class="guia-produtos">
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Principal</span><span class="guia-preco">US$ 27–37</span></div>
+        <h3>7 Amenes de la Madrugada</h3>
+        <p>7 orações em vídeo com o Padre Santiago, uma por madrugada, mais 10 PDFs e o chat da Lucía.</p>
+        <div class="guia-acoes">
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/amenes">Copiar página de venda</button>
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://whop.com/checkout/plan_69XTsTRUeGzAt">Copiar checkout</button>
+        </div>
+      </article>
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Extra</span><span class="guia-preco">US$ 27</span></div>
+        <h3>Oraciones a los Santos Arcángeles</h3>
+        <p>Miguel, Gabriel, Rafael e Uriel, com 3 orações cada. Ela escolhe uma carta e descobre o arcanjo dela.</p>
+        <p class="guia-quando"><b>Ofereça quando</b> ela falar de medo, inveja ou proteção da família.</p>
+        <div class="guia-acoes">
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/es-oferta-arcangeles?utm_source=app-es&amp;utm_medium=suporte">Copiar página de venda</button>
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://www.checkout-ds24.com/product/742832">Copiar checkout</button>
+        </div>
+      </article>
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Extra</span><span class="guia-preco">US$ 27</span></div>
+        <h3>Cántico Angelical</h3>
+        <p>7 dias de música e oração, um por dia. Vem com a Novena a la Virgen Desatanudos de presente.</p>
+        <p class="guia-quando"><b>Ofereça quando</b> ela falar de ansiedade, insônia ou falta de paz.</p>
+        <div class="guia-acoes">
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/es-oferta-cantico?utm_source=app-es&amp;utm_medium=suporte">Copiar página de venda</button>
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://www.checkout-ds24.com/product/742816">Copiar checkout</button>
+        </div>
+      </article>
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Extra · pagamento único</span><span class="guia-preco">US$ 37</span></div>
+        <h3>Las 3 Madrugadas de Intercesión</h3>
+        <p>3 vídeos de oração por uma pessoa querida, uma madrugada por vez. Vendido no fim do vídeo do Día 7. Quem compra vê o card na home do app, em até 5 minutos.</p>
+        <p class="guia-quando"><b>Ofereça quando</b> ela pedir oração por um filho, o marido ou alguém doente ou afastado.</p>
+        <div class="guia-acoes">
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://pay.hub.la/3aTSzyE7DJSHQHe7bv0i?utm_source=app-es&amp;utm_medium=suporte">Copiar checkout</button>
+        </div>
+      </article>
+    </section>
+
+    <h2 class="guia-titulo">Links</h2>
+    <section class="guia-links vidro">
+      <div class="guia-link"><div><b>Entrar no app</b><span>para a cliente · ela usa o e-mail da compra</span></div><code>setemadrugadas.com.br/es</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/es">Copiar</button></div>
+      <div class="guia-link"><div><b>PDFs</b><span>para a cliente · sem precisar entrar</span></div><code>setemadrugadas.com.br/materiales</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/materiales">Copiar</button></div>
+      <div class="guia-link"><div><b>Pedir reembolso</b><span>para a cliente · cai nesta fila</span></div><code>setemadrugadas.com.br/es-reembolso</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/es-reembolso">Copiar</button></div>
+      <div class="guia-link"><div><b>Painel completo</b><span>só a equipe · achar a cliente e liberar extra</span></div><code>setemadrugadas.com.br/es-admin</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/es-admin">Copiar</button></div>
+    </section>
+
+    <h2 class="guia-titulo">Dúvidas comuns</h2>
+    <section class="guia-duvidas">
+      <details class="guia-duvida vidro">
+        <summary>«No puedo entrar»</summary>
+        <p>Peça o e-mail da compra e busque no Painel completo. Se ela não lembra, o botão «No sé qué correo usé» na tela de entrada acha pelo nome.</p>
+        <blockquote id="resposta-entrar">¡Hola! Para entrar a tu app, abre setemadrugadas.com.br/es y escribe el mismo correo que usaste en la compra. No hay contraseña. Si no recuerdas el correo, toca «No sé qué correo usé» y te ayudamos.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="resposta-entrar">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«Mi oración de hoy está cerrada»</summary>
+        <p>É a regra: abre uma por dia, à meia-noite no país dela. Quem perdeu um dia continua de onde parou.</p>
+        <blockquote id="resposta-cerrada">¡Hola! Las oraciones se abren una por día, a la medianoche de tu país. Si un día no pudiste rezar, no pasa nada: sigues desde donde quedaste.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="resposta-cerrada">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«Compré un extra y no aparece»</summary>
+        <p>Peça para ela sair e entrar de novo. Se não aparecer, confira a compra na Digistore e libere à mão no Painel completo. No banco, o Cántico aparece como «desatanudos».</p>
+        <blockquote id="resposta-extra">¡Hola! Ya revisamos tu compra. Cierra tu sesión en el app y vuelve a entrar con tu correo: tu contenido nuevo va a aparecer en la pantalla principal.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="resposta-extra">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«Quiero un reembolso»</summary>
+        <p>Mande o link do reembolso. O pedido cai nesta fila, e o acesso ao app continua depois da devolução.</p>
+        <blockquote id="resposta-reembolso">¡Hola! Sentimos que no haya sido para ti. Puedes pedir tu reembolso en un solo toque aquí: setemadrugadas.com.br/es-reembolso. Tu acceso al app sigue abierto.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="resposta-reembolso">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«No reconozco este cobro»</summary>
+        <p>Responda no mesmo dia, diga o que foi a compra e ofereça o reembolso antes que ela vá ao banco. Disputa já aberta: avise o Arthur.</p>
+        <blockquote id="resposta-cobro">¡Hola! Este cobro es de «7 Amenes de la Madrugada», un app de oración que compraste con este correo. Si no lo reconoces o no lo quieres, te devolvemos el dinero aquí: setemadrugadas.com.br/es-reembolso</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="resposta-cobro">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«No me llegaron los PDF»</summary>
+        <p>Os PDFs estão todos numa página, sem login. Os dos extras ficam dentro do app.</p>
+        <blockquote id="resposta-pdf">¡Hola! Todos tus materiales en PDF están aquí, listos para descargar: setemadrugadas.com.br/materiales</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="resposta-pdf">Copiar resposta</button>
+      </details>
+    </section>
+
+    <section class="guia-rodape">
+      <div class="guia-contatos vidro">
+        <h2 class="guia-titulo">Contatos</h2>
+        <p><b>E-mail</b> soporte@pkscale.com</p>
+        <p><b>WhatsApp</b> +55 88 99443-2257</p>
+        <p><b>Chat</b> a Lucía, dentro do app</p>
+      </div>
+      <div class="guia-nunca vidro">
+        <h2 class="guia-titulo">Nunca prometer</h2>
+        <p>Cura · acesso para sempre · dinheiro ou emprego · liberar as 7 orações de uma vez.</p>
+        <p>Nunca peça o número inteiro do cartão: no máximo os 4 últimos.</p>
+      </div>
+    </section>
+  </main>
 </div>
 
 <!-- O detalhe de um pedido (gaveta à direita; tela cheia no celular) -->
@@ -101,5 +232,6 @@
 
 <script src="/js/es/config.js"></script>
 <script src="/js/es/reembolsos-painel.js"></script>
+<script src="/js/es/guia-suporte.js"></script>
 </body>
 </html>
