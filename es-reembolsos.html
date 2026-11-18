@@ -69,6 +69,11 @@
     </div>
   </header>
 
+  <!-- Em qual país a pessoa está (18/11/2026, pedido do Arthur): a faixa
+       muda de cor e de texto com o país (azul = LATAM, roxo = EUA). Quem
+       escreve é o js/es/guia-suporte.js; o texto abaixo é o da LATAM. -->
+  <p class="faixa-pais" id="faixa-pais"><b>Você está na LATAM</b><span>app em espanhol · responda em ESPANHOL</span></p>
+
   <main class="conteudo" id="aba-pedidos">
     <section class="cabeca">
       <div>
@@ -225,29 +230,137 @@
   </main>
 
   <!-- ================================================================
-       GUIA DO SUPORTE DOS EUA (18/11/2026): EM PREPARAÇÃO.
-       Para preencher: troque o bloco "guia-em-preparacao" abaixo pelo
-       conteúdo, no MESMO molde do guia da LATAM (#aba-guia, acima):
-       as mesmas classes (numeros guia-basico, guia-titulo, guia-produtos,
-       guia-produto, guia-links...) e os botões com data-copiar="<link>" ou
-       data-copiar-de="<id do texto>", que o js/es/guia-suporte.js já copia
-       neste guia também. Texto fixo, sem dado de cliente (repositório
-       público). Para o Arthur ou a equipe: o nome do app nos EUA é
-       "7 Amens Before Dawn"; a caixa é a dos EUA.
+       GUIA DO SUPORTE DOS EUA (18/11/2026), no MESMO molde do da LATAM
+       (#aba-guia, acima). Explicações em português (quem lê é a equipe);
+       as respostas prontas, em INGLÊS (quem lê é a cliente americana).
+       Os dados saem do repositório: js/en/config.js (contatos),
+       en-offer-archangels.html ($69 → $27, Digistore 741399),
+       en-offer-canticle.html (Digistore 741401), js/en/oferta-dia.js
+       (Three Mornings, Hubla, US$ 27), docs/app-en.md (regras, Digistore
+       dos EUA, 60 dias). Os preços conferidos nas vendas reais da
+       en_digistore_events em 18/11: principal US$ 37, Arcanjos US$ 69 no
+       funil e 27 pelo app, Cântico US$ 27 (o resto é imposto ou câmbio).
+       Texto fixo, sem dado de cliente (repositório público).
        ================================================================ -->
   <main class="conteudo guia" id="aba-guia-eua" hidden>
     <section class="cabeca">
       <div>
         <p class="sobre">Suporte · 7 Amens Before Dawn (EUA)</p>
-        <h1>Guia do suporte</h1>
-        <p class="sub">O que a cliente comprou, os links que você vai mandar e o que responder.</p>
+        <h1>Guia do suporte · EUA</h1>
+        <p class="sub">O que a cliente americana comprou, os links que você vai mandar e o que responder. <b>As respostas prontas estão em inglês.</b></p>
       </div>
     </section>
 
-    <section class="guia-em-preparacao vidro">
-      <h2 class="guia-titulo">Em preparação</h2>
-      <p>O guia dos EUA ainda está sendo escrito. Enquanto isso, na dúvida, pergunte ao Arthur antes de responder a cliente.</p>
-      <p>Os pedidos de reembolso dos EUA já estão na aba <b>Pedidos de reembolso</b>, com o e-mail pronto em inglês.</p>
+    <section class="numeros guia-basico" aria-label="O básico">
+      <div class="numero vidro"><div class="numero-rotulo">Acesso</div><div class="numero-valor">12 meses</div><div class="numero-nota">não é para sempre</div></div>
+      <div class="numero vidro"><div class="numero-rotulo">Orações</div><div class="numero-valor">1 por dia</div><div class="numero-nota">abre à meia-noite do celular dela</div></div>
+      <div class="numero vidro"><div class="numero-rotulo">Reembolso</div><div class="numero-valor">não tira</div><div class="numero-nota">o acesso continua</div></div>
+      <div class="numero vidro"><div class="numero-rotulo">Garantia</div><div class="numero-valor">60 dias</div><div class="numero-nota">pela Digistore dos EUA</div></div>
+    </section>
+
+    <h2 class="guia-titulo">Produtos</h2>
+    <section class="guia-produtos">
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Principal</span><span class="guia-preco">US$ 37</span></div>
+        <h3>7 Amens Before Dawn</h3>
+        <p>7 orações em vídeo com o Father James, uma por manhã, mais 10 PDFs. Na Digistore e no recibo aparece como «The 7 Amens of the Early Morning». A Introdução (Start Here) e o Third Amen ainda não têm vídeo: mostram a foto e o texto.</p>
+        <p class="guia-quando"><b>Valor no recibo:</b> US$ 37 mais o imposto do estado dela (por isso aparece US$ 39 ou 40). Fora dos EUA, na moeda dela.</p>
+      </article>
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Extra</span><span class="guia-preco">US$ 69 · 27</span></div>
+        <h3>The Four Archangels</h3>
+        <p>Michael, Gabriel, Raphael e Uriel, com 3 orações cada. Ela escolhe uma carta e descobre o arcanjo dela. Por enquanto entrega o PDF; os áudios em inglês ainda vêm («Audio coming soon»).</p>
+        <p class="guia-quando"><b>Preço:</b> US$ 69 no funil, logo depois da compra. US$ 27 pela página do app (o link abaixo).</p>
+        <p class="guia-quando"><b>Ofereça quando</b> ela falar de medo, inveja ou proteção da família.</p>
+        <div class="guia-acoes">
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/en-offer-archangels?utm_source=app-en&amp;utm_medium=suporte">Copiar página de venda</button>
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://www.checkout-ds24.com/product/741399">Copiar checkout</button>
+        </div>
+      </article>
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Extra</span><span class="guia-preco">US$ 27</span></div>
+        <h3>Angelic Canticle</h3>
+        <p>7 dias de música e oração, um por dia. Vem com a Novena to Mary, Undoer of Knots (PDF) de presente. Os áudios em inglês ainda vêm («Audio coming soon»).</p>
+        <p class="guia-quando"><b>Ofereça quando</b> ela falar de ansiedade, insônia ou falta de paz.</p>
+        <div class="guia-acoes">
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/en-offer-canticle?utm_source=app-en&amp;utm_medium=suporte">Copiar página de venda</button>
+          <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://www.checkout-ds24.com/product/741401">Copiar checkout</button>
+        </div>
+      </article>
+      <article class="guia-produto vidro">
+        <div class="guia-produto-topo"><span class="etiqueta">Extra · pagamento único</span><span class="guia-preco">US$ 27</span></div>
+        <h3>Three Mornings of Intercession</h3>
+        <p>Vendido no fim do vídeo do Seventh Amen, pela Hubla.</p>
+        <p class="guia-aviso"><b>⚠️ A entrega ainda não existe.</b> O time precisa produzir os vídeos em inglês, e o app ainda não mostra nada para quem compra. Até lá: <b>não ofereça</b>, e se uma cliente que comprou perguntar, avise o Arthur antes de responder.</p>
+      </article>
+    </section>
+
+    <h2 class="guia-titulo">Links</h2>
+    <section class="guia-links vidro">
+      <div class="guia-link"><div><b>Entrar no app</b><span>para a cliente · ela usa o e-mail da compra</span></div><code>setemadrugadas.com.br/en</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/en">Copiar</button></div>
+      <div class="guia-link"><div><b>PDFs</b><span>para a cliente · sem precisar entrar</span></div><code>setemadrugadas.com.br/en-materials</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/en-materials">Copiar</button></div>
+      <div class="guia-link"><div><b>Pedir reembolso</b><span>para a cliente · cai nesta fila, na aba EUA</span></div><code>setemadrugadas.com.br/en-refund</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/en-refund">Copiar</button></div>
+      <div class="guia-link"><div><b>Painel completo</b><span>só a equipe · achar a cliente e liberar extra</span></div><code>setemadrugadas.com.br/en-admin</code><button class="botao botao-fantasma botao-pequeno" type="button" data-copiar="https://setemadrugadas.com.br/en-admin">Copiar</button></div>
+    </section>
+
+    <h2 class="guia-titulo">Dúvidas comuns</h2>
+    <section class="guia-duvidas">
+      <details class="guia-duvida vidro">
+        <summary>«I can't log in»</summary>
+        <p>Peça o e-mail da compra e busque no Painel completo dos EUA. Se ela não lembra, o botão «I don't know which email I used» na tela de entrada ajuda a achar.</p>
+        <blockquote id="en-resposta-entrar">Hi! To open your app, go to setemadrugadas.com.br/en and type the same email you used for your purchase. There is no password. If you don't remember the email, tap "I don't know which email I used" and we'll help you.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-entrar">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«Today's prayer is locked»</summary>
+        <p>É a regra: abre uma por dia, à meia-noite no fuso do celular dela. Quem perdeu um dia continua de onde parou.</p>
+        <blockquote id="en-resposta-trancada">Hi! A new prayer unlocks each day, at midnight in your phone's time zone. If you missed a day, that's okay: just continue where you left off.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-trancada">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«There's no video today»</summary>
+        <p>A Introdução (Start Here) e o Third Amen ainda não têm vídeo em inglês: a tela mostra a foto e a oração escrita. Não prometa data.</p>
+        <blockquote id="en-resposta-video">Hi! The video for this prayer is on its way. In the meantime, the full prayer is written on your screen: you can pray it out loud, calmly, just as you would with Father James.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-video">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«I bought an extra and it doesn't show up»</summary>
+        <p>Peça para ela sair e entrar de novo. Se não aparecer, confira a compra na Digistore dos EUA e libere à mão no Painel completo dos EUA. Lembre: os áudios dos extras ainda não existem, ela vai ver «Audio coming soon» e o PDF.</p>
+        <blockquote id="en-resposta-extra">Hi! We've checked your purchase. Please sign out of the app and sign in again with your email: your new content will appear on the home screen.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-extra">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«I want a refund»</summary>
+        <p>Mande o link do reembolso. O pedido cai nesta fila (aba EUA), e o acesso ao app continua depois da devolução.</p>
+        <blockquote id="en-resposta-reembolso">Hi! We're sorry it wasn't right for you. You can request your refund in one tap here: setemadrugadas.com.br/en-refund. Your access to the app stays open.</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-reembolso">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«I don't recognize this charge»</summary>
+        <p>Responda no mesmo dia, diga o que foi a compra e ofereça o reembolso antes que ela vá ao banco. Disputa já aberta na Digistore: avise o Arthur.</p>
+        <blockquote id="en-resposta-cobranca">Hi! This charge is for "7 Amens Before Dawn" (on your receipt, "The 7 Amens of the Early Morning"), a prayer app purchased with this email. If you don't recognize it or don't want it, we'll refund you here: setemadrugadas.com.br/en-refund</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-cobranca">Copiar resposta</button>
+      </details>
+      <details class="guia-duvida vidro">
+        <summary>«I didn't get the PDFs»</summary>
+        <p>Os PDFs do principal estão todos numa página, sem login. Os dos extras ficam dentro do app.</p>
+        <blockquote id="en-resposta-pdf">Hi! All your PDF materials are here, ready to download: setemadrugadas.com.br/en-materials</blockquote>
+        <button class="botao botao-fantasma botao-pequeno" type="button" data-copiar-de="en-resposta-pdf">Copiar resposta</button>
+      </details>
+    </section>
+
+    <section class="guia-rodape">
+      <div class="guia-contatos vidro">
+        <h2 class="guia-titulo">Contatos</h2>
+        <p><b>E-mail</b> sevenamenssupport@gmail.com</p>
+        <p><b>WhatsApp</b> +55 88 99443-2257 · provisório, o mesmo da LATAM (atende em espanhol)</p>
+        <p><b>Chat</b> a Lucy, dentro do app (confirmar se está ligada)</p>
+      </div>
+      <div class="guia-nunca vidro">
+        <h2 class="guia-titulo">Nunca prometer</h2>
+        <p>Cura · acesso para sempre · dinheiro ou emprego · liberar as 7 orações de uma vez · data para os vídeos e áudios que faltam.</p>
+        <p>Nunca peça o número inteiro do cartão: no máximo os 4 últimos.</p>
+      </div>
     </section>
   </main>
 </div>

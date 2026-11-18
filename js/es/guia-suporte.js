@@ -13,6 +13,10 @@
   const CHAVE = 'reembolsos.pais';
   const GUIAS = { latam: 'aba-guia', eua: 'aba-guia-eua' };
   const PAINEL_COMPLETO = { latam: '/es-admin', eua: '/en-admin' };
+  const FAIXA = {
+    latam: { titulo: 'Você está na LATAM', texto: 'app em espanhol · responda em ESPANHOL' },
+    eua: { titulo: 'Você está nos EUA', texto: 'app em inglês · responda em INGLÊS' },
+  };
   const botoesPais = Array.from(document.querySelectorAll('.pais-botao'));
   const botoesTela = Array.from(document.querySelectorAll('.troca-botao'));
   if (!botoesTela.length) return;
@@ -30,6 +34,14 @@
     for (const [chave, id] of Object.entries(GUIAS)) if ($(id)) $(id).hidden = !(tela === 'guia' && chave === pais);
     const marca = $('marca-pais');
     if (marca) marca.textContent = pais === 'eua' ? '.eua' : '.latam';
+    // A faixa que diz em qual país a pessoa está e em que língua responder.
+    const faixa = $('faixa-pais');
+    if (faixa) {
+      const f = FAIXA[pais];
+      faixa.replaceChildren(Object.assign(document.createElement('b'), { textContent: f.titulo }),
+        Object.assign(document.createElement('span'), { textContent: f.texto }));
+    }
+    document.title = `${tela === 'guia' ? 'Guia do suporte' : 'Reembolsos'} · ${pais === 'eua' ? 'EUA' : 'LATAM'}`;
     const completo = $('painel-completo');
     if (completo) completo.setAttribute('href', PAINEL_COMPLETO[pais]);
     // O "Atualizar" é da fila; no guia, some.
@@ -91,6 +103,6 @@
     };
     try { navigator.clipboard.writeText(texto).then(deuCerto, falhou); } catch (err) { falhou(); }
   };
-  // Os dois guias copiam do mesmo jeito (o dos EUA, quando for preenchido).
+  // Os dois guias copiam do mesmo jeito.
   Object.values(GUIAS).forEach(id => { if ($(id)) $(id).addEventListener('click', copiarNoGuia); });
 })();
