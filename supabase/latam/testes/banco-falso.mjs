@@ -39,6 +39,8 @@ const TRAVAS = {
   latam_refund_requests: [['id']],
   // 15-reembolso-pela-api.sql: cada tentativa de devolver pela API.
   latam_refund_api_log: [['id']],
+  // en/11-reembolso.sql + 17-painel-latam-eua.sql: os pedidos dos EUA no mesmo painel.
+  en_refund_requests: [['id']],
 };
 
 const PADROES = {

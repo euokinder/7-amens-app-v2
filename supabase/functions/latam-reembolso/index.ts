@@ -29,6 +29,15 @@
 //   Digistores) e admin_reembolsar {id, conta, ref, senha} (DEVOLVE dinheiro
 //   pela API). Banco: supabase/latam/15-reembolso-pela-api.sql.
 //
+// LATAM e EUA no mesmo painel (18/11/2026; supabase/latam/17-painel-latam-eua.sql):
+// a lista traz os pedidos de latam_refund_requests e de en_refund_requests,
+// cada um com "regiao". As ações sobre um pedido (atualizar, excluir,
+// localizar, reembolsar) recebem {regiao: 'eua'} para mexer na tabela en_;
+// sem regiao, é LATAM (o painel antigo continua funcionando). O histórico de
+// um pedido dos EUA fica em latam_admin_actions, sem target_customer_id
+// (ele aponta para latam_customers) e com regiao nos detalhes. Registrar
+// pedido novo (admin_compras, admin_criar) continua só LATAM.
+//
 // O e-mail passa pela mesma correção da /es-entrar (gmial.com, .con, espaço,
 // acento): o bloco abaixo é cópia do da latam-api. Se mudar lá, mudar aqui.
 //
@@ -96,6 +105,10 @@ const MESSAGES = {
 };
 
 const MOTIVOS = new Set(['no_pude_entrar', 'no_era_lo_que_esperaba', 'no_reconozco', 'cobro_de_mas', 'otro']);
+// O painel aceita também o motivo que só o leitor de e-mails usa (SQL 16):
+// comprou o extra sem perceber.
+const MOTIVOS_PAINEL = new Set([...MOTIVOS, 'extra_sin_querer']);
+const TABELA_DA_REGIAO = { latam: 'latam_refund_requests', eua: 'en_refund_requests' } as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const PEDIDO = /^(pay_[A-Za-z0-9]{6,40}|kashpay:[A-Za-z0-9-]{6,80})$/;
 
@@ -127,9 +140,10 @@ const WHOP_VERSAO = '2026-11-04-1';
 const DIGI_API = 'https://www.digistore24.com/api/call';
 const CONTAS_DIGI = [
   { conta: 'digistore_latam', nome: 'Digistore (LATAM)', segredo: 'DIGISTORE_LATAM_API_KEY' },
-  { conta: 'digistore_en', nome: 'Digistore (inglês)', segredo: 'DIGISTORE_EN_API_KEY' },
+  // A conta do app em inglês é a dos EUA (en-digistore).
+  { conta: 'digistore_en', nome: 'Digistore (EUA)', segredo: 'DIGISTORE_EN_API_KEY' },
 ] as const;
-const CONTA_NOMES: Record<string, string> = { whop_nova: 'Whop nova', digistore_latam: 'Digistore (LATAM)', digistore_en: 'Digistore (inglês)' };
+const CONTA_NOMES: Record<string, string> = { whop_nova: 'Whop nova', digistore_latam: 'Digistore (LATAM)', digistore_en: 'Digistore (EUA)' };
 const REF_WHOP = /^pay_[A-Za-z0-9]{6,40}$/;
 const REF_DIGI = /^[A-Za-z0-9-]{4,40}$/;
 // No banco de TESTE não há chave nenhuma e a senha é de ensaio: dinheiro de
@@ -517,8 +531,8 @@ Deno.serve(async (req: Request) => {
 
     // ------------------------------------------- o painel do suporte (18/11)
     // /es-reembolsos. Só para quem está em latam_admins, com a sessão do app
-    // (a mesma do /es-admin, cabeçalho x-latam-session). O painel NÃO devolve
-    // dinheiro: o suporte devolve à mão na Whop ou na Digistore e marca aqui.
+    // (a mesma do /es-admin, cabeçalho x-latam-session). Devolver dinheiro só
+    // pelo admin_reembolsar (com a senha); o resto só guarda e marca.
     // Toda mudança fica em latam_admin_actions, com quem fez.
     if (typeof body.action === 'string' && body.action.startsWith('admin_')) {
       const token = req.headers.get('x-latam-session') || '';
@@ -529,14 +543,36 @@ Deno.serve(async (req: Request) => {
       if (!admin) return respond({ error: PAINEL.proibido }, 403);
       const eu = sessao.customer_id as string;
       const agora = new Date().toISOString();
-      const registrar = (action: string, alvo: string | null, email: string, details: Record<string, unknown>) =>
-        db('latam_admin_actions', 'POST',
-          { admin_customer_id: eu, target_customer_id: alvo, target_email: email, action, details }, 'return=minimal');
       const id = typeof body.id === 'string' && UUID.test(body.id) ? body.id : '';
+      // De qual tabela é o pedido (SQL 17). Sem regiao = LATAM, como antes.
+      const regiao: keyof typeof TABELA_DA_REGIAO = body.regiao === 'eua' ? 'eua' : 'latam';
+      if (body.regiao !== undefined && body.regiao !== 'eua' && body.regiao !== 'latam') return respond({ error: PAINEL.pedido }, 400);
+      const tabela = TABELA_DA_REGIAO[regiao];
+      // O histórico é um só (latam_admin_actions). O alvo aponta para
+      // latam_customers: num pedido dos EUA ele fica vazio e o id da cliente
+      // dos EUA vai nos detalhes.
+      const registrar = (action: string, alvo: string | null, email: string, details: Record<string, unknown>) =>
+        db('latam_admin_actions', 'POST', {
+          admin_customer_id: eu,
+          target_customer_id: regiao === 'eua' ? null : alvo,
+          target_email: email,
+          action,
+          details: regiao === 'eua' ? { ...details, regiao, en_customer_id: alvo } : details,
+        }, 'return=minimal');
 
       if (body.action === 'admin_lista') {
+        // A lista com LATAM + EUA (SQL 17). Sem ela no banco, a antiga (só LATAM).
+        const lista = async () => {
+          try {
+            return await db('rpc/latam_admin_reembolsos_todos', 'POST', {});
+          } catch (error) {
+            if ((error as { status?: number }).status !== 404) throw error;
+            const antigos = await db('rpc/latam_admin_reembolsos', 'POST', {});
+            return (antigos || []).map((p: Record<string, unknown>) => ({ regiao: 'latam', ...p }));
+          }
+        };
         const [pedidos, [quem]] = await Promise.all([
-          db('rpc/latam_admin_reembolsos', 'POST', {}),
+          lista(),
           db(`latam_customers?id=eq.${eu}&select=email,name&limit=1`),
         ]);
         return respond({ pedidos: pedidos || [], eu: quem || null, agora });
@@ -579,7 +615,7 @@ Deno.serve(async (req: Request) => {
 
       if (body.action === 'admin_atualizar') {
         if (!id) return respond({ error: PAINEL.pedido }, 400);
-        const [antes] = await db(`latam_refund_requests?id=eq.${id}&select=*&limit=1`);
+        const [antes] = await db(`${tabela}?id=eq.${id}&select=*&limit=1`);
         if (!antes) return respond({ error: PAINEL.sumiu }, 404);
         const mudar: Record<string, unknown> = {};
         if (body.status !== undefined) {
@@ -605,14 +641,14 @@ Deno.serve(async (req: Request) => {
           mudar[campo] = valor;
         }
         if (body.motivo !== undefined) {
-          if (body.motivo !== null && !(typeof body.motivo === 'string' && MOTIVOS.has(body.motivo))) return respond({ error: PAINEL.pedido }, 400);
+          if (body.motivo !== null && !(typeof body.motivo === 'string' && MOTIVOS_PAINEL.has(body.motivo))) return respond({ error: PAINEL.pedido }, 400);
           mudar.motivo = body.motivo;
           if (body.motivo && !antes.motivo_en) mudar.motivo_en = agora;
         }
         const mudou = Object.keys(mudar).filter(campo => !campo.startsWith('resuelto_') && campo !== 'motivo_en');
         if (!mudou.length) return respond({ ok: true });
         mudar.atualizado_em = agora;
-        await db(`latam_refund_requests?id=eq.${id}`, 'PATCH', mudar, 'return=minimal');
+        await db(`${tabela}?id=eq.${id}`, 'PATCH', mudar, 'return=minimal');
         const de: Record<string, unknown> = {};
         const para: Record<string, unknown> = {};
         for (const campo of mudou) { de[campo] = antes[campo]; para[campo] = mudar[campo]; }
@@ -624,10 +660,10 @@ Deno.serve(async (req: Request) => {
       // pedido fica no histórico: numa disputa com o banco, ela ainda existe.
       if (body.action === 'admin_excluir') {
         if (!id) return respond({ error: PAINEL.pedido }, 400);
-        const [antes] = await db(`latam_refund_requests?id=eq.${id}&select=*&limit=1`);
+        const [antes] = await db(`${tabela}?id=eq.${id}&select=*&limit=1`);
         if (!antes) return respond({ error: PAINEL.sumiu }, 404);
         await registrar('refund_delete', antes.customer_id, antes.email, { pedido: antes });
-        await db(`latam_refund_requests?id=eq.${id}`, 'DELETE', undefined, 'return=minimal');
+        await db(`${tabela}?id=eq.${id}`, 'DELETE', undefined, 'return=minimal');
         return respond({ ok: true });
       }
 
@@ -636,8 +672,9 @@ Deno.serve(async (req: Request) => {
       // com o pedido. Só leitura: nada é devolvido aqui.
       if (body.action === 'admin_localizar') {
         if (!id) return respond({ error: PAINEL.pedido }, 400);
-        const [pedido] = await db(`latam_refund_requests?id=eq.${id}&select=id,email,itens&limit=1`);
+        const [pedido] = await db(`${tabela}?id=eq.${id}&select=id,email,itens&limit=1`);
         if (!pedido) return respond({ error: PAINEL.sumiu }, 404);
+        // EUA ou LATAM, procura nas 3 contas: só lê, e acha a compra onde estiver.
         const { achados, erros } = await procurarCompras(pedido.email);
         const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
         const tentativas = await db(`latam_refund_api_log?request_id=eq.${id}&select=created_at,conta,ref,valor_cents,moeda,ok,resposta&order=created_at.desc&limit=20`).catch(() => []);
@@ -674,7 +711,7 @@ Deno.serve(async (req: Request) => {
           return respond({ error: API_ERRO.senha }, 403);
         }
 
-        const [pedido] = await db(`latam_refund_requests?id=eq.${id}&select=*&limit=1`);
+        const [pedido] = await db(`${tabela}?id=eq.${id}&select=*&limit=1`);
         if (!pedido) return respond({ error: PAINEL.sumiu }, 404);
         const { achados, erros } = await procurarCompras(pedido.email, conta);
         if (erros.length) return respond({ error: `Não deu para conferir a compra: ${erros[0].erro}` }, 502);
@@ -720,7 +757,7 @@ Deno.serve(async (req: Request) => {
           status: 'feito', resuelto_en: agora, resuelto_por: eu, valor_devolvido_cents: devolvido,
           nota: textoCurto(pedido.nota ? `${pedido.nota}\n${linha}` : linha, 2000), atualizado_em: agora,
         };
-        await db(`latam_refund_requests?id=eq.${id}`, 'PATCH', mudar, 'return=minimal');
+        await db(`${tabela}?id=eq.${id}`, 'PATCH', mudar, 'return=minimal');
         await registrar('refund_api', pedido.customer_id, pedido.email, { id, conta, ref, valor_cents: alvo.valor_cents, moeda: alvo.moeda });
         return respond({ ok: true, resposta, valor_cents: alvo.valor_cents, moeda: alvo.moeda });
       }

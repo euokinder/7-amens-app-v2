@@ -9,6 +9,12 @@
 // A sessão é a do app em espanhol (amenes-es.sesion), e só entra quem está
 // em latam_admins.
 //
+// Desde 18/11 (SQL 17) a lista junta LATAM e EUA, com etiqueta de região e
+// filtro, e traz os pedidos que o leitor de e-mails cria (canal 'email', SQL
+// 16): resumo, assunto, trecho e o botão "Abrir no Gmail". O prazo de 24 h
+// conta da hora do e-mail: amarelo a menos de 6 h do fim, vermelho depois.
+// Toda ação sobre um pedido manda a regiao, para a função achar a tabela.
+//
 // Sem atualização sozinha de tempos em tempos (economia da cota do Supabase):
 // a lista vem ao abrir, no botão "Atualizar" e depois de cada ação.
 //
@@ -65,8 +71,24 @@
     no_era_lo_que_esperaba: 'Não era o que esperava',
     no_reconozco: 'Não reconhece a cobrança',
     cobro_de_mas: 'Foi cobrada a mais',
+    extra_sin_querer: 'Comprou o extra sem querer',
     otro: 'Outro motivo',
   };
+  // O que o leitor de e-mails entendeu do e-mail (SQL 16, 18/11/2026).
+  // Ameaça de banco em vermelho: é a que vira disputa se demorar.
+  const ROTULO_TIPO = {
+    pedido_reembolso: ['Pede reembolso', 'azul'],
+    cobro_doble: ['Cobrança em dobro', 'amarelo'],
+    no_reconoce: ['Não reconhece a compra', 'amarelo'],
+    amenaza_banco: ['Ameaça ir ao banco', 'perigo'],
+  };
+  const tipoDe = chave => ROTULO_TIPO[chave] || [chave, 'amarelo'];
+  // LATAM e EUA no mesmo painel (SQL 17). O pedido sem região é da LATAM.
+  const REGIAO = { latam: 'LATAM', eua: 'EUA' };
+  const regiaoDe = p => (p.regiao === 'eua' ? 'eua' : 'latam');
+  const CAIXA = { soporte: 'soporte@ (LATAM)', eua: 'caixa dos EUA' };
+  // Só um link do próprio Gmail vira botão (o texto vem de fora).
+  const linkDoGmail = link => (typeof link === 'string' && /^https:\/\/mail\.google\.com\//.test(link) ? link : '');
   const NOME_PAIS = (() => {
     try { const nomes = new Intl.DisplayNames(['pt-BR'], { type: 'region' }); return codigo => (codigo ? nomes.of(codigo) || codigo : ''); }
     catch { return codigo => codigo || ''; }
@@ -88,8 +110,19 @@
     if (h < 48) return `${Math.floor(h)} h`;
     return `${Math.floor(h / 24)} dias`;
   };
-  const atrasado = p => p.status === 'pendente' && horasDesde(p.created_at) >= PRAZO_HORAS;
+  // O relógio das 24 h começa quando ELA pediu: o que veio por e-mail conta
+  // da hora do e-mail (na estreia, o leitor traz e-mails de até 7 dias atrás).
+  const inicio = p => {
+    const datas = [p.created_at, p.email_recebido_em].filter(Boolean).map(Date.parse).filter(Number.isFinite);
+    return new Date(datas.length ? Math.min(...datas) : Date.now()).toISOString();
+  };
+  const horasDoPedido = p => horasDesde(inicio(p));
+  const atrasado = p => p.status === 'pendente' && horasDoPedido(p) >= PRAZO_HORAS;
+  // Amarelo: faltam menos de 6 h para o prazo de 24 h.
+  const AVISO_HORAS = 18;
+  const perto = p => p.status === 'pendente' && !atrasado(p) && horasDoPedido(p) >= AVISO_HORAS;
   const classeEstado = p => (atrasado(p) ? 'atrasado' : p.status);
+  const prazo = p => (atrasado(p) ? 'atrasado' : perto(p) ? 'perto' : '');
 
   function avisar(texto, erro) {
     const caixa = $('aviso-rapido');
@@ -122,10 +155,27 @@
   let aba = 'pendente';
   let aberto = '';
   let carregando = false;
+  // O país vem da escolha do topo (LATAM | EUA, js/es/guia-suporte.js):
+  // cada país só vê os pedidos dele. Sem o script, LATAM.
+  const paisAtual = () => (document.body.dataset.pais === 'eua' ? 'eua' : 'latam');
+  // Os filtros de cima (tipo do e-mail, motivo). Vazio = todos.
+  const filtros = { tipo: '', motivo: '' };
+  const passaNosFiltros = (p, f = filtros) => {
+    if (regiaoDe(p) !== paisAtual()) return false;
+    if (f.tipo === 'email' && !p.email_tipo) return false;
+    if (f.tipo === 'pagina' && p.email_tipo) return false;
+    if (f.tipo && !['email', 'pagina'].includes(f.tipo) && p.email_tipo !== f.tipo) return false;
+    if (f.motivo === 'nenhum' && p.motivo) return false;
+    if (f.motivo && f.motivo !== 'nenhum' && p.motivo !== f.motivo) return false;
+    return true;
+  };
+  const filtrados = () => pedidos.filter(p => passaNosFiltros(p));
 
   const ABAS = [
     { chave: 'pendente', rotulo: 'Pendentes', filtro: p => p.status === 'pendente' },
+    { chave: 'perto', rotulo: 'Vencendo', filtro: perto },
     { chave: 'atrasado', rotulo: 'Atrasados', filtro: atrasado },
+    { chave: 'semcompra', rotulo: 'Sem compra', filtro: p => p.status === 'pendente' && p.sin_compra },
     { chave: 'feito', rotulo: 'Reembolsados', filtro: p => p.status === 'feito' },
     { chave: 'desistiu', rotulo: 'Desistiu', filtro: p => p.status === 'desistiu' },
     { chave: 'recusado', rotulo: 'Recusados', filtro: p => p.status === 'recusado' },
@@ -211,54 +261,125 @@
 
   // ------------------------------------------------------------ números
   function desenharNumeros() {
-    const pendentes = pedidos.filter(p => p.status === 'pendente');
+    const base = filtrados();
+    const pendentes = base.filter(p => p.status === 'pendente');
     const atrasados = pendentes.filter(atrasado);
+    const vencendo = pendentes.filter(perto);
+    const semCompra = pendentes.filter(p => p.sin_compra);
     const trintaDias = Date.now() - 30 * 86_400_000;
-    const resolvidosNoMes = pedidos.filter(p => p.resuelto_en && Date.parse(p.resuelto_en) >= trintaDias);
+    const resolvidosNoMes = base.filter(p => p.resuelto_en && Date.parse(p.resuelto_en) >= trintaDias);
     const feitos = resolvidosNoMes.filter(p => p.status === 'feito');
     const devolvido = feitos.reduce((soma, p) => soma + (p.valor_devolvido_cents ?? p.total_cents ?? 0), 0);
     const aDevolver = pendentes.reduce((soma, p) => soma + (p.total_cents || 0), 0);
-    const maisVelho = pendentes.reduce((velho, p) => Math.max(velho, horasDesde(p.created_at)), 0);
-    const numero = (rotulo, valor, nota, classe, ponto) => h('div', { class: `numero vidro${classe ? ` ${classe}` : ''}` },
-      h('div', { class: 'numero-rotulo' }, ponto ? h('span', { class: `ponto ${ponto}` }) : null, rotulo),
-      h('div', { class: 'numero-valor', text: valor }),
-      h('div', { class: 'numero-nota', text: nota }));
+    const maisVelho = pendentes.reduce((velho, p) => Math.max(velho, horasDoPedido(p)), 0);
+    const numero = (rotulo, valor, nota, classe, ponto, irPara) => h(irPara ? 'button' : 'div', {
+      class: `numero vidro${classe ? ` ${classe}` : ''}${irPara ? ' numero-botao' : ''}`,
+      type: irPara ? 'button' : null,
+      onclick: irPara ? () => { aba = irPara; desenhar(); } : null,
+    },
+    h('div', { class: 'numero-rotulo' }, ponto ? h('span', { class: `ponto ${ponto}` }) : null, rotulo),
+    h('div', { class: 'numero-valor', text: valor }),
+    h('div', { class: 'numero-nota', text: nota }));
     $('numeros').replaceChildren(
-      numero('Pendentes', String(pendentes.length), pendentes.length ? `o mais antigo há ${duracao(maisVelho)}` : 'fila zerada', '', 'pendente'),
-      numero('Atrasados', String(atrasados.length), `passaram de ${PRAZO_HORAS} h`, atrasados.length ? 'alerta' : '', atrasados.length ? 'atrasado' : null),
+      numero('Pendentes', String(pendentes.length), pendentes.length ? `o mais antigo há ${duracao(maisVelho)}` : 'fila zerada', '', 'pendente', 'pendente'),
+      numero('Vencendo', String(vencendo.length), `faltam menos de ${PRAZO_HORAS - AVISO_HORAS} h`, vencendo.length ? 'aviso' : '', vencendo.length ? 'perto' : null, 'perto'),
+      numero('Atrasados', String(atrasados.length), `passaram de ${PRAZO_HORAS} h`, atrasados.length ? 'alerta' : '', atrasados.length ? 'atrasado' : null, 'atrasado'),
+      numero('Sem compra', String(semCompra.length), 'procurar a compra', semCompra.length ? 'procurar' : '', null, 'semcompra'),
       numero('A devolver', dinheiro(aDevolver, 'USD'), 'soma dos pendentes'),
-      numero('Reembolsado', dinheiro(devolvido, 'USD'), `${feitos.length} pedido${feitos.length === 1 ? '' : 's'} em 30 dias`, '', 'feito'),
-      numero('Desistiram', String(resolvidosNoMes.filter(p => p.status === 'desistiu').length), 'em 30 dias', '', 'desistiu'),
+      numero('Reembolsado', dinheiro(devolvido, 'USD'), `${feitos.length} pedido${feitos.length === 1 ? '' : 's'} em 30 dias`, '', 'feito', 'feito'),
     );
   }
 
+  // O contador por motivo (para análise): pedidos dos últimos 30 dias, com
+  // os filtros de região e de tipo. Tocar num motivo filtra a lista por ele.
+  function desenharMotivos() {
+    const trintaDias = Date.now() - 30 * 86_400_000;
+    const semMotivo = Object.assign({}, filtros, { motivo: '' });
+    const base = pedidos.filter(p => Date.parse(inicio(p)) >= trintaDias && passaNosFiltros(p, semMotivo));
+    const conta = {};
+    for (const p of base) conta[p.motivo || 'nenhum'] = (conta[p.motivo || 'nenhum'] || 0) + 1;
+    const chaves = [...Object.keys(ROTULO_MOTIVO), 'nenhum'].filter(c => conta[c]).sort((a, b) => conta[b] - conta[a]);
+    const rotulo = c => (c === 'nenhum' ? 'Não disse' : ROTULO_MOTIVO[c]);
+    $('motivos').replaceChildren(
+      h('div', { class: 'motivos-titulo' },
+        h('b', { text: 'Motivos' }),
+        h('span', { class: 'apagado', text: ` · ${base.length} pedido${base.length === 1 ? '' : 's'} nos últimos 30 dias (${REGIAO[paisAtual()]})` })),
+      chaves.length
+        ? h('div', { class: 'motivos-lista' }, ...chaves.map(c => {
+          const parte = Math.round((conta[c] / base.length) * 100);
+          return h('button', {
+            type: 'button', class: `motivo${filtros.motivo === c ? ' ativo' : ''}`, 'aria-pressed': String(filtros.motivo === c),
+            onclick: () => { filtros.motivo = filtros.motivo === c ? '' : c; aba = 'todos'; desenhar(); },
+          },
+          h('span', { class: 'motivo-nome', text: rotulo(c) }),
+          h('span', { class: 'motivo-barra', style: `--parte:${parte}%` }),
+          h('span', { class: 'motivo-conta', text: `${conta[c]} · ${parte}%` }));
+        }))
+        : h('p', { class: 'apagado', style: 'margin:6px 0 0', text: 'Nenhum pedido nos últimos 30 dias.' }));
+  }
+
+  // ------------------------------------------------------------ filtros
+  function desenharFiltros() {
+    const seletor = (rotulo, chave, opcoes) => h('label', { class: 'filtro' },
+      h('span', { text: rotulo }),
+      h('select', { onchange: e => { filtros[chave] = e.target.value; desenhar(); } },
+        ...opcoes.map(([valor, texto]) => h('option', { value: valor, text: texto, selected: filtros[chave] === valor }))));
+    $('filtros').replaceChildren(...[
+      seletor('Tipo', 'tipo', [['', 'Todos'], ['email', 'Veio por e-mail'], ['pagina', 'Pela página ou equipe'],
+        ...Object.keys(ROTULO_TIPO).map(c => [c, `E-mail: ${tipoDe(c)[0]}`])]),
+      seletor('Motivo', 'motivo', [['', 'Todos'], ...Object.entries(ROTULO_MOTIVO), ['nenhum', 'Não disse']]),
+      filtros.tipo || filtros.motivo
+        ? h('button', { type: 'button', class: 'botao botao-fantasma botao-pequeno', onclick: () => { filtros.tipo = ''; filtros.motivo = ''; desenhar(); } }, 'Limpar filtros')
+        : null,
+    ].filter(Boolean));
+    // O que muda com o país: o título e o "Novo pedido" (só LATAM).
+    $('sobre-pedidos').textContent = `Suporte · ${REGIAO[paisAtual()]}`;
+    $('botao-novo').hidden = paisAtual() !== 'latam';
+  }
+
+  // A troca de país no topo (js/es/guia-suporte.js): redesenha a lista e
+  // fecha a gaveta se o pedido aberto é do outro país.
+  window.addEventListener('pais-mudou', () => {
+    if (!pedidos.length && carregando) return;
+    const p = aberto && pedidos.find(x => x.id === aberto);
+    if (p && regiaoDe(p) !== paisAtual()) fecharGaveta();
+    desenhar();
+  });
+
   // ------------------------------------------------------------ abas e lista
   function desenharAbas() {
+    const base = filtrados();
     $('abas').replaceChildren(...ABAS.map(a => h('button', {
       type: 'button', class: 'aba', role: 'tab', 'aria-selected': String(a.chave === aba),
       onclick: () => { aba = a.chave; desenhar(); },
-    }, a.rotulo, h('span', { class: 'aba-conta', text: String(pedidos.filter(a.filtro).length) }))));
+    }, a.rotulo, h('span', { class: 'aba-conta', text: String(base.filter(a.filtro).length) }))));
   }
 
   const nomeDe = p => p.nome || p.email.split('@')[0];
   function produtosResumo(p) {
-    if (p.sin_compra) return [h('span', { class: 'etiqueta perigo', text: 'Compra não encontrada' })];
+    if (p.sin_compra) return [h('span', { class: 'etiqueta procurar', text: '🔎 Sem compra: procurar' })];
     return (p.itens || []).map(i => {
       const marca = i.na_plataforma === 'disputa' ? 'perigo' : i.na_plataforma === 'devolvido' ? 'ok' : '';
       return h('span', { class: `etiqueta ${marca}`, text: i.nombre || i.produto || 'Compra' });
     });
   }
+  // As etiquetas do cartão: região, se veio por e-mail (com o tipo) e o motivo.
+  const etiquetasDoPedido = p => [
+    p.email_tipo ? h('span', { class: 'etiqueta email', text: '✉ E-mail' }) : null,
+    p.email_tipo ? h('span', { class: `etiqueta ${tipoDe(p.email_tipo)[1]}`, text: tipoDe(p.email_tipo)[0] }) : null,
+    p.motivo ? h('span', { class: 'etiqueta motivo-etiqueta', text: ROTULO_MOTIVO[p.motivo] || p.motivo }) : null,
+  ];
 
   function desenharLista() {
     const filtro = ABAS.find(a => a.chave === aba).filtro;
     const termo = $('busca').value.trim().toLowerCase();
-    let visiveis = pedidos.filter(filtro);
+    let visiveis = filtrados().filter(filtro);
     if (termo) {
-      visiveis = visiveis.filter(p => [p.email, p.nome, p.nota, ...(p.itens || []).map(i => i.pedido)]
+      visiveis = visiveis.filter(p => [p.email, p.nome, p.nota, p.email_de, p.email_assunto, ...(p.itens || []).map(i => i.pedido)]
         .some(campo => (campo || '').toLowerCase().includes(termo)));
     }
     // Pendentes: o mais antigo primeiro (é o que está mais perto de estourar).
-    if (aba === 'pendente' || aba === 'atrasado') visiveis.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+    if (['pendente', 'perto', 'atrasado', 'semcompra'].includes(aba)) visiveis.sort((a, b) => Date.parse(inicio(a)) - Date.parse(inicio(b)));
     if (!visiveis.length) {
       $('lista').replaceChildren(h('div', { class: 'vazio' },
         termo ? 'Nada encontrado com essa busca.' : aba === 'pendente' ? 'Nenhum pedido esperando. Fila zerada ✓' : 'Nenhum pedido aqui.'));
@@ -266,28 +387,33 @@
     }
     $('lista').replaceChildren(...visiveis.map(p => {
       const classe = classeEstado(p);
-      const horas = horasDesde(p.created_at);
+      const horas = horasDoPedido(p);
       const tempo = p.status === 'pendente'
-        ? (atrasado(p) ? `atrasado ${duracao(horas - PRAZO_HORAS)}` : `faltam ${duracao(PRAZO_HORAS - horas)}`)
+        ? (atrasado(p) ? `passou ${duracao(horas - PRAZO_HORAS)} do prazo` : `faltam ${duracao(PRAZO_HORAS - horas)}`)
         : `${ROTULO_STATUS[p.status].toLowerCase()} ${dataHora(p.resuelto_en || p.atualizado_em)}`;
+      const marca = prazo(p);
       return h('button', {
-        type: 'button', class: `cartao vidro${p.id === aberto ? ' aberto' : ''}`, onclick: () => abrirGaveta(p.id),
+        type: 'button', class: `cartao vidro${marca ? ` prazo-${marca}` : ''}${p.sin_compra && p.status === 'pendente' ? ' sem-compra' : ''}${p.id === aberto ? ' aberto' : ''}`,
+        onclick: () => abrirGaveta(p.id),
         'aria-label': `Pedido de ${nomeDe(p)}`,
       },
-      h('span', { class: `ponto ${classe}` }),
+      h('span', { class: `ponto ${marca === 'perto' ? 'perto' : classe}` }),
       h('div', { class: 'cartao-quem' },
         h('div', { class: 'cartao-nome', text: nomeDe(p) }),
-        h('div', { class: 'cartao-email', text: p.email })),
+        h('div', { class: 'cartao-email', text: p.email }),
+        h('div', { class: 'cartao-etiquetas' }, etiquetasDoPedido(p))),
       h('div', { class: 'cartao-itens' }, produtosResumo(p)),
       h('div', { class: 'cartao-valor', text: dinheiro(p.total_cents, p.moneda) }),
       h('div', { class: 'cartao-tempo' },
-        h('span', { class: `etiqueta ${classe}`, text: atrasado(p) ? 'Atrasado' : ROTULO_STATUS[p.status] }),
-        h('div', { class: 'tempo', text: tempo })));
+        h('span', { class: `etiqueta ${marca === 'perto' ? 'perto' : classe}`, text: atrasado(p) ? 'Atrasado' : marca === 'perto' ? 'Vencendo' : ROTULO_STATUS[p.status] }),
+        h('div', { class: `tempo${marca ? ` tempo-${marca}` : ''}`, text: tempo })));
     }));
   }
 
   function desenhar() {
+    desenharFiltros();
     desenharNumeros();
+    desenharMotivos();
     desenharAbas();
     desenharLista();
   }
@@ -296,9 +422,11 @@
 
   // ------------------------------------------------------------ a gaveta
   function abrirGaveta(id) {
-    aberto = id;
     const p = pedidos.find(x => x.id === id);
     if (!p) return;
+    // Link de um pedido do outro país: troca o país antes de abrir.
+    if (regiaoDe(p) !== paisAtual() && window.REEMBOLSOS_PAIS) window.REEMBOLSOS_PAIS.trocar(regiaoDe(p));
+    aberto = id;
     history.replaceState(null, '', `#${id}`);
     $('gaveta').hidden = false;
     $('fundo-gaveta').hidden = false;
@@ -310,7 +438,8 @@
     aberto = '';
     $('gaveta').hidden = true;
     $('fundo-gaveta').hidden = true;
-    if (location.hash) history.replaceState(null, '', location.pathname);
+    // Sai o #<id> do pedido e volta o país (#latam ou #eua).
+    if (/^#[0-9a-f-]{36}$/.test(location.hash)) history.replaceState(null, '', `${location.pathname}#${paisAtual()}`);
     if (pedidos.length) desenharLista();
   }
   $('fechar-gaveta').addEventListener('click', fecharGaveta);
@@ -323,7 +452,7 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('janela').open && !$('gaveta').hidden) fecharGaveta(); });
 
   async function mudar(p, dados, mensagem) {
-    const r = await reembolso('admin_atualizar', Object.assign({ id: p.id }, dados));
+    const r = await reembolso('admin_atualizar', Object.assign({ id: p.id, regiao: regiaoDe(p) }, dados));
     if (!r.ok) { if (r.erro) avisar(r.erro, true); return false; }
     avisar(mensagem || 'Salvo ✓');
     carregar(); // sem esperar: a janela fecha já, e a lista chega logo depois
@@ -332,9 +461,9 @@
 
   function blocoCabeca(p) {
     const classe = classeEstado(p);
-    const horas = horasDesde(p.created_at);
+    const horas = horasDoPedido(p);
     const relogio = p.status === 'pendente'
-      ? h('div', { class: `relogio${atrasado(p) ? ' atrasado' : ''}` }, h('span', { class: `ponto ${classe}` }),
+      ? h('div', { class: `relogio${atrasado(p) ? ' atrasado' : perto(p) ? ' perto' : ''}` }, h('span', { class: `ponto ${perto(p) ? 'perto' : classe}` }),
         atrasado(p)
           ? h('span', {}, 'Pedido há ', h('b', { text: duracao(horas) }), ` · passou ${duracao(horas - PRAZO_HORAS)} do prazo de 24 h`)
           : h('span', {}, 'Pedido há ', h('b', { text: duracao(horas) }), ` · faltam ${duracao(PRAZO_HORAS - horas)} para o prazo de 24 h`))
@@ -345,28 +474,68 @@
       h('h2', { text: nomeDe(p) }),
       h('div', { class: 'linha-etiquetas' },
         h('span', { class: `etiqueta ${classe}`, text: atrasado(p) ? 'Atrasado' : ROTULO_STATUS[p.status] }),
-        p.canal === 'manual' ? h('span', { class: 'etiqueta azul', text: 'Registrado pela equipe' }) : h('span', { class: 'etiqueta', text: 'Pela página' }),
+        h('span', { class: `etiqueta regiao-${regiaoDe(p)}`, text: REGIAO[regiaoDe(p)] }),
+        p.canal === 'manual' ? h('span', { class: 'etiqueta azul', text: 'Registrado pela equipe' })
+          : p.canal === 'email' ? h('span', { class: 'etiqueta email', text: '✉ Veio por e-mail' })
+            : h('span', { class: 'etiqueta', text: 'Pela página' }),
+        p.canal !== 'email' && p.email_tipo ? h('span', { class: 'etiqueta email', text: '✉ Também mandou e-mail' }) : null,
         p.outros_pedidos ? h('span', { class: 'etiqueta azul', text: `${p.outros_pedidos} outro${p.outros_pedidos > 1 ? 's' : ''} pedido${p.outros_pedidos > 1 ? 's' : ''} deste e-mail` }) : null),
       relogio);
   }
 
+  // O que chegou na caixa de suporte (o leitor de e-mails, SQL 16). A
+  // resposta à cliente é da automação do Lucas: daqui, só ler e abrir.
+  function blocoEmailRecebido(p) {
+    if (!p.email_tipo && !p.email_resumo && !p.email_trecho) return null;
+    const [tipo, cor] = tipoDe(p.email_tipo);
+    const link = linkDoGmail(p.email_link);
+    const trecho = p.email_trecho
+      ? h('details', { class: 'trecho' }, h('summary', { text: 'Ler o que ela escreveu' }), h('pre', { class: 'modelo-email', text: p.email_trecho }))
+      : null;
+    return h('section', { class: 'bloco bloco-email' },
+      h('h3', { text: 'Veio por e-mail' }),
+      h('div', { class: 'linha-etiquetas', style: 'margin:0 0 12px' },
+        p.email_tipo ? h('span', { class: `etiqueta ${cor}`, text: tipo }) : null,
+        p.motivo ? h('span', { class: 'etiqueta motivo-etiqueta', text: ROTULO_MOTIVO[p.motivo] || p.motivo }) : null),
+      p.email_resumo ? h('p', { class: 'resumo', text: p.email_resumo }) : null,
+      h('dl', { class: 'fatos', style: 'margin-bottom:12px' },
+        h('dt', { text: 'Assunto' }), h('dd', { text: p.email_assunto || '—' }),
+        h('dt', { text: 'De' }), h('dd', {}, p.email_de ? copia(p.email_de, 'E-mail copiado') : '—',
+          p.email_de && p.email_de !== p.email ? h('span', { class: 'apagado', style: 'display:block;font-size:13px', text: 'É diferente do e-mail da compra.' }) : null),
+        h('dt', { text: 'Recebido' }), h('dd', { text: p.email_recebido_em ? `${dataHora(p.email_recebido_em)} (Brasília)` : '—' }),
+        h('dt', { text: 'Caixa' }), h('dd', { text: CAIXA[p.email_caixa] || p.email_caixa || '—' })),
+      trecho,
+      link ? h('div', { class: 'acoes', style: 'margin-top:12px' },
+        h('a', { class: 'botao botao-claro botao-pequeno', href: link, target: '_blank', rel: 'noopener noreferrer' }, 'Abrir no Gmail')) : null);
+  }
+
   function blocoItens(p) {
     const bloco = h('section', { class: 'bloco' }, h('h3', { text: 'O que devolver' }));
+    const eua = regiaoDe(p) === 'eua';
     if (p.sin_compra) {
-      bloco.append(h('div', { class: 'alerta-caixa perigo' },
-        'A página não achou compra com este e-mail. Procure a compra na Whop (e na Digistore) pelo nome ou por outro e-mail dela. ',
-        'Se precisar, responda pedindo o e-mail usado na compra ou os 4 últimos números do cartão.'));
+      bloco.append(h('div', { class: 'alerta-caixa procurar' },
+        h('b', { text: '🔎 Sem compra: procure. ' }),
+        p.canal === 'email'
+          ? 'O e-mail não bateu com nenhuma compra. Ela pode ter pago com outro e-mail. '
+          : 'A página não achou compra com este e-mail. ',
+        eua ? 'Use "Procurar a compra nas contas" (abaixo) ou procure na Digistore dos EUA pelo nome. '
+          : 'Use "Procurar a compra nas contas" (abaixo) ou procure na Whop e na Digistore pelo nome. ',
+        'Se precisar, peça o e-mail usado na compra ou os 4 últimos números do cartão.'));
     }
     const temDisputa = (p.itens || []).some(i => i.na_plataforma === 'disputa');
     if (temDisputa) {
       bloco.append(h('div', { class: 'alerta-caixa perigo' },
         h('b', { text: 'Disputa aberta no banco. ' }),
-        'Ela já foi ao banco por esta cobrança. Não devolva por fora: o dinheiro pode sair duas vezes. Responda a disputa na Whop e anote aqui.'));
+        `Ela já foi ao banco por esta cobrança. Não devolva por fora: o dinheiro pode sair duas vezes. Responda a disputa na ${eua ? 'Digistore' : 'Whop'} e anote aqui.`));
     }
     for (const i of p.itens || []) {
       const dias = i.pagado_en ? diasDesde(i.pagado_en) : null;
       const naWhop = i.origem === 'whop';
-      const codigo = naWhop ? i.pedido : String(i.pedido || '').replace(/^kashpay:/, '');
+      const naDigi = i.origem === 'digistore';
+      const codigo = naWhop || naDigi ? String(i.pedido || '') : String(i.pedido || '').replace(/^kashpay:/, '');
+      const onde = naWhop ? 'Devolver na Whop (conta antiga)' : naDigi ? 'Digistore (EUA)' : 'Whop nova ou Digistore: conferir';
+      const quemRegistrou = naWhop ? 'A Whop' : naDigi ? 'A Digistore' : 'A KashPay';
+      const rotuloCodigo = naWhop ? 'ID do pagamento:' : naDigi ? 'Transação da Digistore:' : 'Transação da KashPay:';
       bloco.append(h('div', { class: 'item' },
         h('div', { class: 'item-topo' },
           h('span', { class: 'item-nome', text: i.nombre || i.produto || 'Compra' }),
@@ -377,11 +546,11 @@
             class: `etiqueta ${dias <= GARANTIA_DIAS ? 'ok' : 'perigo'}`,
             text: dias <= GARANTIA_DIAS ? `dentro dos 7 dias (${dias} d)` : `fora da garantia (${dias} dias)`,
           }),
-          h('span', { class: 'etiqueta azul', text: naWhop ? 'Devolver na Whop (conta antiga)' : 'Whop nova ou Digistore: conferir' }),
-          i.na_plataforma === 'devolvido' ? h('span', { class: 'etiqueta ok', text: `${naWhop ? 'A Whop' : 'A KashPay'} já registrou a devolução` }) : null,
+          h('span', { class: 'etiqueta azul', text: onde }),
+          i.na_plataforma === 'devolvido' ? h('span', { class: 'etiqueta ok', text: `${quemRegistrou} já registrou a devolução` }) : null,
           i.na_plataforma === 'disputa' ? h('span', { class: 'etiqueta perigo', text: 'Disputa no banco' }) : null),
         h('div', { class: 'item-detalhes' },
-          h('span', { text: naWhop ? 'ID do pagamento:' : 'Transação da KashPay:' }),
+          h('span', { text: rotuloCodigo }),
           copia(codigo, 'ID copiado'))));
     }
     if (!p.sin_compra) {
@@ -397,19 +566,24 @@
 
   function blocoComoFazer(p) {
     if (p.status !== 'pendente') return null;
+    const eua = regiaoDe(p) === 'eua';
     const temWhop = (p.itens || []).some(i => i.origem === 'whop');
     const temDigi = (p.itens || []).some(i => i.origem !== 'whop');
     return h('section', { class: 'bloco' }, h('h3', { text: 'Como fazer' }),
       h('ol', { class: 'passos' },
         h('li', {}, 'Use ', h('b', { text: 'Devolver pela API' }), ' (acima): procure, confira que é deste pedido e devolva com a senha. O pedido vira "Reembolsado" sozinho.'),
-        h('li', {}, 'Se não achar, ou se a compra for da Whop antiga, devolva à mão:'),
-        temWhop || p.sin_compra ? h('li', {}, 'Na ', h('b', { text: 'Whop' }), ': Payments → cole o ID do pagamento na busca → Refund, valor total.') : null,
+        eua
+          ? h('li', {}, 'Se não achar, devolva à mão na ', h('b', { text: 'Digistore dos EUA' }), ': procure pelo e-mail dela e devolva o valor total.')
+          : h('li', {}, 'Se não achar, ou se a compra for da Whop antiga, devolva à mão:'),
+        !eua && (temWhop || p.sin_compra) ? h('li', {}, 'Na ', h('b', { text: 'Whop' }), ': Payments → cole o ID do pagamento na busca → Refund, valor total.') : null,
         // Desde 13/11 a Whop antiga está travada e as vendas novas passam pela
         // Whop nova ou pela Digistore, que ainda não avisam o app: a venda só
         // chega pela KashPay, que não diz quem cobrou.
-        temDigi ? h('li', {}, 'Venda pela KashPay: procure pelo e-mail dela na ', h('b', { text: 'Whop nova' }), ' e nas ', h('b', { text: '2 contas da Digistore' }), ', e devolva o valor total onde achar.') : null,
+        !eua && temDigi ? h('li', {}, 'Venda pela KashPay: procure pelo e-mail dela na ', h('b', { text: 'Whop nova' }), ' e nas ', h('b', { text: '2 contas da Digistore' }), ', e devolva o valor total onde achar.') : null,
         h('li', {}, 'Volte aqui e toque em ', h('b', { text: 'Reembolsado' }), '. Confira o valor devolvido.'),
-        h('li', {}, 'Copie o ', h('b', { text: 'e-mail pronto' }), ' (mais abaixo) e envie pelo soporte@.'),
+        p.email_tipo
+          ? h('li', {}, 'Ela pediu por e-mail: a resposta automática já disse "em até 24 h". Se quiser avisar que foi feito, use o ', h('b', { text: 'e-mail pronto' }), ' (mais abaixo) na mesma conversa do Gmail.')
+          : h('li', {}, 'Copie o ', h('b', { text: 'e-mail pronto' }), ` (mais abaixo) e envie pela ${eua ? 'caixa dos EUA' : 'soporte@'}.`),
         h('li', {}, 'Se ela mudar de ideia, toque em ', h('b', { text: 'Desistiu' }), ' e anote o porquê.')));
   }
 
@@ -427,9 +601,13 @@
         h('dt', { text: 'Pediu em' }), h('dd', { text: `${dataHora(p.created_at)} (Brasília)` }),
         h('dt', { text: 'Acesso ao app' }), h('dd', { text: textoAcesso }),
         h('dt', { text: 'Cliente desde' }), h('dd', { text: data(p.cliente_desde) })),
-      p.customer_id ? h('div', { class: 'acoes', style: 'margin-top:14px' },
-        h('button', { type: 'button', class: 'botao botao-fantasma botao-pequeno', onclick: e => abrirProdutos(p, e.currentTarget) }, 'Acesso e produtos'))
-        : h('p', { class: 'apagado', style: 'margin:12px 0 0;font-size:13px', text: 'Este e-mail não tem cadastro no app.' }));
+      !p.customer_id ? h('p', { class: 'apagado', style: 'margin:12px 0 0;font-size:13px', text: 'Este e-mail não tem cadastro no app.' })
+        // O app dos EUA tem painel próprio (/en-admin): o "Acesso e produtos"
+        // daqui fala com a latam-api e só serve para a LATAM.
+        : regiaoDe(p) === 'eua' ? h('div', { class: 'acoes', style: 'margin-top:14px' },
+          h('a', { class: 'botao botao-fantasma botao-pequeno', href: '/en-admin', target: '_blank', rel: 'noopener' }, 'Acesso no painel dos EUA'))
+          : h('div', { class: 'acoes', style: 'margin-top:14px' },
+            h('button', { type: 'button', class: 'botao botao-fantasma botao-pequeno', onclick: e => abrirProdutos(p, e.currentTarget) }, 'Acesso e produtos')));
   }
 
   function blocoEstado(p) {
@@ -454,6 +632,7 @@
 
   function blocoEmail(p) {
     const primeiro = (p.nome || '').trim().split(/\s+/)[0] || '';
+    if (regiaoDe(p) === 'eua') return blocoEmailIngles(p, primeiro);
     const ola = primeiro ? `Hola, ${primeiro}:` : 'Hola:';
     let assunto;
     let texto;
@@ -470,8 +649,38 @@
     } else {
       return null;
     }
+    return modeloDeEmail(p, 'E-mail pronto (espanhol)', assunto, texto);
+  }
+
+  // O e-mail pronto dos EUA, em inglês (a cliente de lá lê inglês).
+  function blocoEmailIngles(p, primeiro) {
+    const ola = primeiro ? `Hi ${primeiro},` : 'Hi,';
+    const assinatura = 'With care,\n7 Amens Before Dawn team';
+    // O valor no jeito americano ($69.00), não no brasileiro (US$ 69,00).
+    const dinheiro = (centavos, moeda) => {
+      try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: (moeda || 'USD').toUpperCase() }).format((Number(centavos) || 0) / 100); }
+      catch { return `$${((Number(centavos) || 0) / 100).toFixed(2)}`; }
+    };
+    let assunto;
+    let texto;
+    if (p.status === 'feito') {
+      assunto = 'Done: your refund is on its way';
+      texto = `${ola}\n\nWe have refunded ${dinheiro(p.valor_devolvido_cents ?? p.total_cents, p.moneda)}. The money goes back to the same card you paid with. How long it takes to show up depends on your bank (usually 5 to 10 business days).\n\nYou don't need to do anything else.\n\nIf you have any questions, just reply to this email.\n\n${assinatura}`;
+    } else if (p.sin_compra) {
+      assunto = 'Your refund request';
+      texto = `${ola}\n\nWe received your refund request, but we couldn't find a purchase with this email.\n\nCould you send us the email you used to pay, or the last 4 digits of the card? That way we can sort it out quickly.\n\n${assinatura}`;
+    } else if (p.status === 'pendente') {
+      assunto = 'We received your refund request';
+      texto = `${ola}\n\nWe received your refund request for ${dinheiro(p.total_cents, p.moneda)}. We're processing it and will let you know as soon as it's done, within 24 hours.\n\nYou don't need to do anything else.\n\n${assinatura}`;
+    } else {
+      return null;
+    }
+    return modeloDeEmail(p, 'E-mail pronto (inglês)', assunto, texto);
+  }
+
+  function modeloDeEmail(p, titulo, assunto, texto) {
     const mailto = `mailto:${encodeURIComponent(p.email)}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
-    return h('section', { class: 'bloco' }, h('h3', { text: 'E-mail pronto (espanhol)' }),
+    return h('section', { class: 'bloco' }, h('h3', { text: titulo }),
       h('p', { class: 'apagado', style: 'margin:0 0 8px;font-size:13px' }, 'Assunto: ', h('span', { style: 'color:var(--texto)', text: assunto })),
       h('pre', { class: 'modelo-email', text: texto }),
       h('div', { class: 'acoes' },
@@ -543,7 +752,7 @@
     caixa.dataset.pedido = p.id;
     caixa.append(
       h('h3', { text: 'Devolver pela API' }),
-      h('p', { class: 'apagado', style: 'margin:0 0 12px;font-size:14px', text: 'Procura as compras deste e-mail na Whop nova e nas 2 contas da Digistore. Nada é devolvido sem você confirmar com a senha.' }),
+      h('p', { class: 'apagado', style: 'margin:0 0 12px;font-size:14px', text: 'Procura as compras deste e-mail na Whop nova e nas 2 contas da Digistore (LATAM e EUA). Nada é devolvido sem você confirmar com a senha.' }),
       h('button', { type: 'button', class: 'botao botao-claro botao-pequeno', onclick: e => procurarNaApi(p, e.currentTarget) }, 'Procurar a compra nas contas'));
     return caixa;
   }
@@ -551,7 +760,7 @@
   async function procurarNaApi(p, botao) {
     const caixa = $('api-reembolso');
     if (botao) { botao.disabled = true; botao.textContent = 'Procurando…'; }
-    const r = await reembolso('admin_localizar', { id: p.id });
+    const r = await reembolso('admin_localizar', { id: p.id, regiao: regiaoDe(p) });
     if (botao) { botao.disabled = false; botao.textContent = 'Procurar de novo'; }
     const resultado = h('div', { class: 'produtos', style: 'margin-top:14px' });
     if (!r.ok) {
@@ -607,7 +816,7 @@
       if (!senha.value) { senha.focus(); return; }
       devolver.disabled = true;
       devolver.textContent = 'Devolvendo…';
-      const r = await reembolso('admin_reembolsar', { id: p.id, conta: a.conta, ref: a.ref, senha: senha.value });
+      const r = await reembolso('admin_reembolsar', { id: p.id, regiao: regiaoDe(p), conta: a.conta, ref: a.ref, senha: senha.value });
       devolver.disabled = false;
       devolver.textContent = `Devolver ${dinheiro(a.valor_cents, a.moeda)}`;
       if (!r.ok) {
@@ -645,6 +854,7 @@
     $('gaveta-id').textContent = `#${p.id.slice(0, 8)}`;
     $('gaveta-corpo').replaceChildren(...[
       blocoCabeca(p),
+      blocoEmailRecebido(p),
       blocoItens(p),
       blocoApi(p),
       blocoComoFazer(p),
@@ -685,7 +895,7 @@
     } }, '✓ Confirmar reembolso');
     abrirJanela(
       h('h2', { text: 'Marcar como reembolsado' }),
-      h('p', { text: `Confirme que você já devolveu o dinheiro de ${p.email} na ${(p.itens || []).every(i => i.origem === 'whop') ? 'Whop' : 'Whop ou na Digistore'}. Este painel não devolve sozinho.` }),
+      h('p', { text: `Confirme que você já devolveu o dinheiro de ${p.email} na ${regiaoDe(p) === 'eua' ? 'Digistore dos EUA' : (p.itens || []).length && (p.itens || []).every(i => i.origem === 'whop') ? 'Whop' : 'Whop ou na Digistore'}. Este botão só marca; quem devolve pelo painel é o "Devolver pela API".` }),
       h('label', { class: 'campo' }, h('span', { text: `Valor devolvido (${p.moneda})` }), valor),
       h('label', { class: 'campo', style: 'margin-top:12px' }, h('span', { text: 'Anotação' }), nota),
       h('div', { class: 'janela-acoes' },
@@ -697,7 +907,7 @@
   function confirmarExclusao(p) {
     const apagar = h('button', { type: 'button', class: 'botao botao-perigo-cheio', onclick: async () => {
       apagar.disabled = true;
-      const r = await reembolso('admin_excluir', { id: p.id });
+      const r = await reembolso('admin_excluir', { id: p.id, regiao: regiaoDe(p) });
       apagar.disabled = false;
       if (!r.ok) { if (r.erro) avisar(r.erro, true); return; }
       fecharJanela();
@@ -757,8 +967,8 @@
             h('span', { class: 'apagado', text: `${data(c.pagado_en)} · ${c.origem === 'whop' ? 'Whop' : 'KashPay/Digistore'}${c.devuelto ? ' · já devolvida' : ''}${c.pedido_abierto ? ' · já tem pedido aberto' : ''}` })))));
     });
     abrirJanela(
-      h('h2', { text: 'Registrar pedido de reembolso' }),
-      h('p', { text: 'Para quem pediu por e-mail ou WhatsApp. Busque pelo e-mail, marque as compras e registre.' }),
+      h('h2', { text: 'Registrar pedido de reembolso (LATAM)' }),
+      h('p', { text: 'Para quem pediu pelo WhatsApp ou num e-mail que não entrou sozinho. Busque pelo e-mail, marque as compras e registre. Só para a LATAM.' }),
       form, compras,
       h('label', { class: 'campo', style: 'margin-top:12px' }, h('span', { text: 'Anotação' }), nota),
       h('div', { class: 'janela-acoes' },

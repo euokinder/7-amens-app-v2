@@ -294,13 +294,72 @@ await cenario('Devolver: o que o painel NUNCA faz', async () => {
   confere('Whop fora do ar: não devolve e explica', fora.status === 502 && /Não deu para conferir/.test(fora.corpo.error));
 });
 
+// ------------------------------------- LATAM e EUA no mesmo painel (SQL 17)
+const ID_EUA = '33333333-3333-4333-8333-333333333333';
+const pedidoEua = () => banco.en_refund_requests.find(r => r.id === ID_EUA);
+function montarEua() {
+  montarComKashpay();
+  banco.en_refund_requests.push({
+    id: ID_EUA, created_at: ontem, email: 'mary@exemplo.com', customer_id: 'en-cli-1',
+    itens: [{ pedido: 'ENTX-0001', origem: 'digistore', produto: 'principal', nombre: '7 Amens Before Dawn', valor_cents: 3700, moneda: 'USD', pagado_en: ontem }],
+    total_cents: 3700, moneda: 'USD', sin_compra: false, motivo: null, motivo_en: null,
+    status: 'pendente', resuelto_en: null, nota: '', pais: 'US', canal: 'email', valor_devolvido_cents: null, resuelto_por: null, atualizado_em: null,
+    email_tipo: 'pedido_reembolso', email_resumo: 'Quer o dinheiro de volta.',
+  });
+  plataforma.digi['digi-en-falsa'] = [{ id: 'ENDIGI77', email: 'mary@exemplo.com', amount: 37, currency: 'USD', status: 'completed', created_at: ontem }];
+  rpcsDoTeste['rpc/latam_admin_reembolsos_todos'] = async () => [
+    ...banco.latam_refund_requests.map(r => ({ ...r, regiao: 'latam' })),
+    ...banco.en_refund_requests.map(r => ({ ...r, regiao: 'eua' })),
+  ];
+}
+
+await cenario('A lista junta LATAM e EUA', async () => {
+  montarEua();
+  const r = await chamar('admin_lista', {}, { token: TOKEN_ADMIN });
+  confere('lista: 200 com os dois', r.status === 200 && r.corpo.pedidos.length === 2, JSON.stringify(r.corpo));
+  confere('cada um com a região', r.corpo.pedidos.some(p => p.regiao === 'eua') && r.corpo.pedidos.some(p => p.regiao === 'latam'));
+  delete rpcsDoTeste['rpc/latam_admin_reembolsos_todos'];
+  const antiga = await chamar('admin_lista', {}, { token: TOKEN_ADMIN });
+  confere('sem o SQL 17: volta para a lista antiga, marcada como LATAM', antiga.status === 200 && antiga.corpo.pedidos.length === 1 && antiga.corpo.pedidos[0].regiao === 'latam');
+});
+
+await cenario('Marcar, editar e excluir um pedido dos EUA', async () => {
+  montarEua();
+  let r = await chamar('admin_atualizar', { id: ID_EUA, regiao: 'eua', status: 'feito', valor_devolvido_cents: 3700, motivo: 'extra_sin_querer' }, { token: TOKEN_ADMIN });
+  confere('atualizar nos EUA: 200', r.status === 200, JSON.stringify(r.corpo));
+  confere('grava na tabela dos EUA', pedidoEua().status === 'feito' && pedidoEua().resuelto_por === 'adm-1' && pedidoEua().valor_devolvido_cents === 3700);
+  confere('aceita o motivo "extra sem querer"', pedidoEua().motivo === 'extra_sin_querer');
+  confere('não toca no pedido da LATAM', pedido().status === 'pendente');
+  const registro = banco.latam_admin_actions.find(a => a.action === 'refund_update');
+  confere('histórico sem alvo da LATAM e com a região', registro.target_customer_id === null && registro.details.regiao === 'eua' && registro.details.en_customer_id === 'en-cli-1');
+  confere('sem regiao, o mesmo id não é achado na LATAM: 404', (await chamar('admin_atualizar', { id: ID_EUA, status: 'pendente' }, { token: TOKEN_ADMIN })).status === 404);
+  confere('região inventada: 400', (await chamar('admin_atualizar', { id: ID_EUA, regiao: 'br', status: 'pendente' }, { token: TOKEN_ADMIN })).status === 400);
+  confere('a página da cliente não aceita o motivo novo', (await chamar('motivo', { id: ID, motivo: 'extra_sin_querer' })).status === 400);
+  r = await chamar('admin_excluir', { id: ID_EUA, regiao: 'eua' }, { token: TOKEN_ADMIN });
+  confere('excluir nos EUA: 200 e some', r.status === 200 && !pedidoEua());
+});
+
+await cenario('Devolver pela API um pedido dos EUA', async () => {
+  montarEua();
+  const achou = await chamar('admin_localizar', { id: ID_EUA, regiao: 'eua' }, { token: TOKEN_ADMIN });
+  const compra = achou.corpo.achados.find(a => a.ref === 'ENDIGI77');
+  confere('acha na Digistore dos EUA e marca que bate', achou.status === 200 && compra && compra.bate && compra.conta_nome === 'Digistore (EUA)', JSON.stringify(achou.corpo));
+  confere('sem aviso de Whop antiga', achou.corpo.whop_antiga.length === 0);
+  const r = await chamar('admin_reembolsar', { id: ID_EUA, regiao: 'eua', conta: 'digistore_en', ref: 'ENDIGI77', senha: 'senha-do-teste' }, { token: TOKEN_ADMIN });
+  confere('devolver: 200', r.status === 200, JSON.stringify(r.corpo));
+  confere('usou a chave dos EUA', plataforma.devolveuDigi.length === 1 && plataforma.devolveuDigi[0].ref === 'ENDIGI77');
+  confere('o pedido dos EUA virou Reembolsado', pedidoEua().status === 'feito' && pedidoEua().valor_devolvido_cents === 3700 && /Digistore \(EUA\) ENDIGI77/.test(pedidoEua().nota));
+  confere('o pedido da LATAM ficou igual', pedido().status === 'pendente');
+});
+
 await cenario('Nenhuma tabela do Brasil é tocada', async () => {
   montar();
   await chamar('admin_lista', {}, { token: TOKEN_ADMIN });
   await chamar('admin_atualizar', { id: ID, status: 'feito' }, { token: TOKEN_ADMIN });
   await chamar('admin_excluir', { id: ID }, { token: TOKEN_ADMIN });
-  const fora = [...tocadas].filter(t => !t.startsWith('latam_') && !t.startsWith('rpc/latam_'));
-  confere('só latam_', fora.length === 0, fora.join(', '));
+  await chamar('admin_atualizar', { id: ID_EUA, regiao: 'eua', status: 'feito' }, { token: TOKEN_ADMIN });
+  const fora = [...tocadas].filter(t => !t.startsWith('latam_') && !t.startsWith('rpc/latam_') && t !== 'en_refund_requests');
+  confere('só latam_ (e os pedidos dos EUA)', fora.length === 0, fora.join(', '));
 });
 
 fechar();

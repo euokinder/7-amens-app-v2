@@ -298,7 +298,82 @@ b { font-weight: 600; }
 }
 .aviso-rapido.erro { background: var(--vermelho); color: #fff; }
 
+/* LATAM e EUA no mesmo painel, e os pedidos que chegam por e-mail (18/11/2026) */
+.legenda { font-weight: 600; padding: 0 6px; border-radius: 6px; }
+.legenda-perto { color: #8a5d00; background: var(--amarelo-fundo); }
+.legenda-atrasado { color: #b42d28; background: var(--vermelho-fundo); }
+
+.filtros { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 24px 0 0; }
+/* A escolha do país, no topo (separado por país, Arthur 18/11): escura quando
+   escolhida, para não confundir com a troca "Pedidos | Guia" ao lado. */
+.paises { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #eceef4; border: 1px solid var(--linha); }
+.pais-botao {
+  border: 0; background: transparent; color: var(--texto-2); padding: 7px 16px; border-radius: 999px;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.02em; cursor: pointer; min-height: 34px;
+}
+.pais-botao:hover { color: var(--texto); }
+.pais-botao[aria-pressed="true"] { background: var(--texto); color: #fff; box-shadow: 0 4px 12px -6px rgba(15, 18, 34, 0.6); }
+.pais-botao:focus-visible, .motivo:focus-visible, .numero-botao:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+.guia-em-preparacao { border-radius: var(--raio-grande); padding: 22px; margin-top: 24px; }
+.guia-em-preparacao p { color: var(--texto-2); margin: 0 0 8px; }
+.guia-em-preparacao .guia-titulo { margin-top: 0; }
+.filtro { display: grid; gap: 4px; font-size: 12px; color: var(--texto-2); font-weight: 500; }
+.filtro select {
+  background: var(--cartao); border: 1px solid var(--linha-forte); border-radius: 999px; padding: 8px 14px; font-size: 14px;
+  color: var(--texto); min-height: 38px; max-width: 100%;
+}
+
+.numeros { grid-template-columns: repeat(6, 1fr); margin-top: 16px; }
+.numero-botao { text-align: left; cursor: pointer; font: inherit; color: inherit; width: 100%; }
+.numero-botao:hover { border-color: var(--linha-forte); box-shadow: var(--sombra-forte); }
+.numero.aviso { border-color: #f1d690; background: linear-gradient(180deg, #fffbef, #fff); }
+.numero.aviso .numero-valor { color: #a56f00; }
+.numero.procurar { border-color: #d4c8fb; background: linear-gradient(180deg, #f8f5ff, #fff); }
+.numero.procurar .numero-valor { color: #5b3fc4; }
+
+.motivos { border-radius: var(--raio); padding: 14px 18px; margin: -8px 0 22px; }
+.motivos-titulo { font-size: 14px; }
+.motivos-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+.motivo {
+  display: grid; grid-template-columns: 1fr auto; grid-template-areas: "nome conta" "barra barra"; gap: 4px 10px; align-items: center;
+  border: 1px solid var(--linha); background: var(--cartao-2); border-radius: 12px; padding: 9px 12px; cursor: pointer; text-align: left; font-size: 14px;
+}
+.motivo:hover { border-color: var(--linha-forte); }
+.motivo.ativo { border-color: var(--azul); background: var(--azul-fundo); }
+.motivo-nome { grid-area: nome; font-weight: 500; }
+.motivo-conta { grid-area: conta; font-family: var(--mono); font-size: 12.5px; color: var(--texto-2); }
+.motivo-barra { grid-area: barra; height: 5px; border-radius: 999px; background: linear-gradient(90deg, var(--azul) var(--parte), #e3e6ee var(--parte)); }
+
+.ponto.perto { background: #f0b429; box-shadow: 0 0 0 3px rgba(240, 180, 41, 0.3); }
+.ponto.pendente { background: var(--azul); box-shadow: 0 0 0 3px rgba(59, 108, 246, 0.15); }
+.etiqueta.pendente { color: var(--azul-escuro); border-color: #c9d7ff; background: var(--azul-fundo); }
+.etiqueta.perto, .etiqueta.amarelo { color: #8a5d00; border-color: #f1d690; background: var(--amarelo-fundo); }
+.etiqueta.regiao-latam { color: #0f1222; border-color: #c7cbd8; background: #fff; font-weight: 600; }
+.etiqueta.regiao-eua { color: #fff; border-color: #2f3a5c; background: #2f3a5c; font-weight: 600; }
+.etiqueta.email { color: #5b3fc4; border-color: #d4c8fb; background: var(--roxo-fundo); }
+.etiqueta.motivo-etiqueta { color: var(--texto-2); }
+.etiqueta.procurar { color: #5b3fc4; border-color: #b9a6f7; background: var(--roxo-fundo); font-weight: 600; }
+
+/* O prazo de 24 h no cartão: faixa à esquerda e fundo levemente colorido. */
+.cartao { position: relative; }
+.cartao.prazo-perto { border-color: #f1d690; background: linear-gradient(90deg, #fff8e6, #fff 40%); box-shadow: inset 4px 0 0 #f0b429, var(--sombra); }
+.cartao.prazo-atrasado { border-color: #f5c0bd; background: linear-gradient(90deg, #fff1f0, #fff 40%); box-shadow: inset 4px 0 0 var(--vermelho), var(--sombra); }
+.cartao.sem-compra:not(.prazo-perto):not(.prazo-atrasado) { border-style: dashed; border-color: #b9a6f7; }
+.cartao-etiquetas { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.cartao-etiquetas .etiqueta { font-size: 11.5px; padding: 2px 8px; }
+.tempo-perto { color: #a56f00; font-weight: 600; }
+.tempo-atrasado { color: var(--vermelho); font-weight: 600; }
+.relogio.perto b { color: #a56f00; }
+
+.bloco-email { border-color: #d4c8fb; }
+.resumo { margin: 0 0 12px; font-size: 16px; line-height: 1.5; color: var(--texto); }
+.trecho summary { cursor: pointer; color: var(--azul-escuro); font-weight: 500; font-size: 14px; margin-bottom: 8px; }
+.alerta-caixa.procurar { background: var(--roxo-fundo); border: 1px solid #d4c8fb; color: #47309e; }
+
 /* Celular e tablet */
+@media (max-width: 1100px) {
+  .numeros { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 980px) {
   .numeros { grid-template-columns: repeat(3, 1fr); }
   .cartao { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: 10px; }
@@ -312,6 +387,11 @@ b { font-weight: 600; }
   .conteudo { padding-top: 24px; }
   .numeros { grid-template-columns: 1fr 1fr; }
   .numero-valor { font-size: 22px; }
+  .filtros { gap: 10px; }
+  .paises { order: 2; }
+  .filtro { flex: 1 1 140px; }
+  .filtro select { width: 100%; }
+  .motivos-lista { grid-template-columns: 1fr; }
   .quem, .topo .botao span, .topo a.botao { display: none; }
   .cabeca .botao { width: 100%; }
   .busca { max-width: none; }
