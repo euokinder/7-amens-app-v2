@@ -51,7 +51,7 @@ Decisão do Caio (05/11): mesmo Netlify, mesmo repositório e mesmo Supabase, co
 
 **Regra do aviso da Whop.** A venda da KashPay chega **sem o código do produto** (`product_id` nulo), e o código do preço (`plan_`) muda a cada checkout. Por isso:
 - **Pagamento pago na empresa "7 Amenes" (`biz_aTBX1NJKGf65tH`) = acesso ao app.**
-- A exceção é "As 3 Madrugadas de Intercessão" (`prod_5j3iKMwnWInbK`), produto do Brasil que está na mesma empresa da Whop. Esse pagamento fica `ignored`.
+- A exceção é "As 3 Madrugadas de Intercessão" (`prod_5j3iKMwnWInbK`), produto do Brasil que está na mesma empresa da Whop. Esse pagamento fica `ignored`. (Conferido em 18/11: nenhum aviso desse produto chegou. A versão em espanhol, "Las 3 Madrugadas de Intercesión", é vendida pela Hubla: ver a seção própria.)
 
 ## Decisões
 | Assunto | Decisão | Quando |
@@ -634,7 +634,7 @@ Pedido do Arthur (12/11): esse público quer sentir que está CONVERSANDO com al
 
 **Ordem de publicar:** o SQL 12 e o site são independentes; qualquer ordem é inofensiva. O site é 1 build.
 
-**Dia 3 (aportes) e Dia 7 (As 3 Madrugadas) pela Hubla (13/11/2026):** com a Whop suspensa, os 4 links de `js/es/oferta-dia.js` passaram a ser da Hubla (links do Arthur): Amenes Sagrados US$ 200 `pay.hub.la/2uC32AQERZcEdrBPhvZU`, US$ 120 `EBrjuLdJIlPVgUIWeVeR`, US$ 60 `mFFBfNwFvjelb21dX1GL`; Las 3 Madrugadas US$ 37 `3aTSzyE7DJSHQHe7bv0i`. Mesmas etiquetas `utm_*` de antes. A venda pela Hubla não chega ao app em espanhol (o aporte só renova quem já tem o app; As 3 Madrugadas são entregues fora dele). No Brasil, o `hubla-webhook` deixa essa venda como `needs_reconciliation` ("produto não mapeado"), sem dar acesso nenhum: é ruído esperado na lista do Brasil. ⚠️ O checkout da Hubla abre em inglês, e, visto do Brasil, com telefone +55 e pedido de CPF/CNPJ; não deu para conferir como aparece para quem está no México.
+**Dia 3 (aportes) e Dia 7 (As 3 Madrugadas) pela Hubla (13/11/2026):** com a Whop suspensa, os 4 links de `js/es/oferta-dia.js` passaram a ser da Hubla (links do Arthur): Amenes Sagrados US$ 200 `pay.hub.la/2uC32AQERZcEdrBPhvZU`, US$ 120 `EBrjuLdJIlPVgUIWeVeR`, US$ 60 `mFFBfNwFvjelb21dX1GL`; Las 3 Madrugadas US$ 37 `3aTSzyE7DJSHQHe7bv0i`. Mesmas etiquetas `utm_*` de antes. A venda pela Hubla não chega ao app em espanhol (o aporte só renova quem já tem o app). **Desde 18/11, As 3 Madrugadas chegam, sim**, pela leitura do `hubla_events` (ver "Las 3 Madrugadas de Intercesión", abaixo). No Brasil, o `hubla-webhook` deixa essa venda como `needs_reconciliation` ("produto não mapeado"), sem dar acesso nenhum: é ruído esperado na lista do Brasil. ⚠️ O checkout da Hubla abre em inglês, e, visto do Brasil, com telefone +55 e pedido de CPF/CNPJ; não deu para conferir como aparece para quem está no México.
 
 ### A rede de segurança: o aviso da própria Digistore24 (`latam-digistore`, 13/11/2026)
 Roda SEMPRE, junto com a automação do Pedro. Liberar duas vezes não faz mal: o app fica com o prazo mais longo, e extra que já está ativo fica como está.
@@ -647,7 +647,35 @@ Roda SEMPRE, junto com a automação do Pedro. Liberar duas vezes não faz mal: 
 - **⏳ Na produção, nesta ordem (o Arthur clica, um passo por vez):** (1) SQL 13; (2) a função pelo painel, com o nome `latam-digistore` antes do *Deploy* e o JWT desligado; (3) a senha: a mesma no segredo `LATAM_DIGISTORE_IPN_PASSWORD` e no campo "SHA512" da Digistore; (4) Digistore → *Settings → Integrations (IPN)* → nova conexão *Generic*, URL `https://lbaudlocfbjunnaoyrtz.supabase.co/functions/v1/latam-digistore`, os 3 produtos, timing "Before redirect to thank you page", *Test connection* = OK; (5) o agente confere a primeira venda real em `latam_digistore_events`.
 - ⚠️ **Não conferido ainda:** se o aviso real traz os `utm_*` (o guia de 2018 não lista; a API `getPurchaseTracking` traz). Só o primeiro aviso real diz, pela coluna `campos`.
 
+## Las 3 Madrugadas de Intercesión no app (18/11/2026)
+Pedido do Arthur: a entrega do Brasil ("As 3 Madrugadas", ver o `CLAUDE.md`), **igual, só traduzida e com os vídeos trocados**. Antes disso, quem comprava no fim do vídeo do Día 7 pagava e não recebia nada no app.
+
+**Como a cliente vê** (cópia do Brasil):
+- **Só quem comprou vê o card**, o primeiro dos "Contenidos Exclusivos", com "DISPONIBLE". Sem cadeado e sem "Adquirir": a venda é o próprio vídeo do Día 7.
+- `/es-tres-madrugadas` (a lista) → `/es-tres-madrugadas-video?m=1…3`. As três **sempre abertas** (o rito é por nome), **sem "Terminé"**, e o app **não pergunta nem guarda o nome**.
+- Quem abre o link sem ter o produto vê "todavía no aparecen en tu acceso" e o botão do **WhatsApp da equipe** (como no Brasil: quem chega ali quase sempre pagou e não foi liberada).
+- **Quem já comprou não vê mais o botão de compra no fim do Día 7** (o vídeo é o mesmo, e o dia continua se marcando sozinho no Amén). `?previa-oferta=1` mostra o botão sempre.
+- **Os 3 vídeos em espanhol** subiram na Bunny em 18/11 (o Arthur), em pé (3:4), e estão ligados em `js/es/tres-madrugadas.js`: Primera `f7ab1b61-…` (7:12), Segunda `b43924e2-…` (5:42), Tercera `59f387f2-…` (8:48). Renomeados na Bunny para `ES · 3 Madrugadas · Primera Madrugada` (e Segunda, Tercera). Conferido no computador: a Tercera toca, com a capa "Las Tres Madrugadas de Intercesión". Um vídeo com `video: null` volta a mostrar "Video en preparación" e o selo "Muy pronto" na lista.
+
+**Quem libera** (`supabase/latam/16-tres-madrugadas.sql`):
+- **Hubla (onde a venda acontece desde 13/11, oferta `3aTSzyE7DJSHQHe7bv0i`).** A Hubla é a mesma conta do Brasil, e o aviso cai no `hubla-webhook` do Brasil, que o guarda em `hubla_events` como "produto não mapeado". **A LATAM não mexe em nada disso**: a função `latam_hubla_liberar()` só LÊ `hubla_events`, a cada 5 minutos (pg_cron, `latam-hubla-liberar`, olhando 2 dias para trás, ~0,1 s), e libera em `latam_access` o **app por 12 meses** (a regra da LATAM: toda compra paga libera o app; quem pagou com outro e-mail entra com o da Hubla) e o extra `tres_madrugadas` (origem `hubla`). Cada venda é tratada uma vez (`latam_hubla_liberadas`, sem e-mail): retirar no painel depois não é desfeito. Reembolso não tira nada.
+- **Oferta nova na Hubla** = uma linha em `latam_hubla_produtos` antes da primeira venda (esqueceu: acrescentar e rodar `select * from latam_hubla_liberar('<data>')`).
+- **KashPay:** o pedido com "Intercesión" já era gravado como `tres_madrugadas` desde 08/11; `latam_extras` passou a ler isso. Nenhuma venda assim até 18/11.
+- **Whop direta e Digistore24:** não têm venda nem produto das 3 Madrugadas (18/11). Nada mudou nelas.
+- **Painel** (`/es-admin`, ficha → "Extras no app"): "Liberar"/"Retirar" das 3 Madrugadas, para quem pagou com outro e-mail.
+- **A carga:** o próprio SQL 16 roda `latam_hubla_liberar('2026-11-12')`. Em 18/11 eram **12 vendas** (13 a 18/11), 10 delas com conta no app pelo mesmo e-mail; as outras 2 ganham conta nova com o e-mail da Hubla.
+- **Servidor:** a `latam-api` só passou a deixar o `tres_madrugadas` passar em `extras` (`EXTRA_KEYS`). Sem ela, o card não aparece para ninguém (nada quebra).
+
+**Provas (18/11):** `supabase/latam/testes/prova-tres-madrugadas-no-teste.sql`, no banco de TESTE: 8 de 8 (cliente nova, cliente antiga com prazo esticado, sandbox, outro produto, venda sem e-mail, repetição, retirado à mão continua retirado). O agendamento rodou no TESTE a cada 5 min, em ~0,02 s. `testa-latam-api.mjs`: 204 ok. Telas no computador: card só para quem tem, lista, madrugada com o vídeo (e, sem ele, "Video en preparación"), aviso para quem não tem, botão do Día 7 some para quem tem e continua para quem não tem.
+
+**Ordem de publicar: banco → função → site** (o Arthur clica os três).
+1. SQL 16 no SQL Editor da produção (liga o pg_cron, cria as tabelas, faz a carga e devolve quantas liberou). Fora das 3h às 8h.
+2. `latam-api` pelo painel (colar o arquivo, *Deploy updates*, "Verify JWT" desligado). Antes dela, o card não aparece para ninguém.
+3. Site (1 build).
+Qualquer ordem é inofensiva para as clientes; só a entrega demora a aparecer.
+
 ## Como voltar atrás
+- **Las 3 Madrugadas (18/11):** parar a liberação é `select cron.unschedule('latam-hubla-liberar');` (sem build). A `latam-api` de antes é a da `origin/main` de 18/11 (`git show 23ece71:supabase/functions/latam-api/index.ts`); sem ela, o card some. O resto: seção DESFAZER do `16-tres-madrugadas.sql`.
 - **Painel de reembolsos:** a função de antes dele é a da `origin/main` de 18/11 (`git show e013c55:supabase/functions/latam-reembolso/index.ts`); o site, apagar as 3 páginas novas. O banco pode ficar; desfazer: seção DESFAZER de `14-painel-reembolsos.sql`.
 - **Reembolso em um toque:** voltar a `es-reembolso.html` e o `js/es/reembolso.js` da `a32b178` (`git show a32b178:es-reembolso.html`), apagar a função `latam-reembolso` no painel e colar de volta nos e-mails da KashPay as versões `-ate-1311`. O banco pode ficar; desfazer: seção DESFAZER de `11-reembolso.sql`.
 - **Site:** publicar de novo o deploy anterior na Netlify (*Deploys → Publish deploy*), sem build novo. As páginas `es` só existem para quem tem o link.

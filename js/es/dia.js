@@ -218,9 +218,12 @@
 
   if (oferta) {
     // Com a oferta, sem "Recé esta oración": o dia se marca sozinho no Amén.
+    // Quem já tem o produto da oferta (Las 3 Madrugadas, 18/11/2026) não vê o
+    // botão, como no Brasil. A prévia (?previa-oferta=1) mostra sempre.
+    const yaLoTiene = !previaOferta && Array.isArray(r.extras) && r.extras.includes(oferta.produto);
     window.AMENES_OFERTA_DIA.ligar(content, oferta, previaOferta, () => {
       if (!r.completados.includes(n)) window.AMENES.marcar(n, true).catch(() => null);
-    });
+    }, yaLoTiene);
   } else {
     botaoDeConcluir(r);
   }

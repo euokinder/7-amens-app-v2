@@ -356,6 +356,15 @@ await cenario('22. Extras no retrato: compra, nada, e banco sem a função', asy
   confere('banco sem latam_extras: extras = null (a tela abre os dois)', semFuncao.corpo.extras === null);
 });
 
+// ------------------------------------- Las 3 Madrugadas (18/11/2026)
+await cenario('22b. Las 3 Madrugadas no retrato; um extra desconhecido não passa', async () => {
+  cliente();
+  const token = await entrar();
+  comprasFalsas.c1 = ['tres_madrugadas', 'algo_que_nao_existe'];
+  const r = await chamar('session', {}, { token });
+  confere('comprou As 3 Madrugadas: extras = [tres_madrugadas]', JSON.stringify(r.corpo.extras) === '["tres_madrugadas"]', JSON.stringify(r.corpo.extras));
+});
+
 await cenario('23. Cántico: "Terminé este día", trava e dono', async () => {
   cliente({ timezone: 'America/Bogota', first_access_on: diasAntes('America/Bogota', 2) });
   const token = await entrar();

@@ -34,6 +34,16 @@
 
   const tiene = (retrato, clave) => !retrato || !Array.isArray(retrato.extras) || retrato.extras.includes(clave);
 
+  // LAS 3 MADRUGADAS (18/11/2026), como no Brasil: o card SÓ aparece para quem
+  // comprou (sem cadeado e sem "Adquirir": a venda é o próprio vídeo do Día 7).
+  // Aqui não vale a rede de segurança: sem o campo extras, o card fica
+  // escondido (abrir para todas mostraria a entrega a quem não comprou).
+  // A página, aberta por link, segue a regra dos outros extras (tiene).
+  function desenharCardOculto(retrato, clave, idDoCard) {
+    const card = document.getElementById(idDoCard);
+    if (card) card.hidden = !(retrato && Array.isArray(retrato.extras) && retrato.extras.includes(clave));
+  }
+
   // O card da home: "DISPONIBLE" e "Acceder al contenido" para quem tem;
   // "🔒 EXTRA" e "Adquirir" (que leva à página de venda) para quem não tem.
   // As duas versões do texto moram no es.html (data-liberado / data-trancado).
@@ -61,8 +71,34 @@
   // no lugar do conteúdo. Devolve true quando trancou.
   function trancarPagina(retrato, clave) {
     if (tiene(retrato, clave)) return false;
-    const t = TRANCADA[clave];
     const el = window.AMENES.el;
+    // As 3 Madrugadas, como no Brasil: quem chega aqui sem o produto quase
+    // sempre é quem PAGOU e não foi liberada. O aviso oferece a equipe, e não
+    // a venda.
+    if (clave === 'tres_madrugadas') {
+      const titulo = el('h1', { class: 'title', text: 'Las 3 Madrugadas de Intercesión' });
+      titulo.style.fontSize = '22px';
+      const ayuda = el('a', {
+        class: 'member-button',
+        href: window.AMENES_CONFIG.whatsapp('Hola, compré Las 3 Madrugadas de Intercesión y no aparecen en mi app.'),
+        text: 'Hablar con el equipo',
+      });
+      ayuda.target = '_blank';
+      ayuda.rel = 'noopener';
+      ayuda.style.cssText = 'text-align:center;text-decoration:none;';
+      const voltar = el('a', { class: 'member-button secondary', href: '/es', text: 'Volver al inicio' });
+      voltar.style.cssText = 'text-align:center;text-decoration:none;color:var(--ink);';
+      document.querySelector('.content').replaceChildren(
+        el('div', { class: 'heading-block' }, titulo, el('p', {
+          class: 'subtext',
+          text: 'Las 3 Madrugadas son para quien las compró al final de la Séptima Madrugada, y todavía no aparecen en tu acceso. Si ya las compraste, escríbenos y lo resolvemos.',
+        })),
+        ayuda,
+        voltar,
+      );
+      return true;
+    }
+    const t = TRANCADA[clave];
     const conhecer = el('a', { class: 'member-button', href: oferta(clave, 'link-directo'), text: t.boton });
     conhecer.style.cssText = 'text-align:center;text-decoration:none;';
     const voltar = el('a', { class: 'member-button secondary', href: '/es', text: 'Volver al inicio' });
@@ -103,5 +139,5 @@
     </div>`;
   }
 
-  window.AMENES_EXTRAS = { tiene, desenharCard, desenharAviso, trancarPagina, indisponible, audioEnPreparacion };
+  window.AMENES_EXTRAS = { tiene, desenharCard, desenharCardOculto, desenharAviso, trancarPagina, indisponible, audioEnPreparacion };
 })();

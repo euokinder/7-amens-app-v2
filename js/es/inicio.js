@@ -24,6 +24,8 @@
   // não tem (js/es/extras.js). Antes de mostrar a tela, para não piscar.
   window.AMENES_EXTRAS.desenharCard(r, 'arcangeles', 'card-arcangeles', '/es-arcangeles');
   window.AMENES_EXTRAS.desenharCard(r, 'cantico', 'card-cantico', '/es-cantico');
+  // Las 3 Madrugadas (18/11/2026): o card só aparece para quem comprou.
+  window.AMENES_EXTRAS.desenharCardOculto(r, 'tres_madrugadas', 'card-tres-madrugadas');
   window.AMENES_EXTRAS.desenharAviso();
 
   window.AMENES.mostrarTela();

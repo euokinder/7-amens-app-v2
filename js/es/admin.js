@@ -43,6 +43,10 @@
   const EXTRAS_NO_APP = [
     { key: 'arcangeles', title: 'UP01 · Central de los Cuatro Arcángeles' },
     { key: 'cantico', title: 'UP02 · Cántico Angelical' },
+    // 18/11/2026: a venda do fim do vídeo do Día 7 (Hubla). Liberada sozinha
+    // pelo supabase/latam/16-tres-madrugadas.sql; "Liberar" aqui é para quem
+    // pagou com outro e-mail.
+    { key: 'tres_madrugadas', title: 'Las 3 Madrugadas de Intercesión (Día 7)' },
   ];
   const origemLabels = {
     compra: 'Tem · pela compra',
@@ -50,7 +54,7 @@
     manual: 'Tem · liberado na mão',
     retirado: 'Retirado na mão',
   };
-  const nomeDoExtra = { arcangeles: 'Arcángeles', cantico: 'Cántico' };
+  const nomeDoExtra = { arcangeles: 'Arcángeles', cantico: 'Cántico', tres_madrugadas: 'Las 3 Madrugadas' };
   const sourceLabels = { whop: 'pela compra', import: 'pela carga inicial', manual: 'liberado na mão', emergencia: 'pela entrada de emergência (confira a compra)' };
   // O resgate na entrada (10/11/2026; supabase/latam/09-resgate.sql).
   const metodoLabels = {
@@ -306,7 +310,7 @@
       button.addEventListener('click', () => act(
         tem ? 'admin_revoke_extra' : 'admin_grant_extra',
         { customer_id: customer.id, product: extra.key },
-        tem ? `Retirar ${extra.title} do app de ${customer.email}? O card volta a mostrar o cadeado na próxima vez que ela abrir o app.`
+        tem ? `Retirar ${extra.title} do app de ${customer.email}? ${extra.key === 'tres_madrugadas' ? 'O card some da home' : 'O card volta a mostrar o cadeado'} na próxima vez que ela abrir o app.`
           : `Liberar ${extra.title} no app para ${customer.email}?`,
         customer.id,
       ));

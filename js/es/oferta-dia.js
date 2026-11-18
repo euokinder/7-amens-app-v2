@@ -12,8 +12,9 @@
 // Desligar: os dois números em null (a tela volta a ter o "Recé esta oración").
 // ?previa-oferta=1 mostra o botão na hora (para conferir a tela).
 //
-// ⚠️ Ainda não some para quem já comprou: o app em espanhol não sabe dessa
-// compra (o retrato só traz os extras Arcángeles e Cántico).
+// Quem já tem Las 3 Madrugadas (retrato.extras, desde 18/11/2026) não vê o
+// botão, como no Brasil; o vídeo continua igual, e o dia continua se marcando
+// sozinho no Amén (ligar com yaLoTiene = true).
 //
 // O DIA 3 (09/11/2026, pedido do Caio): o mesmo relógio, com TRÊS botões de
 // aporte no lugar de um (como as contribuições do Dia 03 do Brasil, maior
@@ -83,12 +84,14 @@
 
   // Liga o relógio: revela o botão no minuto do pitch e avisa uma vez quando a
   // oração termina (alTerminar). Igual ao dia.html do Brasil.
-  function ligar(content, o, previa, alTerminar) {
+  function ligar(content, o, previa, alTerminar, yaLoTiene) {
     const bloco = document.getElementById('oferta-del-dia');
     if (!bloco) return;
     const player = content.querySelector('vturb-smartplayer');
+    // Quem já comprou: o bloco sai da tela, e só fica o relógio do Amén.
+    if (yaLoTiene) bloco.remove();
 
-    if (!previa) {
+    if (!previa && !yaLoTiene) {
       // O relógio principal é o próprio vídeo (pausar o vídeo pausa a espera;
       // persist: quem volta já encontra o botão). O timer comum é só a rede de
       // segurança para o script da VTurb que não carrega.
@@ -104,7 +107,7 @@
 
     // O botão nasce abaixo do vídeo em pé, quase sempre fora da tela do
     // celular. Quando ele aparece, a página desce só o necessário.
-    const olho = setInterval(() => {
+    const olho = yaLoTiene ? null : setInterval(() => {
       if (!bloco.isConnected) return clearInterval(olho);
       if (bloco.offsetHeight === 0) return;
       clearInterval(olho);

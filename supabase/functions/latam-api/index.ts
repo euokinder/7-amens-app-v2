@@ -430,7 +430,11 @@ function calendar(customer: Customer, reportedZone: unknown) {
 // Os extras dela (latam_extras, em 05-extras.sql). Falhar aqui nunca derruba
 // a jornada: vem null, e a tela abre os dois.
 type Extras = { extras: string[]; origem: Record<string, string>; cantico_hechos: number[] };
-const EXTRA_KEYS = new Set(['arcangeles', 'cantico']);
+// 'tres_madrugadas' (18/11/2026): Las 3 Madrugadas de Intercesión, a venda do
+// fim do vídeo do Día 7. Liberada pela Hubla (latam_hubla_liberar, em
+// supabase/latam/16-tres-madrugadas.sql), pela KashPay ou à mão no painel.
+// Ao contrário dos outros dois, o card dela só aparece para quem tem.
+const EXTRA_KEYS = new Set(['arcangeles', 'cantico', 'tres_madrugadas']);
 async function extrasOf(customerId: string): Promise<Extras | null> {
   try {
     const answer = await db('rpc/latam_extras', 'POST', { p_customer_id: customerId });

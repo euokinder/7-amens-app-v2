@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Las 3 Madrugadas de Intercesión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/es/app.css">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="/assets/images/icon-180.png">
+</head>
+<body>
+<!-- App em espanhol (LATAM): Las 3 Madrugadas de Intercesión, a lista das três.
+     CÓPIA do tres-madrugadas.html do Brasil, em espanhol (18/11/2026). As três
+     ficam SEMPRE abertas (o rito é por nome). Quem não comprou não vê esta
+     tela: o js/es/extras.js a troca por um aviso com o WhatsApp da equipe.
+     O conteúdo mora em js/es/tres-madrugadas.js. Plano: docs/app-es.md
+     PROVISÓRIO: os textos desta tela (a copy é do Arthur). -->
+<div id="member-gate" role="status">
+  <p>Verificando tu acceso…</p>
+  <noscript><p>Tu navegador tiene JavaScript desactivado. Actívalo para abrir tus oraciones.</p></noscript>
+  <a class="member-gate-help" id="ayuda-portao" href="#" target="_blank" rel="noopener">¿Necesitas ayuda? Escríbenos por WhatsApp</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="history.length > 1 ? history.back() : location.href='/es'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Volver</span>
+    </button>
+    <div class="avatar"><img src="/assets/images/icon-96.png" alt="7 Amenes de la Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content">
+
+    <span class="kicker">Contenido exclusivo</span>
+    <div class="section-heading" style="margin-top:-8px;">
+      <div class="bar"></div>
+      <div class="heading-block">
+        <h1 class="title" style="font-size:24px;">Las 3 Madrugadas de Intercesión</h1>
+        <p class="subtext">Tres madrugadas de oración por una persona que llevas en el corazón. Comienza por la Primera.</p>
+      </div>
+    </div>
+
+    <div id="tres-madrugadas-lista" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+    <div>
+      <h2 class="section-label" style="margin-bottom:14px;">Cómo funciona</h2>
+      <div class="modal-checklist">
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Elige a una persona: un hijo, tu esposo, tu madre, alguien que necesita de Dios ahora.</p>
+        </div>
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Ora una madrugada a la vez, en orden: la Primera, después la Segunda, después la Tercera.</p>
+        </div>
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>Cuando el video te lo pida, di el nombre de esa persona en voz alta. El nombre queda solo entre tú y Dios: la aplicación no lo pregunta ni lo guarda.</p>
+        </div>
+        <div class="item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>
+          <p>¿Terminaste la Tercera? Para orar por otra persona, comienza de nuevo por la Primera.</p>
+        </div>
+      </div>
+    </div>
+
+    <a class="member-button" href="/es" style="text-align:center;text-decoration:none;">Volver al inicio</a>
+
+  </div>
+</div>
+
+<script src="/js/es/config.js"></script>
+<script src="/js/es/sesion.js"></script>
+<script src="/js/es/oferta.js"></script>
+<script src="/js/es/tres-madrugadas.js"></script>
+<script src="/js/es/extras.js"></script>
+<script src="/js/es/app.js"></script>
+<script src="/js/es/tres-madrugadas-lista.js"></script>
+</body>
+</html>
