@@ -25,7 +25,9 @@
 // preenchidos; até lá, o Dia 3 fica com a `reserva` de js/en/video.js e o
 // "I prayed this prayer".
 //
-// ⏳ EUA: NADA DISTO ESTÁ LIGADO AINDA, de propósito. Os vídeos em inglês não
+// ✅ EUA (18/11/2026): os Dias 3 e 7 estão ligados, com os minutos abaixo.
+// O texto a seguir é o histórico de antes disso.
+// ⏳ (antigo) EUA: NADA DISTO ESTÁ LIGADO AINDA, de propósito. Os vídeos em inglês não
 // existem, e o checkout em inglês também não. Por isso os links estão vazios e
 // os minutos (segundosDelBoton, finDeLaOracion) estão em null: `para()` devolve
 // null, e os Dias 3 e 7 ficam como dias comuns, com o "I prayed this prayer".
@@ -47,17 +49,15 @@
     3: {
       produto: 'aporte',
       titulo: 'Choose your contribution below. Let\'s take this step together!', // PROVISÓRIO: copy do Caio
-      // ⏳ EUA: checkouts em inglês ainda não existem (os do espanhol eram da
-      // Hubla, produto "Amenes Sagrados": NÃO usar). Os valores também não
-      // estão definidos: "[US$ ?]" até o Arthur mandar (no espanhol, 200 / 120 /
-      // 60; no Brasil, R$ 947 / 397 / 297). O maior vem primeiro, em destaque.
+      // Checkouts da Hubla, produto "Sacred Amens" (18/11/2026), os mesmos
+      // valores do espanhol (200 / 120 / 60). Vídeo da VTurb em js/en/video.js.
       opciones: [
-        { texto: 'A section of the floor · [US$ ?]', link: '', destaque: true }, // ⏳ EUA: valor e checkout
-        { texto: 'A pew · [US$ ?]', link: '' }, // ⏳ EUA: valor e checkout
-        { texto: 'A stone for the altar · [US$ ?]', link: '' }, // ⏳ EUA: valor e checkout
+        { texto: 'A section of the floor · US$ 200', link: 'https://pay.hub.la/LDuZaRatXokaT8PhEOuF?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte', destaque: true },
+        { texto: 'A pew · US$ 120', link: 'https://pay.hub.la/QjEJ0Y8CTc93PFCsUi7I?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte' },
+        { texto: 'A stone for the altar · US$ 60', link: 'https://pay.hub.la/Fm980EKCbVoQlyDf93Yh?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte' },
       ],
-      finDeLaOracion: null, // ⏳ EUA: o Amen da oração de Father James no vídeo em inglês; depois vem Sister Cecilia
-      segundosDelBoton: null, // ⏳ EUA: a fala "Take this step with me." no vídeo em inglês
+      finDeLaOracion: 252, // 4:12: o Amen da oração de Father James (4:14) no vídeo da VTurb de 18/11; depois vem Sister Cecilia
+      segundosDelBoton: 525, // 8:45: "Below this video you'll see three options" (8:44), pedido do Arthur em 18/11
     },
     7: {
       produto: 'tres_madrugadas',
