@@ -1,0 +1,164 @@
+/* App em inglês (EUA): os 3 cards "Shield" da página de venda dos Arcanjos
+   (en-offer-archangels.html), 19/11/2026. Base: o código que o Arthur mandou
+   (versão do funil da Digistore), adaptado ao app: checkout da Hubla, cupom de
+   Black Friday 30OFF, letras grandes para o público 45+.
+   Tudo aqui começa com .ark- e só vale dentro de .ark-offer: não encosta no
+   resto do app. */
+
+.ark-offer{
+  --ark-navy:#0b1630; --ark-navy-2:#132a52; --ark-ivory:#fbf6ea;
+  --ark-gold:#d4ae55; --ark-gold-soft:#f3d98f; --ark-gold-dark:#7a5a14; --ark-ink:#1c2233; --ark-ink-soft:#454c5e;
+  --ark-green:#2f6b3a;
+  position:relative; color:var(--ark-ivory);
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(243,217,143,.16), transparent 70%),
+    radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1.2px 1.2px at 82% 12%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1.4px 1.4px at 68% 34%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1.2px 1.2px at 24% 52%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(1.5px 1.5px at 92% 64%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1.2px 1.2px at 6% 80%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(1.3px 1.3px at 48% 90%, rgba(255,255,255,.4), transparent 60%),
+    var(--ark-navy);
+  font-family:"Source Sans 3",Arial,Helvetica,sans-serif; font-size:18px; line-height:1.55;
+  padding:30px 12px 40px; box-sizing:border-box; width:100%; overflow-x:hidden;
+  border-radius:20px;
+}
+.ark-offer *,.ark-offer *::before,.ark-offer *::after{box-sizing:border-box}
+.ark-offer .ark-defs{position:absolute; width:0; height:0; overflow:hidden}
+.ark-offer .ark-divider{display:block; width:220px; max-width:70%; height:28px; margin:0 auto 26px; color:var(--ark-gold)}
+
+/* ---- O AVISO DA BLACK FRIDAY: cupom 30OFF ---- */
+.ark-offer .ark-bf{
+  max-width:620px; margin:0 auto 46px; text-align:center;
+  background:var(--ark-ivory); color:var(--ark-ink);
+  border:2px dashed var(--ark-gold-dark); border-radius:18px;
+  padding:22px 18px 20px; box-shadow:0 0 0 5px rgba(212,174,85,.25);
+}
+.ark-offer .ark-bf-kicker{
+  display:inline-block; background:var(--ark-navy); color:var(--ark-gold-soft);
+  font-family:"Cinzel",Georgia,serif; font-weight:700; font-size:14px; letter-spacing:.14em;
+  padding:6px 16px; border-radius:999px; margin:0 0 12px;
+}
+.ark-offer .ark-bf-title{
+  font-family:"Cinzel",Georgia,serif; font-weight:700; font-size:24px; line-height:1.25;
+  color:var(--ark-navy); margin:0 0 8px;
+}
+.ark-offer .ark-bf-text{margin:0 0 16px; font-size:18px; color:var(--ark-ink)}
+.ark-offer .ark-bf-code{
+  display:flex; align-items:stretch; justify-content:center; gap:10px; flex-wrap:wrap; margin:0 0 12px;
+}
+.ark-offer .ark-bf-codebox{
+  display:flex; align-items:center; justify-content:center; min-height:56px; padding:6px 20px;
+  font-family:"Cinzel",Georgia,serif; font-weight:700; font-size:28px; letter-spacing:.12em;
+  color:var(--ark-navy); background:#fff; border:2px solid var(--ark-gold); border-radius:12px;
+  user-select:all;
+}
+.ark-offer .ark-bf-copy{
+  min-height:56px; padding:10px 20px; border-radius:12px; cursor:pointer;
+  background:var(--ark-gold); color:var(--ark-navy); border:2px solid var(--ark-gold-dark);
+  font-family:inherit; font-weight:700; font-size:19px;
+}
+.ark-offer .ark-bf-copy:focus-visible{outline:3px solid var(--ark-navy); outline-offset:2px}
+.ark-offer .ark-bf-copy.is-copied{background:var(--ark-green); border-color:var(--ark-green); color:#fff}
+.ark-offer .ark-bf-how{margin:0; font-size:17px; color:var(--ark-ink-soft)}
+
+/* ---- OS CARDS ---- */
+.ark-offer .ark-grid{display:flex; flex-direction:column; gap:40px; max-width:1160px; margin:0 auto; padding:0; list-style:none}
+.ark-offer .ark-card{
+  position:relative; margin:0; display:flex; flex-direction:column;
+  background:var(--ark-ivory); color:var(--ark-ink); border:2px solid var(--ark-gold);
+  border-radius:170px 170px 16px 16px / 96px 96px 16px 16px; padding:0 0 24px;
+}
+.ark-offer .ark-card--four{order:1; border-width:3px; box-shadow:0 0 0 6px rgba(212,174,85,.2), 0 0 60px rgba(243,217,143,.18)}
+.ark-offer .ark-card--family{order:2}
+.ark-offer .ark-card--michael{order:3}
+
+/* a janela em arco, como um vitral, no alto de cada card */
+.ark-offer .ark-art{
+  position:relative; height:186px; display:flex; align-items:flex-end; justify-content:center; gap:4px;
+  padding:0 10px 12px; overflow:hidden;
+  border-radius:168px 168px 0 0 / 94px 94px 0 0; border-bottom:2px solid var(--ark-gold);
+  background:
+    radial-gradient(circle at 50% 46%, rgba(255,236,186,.55) 0%, rgba(243,217,143,.18) 32%, transparent 62%),
+    repeating-conic-gradient(from 0deg at 50% 46%, rgba(243,217,143,.10) 0deg 4deg, transparent 4deg 14deg),
+    linear-gradient(180deg, #1b3463 0%, var(--ark-navy-2) 55%, #0e1f40 100%);
+}
+.ark-offer .ark-card--four .ark-art{border-radius:167px 167px 0 0 / 93px 93px 0 0}
+.ark-offer .ark-fig{display:flex; flex-direction:column; align-items:center; margin:0}
+.ark-offer .ark-fig svg{display:block; height:auto}
+.ark-offer .ark-fig--solo svg{width:128px}
+.ark-offer .ark-fig--four svg{width:62px}
+.ark-offer .ark-fig--small svg{width:48px}
+.ark-offer .ark-house{width:66px; height:auto; margin:0 2px 4px}
+.ark-offer .ark-fig figcaption{
+  font-family:"Cinzel",Georgia,serif; font-weight:700; font-size:11px; letter-spacing:.06em;
+  color:var(--ark-gold-soft); margin-top:2px;
+}
+
+.ark-offer .ark-badge{
+  position:absolute; top:-19px; left:50%; transform:translateX(-50%); z-index:2;
+  background:var(--ark-gold); color:var(--ark-navy); font-family:"Cinzel",Georgia,serif; font-weight:700;
+  font-size:15px; letter-spacing:.14em; padding:7px 20px; border-radius:999px; white-space:nowrap;
+  border:2px solid var(--ark-gold-soft);
+}
+.ark-offer .ark-body{padding:22px 18px 0; display:flex; flex-direction:column; flex:1}
+.ark-offer .ark-name{
+  font-family:"Cinzel",Georgia,"Times New Roman",serif; font-weight:700;
+  font-size:25px; line-height:1.2; text-align:center; margin:0 0 8px; color:var(--ark-navy); letter-spacing:.02em;
+}
+.ark-offer .ark-sub{text-align:center; margin:0 0 16px; color:var(--ark-ink-soft); font-size:18px; font-style:italic}
+.ark-offer .ark-price{text-align:center; margin:0 0 6px; padding:14px 0 4px; border-top:1px solid #e2d3ab}
+.ark-offer .ark-was{display:block; font-size:20px; color:var(--ark-ink-soft); margin-bottom:2px}
+.ark-offer .ark-was s{text-decoration-thickness:2px}
+.ark-offer .ark-now{display:block; font-family:"Cormorant Garamond",Georgia,serif; font-weight:700; font-size:62px; line-height:1; color:var(--ark-navy)}
+.ark-offer .ark-per{text-align:center; margin:8px 0 0; font-weight:600; color:var(--ark-gold-dark); font-size:18px}
+
+/* o preço com o cupom, logo abaixo do preço do card */
+.ark-offer .ark-coupon{
+  margin:12px auto 0; padding:8px 14px; max-width:290px; text-align:center;
+  background:#fff4d6; border:1px dashed var(--ark-gold-dark); border-radius:10px;
+  font-size:17px; line-height:1.4; color:var(--ark-ink);
+}
+.ark-offer .ark-coupon strong{color:var(--ark-green); font-size:21px}
+.ark-offer .ark-coupon .ark-code{font-weight:700; letter-spacing:.06em; color:var(--ark-navy)}
+
+.ark-offer .ark-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.ark-offer .ark-list{list-style:none; margin:20px 0 24px; padding:0; flex:1}
+.ark-offer .ark-list li{position:relative; padding-left:30px; margin:0 0 14px; font-size:18px; color:var(--ark-ink)}
+.ark-offer .ark-list li::before{
+  content:""; position:absolute; left:3px; top:7px; width:14px; height:14px;
+  background:
+    linear-gradient(var(--ark-gold-dark),var(--ark-gold-dark)) 50% 0/2.5px 100% no-repeat,
+    linear-gradient(var(--ark-gold-dark),var(--ark-gold-dark)) 50% 32%/100% 2.5px no-repeat;
+}
+.ark-offer .ark-btn{
+  display:flex; align-items:center; justify-content:center; width:100%; min-height:60px; padding:14px 18px;
+  background:var(--ark-navy); color:#fff; border:2px solid var(--ark-navy); border-radius:10px;
+  font-weight:700; font-size:20px; line-height:1.25; text-align:center; text-decoration:none;
+}
+.ark-offer .ark-btn:hover,.ark-offer .ark-btn:focus-visible{background:var(--ark-navy-2); outline:3px solid var(--ark-gold); outline-offset:2px}
+.ark-offer .ark-card--four .ark-btn{background:var(--ark-gold); border-color:var(--ark-gold); color:var(--ark-navy)}
+.ark-offer .ark-card--four .ark-btn:hover,.ark-offer .ark-card--four .ark-btn:focus-visible{background:#e0bd68; outline-color:var(--ark-navy)}
+
+.ark-offer .ark-foot{max-width:640px; margin:34px auto 0; text-align:center}
+.ark-offer .ark-once{font-size:18px; margin:0 0 16px; color:var(--ark-ivory)}
+.ark-offer .ark-decline{display:inline-block; padding:10px 6px; font-size:17px; color:#c9cfdc; text-decoration:underline; text-underline-offset:3px}
+.ark-offer .ark-decline:hover{color:#fff}
+.ark-offer .ark-legal{font-size:15px; line-height:1.5; color:#aab2c4; margin:18px 0 0}
+
+/* O app tem largura de celular; isto só vale se um dia a tela for larga. */
+@media (min-width:900px){
+  .ark-offer{padding:48px 24px 64px}
+  .ark-offer .ark-grid{display:grid; grid-template-columns:1fr 1.12fr 1fr; align-items:center; gap:22px}
+  .ark-offer .ark-card--michael{order:1}
+  .ark-offer .ark-card--four{order:2}
+  .ark-offer .ark-card--family{order:3}
+  .ark-offer .ark-card--four .ark-art{height:214px}
+  .ark-offer .ark-card--four .ark-fig--four svg{width:76px}
+  .ark-offer .ark-fig--small svg{width:56px}
+  .ark-offer .ark-house{width:78px}
+  .ark-offer .ark-card--four .ark-body{padding:26px 28px 0}
+  .ark-offer .ark-card--four .ark-name{font-size:28px}
+  .ark-offer .ark-card--four .ark-now{font-size:70px}
+}

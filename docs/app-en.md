@@ -175,6 +175,7 @@ Cópia da Lucía do espanhol (`supabase/functions/en-chat/`, `supabase/en/10-cha
   |---|---|---|
   | 741394 | The 7 Amens of the Early Morning | `principal` (front) |
   | 741402 | The 7 Amens of the Early Morning 27 | `principal` (front com outro preço) |
+  | 741403 | The 7 Amens of the Early Morning 57 | `principal` (front de teste a US$ 57, 14/11) |
   | 741399 | Protection of the Four Archangels | `arcangeles` (Up 01) |
   | 741401 | Angelic Canticle | `cantico` (Up 02) |
 
@@ -227,6 +228,40 @@ Cada passo é inofensivo sem o seguinte. Nenhum build a mais: os links das pági
 - **Parar de liberar:** desativar a conexão na Digistore. Quem já entrou continua com o acesso.
 - **A função:** apagar a `en-digistore` no painel (o aviso passa a dar erro, e a Digistore repete por 10 dias).
 - **O banco:** seção DESFAZER do `13-digistore.sql` (a visão volta a ser a vazia rodando o `02-compras.sql`). O acesso de quem já foi liberado fica.
+
+## A venda pela Hubla (`en-hubla`, 19/11/2026, ✅ provada só no TESTE)
+**Em uma frase:** a página de venda dos Arcanjos dentro do app (`/en-offer-archangels`, nova em 19/11) vende pela Hubla, em dólar. O aviso da Hubla chega na função `en-hubla`, que libera o app (12 meses) e os Arcanjos para o e-mail da compra, com as mesmas regras da Digistore.
+
+- **Separada do Brasil (decisão de 19/11):** a `en-hubla` recebe de uma integração de webhook PRÓPRIA na Hubla (cada integração tem o seu token; segredo `EN_HUBLA_WEBHOOK_TOKEN`). A `hubla-webhook` do Brasil, a `hubla_events` e o `hubla_product_map` não mudaram. ⛔ Nunca cadastrar estes códigos no `hubla_product_map`: a venda americana abriria o app brasileiro.
+- **Os códigos** (`en_hubla_products`, `supabase/en/14-hubla.sql`), todos → `arcangeles`: `iUKyTVZAZdUij7F61dFt` (o produto e a oferta The Complete Shield, $98) · `9TXhK3aXGlTym1dxWgXm` (The Shield of Michael, $49) · `rKFwFW1A2b7KkM4R0Po3` (The Family Fortress, $147). **Os três níveis abrem a Central inteira** (Arthur, 19/11): o app não separa por nível.
+- **Libera em** `customer.member_added` e `invoice.payment_succeeded` (os dois: a Hubla não garante a ordem e não manda `member_added` para quem já tem a oferta). Liberar duas vezes não muda nada. **Reembolso, disputa e "acesso removido" só registram.** Código desconhecido = `needs_review`, nada liberado: cadastrar o código e **reenviar o aviso pelo histórico da Hubla** (a função atualiza a linha). Aviso de teste da Hubla (`x-hubla-sandbox: true`) na produção fica `ignored`.
+- **A visão `en_pedidos_pagos` lê a Digistore E a Hubla** (uma linha por fatura paga, `pedido` = `hubla:<fatura>`). ⚠️ Rodar o `13-digistore.sql` (ou o `02`) de novo depois do `14` tira as compras da Hubla da visão: rodar o `14` em seguida.
+- **Forma do aviso:** a documentação oficial (hubla.gitbook.io/docs/webhooks, lida em 19/11) e os dois primeiros avisos reais deste produto (19/11, 19h50: assinatura **grátis** de um administrador, no `hubla_events` do Brasil, `needs_reconciliation`; não são vendas, não há o que liberar). ⏳ **Na primeira venda paga, conferir** em `en_hubla_events` o `amount_cents` e a `currency` (a documentação não deixa claro se venda em dólar vem em centavos de dólar) e os `utm_*`.
+- **Arquivos:** `supabase/functions/en-hubla/index.ts`, `supabase/en/14-hubla.sql`, `supabase/en/testes/prova-hubla-no-teste.mjs`.
+- **Provado no TESTE (19/11):** `en-hubla` v1 (JWT desligado) e o `14` rodado; `prova-hubla-no-teste.mjs` 14 de 14 (libera, a repetição não duplica, ela entra no app com os Arcanjos e 12 meses, o reembolso lista US$ 34,30 e depois "devolvida", o acesso fica, código desconhecido não entra, token errado 401); `prova-digistore-no-teste.mjs` 15 de 15 de novo com a visão nova. Clientes de prova apagadas.
+- **Ruído no Brasil:** enquanto a regra de webhook do Brasil mandar "todos os produtos", a `hubla-webhook` também recebe estas vendas e grava `needs_reconciliation` ("Produto não mapeado"). É inofensivo (nada é liberado no Brasil). Para calar, tirar este produto da regra do Brasil na Hubla.
+
+### ⏳ Ir ao ar (o Arthur clica, uma tela por vez; nunca entre 3h e 8h de Brasília)
+1. **Banco:** `supabase/en/14-hubla.sql` no *SQL Editor* da produção. Conferir com o bloco CONFERIR do fim.
+2. **Função:** *Edge Functions → Deploy a new function → Via Editor*, colar `supabase/functions/en-hubla/index.ts`, **nome `en-hubla` antes do Deploy**, depois *Settings* → desligar "Verify JWT with legacy secret".
+3. **Hubla:** *Integrações → Webhooks* → **nova integração** "App EN" (não mexer na do Brasil) → copiar o **Token de Autenticação**. Criar a regra: URL `https://lbaudlocfbjunnaoyrtz.supabase.co/functions/v1/en-hubla`, produto **Protection of the Four Archangels** (todas as ofertas), eventos de **Membro** (acesso concedido e removido) e de **Fatura** (pagamento realizado, reembolsada, status atualizado). Deixar a regra **pausada** até o passo 4.
+4. **Segredo:** no Supabase, *Edge Functions → Secrets*, `EN_HUBLA_WEBHOOK_TOKEN` = o token do passo 3. Só então **ligar a regra** na Hubla. (Sem o segredo a função responde 401, e a Hubla NÃO repete 4xx: o aviso fica só no histórico.)
+5. **Site:** o build do app em inglês (os áudios dos Arcanjos e a página de venda nova).
+6. **Primeira venda:** conferir `en_hubla_events` (consulta leve do fim do `14`).
+
+**Voltar atrás:** pausar a regra "App EN" na Hubla. Quem já entrou continua.
+
+### O checkout da Hubla (19/11/2026)
+- **Foto do produto:** a arte dos 4 Arcanjos do card da home (`assets/images/home/arcanjos.jpg`), posta pela API (a Hubla guarda uma cópia).
+- **Banner no topo de cada oferta** (layout `top_and_bottom_banner`), feito por script com a mesma arte, o nome da oferta e uma frase: `setemadrugadas-en.b-cdn.net/checkout/banner-{michael|complete|family}-{desktop|mobile}-v2.jpg`. Arquivos em `7 Améns EUA/Checkout Hubla - banners/`. A Hubla mostra o banner num quadro de 340 px de altura que corta as laterais (`object-fit: cover`): ~1,1:1 no celular e ~1,7:1 no computador. Por isso as artes têm 1080×980 e 1400×820, com o texto no meio. Conferido em 375 px e em 1280 px.
+- A API da oferta pede a oferta INTEIRA no PUT: omitir `afterPurchase` apaga a volta para `/en`. Fazer GET, mudar só o `checkout` e mandar tudo de volta; conferir preço, volta, cupom e turma depois.
+- **O checkout pede passaporte/documento, endereço completo e telefone** para cartão estrangeiro, mesmo com "endereço" desligado na oferta. A ajuda oficial da Hubla diz que o endereço é obrigatório (imposto). A API tem `showPhoneNumber` e `showFullName`, ainda não testados.
+
+## Os áudios dos Arcanjos em inglês (19/11/2026)
+- Os 12 áudios (Drive, baixados em 19/11) foram convertidos em mono 96 kbps (39 MB) e conferidos pela transcrição do começo de cada um: cada arquivo cai na oração certa, na ordem do app. Originais e convertidos FORA do repositório: `7 Améns EUA/Arcanjos - audios convertidos/`.
+- **Bunny própria do inglês** (Arthur, 19/11): Storage Zone `setemadrugadas-en` (Nova York + Los Angeles) e Pull Zone `setemadrugadas-en` (rede Volume, cache de 30 dias, CORS como a da LATAM). Endereço: `https://setemadrugadas-en.b-cdn.net/arcangeles/miguel-1.mp3` … `uriel-3.mp3`, ligado em `js/en/arcangeles.js`. Arquivo trocado = nome novo.
+- Conferido no localhost (375 px, banco de TESTE): a lista dos quatro, as três orações de Michael e o tocador (2:49) com o áudio da Bunny; os 12 carregam; nenhum "Audio coming soon"; console sem erro.
+- ⏳ **Ainda não entregues** (prometidos na página de venda): o **Perpetual Shield Calendar** e a **Heavenly Prayer of the Four Archangels United** (nível $98) e a **Household Covering Prayer** (nível $147). O Arthur manda depois. Os textos das orações na tela também não existem (`oracion: null`, só o áudio, como no Brasil).
 
 ## Revisão de 14/11/2026, ~02h (logo depois de ir ao ar)
 - **No ar, sem banco:** as 14 páginas `en` e os 90 arquivos que elas citam respondem (0 quebrados); o Brasil (`/`, `/login`) e a LATAM (`/es`) seguem 200; o e-mail novo e os links da Digistore (741399 ×4, 741401) estão no ar.

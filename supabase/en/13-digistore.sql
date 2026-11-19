@@ -67,6 +67,7 @@ create table if not exists public.en_digistore_products (
 insert into public.en_digistore_products (product_id, produto, nome) values
   ('741394', 'principal',  'The 7 Amens of the Early Morning (front)'),
   ('741402', 'principal',  'The 7 Amens of the Early Morning 27 (front com outro preço)'),
+  ('741403', 'principal',  'The 7 Amens of the Early Morning 57 (front de teste a US$ 57, 14/11)'),
   ('741399', 'arcangeles', 'Protection of the Four Archangels (Up 01)'),
   ('741401', 'cantico',    'Angelic Canticle (Up 02)')
 on conflict (product_id) do update set produto = excluded.produto, nome = excluded.nome;

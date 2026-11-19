@@ -24,12 +24,26 @@
          ✅ "60% off" (Arthur, 14/11/2026): bate com os dois preços (69 → 27 dá
          61%). No espanhol ainda está "30%".
      A etiqueta (utm_source=app-en, no espanhol app-es) continua sendo guardada e
-     vai colada no link de cada carta quando ele existir. -->
+     vai colada no link de cada carta quando ele existir.
+     🔁 19/11/2026 (Arthur): as 4 cartas ($27, Digistore) saíram. No lugar, os 3
+     cards "Shield" pela HUBLA: Michael $49, Complete $98 (o destaque), Family
+     $147, com o cupom de Black Friday 30OFF (30%). Com o VSL em inglês
+     (vid-6aff38a285b58d2bdebd8b5d), os cards aparecem no pitch, aos 6:27. A etiqueta vai colada no link de cada botão.
+     ⚠️ A venda pela Hubla NÃO chega ao app em inglês (só a da Digistore, pela
+     en-digistore): quem compra não vê os Arcanjos abrirem sozinhos.
+     Na Hubla (criado pela API em 19/11/2026): produto "Protection of the Four
+     Archangels" (iUKyTVZAZdUij7F61dFt), pagamento único em USD, e depois de
+     pagar a cliente volta para /en. Ofertas: $98 = iUKyTVZAZdUij7F61dFt (a
+     principal), $49 = 9TXhK3aXGlTym1dxWgXm, $147 = rKFwFW1A2b7KkM4R0Po3.
+     O cupom 30OFF foi conferido no checkout ($98 → $68.60).
+     As cartas antigas continuam no histórico (commit 5f41dee). -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/en/app.css">
 <link rel="stylesheet" href="/css/en/oferta.css">
+<link rel="stylesheet" href="/css/en/escudo.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="/assets/images/icon-180.png">
 <!-- DE ONDE ELA VEIO: a etiqueta do pop-up (utm_*), guardada antes de o player
@@ -77,49 +91,210 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
       </div>
     </div>
 
-    <!-- VÍDEO (VSL). ⏳ EUA: ainda não existe o VSL em inglês. Quando existir,
-         tirar o comentário e trocar ID_DO_VIDEO pelo ID da VTurb (nos dois lugares).
+    <!-- VÍDEO (VSL) em inglês, da VTurb (19/11/2026, Arthur). O pitch é aos 6:27
+         (segundosDoPitch, no script do fim da página). -->
     <div class="video-wrap-embed">
-      <vturb-smartplayer id="vid-ID_DO_VIDEO" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <vturb-smartplayer id="vid-6aff38a285b58d2bdebd8b5d" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
       <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
       <div class="corner-mask bl"></div><div class="corner-mask br"></div>
     </div>
-    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/ID_DO_VIDEO/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
-    -->
+    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aff38a285b58d2bdebd8b5d/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
 
-    <!-- CARTAS: invisíveis até o minuto do pitch no vídeo. "smartplayer-click-event"
-         faz a VTurb contar o toque como "Clique no Botão" (nome exato da
-         documentação dela).
-         O MESMO link do checkout nas quatro: Digistore24 dos EUA, produto 741399
-         (14/11/2026). A etiqueta é colada pelo script do fim da página. -->
-    <div class="cartas-painel esconder">
-      <div class="cartas-headline">Discover your guardian angel and get 60% off now</div>
+    <!-- OS 3 CARDS "SHIELD" (19/11/2026, Arthur). Checkout da HUBLA, um link por
+         card. Ficam escondidos (.esconder, a classe que a VTurb revela) até o
+         pitch, aos 6:27; ?previa=1 mostra na hora. Rede de segurança: se a VTurb
+         não responder, aparecem 2 min depois do pitch (tempo de página aberta).
+         A etiqueta de origem (utm_*) é colada em cada botão pelo script do
+         fim da página. Estilos em /css/en/escudo.css.
+         Preço com o cupom 30OFF (30%): $49 → $34.30 · $98 → $68.60 · $147 → $102.90.
+         Mudou o preço ou o cupom: trocar nos três cards E no aviso de cima. -->
+    <section class="ark-offer esconder" aria-labelledby="ark-titulo">
 
-      <div class="cartas-container" id="cartas-container">
-        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="1"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 1 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="2"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 2 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="3"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 3 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-        <a href="https://www.checkout-ds24.com/product/741399" class="carta smartplayer-click-event" data-carta="4"><img src="/assets/images/carta-anjo.jpg" alt="Choose card 4 and reveal your archangel" loading="lazy" decoding="async" width="309" height="563"></a>
-      </div>
+      <!-- os desenhos: um arcanjo só, reaproveitado em todos os cards -->
+      <svg class="ark-defs" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="ark-g-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff3cf" stop-opacity=".95"/>
+            <stop offset="100%" stop-color="#fff3cf" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ark-g-wing" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fff8e4"/>
+            <stop offset="100%" stop-color="#e8c97a"/>
+          </linearGradient>
+          <linearGradient id="ark-g-robe" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fffaf0"/>
+            <stop offset="100%" stop-color="#ead7a6"/>
+          </linearGradient>
+          <linearGradient id="ark-g-flame" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#e0892c"/>
+            <stop offset="100%" stop-color="#ffe08a"/>
+          </linearGradient>
+          <path id="ark-wing" d="M55 58C40 46 22 36 6 40c6 6 8 10 8 14-6 2-10 8-10 14 6-2 12 0 14 4-6 4-8 10-8 18 8-4 16-4 20 0-2 6 0 12 4 18 6-12 14-24 22-34z"/>
+          <symbol id="ark-angel" viewBox="0 0 120 150">
+            <circle cx="60" cy="40" r="34" fill="url(#ark-g-glow)"/>
+            <use href="#ark-wing" fill="url(#ark-g-wing)" stroke="#c9a24c" stroke-width="1.2"/>
+            <use href="#ark-wing" fill="url(#ark-g-wing)" stroke="#c9a24c" stroke-width="1.2" transform="translate(120 0) scale(-1 1)"/>
+            <g fill="none" stroke="#c9a24c" stroke-width="1" stroke-linecap="round" opacity=".8">
+              <path d="M48 62C36 56 22 52 12 54M44 70C34 68 22 68 16 72M40 80C32 82 24 86 18 92"/>
+              <path d="M72 62C84 56 98 52 108 54M76 70C86 68 98 68 104 72M80 80C88 82 96 86 102 92"/>
+            </g>
+            <path d="M52 54c4-3 12-3 16 0l8 42 8 46c-16 5-32 5-48 0l8-46z" fill="url(#ark-g-robe)" stroke="#c9a24c" stroke-width="1.2"/>
+            <path d="M60 60v80M53 96l-5 44M67 96l5 44" fill="none" stroke="#d9bd77" stroke-width="1"/>
+            <path d="M50 74q10 8 20 0" fill="none" stroke="#c9a24c" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="60" cy="42" r="9" fill="#f6e4bb" stroke="#c9a24c" stroke-width="1"/>
+            <ellipse cx="60" cy="28.5" rx="13" ry="4" fill="none" stroke="#ffd36b" stroke-width="2.6"/>
+          </symbol>
+          <g id="ark-sword">
+            <path d="M86 12l3 5v61h-6V17z" fill="#f4f6fa" stroke="#9aa3b5" stroke-width="1"/>
+            <rect x="77" y="78" width="18" height="4" rx="1.5" fill="#d4ae55"/>
+            <rect x="84.5" y="82" width="3" height="12" fill="#8a6a1f"/>
+            <circle cx="86" cy="96" r="2.6" fill="#d4ae55"/>
+          </g>
+          <g id="ark-lily">
+            <path d="M34 132Q31 96 35 56" fill="none" stroke="#7fa35c" stroke-width="2.2"/>
+            <path d="M34 104q-10-6-12-16 10 4 12 12zM35 84q9-6 10-15-9 4-10 11z" fill="#8fb36a"/>
+            <path d="M35 56c-6-4-9-11-7-17 4 4 6 9 7 13 1-4 3-9 7-13 2 6-1 13-7 17z" fill="#fffdf6" stroke="#d9bd77" stroke-width=".8"/>
+            <path d="M35 54c-1-7 0-14 0-19 0 5 1 12 0 19z" fill="#fffdf6" stroke="#d9bd77" stroke-width=".8"/>
+          </g>
+          <g id="ark-staff">
+            <path d="M30 140V22" stroke="#9a7434" stroke-width="3" stroke-linecap="round"/>
+            <path d="M30 22c0-9 11-10 11-2 0 4-4 5-6 3" fill="none" stroke="#9a7434" stroke-width="3" stroke-linecap="round"/>
+            <path d="M30 46q6 2 6 8" fill="none" stroke="#9a7434" stroke-width="1.2"/>
+            <ellipse cx="37" cy="58" rx="4" ry="5" fill="#d9b06a" stroke="#9a7434" stroke-width="1"/>
+          </g>
+          <g id="ark-flame">
+            <path d="M86 50c-10 12-9 22 0 28 9-6 10-16 0-28z" fill="url(#ark-g-flame)"/>
+            <path d="M86 62c-4 6-4 10 0 13 4-3 4-7 0-13z" fill="#fff4c4"/>
+            <path d="M80 80h12l-2 5h-8z" fill="#d4ae55"/>
+          </g>
+        </defs>
+      </svg>
 
-      <div class="revelacao" id="revelacao" style="display:none;" role="status" aria-live="polite" tabindex="-1">
-        <div class="revelacao-anjo"><span aria-hidden="true">✨</span> Saint Michael <span aria-hidden="true">✨</span></div>
-        <div class="revelacao-texto">
-          Your guardian angel is <strong>Saint Michael the Archangel</strong>! Your <strong>60% discount</strong> has already been applied:
-          <br>
-          <!-- O preço riscado e o novo: de $69 por $27, como no espanhol (Arthur,
-               14/11/2026). O $27 tem de ser o preço do Up 01 (741399) na
-               Digistore dos EUA. Os três pedaços moram dentro de .preco-bloco para o
-               "from ... to" não quebrar longe do valor. -->
-          <span class="preco-bloco">from <span class="preco-de">$69</span> to <span class="preco-por">$27</span></span>
+      <svg class="ark-divider" viewBox="0 0 220 28" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M0 14h88M132 14h88" stroke-linecap="round"/>
+        <path d="M110 2v24M101 10h18" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="110" cy="14" r="12" opacity=".45"/>
+      </svg>
+
+      <!-- O AVISO DO CUPOM -->
+      <div class="ark-bf">
+        <span class="ark-bf-kicker">BLACK FRIDAY BLESSING</span>
+        <h2 class="ark-bf-title" id="ark-titulo">An extra 30% off, just for you</h2>
+        <p class="ark-bf-text">This week only, use the code below on any shield and save 30% more.</p>
+        <div class="ark-bf-code">
+          <span class="ark-bf-codebox" id="ark-codigo">30OFF</span>
+          <button class="ark-bf-copy" type="button" id="ark-copiar">Copy code</button>
         </div>
-        <div class="revelacao-loading">Preparing your protection, please wait a moment…</div>
+        <p class="ark-bf-how">At checkout, tap <strong>“Add coupon”</strong> and type <strong>30OFF</strong>.</p>
       </div>
 
-      <div class="cartas-instrucao" id="cartas-instrucao">
-        Tap one of the cards above to reveal your guardian angel. Right away, he will draw close to you and transform your whole life.
+      <ul class="ark-grid">
+
+        <li class="ark-card ark-card--michael">
+          <div class="ark-art">
+            <figure class="ark-fig ark-fig--solo">
+              <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Michael with his sword">
+                <use href="#ark-angel"/><use href="#ark-sword"/>
+              </svg>
+            </figure>
+          </div>
+          <div class="ark-body">
+            <h3 class="ark-name">The Shield of Michael</h3>
+            <p class="ark-sub">One archangel standing guard over you</p>
+            <div class="ark-price">
+              <span class="ark-was"><span class="ark-sr">Suggested price </span><s>$98</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$49</span>
+            </div>
+            <p class="ark-coupon">With code <span class="ark-code">30OFF</span>:<br>only <strong>$34.30</strong></p>
+            <ul class="ark-list">
+              <li>The 3 prayers of Archangel Michael, in audio and text</li>
+              <li>Protection against envy, the evil eye and betrayal</li>
+              <li>The right words for when fear strikes at night</li>
+            </ul>
+            <a class="ark-btn" href="https://pay.hub.la/9TXhK3aXGlTym1dxWgXm">Choose Michael's Shield</a>
+          </div>
+        </li>
+
+        <li class="ark-card ark-card--four">
+          <span class="ark-badge">MOST CHOSEN</span>
+          <div class="ark-art">
+            <figure class="ark-fig ark-fig--four">
+              <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Michael"><use href="#ark-angel"/><use href="#ark-sword"/></svg>
+              <figcaption>MICHAEL</figcaption>
+            </figure>
+            <figure class="ark-fig ark-fig--four">
+              <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Gabriel"><use href="#ark-angel"/><use href="#ark-lily"/></svg>
+              <figcaption>GABRIEL</figcaption>
+            </figure>
+            <figure class="ark-fig ark-fig--four">
+              <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Uriel"><use href="#ark-angel"/><use href="#ark-flame"/></svg>
+              <figcaption>URIEL</figcaption>
+            </figure>
+            <figure class="ark-fig ark-fig--four">
+              <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Raphael"><use href="#ark-angel"/><use href="#ark-staff"/></svg>
+              <figcaption>RAPHAEL</figcaption>
+            </figure>
+          </div>
+          <div class="ark-body">
+            <h3 class="ark-name">The Complete Shield</h3>
+            <p class="ark-sub">All four archangels united around your life</p>
+            <div class="ark-price">
+              <span class="ark-was"><span class="ark-sr">Suggested price </span><s>$392</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$98</span>
+            </div>
+            <p class="ark-per">Less than $25 per archangel</p>
+            <p class="ark-coupon">With code <span class="ark-code">30OFF</span>:<br>only <strong>$68.60</strong></p>
+            <ul class="ark-list">
+              <li>All 12 prayers of Michael, Gabriel, Uriel and Raphael, in audio and text</li>
+              <li>The Perpetual Shield Calendar: which archangel to pray to on each day of the month</li>
+              <li>The Heavenly Prayer of the Four Archangels United</li>
+            </ul>
+            <a class="ark-btn" href="https://pay.hub.la/iUKyTVZAZdUij7F61dFt">Choose the Complete Shield</a>
+          </div>
+        </li>
+
+        <li class="ark-card ark-card--family">
+          <div class="ark-art">
+            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-sword"/></svg></figure>
+            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-lily"/></svg></figure>
+            <svg class="ark-house" viewBox="0 0 80 72" role="img" aria-label="A home watched over by the four archangels">
+              <circle cx="40" cy="36" r="34" fill="url(#ark-g-glow)"/>
+              <path d="M10 36 40 10l30 26" fill="none" stroke="#f3d98f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+              <path d="M18 32v34h44V32" fill="#fff8e6" stroke="#d4ae55" stroke-width="2" stroke-linejoin="round"/>
+              <rect x="34" y="46" width="12" height="20" rx="1" fill="#d4ae55"/>
+              <rect x="22" y="40" width="9" height="9" fill="#ffd36b" stroke="#d4ae55"/>
+              <rect x="49" y="40" width="9" height="9" fill="#ffd36b" stroke="#d4ae55"/>
+              <path d="M40 18v10M36 22h8" stroke="#d4ae55" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-flame"/></svg></figure>
+            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-staff"/></svg></figure>
+          </div>
+          <div class="ark-body">
+            <h3 class="ark-name">The Family Fortress</h3>
+            <p class="ark-sub">The four archangels over you and everyone under your roof</p>
+            <div class="ark-price">
+              <span class="ark-was"><span class="ark-sr">Suggested price </span><s>$588</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$147</span>
+            </div>
+            <p class="ark-coupon">With code <span class="ark-code">30OFF</span>:<br>only <strong>$102.90</strong></p>
+            <ul class="ark-list">
+              <li>Everything in The Complete Shield</li>
+              <li>The Household Covering Prayer: speak the name of each person in your family</li>
+              <li>Protection that extends to your children and grandchildren</li>
+            </ul>
+            <a class="ark-btn" href="https://pay.hub.la/rKFwFW1A2b7KkM4R0Po3">Protect My Whole Family</a>
+          </div>
+        </li>
+
+      </ul>
+
+      <div class="ark-foot">
+        <!-- ⏳ Conferir na Hubla que as 3 ofertas são pagamento único antes de publicar. -->
+        <p class="ark-once">A single, one-time contribution. No subscription.</p>
+        <a class="ark-decline" href="/en">No thanks, I'll continue without protection</a>
+        <p class="ark-legal">Your order is processed securely by Hubla, our payment partner.</p>
       </div>
-    </div>
+    </section>
 
   </div>
 
@@ -129,21 +304,14 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 <script src="/js/en/sesion.js"></script>
 <script src="/js/en/oferta-pagina.js"></script>
 
-<!-- O RELÓGIO DAS CARTAS e A REVELAÇÃO: cópia do código do Brasil
-     (oferta-arcanjos.html), via es-oferta-arcangeles.html. -->
+<!-- OS BOTÕES DOS 3 CARDS: a etiqueta de origem e o "Copy code" do cupom. -->
 <script>
 (() => {
   'use strict';
 
-  // Sem checkout (carta sem href), o painel das cartas nunca aparece (nem pela
-  // VTurb nem pela rede de segurança) e a carta não leva a lugar nenhum.
-  // ?previa=1 mostra o painel para conferir a tela. Desde 14/11/2026 as cartas
-  // levam à Digistore24 dos EUA (produto 741399).
-  var primeiraCarta = document.querySelector('.carta');
-  var temCheckout = /^https:\/\//.test((primeiraCarta && primeiraCarta.getAttribute('href')) || '');
-
-  // A etiqueta vai colada no link de cada carta. Sem etiqueta nenhuma (digitou
-  // o endereço), vai "sem-popup" de propósito.
+  // A etiqueta vai colada no link de cada botão (a Hubla devolve as utm no
+  // aviso da venda). Sem etiqueta nenhuma (digitou o endereço), vai
+  // "sem-popup" de propósito, como era nas cartas.
   var SEM_POPUP = {
     utm_source: 'app-en',
     utm_medium: 'direto',
@@ -154,109 +322,95 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   var etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
   if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
 
-  Array.prototype.forEach.call(document.querySelectorAll('.carta'), function (carta) {
-    if (!/^https:\/\//.test(carta.getAttribute('href') || '')) return;
+  Array.prototype.forEach.call(document.querySelectorAll('.ark-btn'), function (botao) {
     var destino;
-    try { destino = new URL(carta.href); } catch (e) { return; }
+    try { destino = new URL(botao.href); } catch (e) { return; }
+    if (destino.protocol !== 'https:') return;
     Object.keys(etiquetas).forEach(function (nome) {
       destino.searchParams.set(nome, etiquetas[nome]);
     });
-    carta.href = destino.href;
+    botao.href = destino.href;
   });
 
-  // ⏳ EUA: 5:54 era o minuto do VSL em espanhol. Medir no VSL em inglês.
-  var segundosDaCarta = 354;
-
-  var painel = document.querySelector('.cartas-painel');
+  // O RELÓGIO DO PITCH: os cards aparecem aos 6:27 do vídeo, pela VTurb, e a
+  // página desce até eles (o mesmo desenho das cartas, que estavam aqui antes).
+  var segundosDoPitch = 387;
+  var oferta = document.querySelector('.ark-offer');
   var player = document.querySelector('vturb-smartplayer');
-
-  // ?previa=1 no fim do endereço mostra as cartas na hora (só para conferir).
   var soParaConferir = new URLSearchParams(location.search).get('previa') === '1';
 
-  function descerAtePainel() {
+  function descerAteOferta() {
     var suave = !window.matchMedia || !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    try {
-      painel.scrollIntoView({ block: 'start', behavior: suave ? 'smooth' : 'auto' });
-    } catch (e) {
-      painel.scrollIntoView();
-    }
-    setTimeout(function () {
-      if (painel.getBoundingClientRect().top > window.innerHeight * 0.5) {
-        try { painel.scrollIntoView({ block: 'start', behavior: 'auto' }); }
-        catch (e) { painel.scrollIntoView(); }
-      }
-    }, 1200);
+    try { oferta.scrollIntoView({ block: 'start', behavior: suave ? 'smooth' : 'auto' }); }
+    catch (e) { oferta.scrollIntoView(); }
   }
 
-  function acompanharAparecimento() {
-    var olho = setInterval(function () {
-      if (!painel || painel.offsetHeight === 0) return;
-      clearInterval(olho);
-      descerAtePainel();
-    }, 1000);
-  }
+  if (oferta) {
+    if (soParaConferir) {
+      oferta.classList.remove('esconder');
+    } else {
+      var olho = setInterval(function () {
+        if (oferta.offsetHeight === 0) return;
+        clearInterval(olho);
+        descerAteOferta();
+      }, 1000);
 
-  if (soParaConferir) {
-    painel.classList.remove('esconder');
-  } else if (temCheckout) {
-    acompanharAparecimento();
-
-    // Rede de segurança: se a VTurb não carregar, as cartas aparecem 2 minutos
-    // depois do pitch (tempo de página aberta). Desliga quando o player responde.
-    var redeDeSeguranca = setTimeout(function () {
-      if (painel && painel.offsetHeight === 0) {
-        painel.classList.remove('esconder');
-        painel.classList.add('cartas-aparecem');
-      }
-    }, (segundosDaCarta + 120) * 1000);
-
-    if (player) {
-      player.addEventListener('player:ready', function () {
-        if (typeof player.displayHiddenElements === 'function') {
-          player.displayHiddenElements(segundosDaCarta, ['.esconder'], { persist: true });
-          clearTimeout(redeDeSeguranca);
+      var redeDeSeguranca = setTimeout(function () {
+        if (oferta.offsetHeight === 0) {
+          oferta.classList.remove('esconder');
+          oferta.classList.add('cartas-aparecem');
         }
-      });
+      }, (segundosDoPitch + 120) * 1000);
+
+      if (player) {
+        player.addEventListener('player:ready', function () {
+          if (typeof player.displayHiddenElements === 'function') {
+            player.displayHiddenElements(segundosDoPitch, ['.esconder'], { persist: true });
+            clearTimeout(redeDeSeguranca);
+          }
+        });
+      }
     }
   }
 
-  // Tocou na carta: some a fileira, aparece o Arcanjo, e só então ela segue
-  // para o pagamento (5 segundos de leitura, como no Brasil).
-  var segundosDaRevelacao = 5;
+  // "Copy code": copia 30OFF e confirma no próprio botão por 3 segundos.
+  var copiar = document.getElementById('ark-copiar');
+  var codigo = document.getElementById('ark-codigo');
+  if (!copiar || !codigo) return;
 
-  var cartas = document.getElementById('cartas-container');
-  var revelacao = document.getElementById('revelacao');
-  var instrucao = document.getElementById('cartas-instrucao');
-  var indoPagar = false;
-  var partida = null;
-
-  if (cartas && revelacao) {
-    cartas.addEventListener('click', function (evento) {
-      var carta = evento.target.closest('.carta');
-      if (!carta || indoPagar) return;
-      evento.preventDefault();
-      indoPagar = true;
-
-      cartas.style.display = 'none';
-      if (instrucao) instrucao.style.display = 'none';
-      revelacao.style.display = 'block';
-      try { revelacao.focus(); } catch (e) {}
-
-      partida = setTimeout(function () {
-        if (temCheckout) location.href = carta.href; // sem checkout, fica na revelação
-      }, segundosDaRevelacao * 1000);
-    });
-
-    // Voltando do checkout, a página volta congelada: aqui rearma tudo.
-    window.addEventListener('pageshow', function (evento) {
-      if (!evento.persisted) return;
-      clearTimeout(partida);
-      indoPagar = false;
-      revelacao.style.display = 'none';
-      cartas.style.display = '';
-      if (instrucao) instrucao.style.display = '';
-    });
+  function confirmar() {
+    copiar.textContent = 'Copied ✓';
+    copiar.classList.add('is-copied');
+    setTimeout(function () {
+      copiar.textContent = 'Copy code';
+      copiar.classList.remove('is-copied');
+    }, 3000);
   }
+
+  function copiarDoJeitoAntigo(texto) {
+    var campo = document.createElement('textarea');
+    campo.value = texto;
+    campo.setAttribute('readonly', '');
+    campo.style.position = 'fixed';
+    campo.style.opacity = '0';
+    document.body.appendChild(campo);
+    campo.select();
+    var deu = false;
+    try { deu = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(campo);
+    return deu;
+  }
+
+  copiar.addEventListener('click', function () {
+    var texto = codigo.textContent.trim();
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(texto).then(confirmar, function () {
+        if (copiarDoJeitoAntigo(texto)) confirmar();
+      });
+    } else if (copiarDoJeitoAntigo(texto)) {
+      confirmar();
+    }
+  });
 })();
 </script>
 

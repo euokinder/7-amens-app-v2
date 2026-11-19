@@ -16,11 +16,13 @@
 // js/en/extras.js, não aqui. ⚠️ Não é cadeado de verdade: este arquivo é
 // público. Guia a cliente; não protege o conteúdo.
 //
-// ⏳ EUA: AS VOZES EM INGLÊS AINDA NÃO FORAM GRAVADAS (roteiros prontos no
-// Drive). Por isso todo audioUrl está vazio e com pendiente: true: a tela mostra
-// "Audio coming soon" no lugar do tocador (o mesmo caminho do app em espanhol
-// antes de as vozes chegarem, em 07/11). As vozes em espanhol moravam na Bunny
-// da LATAM (setemadrugadas-latam.b-cdn.net): NÃO usar aqui.
+// ✅ AS VOZES EM INGLÊS CHEGARAM (19/11/2026): os 12 áudios, convertidos em
+// mono 96 kbps (originais e convertidos FORA do repositório, em
+// "7 Améns EUA/Arcanjos - audios convertidos"), moram no armazenamento PRÓPRIO
+// do inglês na Bunny: Storage Zone e Pull Zone "setemadrugadas-en"
+// (setemadrugadas-en.b-cdn.net/arcangeles/). Conferidos pela transcrição do
+// começo de cada um. As vozes em espanhol moram na Bunny da LATAM
+// (setemadrugadas-latam.b-cdn.net): NÃO usar aqui.
 // Áudio novo: armazenamento próprio do inglês na Bunny (nunca na Netlify, e
 // nunca na zona "setemadrugadas", que é do Brasil e puxa do site), escrever o
 // endereço COMPLETO em audioUrl e apagar o pendiente. Mono, 96 kbps, como no
@@ -44,17 +46,17 @@ const ARCANGELES = [
       {
         titulo: 'Prayer to Saint Michael for Protection Against All Evil',
         descripcion: 'Protection for you against attacks, envy, and ill will.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/miguel-1.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Saint Michael for the Protection of Your Family',
         descripcion: 'For your children, your grandchildren, your husband, and everyone who lives under your roof.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/miguel-2.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Saint Michael for the Protection of Your Home',
         descripcion: 'For your home, for conflicts and arguments, and for everything that tries to take away your family\'s peace.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/miguel-3.mp3', oracion: null,
       },
     ],
   },
@@ -69,17 +71,17 @@ const ARCANGELES = [
       {
         titulo: 'Prayer to Saint Gabriel to Open New Paths',
         descripcion: 'For when life feels stuck and you can\'t see a way forward.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/gabriel-1.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Saint Gabriel for Work and Good News',
         descripcion: 'A job, new opportunities, an answer you\'ve been waiting for, money, and doors that need to open.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/gabriel-2.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Saint Gabriel for God\'s Guidance',
         descripcion: 'For the times when you don\'t know which way to go.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/gabriel-3.mp3', oracion: null,
       },
     ],
   },
@@ -94,17 +96,17 @@ const ARCANGELES = [
       {
         titulo: 'Prayer to Saint Raphael for Physical Healing',
         descripcion: 'Bring your illness, your pain, or your worries about your health before God.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/rafael-1.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Saint Raphael for the Healing of Someone You Love',
         descripcion: 'Think of the name of someone you love, or say it out loud: a child, your husband, a grandchild.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/rafael-2.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Saint Raphael to Renew Your Strength',
         descripcion: 'For weariness, discouragement, and weakness, in body and in soul.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/rafael-3.mp3', oracion: null,
       },
     ],
   },
@@ -121,17 +123,17 @@ const ARCANGELES = [
       {
         titulo: 'Prayer to Uriel for a Difficult Decision',
         descripcion: 'When there are two paths and you don\'t know what to do.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/uriel-1.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Uriel to Reveal Hidden Traps',
         descripcion: 'Dishonest people, bad deals, poor decisions, and situations that could bring you suffering.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/uriel-2.mp3', oracion: null,
       },
       {
         titulo: 'Prayer to Uriel to Light Your Path',
         descripcion: 'To ask for wisdom, clarity, and discernment.',
-        audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: voz em inglês ainda não gravada
+        audioUrl: 'https://setemadrugadas-en.b-cdn.net/arcangeles/uriel-3.mp3', oracion: null,
       },
     ],
   },
