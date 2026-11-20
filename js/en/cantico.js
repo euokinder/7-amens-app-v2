@@ -15,10 +15,10 @@
 // primeiro acesso ao app), como no Brasil. Não aqui.
 // ⚠️ Não é cadeado de verdade: este arquivo é público.
 //
-// ⏳ EUA: OS ÁUDIOS EM INGLÊS AINDA NÃO EXISTEM. Todo audioUrl está vazio e com
-// pendiente: true: a tela mostra "Audio coming soon", sem o botão de terminar
-// o dia (o mesmo caminho do espanhol antes de as vozes chegarem). Os áudios em
-// espanhol moram na Bunny da LATAM (setemadrugadas-latam.b-cdn.net): NÃO usar.
+// ✅ EUA: os 7 áudios em inglês estão no ar desde 20/11/2026, na Bunny do
+// inglês (setemadrugadas-en.b-cdn.net/cantico/dia-1.mp3 … dia-7.mp3; estéreo
+// 128 kbps, 5:00 cada, conferidos pela transcrição do começo de cada um). Os
+// áudios em espanhol moram na Bunny da LATAM: NÃO usar.
 //
 // ⏳ EUA: CADA DIA PRECISA SER MONTADO, como foi no espanhol. Lá (Caio, 08/11),
 // a edição mandou só a fala (25 a 49 s, com uma música própria por baixo) e,
@@ -50,7 +50,7 @@ const CANTICO = {
     subtitulo: 'Give God What Weighs Heaviest',
     kicker: 'Angelic Canticle · Day 01',
     imagen: '/assets/images/cantico/provisorio-dia-1.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-1.mp3', oracion: null,
     proximo: 'Tomorrow: Day 2 — Peace for Your Heart.',
   },
   2: {
@@ -58,7 +58,7 @@ const CANTICO = {
     subtitulo: 'Peace for Your Heart',
     kicker: 'Angelic Canticle · Day 02',
     imagen: '/assets/images/cantico/provisorio-dia-2.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-2.mp3', oracion: null,
     proximo: 'Tomorrow: Day 3 — Health.',
   },
   3: {
@@ -66,7 +66,7 @@ const CANTICO = {
     subtitulo: 'Health',
     kicker: 'Angelic Canticle · Day 03',
     imagen: '/assets/images/cantico/provisorio-dia-3.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-3.mp3', oracion: null,
     proximo: 'Tomorrow: Day 4 — Work and Finances.',
   },
   4: {
@@ -74,7 +74,7 @@ const CANTICO = {
     subtitulo: 'Work and Finances',
     kicker: 'Angelic Canticle · Day 04',
     imagen: '/assets/images/cantico/provisorio-dia-4.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-4.mp3', oracion: null,
     proximo: 'Tomorrow: Day 5 — Family.',
   },
   5: {
@@ -82,7 +82,7 @@ const CANTICO = {
     subtitulo: 'Family',
     kicker: 'Angelic Canticle · Day 05',
     imagen: '/assets/images/cantico/provisorio-dia-5.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-5.mp3', oracion: null,
     proximo: 'Tomorrow: Day 6 — New Paths.',
   },
   6: {
@@ -90,7 +90,7 @@ const CANTICO = {
     subtitulo: 'New Paths',
     kicker: 'Angelic Canticle · Day 06',
     imagen: '/assets/images/cantico/provisorio-dia-6.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-6.mp3', oracion: null,
     proximo: 'Tomorrow: Day 7 — Gratitude and Surrender.',
   },
   7: {
@@ -98,7 +98,7 @@ const CANTICO = {
     subtitulo: 'Gratitude and Surrender',
     kicker: 'Angelic Canticle · Day 07',
     imagen: '/assets/images/cantico/provisorio-dia-7.svg',
-    audioUrl: '', pendiente: true, oracion: null, // ⏳ EUA: áudio em inglês ainda não montado
+    audioUrl: 'https://setemadrugadas-en.b-cdn.net/cantico/dia-7.mp3', oracion: null,
     proximo: '',
   },
 };
