@@ -36,6 +36,11 @@
      pagar a cliente volta para /en. Ofertas: $98 = iUKyTVZAZdUij7F61dFt (a
      principal), $49 = 9TXhK3aXGlTym1dxWgXm, $147 = rKFwFW1A2b7KkM4R0Po3.
      O cupom 30OFF foi conferido no checkout ($98 → $68.60).
+     🔁 19/11/2026, ~23h40 (Arthur): SEM cupom, como o Cântico. A 1ª venda paga
+     (pop-up) saiu a $98 cheio porque a cliente não digitou o 30OFF. As 3 ofertas
+     na Hubla passam a cobrar o preço com desconto direto ($34.30, $68.60,
+     $102.90) e a página mostra o preço antigo riscado. Acabou a Black Friday:
+     voltar as 3 ofertas para 49/98/147 na Hubla E voltar esta página.
      As cartas antigas continuam no histórico (commit 5f41dee). -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,8 +111,9 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
          não responder, aparecem 2 min depois do pitch (tempo de página aberta).
          A etiqueta de origem (utm_*) é colada em cada botão pelo script do
          fim da página. Estilos em /css/en/escudo.css.
-         Preço com o cupom 30OFF (30%): $49 → $34.30 · $98 → $68.60 · $147 → $102.90.
-         Mudou o preço ou o cupom: trocar nos três cards E no aviso de cima. -->
+         Preço de Black Friday, direto no checkout da Hubla, sem cupom:
+         $49 → $34.30 · $98 → $68.60 · $147 → $102.90.
+         Mudou o preço: trocar nos três cards, no aviso de cima E na Hubla. -->
     <section class="ark-offer esconder" aria-labelledby="ark-titulo">
 
       <!-- os desenhos: um arcanjo só, reaproveitado em todos os cards -->
@@ -176,16 +182,12 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
         <circle cx="110" cy="14" r="12" opacity=".45"/>
       </svg>
 
-      <!-- O AVISO DO CUPOM -->
+      <!-- O AVISO DA BLACK FRIDAY. Sem cupom (19/11, Arthur): o desconto já vem
+           no preço do checkout. -->
       <div class="ark-bf">
         <span class="ark-bf-kicker">BLACK FRIDAY BLESSING</span>
         <h2 class="ark-bf-title" id="ark-titulo">An extra 30% off, just for you</h2>
-        <p class="ark-bf-text">This week only, use the code below on any shield and save 30% more.</p>
-        <div class="ark-bf-code">
-          <span class="ark-bf-codebox" id="ark-codigo">30OFF</span>
-          <button class="ark-bf-copy" type="button" id="ark-copiar">Copy code</button>
-        </div>
-        <p class="ark-bf-how">At checkout, tap <strong>“Add coupon”</strong> and type <strong>30OFF</strong>.</p>
+        <p class="ark-bf-text">This week only, every shield is 30% off. No code needed: the discount is already applied at checkout.</p>
       </div>
 
       <ul class="ark-grid">
@@ -202,10 +204,10 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
             <h3 class="ark-name">The Shield of Michael</h3>
             <p class="ark-sub">One archangel standing guard over you</p>
             <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Suggested price </span><s>$98</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$49</span>
+              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$49</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$34.30</span>
             </div>
-            <p class="ark-coupon">With code <span class="ark-code">30OFF</span>:<br>only <strong>$34.30</strong></p>
+            <p class="ark-per">Black Friday: 30% off</p>
             <ul class="ark-list">
               <li>The 3 prayers of Archangel Michael, in audio and text</li>
               <li>Protection against envy, the evil eye and betrayal</li>
@@ -239,11 +241,11 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
             <h3 class="ark-name">The Complete Shield</h3>
             <p class="ark-sub">All four archangels united around your life</p>
             <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Suggested price </span><s>$392</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$98</span>
+              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$98</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$68.60</span>
             </div>
-            <p class="ark-per">Less than $25 per archangel</p>
-            <p class="ark-coupon">With code <span class="ark-code">30OFF</span>:<br>only <strong>$68.60</strong></p>
+            <p class="ark-per">Less than $18 per archangel</p>
+            <p class="ark-per">Black Friday: 30% off</p>
             <ul class="ark-list">
               <li>All 12 prayers of Michael, Gabriel, Uriel and Raphael, in audio and text</li>
               <li>The Perpetual Shield Calendar: which archangel to pray to on each day of the month</li>
@@ -273,10 +275,10 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
             <h3 class="ark-name">The Family Fortress</h3>
             <p class="ark-sub">The four archangels over you and everyone under your roof</p>
             <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Suggested price </span><s>$588</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$147</span>
+              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$147</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$102.90</span>
             </div>
-            <p class="ark-coupon">With code <span class="ark-code">30OFF</span>:<br>only <strong>$102.90</strong></p>
+            <p class="ark-per">Black Friday: 30% off</p>
             <ul class="ark-list">
               <li>Everything in The Complete Shield</li>
               <li>The Household Covering Prayer: speak the name of each person in your family</li>
@@ -304,7 +306,8 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 <script src="/js/en/sesion.js"></script>
 <script src="/js/en/oferta-pagina.js"></script>
 
-<!-- OS BOTÕES DOS 3 CARDS: a etiqueta de origem e o "Copy code" do cupom. -->
+<!-- OS BOTÕES DOS 3 CARDS: a etiqueta de origem. (O "Copy code" do cupom não
+     acha mais o botão e não faz nada: a página ficou sem cupom em 19/11.) -->
 <script>
 (() => {
   'use strict';
