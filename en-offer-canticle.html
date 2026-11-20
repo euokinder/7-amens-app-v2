@@ -4,30 +4,55 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Angelic Canticle — 7 Amens Before Dawn</title>
-<!-- App em inglês (EUA): a venda do Angelic Canticle (o Cântico Angelical). CÓPIA
-     TRADUZIDA do es-oferta-cantico.html (que copia o oferta-cantico.html do Brasil):
-     headline, VSL e botão no minuto do pitch.
-     ⏳ EUA: AINDA NÃO VENDE, de propósito:
-       - vídeo: não existe VSL em inglês. O player da VTurb (no espanhol,
-         vid-6ae55235a1db2408a3689b3c) e o script dele estão comentados abaixo;
-       - ✅ checkout (14/11/2026, Arthur): Digistore24 dos EUA, produto 741401
-         ("Angelic Canticle"), o MESMO do Up 02 do funil, como no espanhol. O
-         que separa a venda do app da do funil é a etiqueta utm_source=app-en.
-         A venda libera o app e o extra sozinha (en-digistore). ⚠️ Sem o VSL e
-         com data-segundos vazio, o botão aparece desde o começo;
-       - data-segundos vazio: o minuto do pitch no VSL em inglês (no espanhol,
-         533 s = 8:53, que não serve);
-       - preço: não aparece nesta página.
-     A etiqueta (utm_*) continua sendo guardada e vai colada no link quando ele
-     existir. Quem faz o trabalho é js/en/oferta-vsl.js. Não aparece no Google. -->
+<!-- App em inglês (EUA): a venda do Angelic Canticle (o Cântico Angelical, o
+     Up 02). Só se chega aqui pelo card da home ou pelas páginas trancadas do
+     Cântico. Não aparece no Google.
+     🔁 19/11/2026 (Arthur): saiu a Digistore (741401, US$ 27, botão desde o
+     começo). Agora é como a página dos Arcanjos (en-offer-archangels.html):
+       - VSL em inglês da VTurb (vid-6aff912f375e4d0a929be34e);
+       - um card só, pela HUBLA: "de $47 por $32.90" (Black Friday, 30% off).
+         SEM cupom (Arthur, 19/11: o 30OFF não dava para estender): a oferta
+         na Hubla cobra direto US$ 32,90. Acabou a Black Friday: voltar o
+         preço da oferta para 47 na Hubla E tirar o riscado aqui;
+       - o card aparece no pitch (segundosDoPitch, no script do fim); ?previa=1
+         mostra na hora;
+       - a etiqueta de origem (utm_source=app-en…) vai colada no botão;
+       - depois de pagar, a Hubla devolve a cliente para /en.
+     Na Hubla (criado pela API em 19/11/2026): produto "Angelic Canticle"
+     (jXYM7bYWFscWbDIhrTWC, legacyId ZHFtB3h77n7zAjgwgam2), uma oferta com o
+     mesmo código, US$ 32,90 (era 47 até 19/11, 21h50), pagamento único,
+     foto do card da home, sem banner.
+     A venda libera o app (12 meses) e o Cântico sozinha (en-hubla +
+     en_hubla_products → 'cantico', supabase/en/15-hubla-cantico.sql).
+     ⚠️ Os 7 áudios em inglês ainda não existem: quem compra vê "Audio coming
+     soon" e o PDF da Novena (js/en/cantico.js). A página promete o que o app
+     entrega quando os áudios chegarem: conferir antes de publicar.
+     Estilos: /css/en/escudo.css (os cards dos Arcanjos) + /css/en/cantico-oferta.css.
+     A página antiga (Digistore) está no histórico (commit ebfdfb8). -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/en/app.css">
 <link rel="stylesheet" href="/css/en/oferta.css">
+<link rel="stylesheet" href="/css/en/escudo.css">
+<link rel="stylesheet" href="/css/en/cantico-oferta.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="/assets/images/icon-180.png">
-<script src="/js/en/oferta-vsl.js"></script>
+<!-- DE ONDE ELA VEIO: a etiqueta (utm_*), guardada antes de o player da VTurb
+     carregar e mexer no endereço. Segue até o checkout. -->
+<script>
+window.ETIQUETAS_DE_ORIGEM = (function () {
+  var permitidas = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  var chegaram = new URLSearchParams(location.search);
+  var guardadas = {};
+  permitidas.forEach(function (nome) {
+    var valor = (chegaram.get(nome) || '').trim();
+    if (valor && valor.length <= 80 && /^[A-Za-z0-9._-]+$/.test(valor)) guardadas[nome] = valor;
+  });
+  return guardadas;
+})();
+</script>
 </head>
 <body>
 <div id="member-gate" role="status">
@@ -57,34 +82,179 @@
       </div>
     </div>
 
-    <!-- VÍDEO (VSL). ⏳ EUA: ainda não existe o VSL em inglês. Quando existir,
-         tirar o comentário e trocar ID_DO_VIDEO pelo ID da VTurb (nos dois lugares,
-         aqui e no script do fim da página).
+    <!-- VÍDEO (VSL) em inglês, da VTurb (19/11/2026, Arthur). -->
     <div class="video-wrap-embed">
-      <vturb-smartplayer id="vid-ID_DO_VIDEO" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
+      <vturb-smartplayer id="vid-6aff912f375e4d0a929be34e" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 133.33333333333331% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
       <div class="corner-mask tl"></div><div class="corner-mask tr"></div>
       <div class="corner-mask bl"></div><div class="corner-mask br"></div>
     </div>
-    -->
+    <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/6aff912f375e4d0a929be34e/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
 
-    <!-- O BOTÃO DE COMPRA. data-link: a Digistore24 dos EUA, produto 741401
-         (14/11/2026). ⏳ EUA: data-segundos (o minuto do pitch no VSL em inglês)
-         ainda vazio: até o VSL existir, o botão aparece desde o começo. -->
-    <a class="member-button smartplayer-click-event esconder" id="oferta-comprar" style="text-align:center;"
-       data-link="https://www.checkout-ds24.com/product/741401"
-       data-campanha="cantico"
-       data-segundos="">I want the Angelic Canticle</a>
+    <!-- O CARD. Fica escondido (.esconder, a classe que a VTurb revela) até o
+         pitch. Mudou o preço ou o cupom: trocar no card E no aviso de cima. -->
+    <section class="ark-offer esconder" aria-labelledby="ark-titulo">
+
+      <svg class="ark-divider" viewBox="0 0 220 28" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M0 14h88M132 14h88" stroke-linecap="round"/>
+        <path d="M110 2v24M101 10h18" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="110" cy="14" r="12" opacity=".45"/>
+      </svg>
+
+      <!-- O AVISO DA BLACK FRIDAY. Sem cupom (19/11, Arthur): o desconto já vem
+           no preço do checkout. -->
+      <div class="ark-bf">
+        <span class="ark-bf-kicker">BLACK FRIDAY BLESSING</span>
+        <h2 class="ark-bf-title" id="ark-titulo">30% off, just for you</h2>
+        <p class="ark-bf-text">This week only, the Angelic Canticle is 30% off. No code needed: the discount is already applied at checkout.</p>
+      </div>
+
+      <ul class="ark-grid ark-grid--one">
+        <li class="ark-card ark-card--one">
+          <div class="ark-art ark-art--photo">
+            <img src="/assets/images/home/cantico.jpg" alt="The Angelic Canticle" width="600" height="400">
+          </div>
+          <div class="ark-body">
+            <h3 class="ark-name">The Angelic Canticle</h3>
+            <p class="ark-sub">Seven days of sacred song, one each day</p>
+            <div class="ark-price">
+              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$47</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$32.90</span>
+            </div>
+            <p class="ark-per">Black Friday: 30% off</p>
+            <ul class="ark-list">
+              <li>A 7-day journey: your burdens, peace, health, work and finances, family, new paths and gratitude</li>
+              <li>One day opens at a time, right here in the app</li>
+              <li>Bonus: the Novena to Mary, Undoer of Knots (PDF)</li>
+            </ul>
+            <a class="ark-btn" href="https://pay.hub.la/jXYM7bYWFscWbDIhrTWC">I want the Angelic Canticle</a>
+          </div>
+        </li>
+      </ul>
+
+      <div class="ark-foot">
+        <p class="ark-once">A single, one-time contribution. No subscription.</p>
+        <a class="ark-decline" href="/en">No thanks, I'll continue without the Canticle</a>
+        <p class="ark-legal">Your order is processed securely by Hubla, our payment partner.</p>
+      </div>
+    </section>
 
   </div>
+
 </div>
 
 <script src="/js/en/config.js"></script>
 <script src="/js/en/sesion.js"></script>
 <script src="/js/en/oferta-pagina.js"></script>
-<script>OFERTA_VSL.ligar();</script>
-<!-- ⏳ EUA: o script do player da VTurb, desligado junto com o vídeo (acima).
-<script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/3fe9f7a6-c604-479d-b1c4-ccd47fcf7108/players/ID_DO_VIDEO/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
--->
+
+<!-- O BOTÃO: a etiqueta de origem, o relógio do pitch e o "Copy code". -->
+<script>
+(() => {
+  'use strict';
+
+  // A etiqueta vai colada no link do botão (a Hubla devolve as utm no aviso
+  // da venda). Sem etiqueta nenhuma (veio do card da home ou digitou o
+  // endereço), vai "sem-popup", como nos Arcanjos.
+  var SEM_POPUP = {
+    utm_source: 'app-en',
+    utm_medium: 'direto',
+    utm_campaign: 'cantico',
+    utm_content: 'sem-popup'
+  };
+
+  var etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
+  if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.ark-btn'), function (botao) {
+    var destino;
+    try { destino = new URL(botao.href); } catch (e) { return; }
+    if (destino.protocol !== 'https:') return;
+    Object.keys(etiquetas).forEach(function (nome) {
+      destino.searchParams.set(nome, etiquetas[nome]);
+    });
+    botao.href = destino.href;
+  });
+
+  // O RELÓGIO DO PITCH: o card aparece no minuto do pitch, pela VTurb, e a
+  // página desce até ele. Pitch aos 8:39 (Arthur, 19/11). null = desde o começo.
+  var segundosDoPitch = 519;
+  var oferta = document.querySelector('.ark-offer');
+  var player = document.querySelector('vturb-smartplayer');
+  var soParaConferir = new URLSearchParams(location.search).get('previa') === '1';
+
+  function descerAteOferta() {
+    var suave = !window.matchMedia || !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { oferta.scrollIntoView({ block: 'start', behavior: suave ? 'smooth' : 'auto' }); }
+    catch (e) { oferta.scrollIntoView(); }
+  }
+
+  if (oferta) {
+    if (soParaConferir || !(segundosDoPitch >= 0)) {
+      oferta.classList.remove('esconder');
+    } else {
+      var olho = setInterval(function () {
+        if (oferta.offsetHeight === 0) return;
+        clearInterval(olho);
+        descerAteOferta();
+      }, 1000);
+
+      var redeDeSeguranca = setTimeout(function () {
+        if (oferta.offsetHeight === 0) {
+          oferta.classList.remove('esconder');
+          oferta.classList.add('cartas-aparecem');
+        }
+      }, (segundosDoPitch + 120) * 1000);
+
+      if (player) {
+        player.addEventListener('player:ready', function () {
+          if (typeof player.displayHiddenElements === 'function') {
+            player.displayHiddenElements(segundosDoPitch, ['.esconder'], { persist: true });
+            clearTimeout(redeDeSeguranca);
+          }
+        });
+      }
+    }
+  }
+
+  // "Copy code": copia 30OFF e confirma no próprio botão por 3 segundos.
+  var copiar = document.getElementById('ark-copiar');
+  var codigo = document.getElementById('ark-codigo');
+  if (!copiar || !codigo) return;
+
+  function confirmar() {
+    copiar.textContent = 'Copied ✓';
+    copiar.classList.add('is-copied');
+    setTimeout(function () {
+      copiar.textContent = 'Copy code';
+      copiar.classList.remove('is-copied');
+    }, 3000);
+  }
+
+  function copiarDoJeitoAntigo(texto) {
+    var campo = document.createElement('textarea');
+    campo.value = texto;
+    campo.setAttribute('readonly', '');
+    campo.style.position = 'fixed';
+    campo.style.opacity = '0';
+    document.body.appendChild(campo);
+    campo.select();
+    var deu = false;
+    try { deu = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(campo);
+    return deu;
+  }
+
+  copiar.addEventListener('click', function () {
+    var texto = codigo.textContent.trim();
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(texto).then(confirmar, function () {
+        if (copiarDoJeitoAntigo(texto)) confirmar();
+      });
+    } else if (copiarDoJeitoAntigo(texto)) {
+      confirmar();
+    }
+  });
+})();
+</script>
 
 </body>
 </html>

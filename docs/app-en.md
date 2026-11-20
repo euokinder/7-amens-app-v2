@@ -257,6 +257,25 @@ Cada passo é inofensivo sem o seguinte. Nenhum build a mais: os links das pági
 - A API da oferta pede a oferta INTEIRA no PUT: omitir `afterPurchase` apaga a volta para `/en`. Fazer GET, mudar só o `checkout` e mandar tudo de volta; conferir preço, volta, cupom e turma depois.
 - **O checkout pede passaporte/documento, endereço completo e telefone** para cartão estrangeiro, mesmo com "endereço" desligado na oferta. A ajuda oficial da Hubla diz que o endereço é obrigatório (imposto). A API tem `showPhoneNumber` e `showFullName`, ainda não testados.
 
+## O Cântico pela Hubla (`/en-offer-canticle`, 19/11/2026, ✅ provado só no TESTE)
+Pedido do Arthur em 19/11: a venda do Cântico (Up 02) dentro do app sai da Digistore (741401, US$ 27) e vai para a Hubla, como a dos Arcanjos.
+- **A página:** headline, o VSL em inglês da VTurb (`vid-6aff912f375e4d0a929be34e`) e **um card só**, no visual dos cards "Shield" (`css/en/escudo.css` + `css/en/cantico-oferta.css`, com a foto do card da home). O card aparece no pitch, aos **8:39** (`segundosDoPitch = 519`, no script do fim); `?previa=1` mostra na hora. A etiqueta de origem vai colada no botão (sem etiqueta: `utm_source=app-en&utm_medium=direto&utm_campaign=cantico&utm_content=sem-popup`).
+- **Preço: "de $47 por $32.90"**, Black Friday, 30% off, **sem cupom** (Arthur, 19/11, ~21h50). O 30OFF não pôde valer para o Cântico (a API não muda a lista de ofertas de um cupom, a trava do agente barrou desligar e recriar, e o painel não deixou editar). Por isso a oferta na Hubla cobra **US$ 32,90 direto** e a página mostra o $47 riscado. **Acabou a Black Friday:** voltar o preço da oferta para 47 na Hubla (PUT com a oferta INTEIRA) **e** tirar o riscado da página (1 build).
+- **Na Hubla (criado pela API em 19/11):** produto **"Angelic Canticle"**, `jXYM7bYWFscWbDIhrTWC` (o produto e a oferta, `pay.hub.la/jXYM7bYWFscWbDIhrTWC`), legacyId `ZHFtB3h77n7zAjgwgam2`. À venda, US$ 32,90, só cartão (com Apple/Google Pay), sem afiliados, volta para `https://setemadrugadas.com.br/en` depois de pagar, foto = `assets/images/home/cantico.jpg`. **Sem banner** no checkout (os Arcanjos têm). Conferido no checkout em 375 px: "Angelic Canticle $32.90" com a foto.
+- **A liberação:** `supabase/en/15-hubla-cantico.sql` cadastra os 2 códigos em `en_hubla_products` → `cantico`. A `en-hubla` não muda (a v2 da produção já libera o `cantico`: o app por 12 meses e o extra). ⛔ Nunca no `hubla_product_map` do Brasil.
+- **Provado no TESTE (19/11):** o `15` rodado; `supabase/en/testes/prova-hubla-cantico-no-teste.mjs` 8 de 8 (libera, a repetição não duplica, ela entra no app com o Cântico e só ele, acesso até 2027, o reembolso lista a compra de US$ 32,90). Cliente de prova apagada. No localhost a 375 px: VSL carrega, card escondido até o pitch, com `?previa=1` aparece ($47 riscado, $32.90), sem rolagem de lado, botão com o link e a etiqueta certos.
+- ⚠️ **Os 7 áudios em inglês do Cântico ainda não existem:** quem compra vê "Audio coming soon" e o PDF da Novena. A página promete a jornada de 7 dias e o PDF.
+- ⚠️ **O VTurb guarda no aparelho que o card já foi mostrado** (`displayHiddenElements-<vídeo>` no `localStorage`, por causa do `persist`): quem já passou do pitch vê o card logo ao abrir de novo. Para testar do zero, apagar essa chave.
+
+### ⏳ Ir ao ar (o Arthur clica, uma tela por vez; nunca entre 3h e 8h de Brasília)
+1. ✅ **Banco** (19/11, ~21h45, Arthur): `supabase/en/15-hubla-cantico.sql` na produção. Conferido: os 2 códigos em `en_hubla_products` → `cantico`.
+2. ✅ **Hubla, webhook** (19/11, Arthur): produto **Angelic Canticle** acrescentado na regra da integração **"App EN"**. Não dá para conferir pela API: a prova é a primeira venda. (Se a regra do Brasil mandar "todos os produtos", a `hubla-webhook` grava `needs_reconciliation` nestas vendas: inofensivo.)
+3. ✅ **Preço** (19/11): oferta em US$ 32,90, sem cupom (ver acima).
+4. **Site:** 1 build (a página nova + `css/en/cantico-oferta.css`; o `escudo.css` vai junto com os Arcanjos).
+5. **Primeira venda:** conferir `en_hubla_events` (consulta leve do fim do `14`): `recorded`, "Extra: cantico liberado".
+
+**Voltar atrás:** a página antiga (Digistore) está no commit `ebfdfb8`. Tirar o produto da regra "App EN" para de liberar; quem já entrou continua.
+
 ## Os áudios dos Arcanjos em inglês (19/11/2026)
 - Os 12 áudios (Drive, baixados em 19/11) foram convertidos em mono 96 kbps (39 MB) e conferidos pela transcrição do começo de cada um: cada arquivo cai na oração certa, na ordem do app. Originais e convertidos FORA do repositório: `7 Améns EUA/Arcanjos - audios convertidos/`.
 - **Bunny própria do inglês** (Arthur, 19/11): Storage Zone `setemadrugadas-en` (Nova York + Los Angeles) e Pull Zone `setemadrugadas-en` (rede Volume, cache de 30 dias, CORS como a da LATAM). Endereço: `https://setemadrugadas-en.b-cdn.net/arcangeles/miguel-1.mp3` … `uriel-3.mp3`, ligado em `js/en/arcangeles.js`. Arquivo trocado = nome novo.

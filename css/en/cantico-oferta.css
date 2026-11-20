@@ -1,0 +1,20 @@
+/* App em inglês (EUA): o card único da página de venda do Angelic Canticle
+   (en-offer-canticle.html), 19/11/2026. Usa os estilos dos cards "Shield" dos
+   Arcanjos (css/en/escudo.css, tudo .ark-) e só acrescenta a foto do Cântico
+   na janela em arco. Só vale dentro de .ark-offer. */
+
+.ark-offer .ark-grid--one{max-width:560px}
+.ark-offer .ark-art--photo{
+  height:220px; padding:0; align-items:stretch;
+  background:var(--ark-navy-2);
+}
+.ark-offer .ark-art--photo img{
+  display:block; width:100%; height:100%; object-fit:cover; object-position:50% 35%;
+}
+.ark-offer .ark-card--one{border-width:3px; box-shadow:0 0 0 6px rgba(212,174,85,.2), 0 0 60px rgba(243,217,143,.18)}
+.ark-offer .ark-card--one .ark-btn{background:var(--ark-gold); border-color:var(--ark-gold); color:var(--ark-navy)}
+.ark-offer .ark-card--one .ark-btn:hover,.ark-offer .ark-card--one .ark-btn:focus-visible{background:#e0bd68; outline-color:var(--ark-navy)}
+
+@media (min-width:900px){
+  .ark-offer .ark-grid--one{display:flex}
+}
