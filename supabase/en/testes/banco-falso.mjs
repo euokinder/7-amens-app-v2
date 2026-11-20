@@ -40,6 +40,9 @@ const TRAVAS = {
   // 13-digistore.sql: os avisos da Digistore e os números dos produtos.
   en_digistore_events: [['event', 'transaction_id']],
   en_digistore_products: [['product_id']],
+  // 16-rastreio.sql: os passos do rastreamento e as versões dos testes A/B.
+  en_events: [['id']],
+  en_experiment_assignments: [['customer_id', 'chave']],
 };
 // Visões: só leitura. Uma função que tente gravar nelas recebe erro.
 const VISOES = new Set(['en_pedidos_pagos']);
@@ -83,6 +86,19 @@ export const pedidosDeOferta = [];
 export const comprasFalsas = {};
 export let semFuncaoDeExtras = false;
 export const tirarFuncaoDeExtras = () => { semFuncaoDeExtras = true; };
+// O rastreamento (16-rastreio.sql). As regras de verdade (o sorteio, o freio,
+// o fuso, o resumo) moram no SQL e são provadas no banco de teste; aqui se
+// confere o caminho na en-api: o que ela manda ao banco e o que devolve.
+//   testesFalsos        o que en_testes "devolveria" ({chave: versao})
+//   pacotesDeRastro     cada chamada a en_rastro_gravar, como chegou
+//   semRastreio()       imita o banco SEM o 16-rastreio.sql (404 nas três)
+//   freioDoRastro()     imita o freio por cliente (en_rastro_gravar = -2)
+export const testesFalsos = {};
+export const pacotesDeRastro = [];
+export let semFuncoesDeRastro = false;
+export const semRastreio = () => { semFuncoesDeRastro = true; };
+export let rastroFreado = false;
+export const freioDoRastro = () => { rastroFreado = true; };
 
 export function zerarBanco() {
   for (const tabela of Object.keys(TRAVAS)) banco[tabela] = [];
@@ -94,6 +110,10 @@ export function zerarBanco() {
   pedidosDeOferta.length = 0;
   for (const chave of Object.keys(comprasFalsas)) delete comprasFalsas[chave];
   semFuncaoDeExtras = false;
+  for (const chave of Object.keys(testesFalsos)) delete testesFalsos[chave];
+  pacotesDeRastro.length = 0;
+  semFuncoesDeRastro = false;
+  rastroFreado = false;
 }
 export const oferecer = oferta => { ofertaFalsa = oferta; };
 export const forcarFalha = falha => falhas.push(falha);
@@ -154,6 +174,31 @@ globalThis.fetch = async (url, init = {}) => {
       origem,
       cantico_hechos: banco.en_cantico_progress.filter(p => p.customer_id === id).map(p => Number(p.day)).sort((a, b) => a - b),
     });
+  }
+  // O rastreamento (16-rastreio.sql).
+  if (['rpc/en_testes', 'rpc/en_rastro_gravar', 'rpc/en_rastro_inserir'].includes(tabela)) {
+    if (semFuncoesDeRastro) return new Response(`{"message":"function public.${tabela.slice(4)} does not exist"}`, { status: 404 });
+    const pedido = JSON.parse(init.body || '{}');
+    if (tabela === 'rpc/en_testes') return json({ ...testesFalsos });
+    let dona = pedido.p_customer_id;
+    if (tabela === 'rpc/en_rastro_gravar') {
+      pacotesDeRastro.push(pedido);
+      const agora = new Date().toISOString();
+      const sessao = banco.en_sessions.find(s => s.token_hash === pedido.p_token_hash && s.expires_at > agora);
+      if (!sessao) return json(-1);
+      if (rastroFreado) return json(-2);
+      dona = sessao.customer_id;
+    }
+    if (!banco.en_customers.some(c => c.id === dona)) return json(0);
+    const passos = Array.isArray(pedido.p_passos) ? pedido.p_passos : [];
+    for (const passo of passos) {
+      banco.en_events.push({
+        id: ++sequencia, customer_id: dona, nome: passo.n, props: passo.p || {}, pagina: passo.pg || '', ha: passo.ha || 0,
+        origem: passo.o || {}, aparelho: pedido.p_aparelho ?? null, sistema: pedido.p_sistema ?? null, instalado: pedido.p_instalado ?? null,
+        variantes: { ...testesFalsos }, fonte: pedido.p_fonte === 'servidor' ? 'servidor' : 'tela', zona: pedido.p_zone,
+      });
+    }
+    return json(passos.length);
   }
   // As listas do painel: as contas moram no SQL (provadas no banco de teste);
   // aqui elas só devolvem o que as tabelas falsas têm.

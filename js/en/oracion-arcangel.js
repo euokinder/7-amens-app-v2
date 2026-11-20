@@ -74,7 +74,7 @@
       <a class="member-button" href="${listaDoArcangel}" style="text-align:center;text-decoration:none;">See all prayers to ${esc(arcangel.nombre)}</a>`;
 
     // O tocador (voltar ao início, voltar e avançar 10 s, velocidade) mora em js/en/tocador.js.
-    if (item.audioUrl) TOCADOR.ligar(content.querySelector('.audio-card'), { titulo: item.titulo, album: 'The Four Archangels' });
+    if (item.audioUrl) TOCADOR.ligar(content.querySelector('.audio-card'), { titulo: item.titulo, album: 'The Four Archangels', rastro: { extra: 'arcangeles', faixa: `${arcangel.clave}-${numero}` } });
   }
 
   window.AMENES.mostrarTela();

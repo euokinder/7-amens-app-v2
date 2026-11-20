@@ -57,6 +57,38 @@
   window.AMENES_EXTRAS.desenharCard(r, 'cantico', 'card-cantico', '/en-canticle');
   window.AMENES_EXTRAS.desenharAviso();
 
+  // RASTRO (js/en/rastro.js): cada card visto na tela (uma vez por página) e
+  // cada toque nele. O toque só chama e segue: o registro sai por sendBeacon,
+  // sem segurar a navegação. `situacao` só existe nos dois extras.
+  const NOMES_DOS_CARDS = { 'card-arcangeles': 'arcangeles', 'card-cantico': 'cantico', 'card-whatsapp': 'whatsapp', 'card-ayuda': 'contato' };
+  const nomeDoCard = card => NOMES_DOS_CARDS[card.id]
+    || (card.getAttribute('href') === '/en-journey' ? 'jornada' : card.getAttribute('href') === '/en-materials' ? 'pdfs' : '');
+  const dadosDoCard = card => (card.dataset.situacao ? { card: nomeDoCard(card), situacao: card.dataset.situacao === 'trancado' ? 'bloqueado' : card.dataset.situacao } : { card: nomeDoCard(card) });
+  const cards = Array.from(document.querySelectorAll('a.card-produto, a.card-contato')).filter(nomeDoCard);
+  cards.forEach(card => card.addEventListener('click', () => window.AMENES_RASTRO?.rastro('card_toque', dadosDoCard(card))));
+  // Dois olhos para o mesmo fim (o navegador às vezes atrasa o IntersectionObserver
+  // com a página parada): o observador e uma conferência a cada segundo.
+  const vistos = new Set();
+  const viu = card => {
+    if (vistos.has(card)) return;
+    vistos.add(card);
+    window.AMENES_RASTRO?.rastro('card_visto', dadosDoCard(card));
+  };
+  if ('IntersectionObserver' in window) {
+    const olho = new IntersectionObserver(entradas => entradas.forEach(entrada => { if (entrada.isIntersecting) viu(entrada.target); }), { threshold: 0.5 });
+    cards.forEach(card => olho.observe(card));
+  }
+  const conferencia = setInterval(() => {
+    if (vistos.size >= cards.length) { clearInterval(conferencia); return; }
+    if (document.visibilityState !== 'visible') return;
+    cards.forEach(card => {
+      if (vistos.has(card) || card.offsetHeight === 0) return;
+      const caixa = card.getBoundingClientRect();
+      const visivel = Math.min(caixa.bottom, window.innerHeight) - Math.max(caixa.top, 0);
+      if (visivel >= Math.min(card.offsetHeight, window.innerHeight) * 0.5) viu(card);
+    });
+  }, 1000);
+
   window.AMENES.mostrarTela();
   window.AMENES_EFECTOS.iniciar();
 })();

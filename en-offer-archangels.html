@@ -304,6 +304,8 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 
 <script src="/js/en/config.js"></script>
 <script src="/js/en/sesion.js"></script>
+<script src="/js/en/rastro.js"></script>
+<script src="/js/en/rastro-telas.js"></script>
 <script src="/js/en/oferta-pagina.js"></script>
 
 <!-- OS BOTÕES DOS 3 CARDS: a etiqueta de origem. (O "Copy code" do cupom não
@@ -326,6 +328,14 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
 
   Array.prototype.forEach.call(document.querySelectorAll('.ark-btn'), function (botao) {
+    // RASTRO (js/en/rastro-telas.js): o toque no botão de compra. Só chama e
+    // segue: a ida ao checkout não espera por ele.
+    botao.addEventListener('click', function () {
+      var li = botao.closest ? botao.closest('.ark-card') : null;
+      var cls = li ? li.className : '';
+      var nivel = /--michael/.test(cls) ? 'michael' : /--four/.test(cls) ? 'complete' : /--family/.test(cls) ? 'family' : 'unico';
+      if (window.AMENES_RASTRO) window.AMENES_RASTRO.rastro('oferta_checkout_toque', { oferta: 'arcangeles', nivel: nivel });
+    });
     var destino;
     try { destino = new URL(botao.href); } catch (e) { return; }
     if (destino.protocol !== 'https:') return;
@@ -340,6 +350,10 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   var segundosDoPitch = 387;
   var oferta = document.querySelector('.ark-offer');
   var player = document.querySelector('vturb-smartplayer');
+  // RASTRO: o play do vídeo de venda (uma vez) e o pitch (os cards aparecem).
+  var rastroDaOferta = window.AMENES_RASTRO;
+  function pitchApareceu() { if (rastroDaOferta) rastroDaOferta.uma('oferta-pitch', 'oferta_pitch', { oferta: 'arcangeles' }); }
+  if (rastroDaOferta && player) rastroDaOferta.vturb(player, function () { rastroDaOferta.rastro('oferta_play', { oferta: 'arcangeles' }); }, function () {});
   var soParaConferir = new URLSearchParams(location.search).get('previa') === '1';
 
   function descerAteOferta() {
@@ -351,10 +365,12 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
   if (oferta) {
     if (soParaConferir) {
       oferta.classList.remove('esconder');
+      pitchApareceu();
     } else {
       var olho = setInterval(function () {
         if (oferta.offsetHeight === 0) return;
         clearInterval(olho);
+        pitchApareceu();
         descerAteOferta();
       }, 1000);
 

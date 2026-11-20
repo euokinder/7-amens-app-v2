@@ -23,6 +23,8 @@
 //   progress  marca ou desmarca um dia como rezado ("I prayed this prayer").
 //             Com journey: 'cantico', um dia do Cântico
 //   oferta    registra o que ela fez com o pop-up (apareceu, tocou, fechou)
+//   eventos   o rastreamento: um PACOTE de passos da tela (até 20), gravado
+//             numa ida só ao banco (ver O RASTREIO, abaixo)
 //   corregir_correo     logo depois do resgate pelo cartão, ela troca o
 //             e-mail gravado com erro pelo dela
 //   logout    encerra a sessão
@@ -68,6 +70,23 @@
 // vem `extras: null`: a tela abre os dois (a mesma rede de segurança da
 // trava do Brasil: na dúvida, não tranca quem pagou).
 //
+// O RASTREIO (supabase/en/16-rastreio.sql, docs/rastreio-en.md; 20/11/2026):
+// o que cada cliente faz dentro do app, para o app vender melhor.
+//   - a tela (js/en/rastro.js) junta os passos e manda um pacote na ação
+//     `eventos`. Uma chamada ao banco (en_rastro_gravar) confere a sessão,
+//     aplica o freio por cliente e grava tudo num insert;
+//   - a ação `eventos` NUNCA devolve erro que atrapalhe a tela: fora a sessão
+//     inválida (401), responde 200 mesmo quando não gravou;
+//   - o pop-up (apareceu, tocou, fechou) e o "rezou" são gravados AQUI, pelo
+//     servidor, junto das ações `oferta` e `progress`, sem depender da tela;
+//   - os testes A/B: o retrato traz `testes` ({chave: versao}), sorteado pelo
+//     banco (en_testes), sempre o mesmo para a mesma cliente;
+//   - nada de dado de pessoa nos passos: só o id da cliente. A tela manda só
+//     o caminho da página (sem o que vem depois de ? ou #), e texto com @ é
+//     descartado;
+//   - sem o SQL 16 no banco, ou se ele falhar: `testes: {}`, nenhum passo
+//     gravado, e o login, a jornada e o pop-up seguem exatamente como antes.
+//
 // A TRAVA (uma oração por dia) é calculada AQUI, no servidor:
 //   - "hoje" é o dia no fuso do celular dela, guardado no primeiro acesso
 //     (sem fuso válido, vale America/New_York). O relógio do celular não
@@ -101,6 +120,10 @@ const DEFAULT_TZ = 'America/New_York';
 // celular e não precisa digitar de novo.
 const SESSION_MS = 365 * 24 * 60 * 60 * 1000;
 const LAST_DAY = 7;
+// A lista do painel em partes de 1.000, o teto do Supabase por pedido. O freio
+// de 100 partes (100 mil clientes) só existe para nunca virar laço sem fim.
+const ADMIN_PAGE = 1000;
+const ADMIN_MAX_PAGES = 100;
 const RETRIABLE = new Set([408, 425, 429, 500, 502, 503, 504]);
 const ATTEMPTS = 3;
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -108,9 +131,11 @@ const encoder = new TextEncoder();
 const eq = (value: string) => encodeURIComponent(value);
 const nowIso = () => new Date().toISOString();
 
-async function db(path: string, method = 'GET', body?: unknown, prefer = 'return=representation') {
+// `attempts`: o rastreamento chama com 1 (sem repetir): passo perdido não vale
+// uma segunda ida a um banco que já está lento.
+async function db(path: string, method = 'GET', body?: unknown, prefer = 'return=representation', attempts = ATTEMPTS) {
   let lastError: Error & { status?: number } = new Error(`Database call never ran on ${path}`);
-  for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
     if (attempt > 1) await wait(attempt * 300);
     let response: Response;
     try {
@@ -530,10 +555,11 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
   // O pop-up só vem ao abrir a página (visit), nunca ao marcar um dia. Falhar
   // aqui nunca derruba a jornada: na dúvida, sem pop-up.
   const offer = visit ? claimOffer(customer.id, zone) : Promise.resolve(null);
-  const [rows, oferta, extras] = await Promise.all([
+  const [rows, oferta, extras, testes] = await Promise.all([
     db(`en_progress?customer_id=eq.${customer.id}&select=day&order=day.asc`),
     offer,
     extrasOf(customer.id),
+    testesOf(customer.id),
     ...writes,
   ]);
   const done = (rows as { day: number }[]).map(row => Number(row.day)).filter(day => day >= 0 && day <= LAST_DAY);
@@ -550,6 +576,8 @@ async function journey(customer: Customer, reportedZone: unknown, accessUntil: s
     oferta,
     extras: extras ? extras.extras : null,
     cantico: { abierto: canticoOpen(calendarOpen, canticoDone), completados: canticoDone },
+    // As versões de teste A/B dela ({} = nenhum teste: a tela mostra o padrão).
+    testes,
   };
 }
 
@@ -600,6 +628,102 @@ async function claimOffer(customerId: string, zone: string) {
   }
 }
 
+// ----------------------------------------------------------- O RASTREIO
+// (20/11/2026; o porquê está no topo deste arquivo e em 16-rastreio.sql.)
+// Tudo o que vem da tela é limpo AQUI antes de ir ao banco: nome do passo,
+// chaves e valores do props, o caminho da página e as utm.
+const STEP_NAME = /^[a-z0-9_]{1,40}$/;
+const PROP_KEY = /^[a-z][a-z0-9_]{0,23}$/;
+const PAGE_PATH = /^\/[A-Za-z0-9/_.-]{0,79}$/;
+const TEST_KEY = /^[a-z][a-z0-9_]{0,39}$/;
+const TEST_VERSION = /^[a-z0-9_]{1,24}$/;
+// Estes quem grava é o servidor: vindos da tela, são descartados.
+const SERVER_STEPS = new Set(['popup_visto', 'popup_toque', 'popup_fechou', 'rezou']);
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+const MAX_STEPS = 20;
+const MAX_BODY = 2048;          // todas as ações, como sempre foi
+const MAX_BODY_EVENTOS = 16384; // só o pacote de passos
+const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
+
+const cleanPage = (value: unknown) => (typeof value === 'string' && PAGE_PATH.test(value) ? value : '');
+// O props: até 8 chaves, valor texto (até 80 letras), número ou sim/não.
+// Texto com @ fica fora (pode ser e-mail). Grande demais, vai vazio.
+function cleanProps(value: unknown) {
+  const out: Record<string, string | number | boolean> = {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return out;
+  let kept = 0;
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (kept >= 8) break;
+    if (!PROP_KEY.test(key)) continue;
+    if (typeof raw === 'string') {
+      const text = raw.trim().slice(0, 80);
+      if (!text || text.includes('@')) continue;
+      out[key] = text;
+    } else if ((typeof raw === 'number' && Number.isFinite(raw)) || typeof raw === 'boolean') {
+      out[key] = raw;
+    } else continue;
+    kept += 1;
+  }
+  return encoder.encode(JSON.stringify(out)).length <= 700 ? out : {};
+}
+function cleanUtm(value: unknown) {
+  const out: Record<string, string> = {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return out;
+  for (const key of UTM_KEYS) {
+    const raw = (value as Record<string, unknown>)[key];
+    if (typeof raw !== 'string') continue;
+    const text = raw.trim().slice(0, 80);
+    if (text && !text.includes('@')) out[key] = text;
+  }
+  return out;
+}
+// O pacote: [{ n: nome, p: props, pg: página, ha: há quantos segundos, o: utm }].
+function cleanSteps(value: unknown) {
+  const steps: Array<{ n: string; p: Record<string, unknown>; pg: string; ha: number; o: Record<string, string> }> = [];
+  for (const item of (Array.isArray(value) ? value : []).slice(0, MAX_STEPS)) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    const step = item as Record<string, unknown>;
+    const name = typeof step.n === 'string' ? step.n : '';
+    if (!STEP_NAME.test(name) || SERVER_STEPS.has(name)) continue;
+    const ago = typeof step.ha === 'number' && Number.isFinite(step.ha) ? Math.min(SEVEN_DAYS_S, Math.max(0, Math.round(step.ha))) : 0;
+    steps.push({ n: name, p: cleanProps(step.p), pg: cleanPage(step.pg), ha: ago, o: cleanUtm(step.o) });
+  }
+  return steps;
+}
+const DEVICES = new Set(['mobile', 'desktop']);
+const SYSTEMS = new Set(['ios', 'android', 'windows', 'mac', 'other']);
+
+// As versões de teste dela (en_testes): { chave: versao }. Falhar aqui nunca
+// derruba a jornada: vem {} e a tela mostra o padrão.
+async function testesOf(customerId: string): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  try {
+    const answer = await db('rpc/en_testes', 'POST', { p_customer_id: customerId }, 'return=representation', 1);
+    if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return out;
+    for (const [key, version] of Object.entries(answer as Record<string, unknown>)) {
+      if (TEST_KEY.test(key) && typeof version === 'string' && TEST_VERSION.test(version)) out[key] = version;
+    }
+  } catch (error) {
+    console.error('en-api testes', error instanceof Error ? error.message : 'error');
+  }
+  return out;
+}
+
+// Um passo gravado pelo SERVIDOR (pop-up, rezou). Nunca lança erro e nunca
+// repete: quem chama segue a vida mesmo se o passo não gravar.
+function serverStep(customerId: string, zone: unknown, name: string, props: Record<string, unknown>, page: unknown) {
+  return db('rpc/en_rastro_inserir', 'POST', {
+    p_customer_id: customerId,
+    p_zone: validTimeZone(zone) || DEFAULT_TZ,
+    p_passos: [{ n: name, p: cleanProps(props), pg: cleanPage(page), ha: 0 }],
+    p_fonte: 'servidor',
+  }, 'return=representation', 1).catch(error => {
+    console.error('en-api rastro', error instanceof Error ? error.message : 'error');
+    return null;
+  });
+}
+const POPUP_STEP: Record<string, string> = { shown: 'popup_visto', clicked: 'popup_toque', dismissed: 'popup_fechou' };
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
   const cors: Record<string, string> = {
@@ -619,10 +743,12 @@ Deno.serve(async (req: Request) => {
 
   try {
     const raw = await req.text();
-    if (raw.length > 2048) return respond({ error: MESSAGES.badRequest }, 400);
+    if (raw.length > MAX_BODY_EVENTOS) return respond({ error: MESSAGES.badRequest }, 400);
     let body: Record<string, unknown>;
     try { body = JSON.parse(raw); } catch { return respond({ error: MESSAGES.badRequest }, 400); }
     if (!body || typeof body !== 'object' || Array.isArray(body)) return respond({ error: MESSAGES.badRequest }, 400);
+    // O teto de sempre (2.048) vale para tudo, menos para o pacote de passos.
+    if (raw.length > MAX_BODY && body.action !== 'eventos') return respond({ error: MESSAGES.badRequest }, 400);
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '';
     // O país da conexão, só para a equipe ler no painel do resgate.
     const paisDaConexao = (req.headers.get('cf-ipcountry') || '').toUpperCase();
@@ -800,6 +926,38 @@ Deno.serve(async (req: Request) => {
       return respond({ token, ...portrait });
     }
 
+    // ------------------------------------------------- o pacote de passos
+    // O rastreamento (O RASTREIO, no topo). Fica ANTES do bloco "com sessão"
+    // de propósito: uma ida só ao banco (a sessão, o freio e a gravação
+    // acontecem dentro de en_rastro_gravar), sem ler a cliente nem o acesso.
+    // O código de sessão vem no cabeçalho ou, no envio ao sair da página
+    // (sendBeacon não manda cabeçalho), no campo `s` do corpo.
+    // Fora a sessão inválida (401, a tela descarta a fila), responde sempre
+    // 200: falhar aqui nunca pode atrapalhar a tela.
+    if (body.action === 'eventos') {
+      const fromHeader = req.headers.get('x-en-session') || '';
+      const sessionToken = SESSION_TOKEN.test(fromHeader) ? fromHeader
+        : typeof body.s === 'string' && SESSION_TOKEN.test(body.s) ? body.s : '';
+      if (!sessionToken) return respond({ ok: false }, 401);
+      try {
+        const passos = cleanSteps(body.passos);
+        if (!passos.length) return respond({ ok: true, gravados: 0 });
+        const gravados = Number(await db('rpc/en_rastro_gravar', 'POST', {
+          p_token_hash: await sha256(sessionToken),
+          p_zone: validTimeZone(body.tz) || DEFAULT_TZ,
+          p_passos: passos,
+          p_aparelho: typeof body.aparelho === 'string' && DEVICES.has(body.aparelho) ? body.aparelho : null,
+          p_sistema: typeof body.sistema === 'string' && SYSTEMS.has(body.sistema) ? body.sistema : null,
+          p_instalado: typeof body.instalado === 'boolean' ? body.instalado : null,
+        }, 'return=representation', 1));
+        if (gravados === -1) return respond({ ok: false }, 401);
+        return respond({ ok: true, gravados: Number.isFinite(gravados) && gravados > 0 ? gravados : 0 });
+      } catch (error) {
+        console.error('en-api eventos', error instanceof Error ? error.message : 'error');
+        return respond({ ok: false, gravados: 0 });
+      }
+    }
+
     // --------------------------------------------------------- com sessão
     const token = req.headers.get('x-en-session') || '';
     if (!SESSION_TOKEN.test(token)) return respond({ error: MESSAGES.signInAgain }, 401);
@@ -830,8 +988,13 @@ Deno.serve(async (req: Request) => {
       const event = typeof body.event === 'string' ? body.event : '';
       if (!OFFER_KEY.test(campaignKey) || !['shown', 'clicked', 'dismissed'].includes(event)) return respond({ error: MESSAGES.badRequest }, 400);
       const column = `${event}_at`;
-      await db(`en_offer_events?customer_id=eq.${customer.id}&campaign_key=eq.${eq(campaignKey)}&${column}=is.null`, 'PATCH',
-        { [column]: nowIso() }, 'return=minimal');
+      // O mesmo fato vira também um passo do rastreamento (popup_visto,
+      // popup_toque, popup_fechou), gravado junto, sem mudar en_offer_events.
+      await Promise.all([
+        db(`en_offer_events?customer_id=eq.${customer.id}&campaign_key=eq.${eq(campaignKey)}&${column}=is.null`, 'PATCH',
+          { [column]: nowIso() }, 'return=minimal'),
+        serverStep(customer.id, customer.timezone || body.tz, POPUP_STEP[event], { campanha: campaignKey }, body.pagina),
+      ]);
       return respond({ ok: true });
     }
 
@@ -869,8 +1032,28 @@ Deno.serve(async (req: Request) => {
 
       if (body.action === 'admin_dashboard') {
         // A lista inteira: os números do topo e a busca saem dela, no navegador.
+        // O Supabase devolve no máximo 1.000 linhas por pedido: em 10/11 o painel
+        // da LATAM parou em 1.000 e as mais antigas sumiram dos números e da
+        // busca (em 20/11, o dos EUA também). Por isso a lista vem em partes,
+        // uma depois da outra (nunca juntas, para não pesar no banco), sempre na
+        // mesma ordem.
+        const allCustomers = async () => {
+          const list: Array<{ id: string }> = [];
+          const seen = new Set<string>();
+          for (let page = 0; page < ADMIN_MAX_PAGES; page += 1) {
+            const rows = await db(
+              `rpc/en_admin_customers?order=created_at.desc,id.desc&limit=${ADMIN_PAGE}&offset=${page * ADMIN_PAGE}`,
+              'POST', {});
+            const part: Array<{ id: string }> = Array.isArray(rows) ? rows : [];
+            // Cliente nova entre uma parte e outra empurra a lista uma casa
+            // para baixo, e a mesma pessoa viria duas vezes: fica uma.
+            for (const row of part) if (!seen.has(row.id)) { seen.add(row.id); list.push(row); }
+            if (part.length < ADMIN_PAGE) break;
+          }
+          return list;
+        };
         const [customers, campaigns, resgates] = await Promise.all([
-          db('rpc/en_admin_customers', 'POST', {}),
+          allCustomers(),
           db('rpc/en_admin_offers', 'POST', {}),
           db(`en_resgates?select=${RESGATE_FIELDS}&order=created_at.desc&limit=150`).catch(() => null),
         ]);
@@ -1042,7 +1225,12 @@ Deno.serve(async (req: Request) => {
         } else {
           await db(`en_cantico_progress?customer_id=eq.${customer.id}&day=eq.${day}`, 'DELETE', undefined, 'return=minimal');
         }
-        return respond(await journey(customer, body.tz, access.until, false));
+        // O passo `rezou` do rastreamento vai junto com o retrato (em paralelo).
+        const [canticoPortrait] = await Promise.all([
+          journey(customer, body.tz, access.until, false),
+          serverStep(customer.id, customer.timezone || body.tz, 'rezou', { dia: day, jornada: 'cantico', done: body.done }, body.pagina),
+        ]);
+        return respond(canticoPortrait);
       }
 
       if (body.done) {
@@ -1057,7 +1245,11 @@ Deno.serve(async (req: Request) => {
       } else {
         await db(`en_progress?customer_id=eq.${customer.id}&day=eq.${day}`, 'DELETE', undefined, 'return=minimal');
       }
-      return respond(await journey(customer, body.tz, access.until, false));
+      const [portrait] = await Promise.all([
+        journey(customer, body.tz, access.until, false),
+        serverStep(customer.id, customer.timezone || body.tz, 'rezou', { dia: day, jornada: 'principal', done: body.done }, body.pagina),
+      ]);
+      return respond(portrait);
     }
 
     return respond(await journey(customer, body.tz, access.until, true));

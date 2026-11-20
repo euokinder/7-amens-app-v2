@@ -95,6 +95,13 @@
     const tempoAtual = quadro.querySelector('.audio-tempo-atual');
     const tempoTotal = quadro.querySelector('.audio-tempo-total');
 
+    // RASTRO (js/en/rastro-telas.js): opcoes.rastro = { extra, faixa } liga o
+    // audio_play (uma vez) e o audio_progresso em 25/50/75/100 %.
+    if (opcoes.rastro && window.AMENES_RASTRO) {
+      const R = window.AMENES_RASTRO;
+      R.audio(audio, () => R.rastro('audio_play', opcoes.rastro), (pct) => R.rastro('audio_progresso', Object.assign({}, opcoes.rastro, { pct })));
+    }
+
     const desenharBarra = () => {
       const proporcao = audio.duration ? audio.currentTime / audio.duration : 0;
       preenchido.style.width = `${proporcao * 100}%`;

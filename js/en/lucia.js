@@ -231,6 +231,7 @@
     if (!mensagem || ocupada) return;
     ocupada = true;
     enviar.disabled = true;
+    window.AMENES_RASTRO?.rastro('lucy_mensagem', {}); // RASTRO: só que mandou; o texto nunca
     lista.querySelector('.lucia-atalhos')?.remove();
     balao(mensagem, 'dela');
     guardar({ quem: 'dela', texto: mensagem });
@@ -270,7 +271,8 @@
     enviar.disabled = false;
   }
 
-  function abrirConversa() {
+  function abrirConversa(origem) {
+    window.AMENES_RASTRO?.uma('lucy-aberta', 'lucy_aberta', { onde: typeof origem === 'string' ? origem : 'cartao' }); // RASTRO: uma vez por página
     estado = cargarEstado();
     desenhar();
     painel.hidden = false;
@@ -302,7 +304,7 @@
       form.requestSubmit();
     }
   });
-  abrir.addEventListener('click', abrirConversa);
+  abrir.addEventListener('click', () => abrirConversa('botao'));
   painel.querySelector('.lucia-fechar').addEventListener('click', fecharConversa);
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && !painel.hidden) fecharConversa(); });
 
@@ -310,7 +312,7 @@
   function ligarCartao() {
     const cartao = document.getElementById('card-ayuda');
     if (!cartao) return;
-    cartao.addEventListener('click', event => { event.preventDefault(); abrirConversa(); });
+    cartao.addEventListener('click', event => { event.preventDefault(); abrirConversa('cartao'); });
   }
 
   function montar() {
@@ -323,5 +325,5 @@
   else montar();
 
   // Para outras telas abrirem a Lucy (ex.: o "We couldn't find" da entrada).
-  window.LUCIA = { abrir: abrirConversa };
+  window.LUCIA = { abrir: () => abrirConversa('entrada') };
 })();

@@ -117,5 +117,27 @@
     document.head.appendChild(s);
   }
 
-  window.AMENES_VIDEO = { html, carregar };
+  // RASTRO (js/en/rastro-telas.js): play e 25/50/75/100 % do vídeo do dia, na
+  // Bunny (iframe) e na VTurb. `aoTocar` é um extra chamado uma vez no play
+  // (o dia com oferta o usa para o oferta_play). Chamar depois de o vídeo estar
+  // na tela. Sem o ajudante, não faz nada.
+  function rastrear(dia, raiz, aoTocar) {
+    const R = window.AMENES_RASTRO;
+    if (!R || !raiz) return;
+    const onde = `dia-${dia}`;
+    const ligar = (elemento, id, seguir) => seguir(
+      elemento,
+      () => { R.rastro('video_play', { video: id, onde }); if (typeof aoTocar === 'function') aoTocar(); },
+      (pct) => R.rastro('video_progresso', { video: id, onde, pct }),
+    );
+    const iframe = raiz.querySelector('.video-bunny iframe');
+    if (iframe) {
+      const id = (iframe.getAttribute('src') || '').split('?')[0].split('/').pop();
+      ligar(iframe, id, R.bunny);
+    }
+    const player = raiz.querySelector('vturb-smartplayer');
+    if (player) ligar(player, String(player.id || '').replace(/^vid-/, ''), R.vturb);
+  }
+
+  window.AMENES_VIDEO = { html, carregar, rastrear };
 })();

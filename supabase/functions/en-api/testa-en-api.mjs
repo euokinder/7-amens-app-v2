@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import {
   banco, tocadas, forcarFalha, travarFreio, carregarFuncao, confere, cenario, fechar,
   oferecer, pedidosDeOferta, comprasFalsas, tirarFuncaoDeExtras, rpcsDoTeste, tentativasDeGravarVisao,
+  testesFalsos, pacotesDeRastro, semRastreio, freioDoRastro,
 } from '../../en/testes/banco-falso.mjs';
 
 const aqui = dirname(fileURLToPath(import.meta.url));
@@ -115,7 +116,8 @@ await cenario('3. Login certo: sessão, primeiro acesso e o dia de hoje no fuso 
   confere('grava o primeiro acesso e o fuso', banco.en_customers[0].first_access_on === corpo.hoy && banco.en_customers[0].timezone === 'America/Bogota');
   confere('grava o dia de visita', banco.en_visit_days.length === 1 && banco.en_visit_days[0].visited_on === corpo.hoy);
   const campos = Object.keys(corpo).sort().join(',');
-  confere('não devolve nada além do retrato (do pop-up e dos extras)', campos === 'abierto,acceso_hasta,cantico,cliente,completados,extras,hoy,oferta,token,zona', campos);
+  confere('não devolve nada além do retrato (do pop-up, dos extras e dos testes A/B)', campos === 'abierto,acceso_hasta,cantico,cliente,completados,extras,hoy,oferta,testes,token,zona', campos);
+  confere('sem teste A/B ligado: testes vem vazio ({})', corpo.testes && typeof corpo.testes === 'object' && Object.keys(corpo.testes).length === 0);
 });
 
 await cenario('4. Fuso inválido vira Nova York; fuso já gravado não muda', async () => {
@@ -762,6 +764,173 @@ await cenario('36. Toda mensagem que a cliente lê vem em inglês', async () => 
   const ruins = erros.filter(e => !emIngles(e));
   confere(`${erros.length} mensagens de erro, todas em inglês`, erros.length >= 12 && ruins.length === 0, ruins.join(' | '));
   confere('nenhuma cita WhatsApp, e o e-mail citado é só o SUPPORT_EMAIL', !erros.some(e => /whatsapp/i.test(e) || (/@/.test(e.replace('mary@gmail.com', '')) && !e.includes('sevenamenssupport@gmail.com'))), erros.join(' | '));
+});
+
+// ------------------------------------------------------- O RASTREIO (20/11/2026)
+// supabase/en/16-rastreio.sql e docs/rastreio-en.md. As regras do banco (o
+// sorteio do teste, o freio, o fuso, o resumo) são provadas no banco de teste
+// (supabase/en/testes/prova-rastreio-no-teste.mjs). Aqui: o que a en-api
+// aceita, limpa, manda ao banco e devolve.
+
+await cenario('37. "eventos": o pacote de passos da tela', async () => {
+  cliente({ timezone: 'America/Chicago', first_access_on: diasAntes('America/Chicago', 2) });
+  const token = await entrar();
+  confere('sem código de sessão: 401', (await chamar('eventos', { passos: [{ n: 'pagina' }] })).status === 401);
+  const falso = await chamar('eventos', { passos: [{ n: 'pagina' }] }, { token: 'b'.repeat(64) });
+  confere('código de sessão inventado: 401 e nada gravado', falso.status === 401 && banco.en_events.length === 0);
+
+  tocadas.clear();
+  const pacote = await chamar('eventos', {
+    tz: 'America/Chicago', aparelho: 'mobile', sistema: 'ios', instalado: true,
+    passos: [
+      { n: 'pagina', p: { de: '/en' }, pg: '/en-journey', ha: 42, o: { utm_source: 'app-en', utm_medium: 'popup', lixo: 'x', utm_content: 'a@b.com' } },
+      { n: 'card_toque', p: { card: 'arcangeles', situacao: 'bloqueado' }, pg: '/en', ha: 3 },
+      { n: 'video_progresso', p: { video: 'dia-3', onde: 'dia', pct: 50 }, pg: '/en-day' },
+    ],
+  }, { token });
+  confere('pacote certo: 200, ok, 3 gravados', pacote.status === 200 && pacote.corpo.ok === true && pacote.corpo.gravados === 3, JSON.stringify(pacote.corpo));
+  confere('UMA ida ao banco (a sessão, o freio e a gravação vão juntas)', [...tocadas].join() === 'rpc/en_rastro_gravar', [...tocadas].join());
+  confere('o banco recebe só a impressão digital da sessão', pacotesDeRastro.at(-1).p_token_hash === sha256(token) && !JSON.stringify(pacotesDeRastro.at(-1)).includes(token));
+  const [pag, toque, video] = banco.en_events;
+  confere('grava o passo, o props e a página', toque.nome === 'card_toque' && toque.props.card === 'arcangeles' && toque.props.situacao === 'bloqueado' && toque.pagina === '/en');
+  confere('grava para a dona da sessão, como passo da tela', banco.en_events.every(e => e.customer_id === 'c1' && e.fonte === 'tela'));
+  confere('"há quantos segundos" vai ao banco (a hora é a do servidor)', pag.ha === 42 && toque.ha === 3 && video.ha === 0);
+  confere('as utm: só as cinco chaves, e sem valor com @', JSON.stringify(pag.origem) === '{"utm_source":"app-en","utm_medium":"popup"}', JSON.stringify(pag.origem));
+  confere('o aparelho, o sistema e o "instalado"', pag.aparelho === 'mobile' && pag.sistema === 'ios' && pag.instalado === true);
+  confere('número fica número no props', video.props.pct === 50);
+  confere('a resposta não devolve dado nenhum dela', Object.keys(pacote.corpo).sort().join() === 'gravados,ok');
+
+  banco.en_events.length = 0;
+  const sujo = await chamar('eventos', {
+    aparelho: 'geladeira', sistema: 'symbian', instalado: 'sim',
+    passos: [
+      { n: 'Pagina Feia!', p: {} },
+      { n: 'rezou', p: { dia: 1 } }, { n: 'popup_visto', p: { campanha: 'x' } }, { n: 'popup_toque' }, { n: 'popup_fechou' },
+      'texto solto', null, ['lista'],
+      { n: 'pdf_aberto', p: { pdf: 'guia', email: 'maria@ejemplo.com', 'Chave Ruim': 'x', _interno: 'x', lista: [1, 2], objeto: { a: 1 }, longo: 'x'.repeat(300), vazio: '  ', ok: true },
+        pg: '/en-login?code=Abc123Def456Ghi7#Abc123Def456Ghi7', ha: 99999999, o: 'utm' },
+      { n: 'audio_play', p: 'não é objeto', pg: 'javascript:alert(1)', ha: -5 },
+    ],
+  }, { token });
+  confere('pacote sujo: 200 e só os 2 passos válidos gravados', sujo.status === 200 && sujo.corpo.gravados === 2 && banco.en_events.length === 2, JSON.stringify(sujo.corpo));
+  const [pdf, audio] = banco.en_events;
+  confere('passos que só o servidor grava (rezou, popup_*) vindos da tela: descartados', !banco.en_events.some(e => /^(rezou|popup_)/.test(e.nome)));
+  confere('props: texto com @ fora (pode ser e-mail)', pdf.props.email === undefined && !JSON.stringify(banco.en_events).includes('maria@'));
+  confere('props: chave fora do padrão, lista e objeto dentro de objeto ficam fora', Object.keys(pdf.props).sort().join() === 'longo,ok,pdf', Object.keys(pdf.props).join());
+  confere('props: texto cortado em 80 letras', pdf.props.longo.length === 80);
+  confere('página com ? ou #: não é gravada (o código do link de entrada mora ali)', pdf.pagina === '' && audio.pagina === '');
+  confere('"há quantos segundos" tem teto de 7 dias e piso de zero', pdf.ha === 604800 && audio.ha === 0);
+  confere('props que não é objeto vira vazio', JSON.stringify(audio.props) === '{}');
+  confere('aparelho, sistema e instalado fora do padrão viram nulos', pdf.aparelho === null && pdf.sistema === null && pdf.instalado === null);
+
+  banco.en_events.length = 0;
+  const muitos = await chamar('eventos', { passos: Array.from({ length: 45 }, (_, i) => ({ n: 'card_visto', p: { card: `c${i}` }, pg: '/en' })) }, { token });
+  confere('mais de 20 passos num pacote: grava só os 20 primeiros', muitos.status === 200 && muitos.corpo.gravados === 20 && banco.en_events.length === 20);
+  confere('o pacote passa de 2.048 letras e é aceito (teto próprio)', JSON.stringify({ passos: Array.from({ length: 45 }, (_, i) => ({ n: 'card_visto', p: { card: `c${i}` }, pg: '/en' })) }).length > 2048);
+
+  const antes = pacotesDeRastro.length;
+  const vazio = await chamar('eventos', { passos: [] }, { token });
+  confere('pacote vazio: 200 e nem vai ao banco', vazio.status === 200 && vazio.corpo.gravados === 0 && pacotesDeRastro.length === antes);
+  const semLista = await chamar('eventos', { passos: 'pagina' }, { token });
+  confere('"passos" que não é lista: 200, nada gravado', semLista.status === 200 && semLista.corpo.gravados === 0);
+
+  // O envio ao sair da página (sendBeacon) não manda cabeçalho: a sessão vem no corpo.
+  banco.en_events.length = 0;
+  const noCorpo = await chamar('eventos', { s: token, passos: [{ n: 'pagina', pg: '/en' }] });
+  confere('sessão no corpo (campo s), sem cabeçalho: grava', noCorpo.status === 200 && noCorpo.corpo.gravados === 1 && banco.en_events[0].customer_id === 'c1');
+  confere('o campo s só vale para "eventos": em "session" continua 401', (await chamar('session', { s: token })).status === 401);
+
+  const gigante = await chamar('eventos', { passos: [{ n: 'pagina', p: { x: 'y'.repeat(17000) } }] }, { token });
+  confere('pacote acima de 16 mil letras: 400', gigante.status === 400);
+  const loginGrande = await chamar('login', { email: 'maria@ejemplo.com', enchimento: 'x'.repeat(2100) });
+  confere('as outras ações continuam com o teto de 2.048 letras: 400', loginGrande.status === 400 && loginGrande.corpo.error === 'Invalid request.');
+});
+
+await cenario('38. "eventos": falhar nunca atrapalha a tela', async () => {
+  cliente();
+  const token = await entrar();
+  freioDoRastro();
+  const freado = await chamar('eventos', { passos: [{ n: 'pagina', pg: '/en' }] }, { token });
+  confere('freio por cliente: 200, nada gravado, sem mensagem de erro', freado.status === 200 && freado.corpo.gravados === 0 && freado.corpo.error === undefined && banco.en_events.length === 0);
+});
+await cenario('38b. "eventos": banco fora ou sem o SQL 16', async () => {
+  cliente();
+  const token = await entrar();
+  let idas = 0;
+  forcarFalha({ quando: ({ tabela }) => { if (tabela === 'rpc/en_rastro_gravar') { idas += 1; return true; } return false; }, status: 503 });
+  const caiu = await chamar('eventos', { passos: [{ n: 'pagina', pg: '/en' }] }, { token });
+  confere('banco fora: 200 com ok false (a tela não vê erro)', caiu.status === 200 && caiu.corpo.ok === false && caiu.corpo.error === undefined, JSON.stringify(caiu.corpo));
+  confere('e NÃO insiste: uma tentativa só (não pesa num banco lento)', idas === 1, `foram ${idas}`);
+});
+await cenario('38c. Sem o SQL 16 no banco: login, jornada, pop-up e "rezou" como antes', async () => {
+  cliente();
+  semRastreio();
+  const entrou = await chamar('login', { email: 'maria@ejemplo.com', tz: 'America/Bogota' });
+  confere('login: 200', entrou.status === 200 && /^[a-f0-9]{64}$/.test(entrou.corpo.token || ''));
+  confere('testes vem vazio ({}), e o resto do retrato igual', JSON.stringify(entrou.corpo.testes) === '{}' && entrou.corpo.abierto === 1);
+  const token = entrou.corpo.token;
+  confere('session: 200', (await chamar('session', {}, { token })).status === 200);
+  const marcou = await chamar('progress', { day: 1, done: true }, { token });
+  confere('marcar o dia: 200 e gravado', marcou.status === 200 && marcou.corpo.completados.join() === '1' && banco.en_progress.length === 1);
+  banco.en_offer_events.push({ customer_id: 'c1', campaign_key: 'en_cantico_dia_4', claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null });
+  const popup = await chamar('oferta', { campaign_key: 'en_cantico_dia_4', event: 'shown' }, { token });
+  confere('pop-up: 200 e a hora gravada em en_offer_events', popup.status === 200 && Boolean(banco.en_offer_events[0].shown_at));
+  const pacote = await chamar('eventos', { passos: [{ n: 'pagina', pg: '/en' }] }, { token });
+  confere('"eventos": 200 com ok false', pacote.status === 200 && pacote.corpo.ok === false);
+});
+
+await cenario('39. Os passos que o SERVIDOR grava: pop-up e "rezou"', async () => {
+  cliente({ timezone: 'America/Denver', first_access_on: diasAntes('America/Denver', 3) });
+  const token = await entrar();
+  banco.en_offer_events.push({ customer_id: 'c1', campaign_key: 'en_arcangeles_novas_1', claimed_at: new Date().toISOString(), shown_at: null, clicked_at: null, dismissed_at: null });
+  await chamar('oferta', { campaign_key: 'en_arcangeles_novas_1', event: 'shown', pagina: '/en' }, { token });
+  await chamar('oferta', { campaign_key: 'en_arcangeles_novas_1', event: 'clicked', pagina: '/en' }, { token });
+  await chamar('oferta', { campaign_key: 'en_arcangeles_novas_1', event: 'dismissed', pagina: '/en?x=1' }, { token });
+  const nomes = banco.en_events.map(e => e.nome).join();
+  confere('apareceu, tocou, fechou viram popup_visto, popup_toque, popup_fechou', nomes === 'popup_visto,popup_toque,popup_fechou', nomes);
+  confere('com a campanha, a página e a marca "servidor"', banco.en_events.every(e => e.props.campanha === 'en_arcangeles_novas_1' && e.fonte === 'servidor' && e.customer_id === 'c1') && banco.en_events[0].pagina === '/en' && banco.en_events[2].pagina === '');
+  const linha = banco.en_offer_events[0];
+  confere('en_offer_events continua igual (as três horas gravadas)', Boolean(linha.shown_at && linha.clicked_at && linha.dismissed_at));
+  confere('evento de pop-up inválido: 400 e nenhum passo', (await chamar('oferta', { campaign_key: 'en_arcangeles_novas_1', event: 'explodiu' }, { token })).status === 400 && banco.en_events.length === 3);
+
+  banco.en_events.length = 0;
+  const marcou = await chamar('progress', { day: 2, done: true, pagina: '/en-day' }, { token });
+  confere('marcar o dia 2: 200', marcou.status === 200 && marcou.corpo.completados.join() === '2');
+  let passo = banco.en_events[0];
+  confere('vira o passo rezou {dia, jornada, done}', banco.en_events.length === 1 && passo.nome === 'rezou' && passo.props.dia === 2 && passo.props.jornada === 'principal' && passo.props.done === true && passo.pagina === '/en-day' && passo.fonte === 'servidor', JSON.stringify(passo));
+  await chamar('progress', { day: 2, done: false }, { token });
+  confere('desmarcar também (done false)', banco.en_events.length === 2 && banco.en_events[1].props.done === false);
+  const fechado = await chamar('progress', { day: 7, done: true }, { token });
+  confere('dia ainda fechado (409): nenhum passo', fechado.status === 409 && banco.en_events.length === 2);
+  comprasFalsas.c1 = ['cantico'];
+  await chamar('progress', { day: 1, done: true, journey: 'cantico', pagina: '/en-canticle-day' }, { token });
+  passo = banco.en_events[2];
+  confere('o Cântico: rezou com jornada "cantico"', passo && passo.props.jornada === 'cantico' && passo.props.dia === 1 && passo.pagina === '/en-canticle-day');
+
+  // O passo do servidor falha: a ação dela não sente.
+  forcarFalha({ quando: ({ tabela }) => tabela === 'rpc/en_rastro_inserir', status: 500 });
+  const mesmoAssim = await chamar('progress', { day: 3, done: true }, { token });
+  confere('rastreio fora: marcar o dia continua 200 e gravado', mesmoAssim.status === 200 && mesmoAssim.corpo.completados.includes(3));
+  const popupMesmoAssim = await chamar('oferta', { campaign_key: 'en_arcangeles_novas_1', event: 'shown' }, { token });
+  confere('rastreio fora: o pop-up continua 200', popupMesmoAssim.status === 200);
+});
+
+await cenario('40. Testes A/B: a versão dela vem no retrato', async () => {
+  cliente();
+  Object.assign(testesFalsos, { card_arcanjos_titulo: 'b', ordem_da_home: 'a' });
+  const entrou = await chamar('login', { email: 'maria@ejemplo.com' });
+  confere('login: testes {chave: versao}', JSON.stringify(entrou.corpo.testes) === '{"card_arcanjos_titulo":"b","ordem_da_home":"a"}', JSON.stringify(entrou.corpo.testes));
+  const token = entrou.corpo.token;
+  confere('session: os mesmos', JSON.stringify((await chamar('session', {}, { token })).corpo.testes) === JSON.stringify(entrou.corpo.testes));
+  confere('ao marcar um dia: os mesmos (o retrato novo não perde os testes)', JSON.stringify((await chamar('progress', { day: 1, done: true }, { token })).corpo.testes) === JSON.stringify(entrou.corpo.testes));
+  await chamar('eventos', { passos: [{ n: 'card_visto', p: { card: 'arcangeles' }, pg: '/en' }] }, { token });
+  confere('a tela NÃO manda as versões: quem carimba o passo é o banco', pacotesDeRastro.at(-1).p_variantes === undefined && !('variantes' in (pacotesDeRastro.at(-1).p_passos[0])));
+  Object.assign(testesFalsos, { 'Chave Ruim': 'a', outro: 'Versão Feia', numero: 3 });
+  const limpo = (await chamar('session', {}, { token })).corpo.testes;
+  confere('chave ou versão fora do padrão não chega à tela', Object.keys(limpo).sort().join() === 'card_arcanjos_titulo,ordem_da_home', Object.keys(limpo).join());
+  forcarFalha({ quando: ({ tabela }) => tabela === 'rpc/en_testes', status: 500 });
+  const semTestes = await chamar('session', {}, { token });
+  confere('en_testes fora: 200 com testes {} (a tela mostra o padrão)', semTestes.status === 200 && JSON.stringify(semTestes.corpo.testes) === '{}');
 });
 
 fechar();

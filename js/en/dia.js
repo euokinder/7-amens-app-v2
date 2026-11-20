@@ -213,6 +213,13 @@
   // O player da VTurb (Dias 3 e 7) só começa depois de o vídeo estar na tela.
   if (window.AMENES_VIDEO && window.AMENES_VIDEO.carregar) window.AMENES_VIDEO.carregar(n);
 
+  // RASTRO (js/en/rastro.js): o dia aberto e o vídeo dele (play e 25/50/75/100 %).
+  // No dia com oferta, o play do vídeo é também o play da oferta (ela mora nele).
+  window.AMENES_RASTRO?.rastro('dia_aberto', { dia: n });
+  if (window.AMENES_VIDEO && window.AMENES_VIDEO.rastrear) {
+    window.AMENES_VIDEO.rastrear(n, content, oferta ? () => window.AMENES_RASTRO?.rastro('oferta_play', { oferta: oferta.produto }) : null);
+  }
+
   // O pedido do dia fica só no celular dela, como no Brasil.
   const pedido = document.getElementById('pedido');
   if (pedido) {

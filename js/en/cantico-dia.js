@@ -115,7 +115,7 @@
       <a class="member-button" href="/en-canticle" style="text-align:center;text-decoration:none;">See all the days</a>`;
 
     // O tocador (voltar ao início, voltar e avançar 10 s, velocidade) mora em js/en/tocador.js.
-    if (dia.audioUrl) TOCADOR.ligar(content.querySelector('.audio-card'), { titulo: `${dia.titulo} — ${dia.subtitulo}`, album: 'Angelic Canticle' });
+    if (dia.audioUrl) TOCADOR.ligar(content.querySelector('.audio-card'), { titulo: `${dia.titulo} — ${dia.subtitulo}`, album: 'Angelic Canticle', rastro: { extra: 'cantico', faixa: `dia-${n}` } });
     // Só com o que entregar (áudio ou texto) há o que terminar.
     if (dia.audioUrl || dia.oracion) botaoDeTerminar(r);
   }

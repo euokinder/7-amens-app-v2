@@ -12,6 +12,7 @@
   const CLAVE = 'amens-en.sesion';
   const RETRATO = 'amens-en.retrato';
   const MENSAJE = 'amens-en.mensaje';
+  const RASTRO = 'amens-en.rastro'; // a fila do js/en/rastro.js
   const VIDA_DEL_RETRATO = 5 * 60 * 1000;
   const SIN_CONEXION = "We couldn't connect. Please check your internet and try again.";
 
@@ -53,7 +54,12 @@
   // O último retrato que esta página recebeu: é dele que sai o pop-up.
   let ultimo = null;
   const recordar = retrato => { ultimo = retrato; guardar(sessionStorage, RETRATO, JSON.stringify({ en: Date.now(), retrato })); };
-  const olvidar = () => { guardar(localStorage, CLAVE, ''); guardar(sessionStorage, RETRATO, ''); };
+  // Ao sair, a fila do rastreamento também vai embora: os passos de quem
+  // saiu não podem cair na conta de quem entrar depois neste aparelho.
+  const olvidar = () => { guardar(localStorage, CLAVE, ''); guardar(sessionStorage, RETRATO, ''); guardar(localStorage, RASTRO, ''); };
+  // A página de agora (só o caminho), para os passos que o SERVIDOR grava
+  // junto do pop-up e do "I prayed this prayer" (docs/rastreio-en.md).
+  const pagina = () => { try { return location.pathname; } catch { return ''; } };
   const soloRetrato = cuerpo => {
     const copia = Object.assign({}, cuerpo);
     delete copia.token;
@@ -77,7 +83,9 @@
     return r;
   }
 
-  window.AMENES = {
+  // Object.assign em cima do que já existir: o js/en/rastro.js pode ter
+  // carregado antes e posto o `rastro` em window.AMENES.
+  window.AMENES = Object.assign(window.AMENES || {}, {
     tieneSesion: () => Boolean(leer(localStorage, CLAVE)),
     entrar: email => entrarCon('login', { email }),
     entrarConEnlace: code => entrarCon('entry', { code }),
@@ -110,7 +118,7 @@
 
     // "I prayed this prayer": marca (done = true) ou desmarca um dia.
     async marcar(dia, done) {
-      const r = await llamar('progress', { day: dia, done });
+      const r = await llamar('progress', { day: dia, done, pagina: pagina() });
       if (r.ok) { recordar(r.cuerpo); return { ok: true, retrato: r.cuerpo }; }
       if (r.status === 401 || r.status === 403) { irAEntrar(r.error); return { ok: false }; }
       if (r.status === 409 && r.cuerpo) recordar(soloRetrato(r.cuerpo));
@@ -120,7 +128,7 @@
     // O "terminei este dia" do Angelic Canticle. O mesmo caminho do "I prayed
     // this prayer", com journey: 'cantico' (a en-api grava em en_cantico_progress).
     async marcarCantico(dia, done) {
-      const r = await llamar('progress', { day: dia, done, journey: 'cantico' });
+      const r = await llamar('progress', { day: dia, done, journey: 'cantico', pagina: pagina() });
       if (r.ok) { recordar(r.cuerpo); return { ok: true, retrato: r.cuerpo }; }
       if (r.status === 401 || r.status === 403) { irAEntrar(r.error); return { ok: false }; }
       if (r.status === 409 && r.cuerpo) recordar(soloRetrato(r.cuerpo));
@@ -145,7 +153,25 @@
     // O pop-up (js/en/oferta.js): "apareceu", "tocou" ou "fechou". Só conta,
     // não muda nada dela; falhar não atrapalha.
     registrarOferta(campaign_key, event) {
-      return llamar('oferta', { campaign_key, event }).catch(() => null);
+      return llamar('oferta', { campaign_key, event, pagina: pagina() }).catch(() => null);
+    },
+
+    // Os testes A/B (docs/rastreio-en.md). A versão que ESTA cliente vê num
+    // teste ('a', 'b'...), ou null quando não há teste ligado para ela: aí a
+    // tela mostra o padrão. Vem no retrato (`testes`), sorteada pelo servidor,
+    // sempre a mesma para a mesma cliente. Só responde depois do retrato():
+    //   const retrato = await AMENES.retrato();
+    //   if (AMENES.variante('card_arcanjos_titulo') === 'b') { ... }
+    variante(chave) {
+      try {
+        let retrato = ultimo;
+        if (!retrato) {
+          const guardado = JSON.parse(leer(sessionStorage, RETRATO) || 'null');
+          retrato = guardado && guardado.retrato;
+        }
+        const version = retrato && retrato.testes && retrato.testes[chave];
+        return typeof version === 'string' && version ? version : null;
+      } catch { return null; }
     },
     // Depois que o pop-up aparece, ele sai do retrato guardado: sem isto, a
     // próxima página aberta nos 5 minutos seguintes mostraria o mesmo pop-up.
@@ -228,5 +254,10 @@
       for (const filho of filhos) if (filho !== null && filho !== undefined && filho !== false && filho !== '') nodo.append(filho);
       return nodo;
     },
-  };
+  });
+
+  // O rastreamento (js/en/rastro.js). Se aquele arquivo não carregou (ou ainda
+  // não carregou), a tela pode chamar AMENES.rastro(...) do mesmo jeito: não
+  // faz nada e não dá erro. Quando ele carrega, põe a função de verdade aqui.
+  if (typeof window.AMENES.rastro !== 'function') window.AMENES.rastro = function () {};
 })();

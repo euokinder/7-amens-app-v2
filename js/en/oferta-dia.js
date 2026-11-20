@@ -52,9 +52,9 @@
       // Checkouts da Hubla, produto "Sacred Amens" (18/11/2026), os mesmos
       // valores do espanhol (200 / 120 / 60). Vídeo da VTurb em js/en/video.js.
       opciones: [
-        { texto: 'A section of the floor · US$ 200', link: 'https://pay.hub.la/LDuZaRatXokaT8PhEOuF?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte', destaque: true },
-        { texto: 'A pew · US$ 120', link: 'https://pay.hub.la/QjEJ0Y8CTc93PFCsUi7I?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte' },
-        { texto: 'A stone for the altar · US$ 60', link: 'https://pay.hub.la/Fm980EKCbVoQlyDf93Yh?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte' },
+        { nivel: 'floor', texto: 'A section of the floor · US$ 200', link: 'https://pay.hub.la/LDuZaRatXokaT8PhEOuF?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte', destaque: true },
+        { nivel: 'pew', texto: 'A pew · US$ 120', link: 'https://pay.hub.la/QjEJ0Y8CTc93PFCsUi7I?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte' },
+        { nivel: 'stone', texto: 'A stone for the altar · US$ 60', link: 'https://pay.hub.la/Fm980EKCbVoQlyDf93Yh?utm_source=app-en&utm_medium=video-dia-3&utm_campaign=aporte' },
       ],
       finDeLaOracion: 252, // 4:12: o Amen da oração de Father James (4:14) no vídeo da VTurb de 18/11; depois vem Sister Cecilia
       segundosDelBoton: 525, // 8:45: "Below this video you'll see three options" (8:44), pedido do Arthur em 18/11
@@ -124,10 +124,21 @@
       if (!bloco.isConnected) return clearInterval(olho);
       if (bloco.offsetHeight === 0) return;
       clearInterval(olho);
+      // RASTRO: o botão (ou os três) apareceu: o pitch.
+      window.AMENES_RASTRO?.uma(`oferta-pitch-${o.produto}`, 'oferta_pitch', { oferta: o.produto });
       const caixa = bloco.getBoundingClientRect();
       if (caixa.bottom <= window.innerHeight && caixa.top >= 0) return;
       try { bloco.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { bloco.scrollIntoView(false); }
     }, 1000);
+
+    // RASTRO: o toque em cada botão de checkout. Só chama e segue: a navegação
+    // não espera por ele (o registro sai por sendBeacon).
+    bloco.addEventListener('click', (evento) => {
+      const link = evento.target.closest && evento.target.closest('a[href]');
+      if (!link) return;
+      const opcion = o.opciones && o.opciones.find((opcion) => opcion.link === link.getAttribute('href'));
+      window.AMENES_RASTRO?.rastro('oferta_checkout_toque', { oferta: o.produto, nivel: (opcion && opcion.nivel) || 'unico' });
+    });
 
     // O fim da oração, para marcar o dia sozinho.
     const relogio = setInterval(() => {
