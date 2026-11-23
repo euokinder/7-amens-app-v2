@@ -55,6 +55,10 @@
   const EXTRAS_NO_APP = [
     { key: 'arcangeles', title: 'UP01 · The Four Archangels' },
     { key: 'cantico', title: 'UP02 · Angelic Canticle' },
+    // 23/11/2026: a venda do fim do vídeo do Day 7 (Hubla). Liberada sozinha
+    // pelo supabase/en/18-tres-madrugadas.sql; "Unlock" aqui é para quem
+    // pagou com outro e-mail.
+    { key: 'tres_madrugadas', title: 'Three Mornings of Intercession (Day 7)' },
   ];
   const origemLabels = {
     compra: 'Has it · from the purchase',
@@ -62,7 +66,7 @@
     manual: 'Has it · unlocked manually',
     retirado: 'Removed manually',
   };
-  const nomeDoExtra = { arcangeles: 'Four Archangels', cantico: 'Angelic Canticle' };
+  const nomeDoExtra = { arcangeles: 'Four Archangels', cantico: 'Angelic Canticle', tres_madrugadas: 'Three Mornings' };
   // 'whop' é o valor de origem herdado do espanhol (⏳ EUA: checkout por vir).
   const sourceLabels = { checkout: 'from the purchase', whop: 'from the purchase', import: 'from the initial import', manual: 'granted manually', emergencia: 'through the emergency sign-in (check the purchase)' };
   // O resgate na entrada (supabase/en/09-resgate.sql).
@@ -328,7 +332,7 @@
       button.addEventListener('click', () => act(
         tem ? 'admin_revoke_extra' : 'admin_grant_extra',
         { customer_id: customer.id, product: extra.key },
-        tem ? `Remove ${extra.title} from ${customer.email}'s app? The card will show the lock again the next time she opens the app.`
+        tem ? `Remove ${extra.title} from ${customer.email}'s app? ${extra.key === 'tres_madrugadas' ? 'The card will disappear from the home screen' : 'The card will show the lock again'} the next time she opens the app.`
           : `Unlock ${extra.title} in the app for ${customer.email}?`,
         customer.id,
       ));

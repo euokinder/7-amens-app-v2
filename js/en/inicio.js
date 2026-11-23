@@ -55,6 +55,8 @@
   // (js/en/extras.js). Antes de mostrar a tela, para não piscar.
   window.AMENES_EXTRAS.desenharCard(r, 'arcangeles', 'card-arcangeles', '/en-archangels');
   window.AMENES_EXTRAS.desenharCard(r, 'cantico', 'card-cantico', '/en-canticle');
+  // Three Mornings (23/11/2026): o card só aparece para quem comprou.
+  window.AMENES_EXTRAS.desenharCardOculto(r, 'tres_madrugadas', 'card-tres-madrugadas');
   window.AMENES_EXTRAS.desenharAviso();
 
   // RASTRO (js/en/rastro.js): cada card visto na tela (uma vez por página) e

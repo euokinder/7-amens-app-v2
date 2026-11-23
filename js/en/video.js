@@ -83,7 +83,12 @@
   // Mesma montagem em duas caixas do Brasil (a altura em % conta a largura da
   // caixa de FORA; numa caixa só, o vídeo em pé ficaria alto demais).
   function html(dia, titulo) {
-    const v = escolher(dia);
+    return montar(escolher(dia), titulo);
+  }
+
+  // A montagem de um vídeo qualquer, { video | vturb, formato }. Também é usada
+  // pelas telas de Three Mornings (js/en/tres-madrugadas-video.js, 23/11/2026).
+  function montar(v, titulo) {
     const formato = v && FORMATOS[v.formato || '3:4'];
     if (!v || !formato) return '';
     if (v.vturb) {
@@ -139,5 +144,5 @@
     if (player) ligar(player, String(player.id || '').replace(/^vid-/, ''), R.vturb);
   }
 
-  window.AMENES_VIDEO = { html, carregar, rastrear };
+  window.AMENES_VIDEO = { html, carregar, rastrear, montar };
 })();

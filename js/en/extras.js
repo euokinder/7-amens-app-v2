@@ -37,6 +37,16 @@
 
   const tiene = (retrato, clave) => !retrato || !Array.isArray(retrato.extras) || retrato.extras.includes(clave);
 
+  // THREE MORNINGS (23/11/2026), como no Brasil e no espanhol: o card SÓ
+  // aparece para quem comprou (sem cadeado e sem "Learn more": a venda é o
+  // próprio vídeo do Day 7). Aqui não vale a rede de segurança: sem o campo
+  // extras, o card fica escondido (abrir para todas mostraria a entrega a quem
+  // não comprou). A página, aberta por link, segue a regra dos outros (tiene).
+  function desenharCardOculto(retrato, clave, idDoCard) {
+    const card = document.getElementById(idDoCard);
+    if (card) card.hidden = !(retrato && Array.isArray(retrato.extras) && retrato.extras.includes(clave));
+  }
+
   // O card da home: a versão "liberado" para quem tem; "🔒 EXTRA" e a versão
   // "trancado" (que leva à página de venda) para quem não tem.
   // As duas versões do texto moram no en.html (data-liberado / data-trancado).
@@ -64,8 +74,32 @@
   // no lugar do conteúdo. Devolve true quando trancou.
   function trancarPagina(retrato, clave) {
     if (tiene(retrato, clave)) return false;
-    const t = TRANCADA[clave];
     const el = window.AMENES.el;
+    // Three Mornings, como no Brasil e no espanhol: quem chega aqui sem o
+    // produto quase sempre é quem PAGOU e não foi liberada. O aviso oferece a
+    // equipe, e não a venda.
+    if (clave === 'tres_madrugadas') {
+      const titulo = el('h1', { class: 'title', text: 'Three Mornings of Intercession' });
+      titulo.style.fontSize = '22px';
+      const filhos = [el('div', { class: 'heading-block' }, titulo, el('p', {
+        class: 'subtext',
+        text: 'The Three Mornings are for those who got them at the end of the Seventh Amen, and they don\'t show in your access yet. If you already got them, contact us and we\'ll fix it.',
+      }))];
+      const contato = window.AMENES_CONFIG.soporte;
+      if (contato) {
+        const ajuda = el('a', { class: 'member-button', href: contato, text: 'Contact our team' });
+        ajuda.target = '_blank';
+        ajuda.rel = 'noopener';
+        ajuda.style.cssText = 'text-align:center;text-decoration:none;';
+        filhos.push(ajuda);
+      }
+      const voltar = el('a', { class: 'member-button secondary', href: '/en', text: 'Back to home' });
+      voltar.style.cssText = 'text-align:center;text-decoration:none;color:var(--ink);';
+      filhos.push(voltar);
+      document.querySelector('.content').replaceChildren(...filhos);
+      return true;
+    }
+    const t = TRANCADA[clave];
     const conhecer = el('a', { class: 'member-button', href: oferta(clave, 'link-directo'), text: t.boton });
     conhecer.style.cssText = 'text-align:center;text-decoration:none;';
     const voltar = el('a', { class: 'member-button secondary', href: '/en', text: 'Back to home' });
@@ -106,5 +140,5 @@
     </div>`;
   }
 
-  window.AMENES_EXTRAS = { tiene, desenharCard, desenharAviso, trancarPagina, indisponible, audioEnPreparacion };
+  window.AMENES_EXTRAS = { tiene, desenharCard, desenharCardOculto, desenharAviso, trancarPagina, indisponible, audioEnPreparacion };
 })();
