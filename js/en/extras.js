@@ -70,10 +70,45 @@
     if (aviso) aviso.hidden = !document.querySelector('[data-situacao="trancado"]');
   }
 
+  // A VOLTA AO APP (23/11/2026, pedido do Arthur): quem compra um extra sai do
+  // app para pagar e volta. O checkout abre NA MESMA ABA, então a volta pode
+  // ser a página aberta de novo (com o retrato guardado de até 5 minutos), a
+  // página devolvida pelo navegador ou a aba que fica visível de novo. Nos
+  // três casos, se o retrato tiver mais de 1 minuto, pergunta de novo ao
+  // servidor e entrega o retrato novo a `aoChegar`.
+  // NUNCA de tempos em tempos (a regra do js/en/sesion.js: a cota do Supabase
+  // é dividida com o Brasil): uma pergunta por volta, no máximo uma por minuto.
+  // Falha de rede = fica quieta (a tela já está desenhada).
+  // Do outro lado, o pg_cron libera a venda da Hubla a cada minuto
+  // (supabase/en/19-libera-a-cada-minuto.sql).
+  const UM_MINUTO = 60 * 1000;
+  function aoVoltar(aoChegar) {
+    let ultimaTentativa = 0;
+    let perguntando = false;
+    async function conferir() {
+      if (document.visibilityState !== 'visible' || perguntando) return;
+      if (Date.now() - ultimaTentativa < UM_MINUTO) return;
+      if (window.AMENES.idadeDoRetrato() < UM_MINUTO) return;
+      ultimaTentativa = Date.now();
+      perguntando = true;
+      try {
+        const retrato = await window.AMENES.retrato({ fresco: true });
+        if (retrato) aoChegar(retrato);
+      } catch { /* sem internet: fica como está */ }
+      perguntando = false;
+    }
+    document.addEventListener('visibilitychange', conferir);
+    window.addEventListener('pageshow', (evento) => { if (evento.persisted) conferir(); });
+    conferir(); // a página acabou de abrir com um retrato guardado antigo
+  }
+
   // A página de um extra aberta por quem não o tem: o convite para conhecer,
   // no lugar do conteúdo. Devolve true quando trancou.
   function trancarPagina(retrato, clave) {
     if (tiene(retrato, clave)) return false;
+    // Ela abriu o link antes da liberação: ao voltar ao app, se o extra já
+    // chegou, a página recarrega e mostra o conteúdo.
+    aoVoltar((novo) => { if (tiene(novo, clave)) location.reload(); });
     const el = window.AMENES.el;
     // Three Mornings, como no Brasil e no espanhol: quem chega aqui sem o
     // produto quase sempre é quem PAGOU e não foi liberada. O aviso oferece a
@@ -140,5 +175,5 @@
     </div>`;
   }
 
-  window.AMENES_EXTRAS = { tiene, desenharCard, desenharCardOculto, desenharAviso, trancarPagina, indisponible, audioEnPreparacion };
+  window.AMENES_EXTRAS = { tiene, desenharCard, desenharCardOculto, desenharAviso, aoVoltar, trancarPagina, indisponible, audioEnPreparacion };
 })();

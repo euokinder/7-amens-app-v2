@@ -53,11 +53,17 @@
 
   // Os extras: "AVAILABLE" para quem tem, "🔒 EXTRA" para quem não tem
   // (js/en/extras.js). Antes de mostrar a tela, para não piscar.
-  window.AMENES_EXTRAS.desenharCard(r, 'arcangeles', 'card-arcangeles', '/en-archangels');
-  window.AMENES_EXTRAS.desenharCard(r, 'cantico', 'card-cantico', '/en-canticle');
-  // Three Mornings (23/11/2026): o card só aparece para quem comprou.
-  window.AMENES_EXTRAS.desenharCardOculto(r, 'tres_madrugadas', 'card-tres-madrugadas');
-  window.AMENES_EXTRAS.desenharAviso();
+  const desenharExtras = (retrato) => {
+    window.AMENES_EXTRAS.desenharCard(retrato, 'arcangeles', 'card-arcangeles', '/en-archangels');
+    window.AMENES_EXTRAS.desenharCard(retrato, 'cantico', 'card-cantico', '/en-canticle');
+    // Three Mornings (23/11/2026): o card só aparece para quem comprou.
+    window.AMENES_EXTRAS.desenharCardOculto(retrato, 'tres_madrugadas', 'card-tres-madrugadas');
+    window.AMENES_EXTRAS.desenharAviso();
+  };
+  desenharExtras(r);
+  // Quem comprou um extra e volta ao app vê o card liberado sem sair e
+  // entrar de novo (js/en/extras.js, aoVoltar: no máximo 1 pergunta por minuto).
+  window.AMENES_EXTRAS.aoVoltar(desenharExtras);
 
   // RASTRO (js/en/rastro.js): cada card visto na tela (uma vez por página) e
   // cada toque nele. O toque só chama e segue: o registro sai por sendBeacon,

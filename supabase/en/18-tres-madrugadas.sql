@@ -22,7 +22,8 @@
 -- retirar à mão no painel depois não é desfeito pela rodada seguinte.
 -- Reembolso não tira nada (a regra do inglês, igual à do espanhol).
 --
--- QUEM CHAMA: o pg_cron, a cada 5 minutos, olhando só os avisos dos
+-- QUEM CHAMA: o pg_cron, a cada minuto (era a cada 5 até 23/11/2026; ver o
+-- 19-libera-a-cada-minuto.sql), olhando só os avisos dos
 -- últimos 2 dias (índice de received_at: ~0,1 s, como o do espanhol). A
 -- CARGA de quem comprou antes é a mesma função, chamada uma vez (seção 6).
 --
@@ -221,11 +222,11 @@ $function$;
 revoke all on function public.en_hubla_liberar(timestamptz) from public, anon, authenticated;
 grant execute on function public.en_hubla_liberar(timestamptz) to service_role;
 
--- O agendamento: a cada 5 minutos, olhando 2 dias para trás, com freio de
+-- O agendamento: a cada minuto (desde 23/11/2026), olhando 2 dias para trás, com freio de
 -- 10 s (a consulta leva ~0,1 s). Rodar de novo só troca o agendamento.
 select cron.schedule(
   'en-hubla-liberar',
-  '*/5 * * * *',
+  '* * * * *',
   $cron$set statement_timeout = '10s'; select public.en_hubla_liberar(now() - interval '2 days');$cron$
 );
 

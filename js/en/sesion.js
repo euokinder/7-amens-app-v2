@@ -53,7 +53,8 @@
 
   // O último retrato que esta página recebeu: é dele que sai o pop-up.
   let ultimo = null;
-  const recordar = retrato => { ultimo = retrato; guardar(sessionStorage, RETRATO, JSON.stringify({ en: Date.now(), retrato })); };
+  let ultimoEn = 0; // quando ele chegou do servidor (para idadeDoRetrato)
+  const recordar = retrato => { ultimo = retrato; ultimoEn = Date.now(); guardar(sessionStorage, RETRATO, JSON.stringify({ en: ultimoEn, retrato })); };
   // Ao sair, a fila do rastreamento também vai embora: os passos de quem
   // saiu não podem cair na conta de quem entrar depois neste aparelho.
   const olvidar = () => { guardar(localStorage, CLAVE, ''); guardar(sessionStorage, RETRATO, ''); guardar(localStorage, RASTRO, ''); };
@@ -107,7 +108,7 @@
       if (!(opciones && opciones.fresco)) {
         try {
           const guardado = JSON.parse(leer(sessionStorage, RETRATO) || 'null');
-          if (guardado && Date.now() - guardado.en < VIDA_DEL_RETRATO) { ultimo = guardado.retrato; return guardado.retrato; }
+          if (guardado && Date.now() - guardado.en < VIDA_DEL_RETRATO) { ultimo = guardado.retrato; ultimoEn = guardado.en; return guardado.retrato; }
         } catch { /* ignora o guardado estragado */ }
       }
       const r = await llamar('session');
@@ -115,6 +116,11 @@
       if (r.status === 401 || r.status === 403) { irAEntrar(r.error); return null; }
       throw new Error(r.error);
     },
+
+    // Há quanto tempo (ms) o retrato que esta página usa chegou do servidor
+    // (o guardado conta desde quando chegou, não desde quando foi lido).
+    // Sem retrato ainda, Infinity. Usado pela volta ao app (js/en/extras.js, aoVoltar).
+    idadeDoRetrato: () => (ultimoEn ? Date.now() - ultimoEn : Infinity),
 
     // "I prayed this prayer": marca (done = true) ou desmarca um dia.
     async marcar(dia, done) {
