@@ -41,7 +41,15 @@
      na Hubla passam a cobrar o preço com desconto direto ($34.30, $68.60,
      $102.90) e a página mostra o preço antigo riscado. Acabou a Black Friday:
      voltar as 3 ofertas para 49/98/147 na Hubla E voltar esta página.
-     As cartas antigas continuam no histórico (commit 5f41dee). -->
+     As cartas antigas continuam no histórico (commit 5f41dee).
+     🔁 23/11/2026 (Arthur): a Hubla saiu (convertia pouco). Volta a DIGISTORE
+     dos EUA: produto 741399, plano de US$ 69 (1519054), com o cupom
+     BLACKFRIDAY30 (30%, criado pela API em 23/11, vale para 741399 e 741401)
+     já no link (&voucher=): a cliente paga $48.30 sem digitar nada. Um card
+     só (o Complete Shield). A venda libera o app e os Arcanjos sozinha
+     (en-digistore). O botão leva sempre utm_source=app-en (venda feita pelo
+     app, para a UTMify). Acabou a Black Friday: tirar o &voucher= do botão,
+     o riscado e o aviso de cima. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,6 +57,7 @@
 <link rel="stylesheet" href="/css/en/app.css">
 <link rel="stylesheet" href="/css/en/oferta.css">
 <link rel="stylesheet" href="/css/en/escudo.css">
+<link rel="stylesheet" href="/css/en/cantico-oferta.css">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icon-32.png">
 <link rel="apple-touch-icon" href="/assets/images/icon-180.png">
 <!-- DE ONDE ELA VEIO: a etiqueta do pop-up (utm_*), guardada antes de o player
@@ -111,9 +120,9 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
          não responder, aparecem 2 min depois do pitch (tempo de página aberta).
          A etiqueta de origem (utm_*) é colada em cada botão pelo script do
          fim da página. Estilos em /css/en/escudo.css.
-         Preço de Black Friday, direto no checkout da Hubla, sem cupom:
-         $49 → $34.30 · $98 → $68.60 · $147 → $102.90.
-         Mudou o preço: trocar nos três cards, no aviso de cima E na Hubla. -->
+         Desde 23/11: um card só, Digistore 741399, $69 com o cupom
+         BLACKFRIDAY30 no link = $48.30. Mudou o preço: trocar no card, no
+         aviso de cima E no plano/cupom da Digistore. -->
     <section class="ark-offer esconder" aria-labelledby="ark-titulo">
 
       <!-- os desenhos: um arcanjo só, reaproveitado em todos os cards -->
@@ -190,35 +199,9 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
         <p class="ark-bf-text">This week only, every shield is 30% off. No code needed: the discount is already applied at checkout.</p>
       </div>
 
-      <ul class="ark-grid">
+      <ul class="ark-grid ark-grid--one">
 
-        <li class="ark-card ark-card--michael">
-          <div class="ark-art">
-            <figure class="ark-fig ark-fig--solo">
-              <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Michael with his sword">
-                <use href="#ark-angel"/><use href="#ark-sword"/>
-              </svg>
-            </figure>
-          </div>
-          <div class="ark-body">
-            <h3 class="ark-name">The Shield of Michael</h3>
-            <p class="ark-sub">One archangel standing guard over you</p>
-            <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$49</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$34.30</span>
-            </div>
-            <p class="ark-per">Black Friday: 30% off</p>
-            <ul class="ark-list">
-              <li>The 3 prayers of Archangel Michael, in audio and text</li>
-              <li>Protection against envy, the evil eye and betrayal</li>
-              <li>The right words for when fear strikes at night</li>
-            </ul>
-            <a class="ark-btn" href="https://pay.hub.la/9TXhK3aXGlTym1dxWgXm">Choose Michael's Shield</a>
-          </div>
-        </li>
-
-        <li class="ark-card ark-card--four">
-          <span class="ark-badge">MOST CHOSEN</span>
+        <li class="ark-card ark-card--four ark-card--one">
           <div class="ark-art">
             <figure class="ark-fig ark-fig--four">
               <svg viewBox="0 0 120 150" role="img" aria-label="Archangel Michael"><use href="#ark-angel"/><use href="#ark-sword"/></svg>
@@ -241,60 +224,26 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
             <h3 class="ark-name">The Complete Shield</h3>
             <p class="ark-sub">All four archangels united around your life</p>
             <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$98</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$68.60</span>
+              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$69</s></span>
+              <span class="ark-now"><span class="ark-sr">Today </span>$48.30</span>
             </div>
-            <p class="ark-per">Less than $18 per archangel</p>
+            <p class="ark-per">Less than $13 per archangel</p>
             <p class="ark-per">Black Friday: 30% off</p>
             <ul class="ark-list">
               <li>All 12 prayers of Michael, Gabriel, Uriel and Raphael, in audio and text</li>
               <li>The Perpetual Shield Calendar: which archangel to pray to on each day of the month</li>
               <li>The Heavenly Prayer of the Four Archangels United</li>
             </ul>
-            <a class="ark-btn" href="https://pay.hub.la/iUKyTVZAZdUij7F61dFt">Choose the Complete Shield</a>
-          </div>
-        </li>
-
-        <li class="ark-card ark-card--family">
-          <div class="ark-art">
-            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-sword"/></svg></figure>
-            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-lily"/></svg></figure>
-            <svg class="ark-house" viewBox="0 0 80 72" role="img" aria-label="A home watched over by the four archangels">
-              <circle cx="40" cy="36" r="34" fill="url(#ark-g-glow)"/>
-              <path d="M10 36 40 10l30 26" fill="none" stroke="#f3d98f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-              <path d="M18 32v34h44V32" fill="#fff8e6" stroke="#d4ae55" stroke-width="2" stroke-linejoin="round"/>
-              <rect x="34" y="46" width="12" height="20" rx="1" fill="#d4ae55"/>
-              <rect x="22" y="40" width="9" height="9" fill="#ffd36b" stroke="#d4ae55"/>
-              <rect x="49" y="40" width="9" height="9" fill="#ffd36b" stroke="#d4ae55"/>
-              <path d="M40 18v10M36 22h8" stroke="#d4ae55" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-flame"/></svg></figure>
-            <figure class="ark-fig ark-fig--small"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#ark-angel"/><use href="#ark-staff"/></svg></figure>
-          </div>
-          <div class="ark-body">
-            <h3 class="ark-name">The Family Fortress</h3>
-            <p class="ark-sub">The four archangels over you and everyone under your roof</p>
-            <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$147</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$102.90</span>
-            </div>
-            <p class="ark-per">Black Friday: 30% off</p>
-            <ul class="ark-list">
-              <li>Everything in The Complete Shield</li>
-              <li>The Household Covering Prayer: speak the name of each person in your family</li>
-              <li>Protection that extends to your children and grandchildren</li>
-            </ul>
-            <a class="ark-btn" href="https://pay.hub.la/rKFwFW1A2b7KkM4R0Po3">Protect My Whole Family</a>
+            <a class="ark-btn" href="https://www.checkout-ds24.com/product/741399?plan=1519054&amp;voucher=BLACKFRIDAY30">Choose the Complete Shield</a>
           </div>
         </li>
 
       </ul>
 
       <div class="ark-foot">
-        <!-- ⏳ Conferir na Hubla que as 3 ofertas são pagamento único antes de publicar. -->
         <p class="ark-once">A single, one-time contribution. No subscription.</p>
         <a class="ark-decline" href="/en">No thanks, I'll continue without protection</a>
-        <p class="ark-legal">Your order is processed securely by Hubla, our payment partner.</p>
+        <p class="ark-legal">Your order is processed securely by Digistore24, our payment partner.</p>
       </div>
     </section>
 
@@ -326,6 +275,8 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 
   var etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
   if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
+  // Venda feita pelo app: utm_source=app-en sempre, venha de onde vier (UTMify).
+  etiquetas = Object.assign({}, etiquetas, { utm_source: 'app-en' });
 
   Array.prototype.forEach.call(document.querySelectorAll('.ark-btn'), function (botao) {
     // RASTRO (js/en/rastro-telas.js): o toque no botão de compra. Só chama e

@@ -28,7 +28,13 @@
      soon" e o PDF da Novena (js/en/cantico.js). A página promete o que o app
      entrega quando os áudios chegarem: conferir antes de publicar.
      Estilos: /css/en/escudo.css (os cards dos Arcanjos) + /css/en/cantico-oferta.css.
-     A página antiga (Digistore) está no histórico (commit ebfdfb8). -->
+     A página antiga (Digistore) está no histórico (commit ebfdfb8).
+     🔁 23/11/2026 (Arthur): a Hubla saiu (convertia pouco). Volta a DIGISTORE
+     dos EUA, produto 741401 (US$ 47), com o cupom BLACKFRIDAY30 (30%) já no
+     link (&voucher=): a cliente paga $32.90 sem digitar nada. A venda libera o
+     app e o Cântico sozinha (en-digistore). O botão leva sempre
+     utm_source=app-en. Acabou a Black Friday: tirar o ?voucher= do botão, o
+     riscado e o aviso de cima. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -126,7 +132,7 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
               <li>One day opens at a time, right here in the app</li>
               <li>Bonus: the Novena to Mary, Undoer of Knots (PDF)</li>
             </ul>
-            <a class="ark-btn" href="https://pay.hub.la/jXYM7bYWFscWbDIhrTWC">I want the Angelic Canticle</a>
+            <a class="ark-btn" href="https://www.checkout-ds24.com/product/741401?voucher=BLACKFRIDAY30">I want the Angelic Canticle</a>
           </div>
         </li>
       </ul>
@@ -134,7 +140,7 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
       <div class="ark-foot">
         <p class="ark-once">A single, one-time contribution. No subscription.</p>
         <a class="ark-decline" href="/en">No thanks, I'll continue without the Canticle</a>
-        <p class="ark-legal">Your order is processed securely by Hubla, our payment partner.</p>
+        <p class="ark-legal">Your order is processed securely by Digistore24, our payment partner.</p>
       </div>
     </section>
 
@@ -165,6 +171,8 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
 
   var etiquetas = window.ETIQUETAS_DE_ORIGEM || {};
   if (!Object.keys(etiquetas).length) etiquetas = SEM_POPUP;
+  // Venda feita pelo app: utm_source=app-en sempre, venha de onde vier (UTMify).
+  etiquetas = Object.assign({}, etiquetas, { utm_source: 'app-en' });
 
   Array.prototype.forEach.call(document.querySelectorAll('.ark-btn'), function (botao) {
     // RASTRO (js/en/rastro-telas.js): o toque no botão de compra. Só chama e
