@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novena dos 5 Nomes — 7 Améns da Madrugada</title>
+<!-- Conteúdo de quem comprou: não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<link rel="stylesheet" href="css/novena-5-nomes.css?v=1">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5588994432257?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="location.href='novena-5-nomes.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+
+</div>
+
+<script src="js/novena-5-nomes.js?v=1"></script>
+<script src="js/video.js?v=2"></script>
+<script>
+  // novena-5-nomes-dia.html?dia=1 — uma madrugada da Novena dos 5 Nomes: os
+  // nomes dela, o vídeo e o "Concluí esta madrugada" (25/11/2026).
+  //
+  // Quem chama é o js/member.js, pela função desenharNovena5(contexto), a
+  // cada verificação de sessão (ver o novena-5-nomes.html). Por isso a tela
+  // é montada UMA vez e depois só ajustada: redesenhar recriaria o vídeo e
+  // ele voltaria ao começo no meio da oração.
+  //
+  // Quem não comprou não vê esta tela: o js/member.js a troca por um aviso.
+  const numero = new URLSearchParams(location.search).get('dia');
+  const madrugada = /^[1-9]$/.test(numero || '') ? NOVENA5.madrugadas[Number(numero)] : null;
+  const content = document.getElementById('content');
+  const check = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L15.5 9.5"/></svg>';
+
+  let contexto = null;
+  let tela = ''; // 'indisponivel', 'trancada' ou 'aberta'
+
+  function desenharNovena5(novo) {
+    contexto = novo;
+    if (!madrugada) { desenharIndisponivel(); return; }
+    // Abriu uma madrugada pelo link antes de passar pela tela dos nomes: a
+    // novena dela ainda não começou. Vai para lá primeiro.
+    if (contexto.servidor && !contexto.novena) { location.replace('novena-5-nomes.html'); return; }
+    const trava = NOVENA5.calcular(contexto);
+    if (madrugada.numero > trava.liberados) { desenharTrancada(trava); return; }
+    if (tela !== 'aberta') desenharAberta();
+    ajustar();
+  }
+  window.desenharNovena5 = desenharNovena5;
+
+  function desenharIndisponivel() {
+    if (tela === 'indisponivel') return;
+    tela = 'indisponivel';
+    content.innerHTML = `
+      <div class="heading-block">
+        <h1 class="title" style="font-size:22px;">Conteúdo indisponível</h1>
+        <p class="n5-texto">Não encontramos esta madrugada. Volte para a sua novena.</p>
+      </div>
+      <a class="member-button n5-botao" href="novena-5-nomes.html">Voltar para a novena</a>
+    `;
+  }
+
+  function desenharTrancada(trava) {
+    const amanha = NOVENA5.selo(madrugada.numero, trava) === 'Abre amanhã';
+    if (tela === 'trancada') return;
+    tela = 'trancada';
+    content.innerHTML = `
+      <div class="heading-block" style="gap:12px;">
+        <h1 class="title" style="font-size:22px;">Esta madrugada ainda não chegou</h1>
+        <p class="n5-texto">${amanha
+          ? 'Ela abre amanhã, logo depois da meia-noite. Uma madrugada por dia, do jeito que a novena foi feita.'
+          : 'Cada dia abre a madrugada seguinte. Esta ainda está esperando a vez dela chegar.'}</p>
+      </div>
+      <a class="member-button n5-botao" href="novena-5-nomes.html">Voltar para a novena</a>
+    `;
+  }
+
+  function desenharAberta() {
+    tela = 'aberta';
+    document.title = `${madrugada.titulo} — Novena dos 5 Nomes`;
+    // Quem escolhe o player é o js/video.js. Sem o ID da Bunny, não há vídeo.
+    const video = VIDEO.escolher({ bunny: madrugada.bunny, titulo: madrugada.titulo });
+    const videoHtml = video
+      ? `<div class="video-wrap-embed">${video.html}<div class="corner-mask tl"></div><div class="corner-mask tr"></div><div class="corner-mask bl"></div><div class="corner-mask br"></div></div>`
+      : `<div class="n5-preparando"><p class="n5-texto">O vídeo desta madrugada está sendo preparado. Volte daqui a pouco.</p></div>`;
+
+    content.innerHTML = `
+      <span class="kicker">${madrugada.kicker}</span>
+      <div class="section-heading" style="margin-top:-8px;">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:22px;">${madrugada.titulo}</h1>
+          <p class="n5-texto suave">Novena a Maria, Rainha dos Anjos</p>
+        </div>
+      </div>
+
+      <div class="n5-nomes" id="n5-nomes"></div>
+
+      ${videoHtml}
+
+      <div>
+        <h2 class="section-label" style="margin-bottom:14px;">Como assistir</h2>
+        <div class="modal-checklist">
+          <div class="item">${check}<p>Toque no vídeo para começar. Aumente o volume do celular ou use um fone de ouvido.</p></div>
+          <div class="item">${check}<p>Não precisa ser de madrugada. Assista na hora que der: de manhã, no ônibus, antes de dormir.</p></div>
+          <div class="item">${check}<p>Se precisar parar, pode sair. Quando voltar, o vídeo continua sozinho de onde você parou.</p></div>
+        </div>
+      </div>
+
+      <div class="n5-concluir" id="n5-concluir" hidden>
+        <button class="member-button n5-botao" type="button"></button>
+        <p role="status"></p>
+      </div>
+
+      <p class="n5-texto suave" style="text-align:center;">${madrugada.proximo}</p>
+
+      <div class="banner">
+        <span>Maria, Rainha dos Anjos, rogai por nós</span>
+      </div>
+
+      <a class="member-button n5-botao" href="novena-5-nomes.html">Ver as 9 madrugadas</a>
+      <a class="n5-link" href="arcanjos.html">Abrir o Cântico dos Quatro Arcanjos</a>
+    `;
+
+    if (video) VIDEO.carregarScript(video.scriptSrc);
+
+    const bloco = document.getElementById('n5-concluir');
+    const botao = bloco.querySelector('button');
+    const recado = bloco.querySelector('p');
+    botao.addEventListener('click', async () => {
+      const feita = NOVENA5.concluidasDe(contexto).includes(madrugada.numero);
+      botao.disabled = true;
+      recado.textContent = 'Salvando…';
+      try {
+        await contexto.marcar(madrugada.numero, !feita);
+        recado.textContent = feita ? 'Pronto, desmarcamos.' : 'Madrugada concluída. Amanhã tem mais.';
+        if (!feita && madrugada.numero === NOVENA5.TOTAL) recado.textContent = 'Você completou a novena. Deus te abençoe.';
+      } catch {
+        recado.textContent = 'Não conseguimos salvar agora. Confira a internet e toque de novo.';
+      } finally { botao.disabled = false; }
+    });
+  }
+
+  // O que muda sem recriar o vídeo: o quadro dos nomes e o botão "Concluí".
+  let nomesDesenhados = null;
+  function ajustar() {
+    const nomes = NOVENA5.lerNomes();
+    const chave = JSON.stringify(nomes);
+    if (chave !== nomesDesenhados) {
+      nomesDesenhados = chave;
+      const quadro = document.getElementById('n5-nomes');
+      quadro.replaceChildren();
+      const rotulo = document.createElement('p');
+      rotulo.className = 'n5-nomes-rotulo';
+      const dica = document.createElement('p');
+      dica.className = 'n5-nomes-dica';
+      if (nomes.length) {
+        rotulo.textContent = 'Nesta madrugada, a novena é por';
+        const lista = document.createElement('ul');
+        lista.className = 'n5-chips';
+        // Como TEXTO, nunca como HTML: foram digitados por ela.
+        nomes.forEach(nome => { const item = document.createElement('li'); item.textContent = nome; lista.append(item); });
+        dica.textContent = 'Antes de começar o vídeo, diga cada nome em voz alta.';
+        quadro.append(rotulo, lista, dica);
+      } else {
+        rotulo.textContent = 'Os nomes da sua novena';
+        dica.textContent = 'Os nomes não estão neste aparelho. Antes de começar o vídeo, diga em voz alta o nome de quem você carrega no peito.';
+        const escrever = document.createElement('a');
+        escrever.className = 'n5-link';
+        escrever.href = 'novena-5-nomes.html?nomes=1';
+        escrever.textContent = 'Escrever os nomes';
+        quadro.append(rotulo, dica, escrever);
+      }
+    }
+    // O "Concluí" só existe quando o servidor guarda as madrugadas dela.
+    const bloco = document.getElementById('n5-concluir');
+    const podeMarcar = Boolean(contexto.servidor && contexto.novena);
+    bloco.hidden = !podeMarcar;
+    if (podeMarcar) {
+      const feita = NOVENA5.concluidasDe(contexto).includes(madrugada.numero);
+      bloco.querySelector('button').textContent = feita ? '✓ Madrugada concluída · desfazer' : 'Concluí esta madrugada';
+    }
+  }
+
+  // REDE DE SEGURANÇA, a mesma do novena-5-nomes.html: se o js/member.js
+  // liberou a tela e não chamou esta página, ela abre sozinha, sem trava.
+  const vigia = setInterval(() => {
+    if (contexto || content.dataset.trancada) { clearInterval(vigia); return; }
+    if (document.documentElement.classList.contains('member-checking')) return;
+    clearInterval(vigia);
+    setTimeout(() => {
+      if (contexto || content.dataset.trancada) return;
+      desenharNovena5({ servidor: false, novena: null, hoje: '', iniciar: async () => {}, marcar: async () => {} });
+    }, 2500);
+  }, 500);
+</script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>

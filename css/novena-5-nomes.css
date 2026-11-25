@@ -1,0 +1,301 @@
+/* A NOVENA DOS 5 NOMES (25/11/2026) — novena-5-nomes.html e
+   novena-5-nomes-dia.html. Tudo aqui começa com "n5-", para não encostar em
+   classe de outra tela. As cores são as do css/styles.css (creme, dourado e
+   o marrom do painel dos cards da home).
+
+   O público é de senhoras 45+: texto de leitura com 17px ou mais, alvo de
+   toque com 56px ou mais, e nada de cinza claro sobre creme. */
+
+/* Texto de leitura. A .subtext do app tem 14px e é cinza: serve de legenda,
+   não de instrução que ela precisa seguir. */
+.n5-texto {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.n5-texto.suave { font-size: 16px; color: oklch(0.42 0.015 55); }
+
+/* ------------------------------------------------- a tela dos nomes */
+.n5-passo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.n5-sobretitulo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: oklch(0.52 0.14 82);
+}
+
+.n5-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.n5-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.n5-campo label {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.n5-campo input {
+  width: 100%;
+  height: 58px;
+  padding: 0 16px;
+  border: 2px solid oklch(0.58 0.15 82 / 0.6);
+  border-radius: 14px;
+  background: oklch(0.995 0.005 85);
+  font: inherit;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.n5-campo input:focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent-strong);
+}
+
+.n5-botao {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  text-align: center;
+  font-size: 18px;
+}
+
+a.n5-botao { line-height: 30px; color: var(--dark-on-accent); }
+a.n5-botao:hover { color: var(--dark-on-accent); }
+
+/* O segundo caminho, sem cara de botão: um toque largo, sublinhado. */
+.n5-link {
+  align-self: center;
+  min-height: 48px;
+  padding: 10px 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  color: oklch(0.46 0.13 80);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.n5-aviso {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: oklch(0.45 0.16 30);
+}
+
+.n5-aviso:empty { display: none; }
+
+/* ------------------------------------------ o quadro "a novena é por" */
+.n5-nomes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 18px;
+  border: 1px solid var(--painel-borda);
+  border-radius: 22px;
+  background: var(--painel);
+  color: var(--card-ink);
+}
+
+.n5-nomes-rotulo {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.n5-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.n5-chips li {
+  padding: 8px 15px;
+  border: 1px solid var(--painel-borda);
+  border-radius: 999px;
+  background: oklch(0.72 0.14 85 / 0.16);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--card-ink);
+}
+
+.n5-nomes-dica {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--painel-suave);
+}
+
+.n5-nomes .n5-link {
+  align-self: flex-start;
+  padding-left: 0;
+  color: var(--accent);
+}
+
+/* --------------------------------------------- a madrugada da vez */
+.n5-destaque {
+  height: 300px;
+}
+
+.n5-destaque .pill-badge {
+  font-size: 14px;
+  padding: 7px 14px;
+}
+
+.n5-destaque .card-title { font-size: 22px; }
+.n5-destaque .card-sub { font-size: 16px; }
+
+/* ------------------------------------------------- a lista das nove */
+.n5-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.n5-linha {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 78px;
+  padding: 14px 16px;
+  border: 1px solid var(--painel-borda);
+  border-radius: 18px;
+  background: var(--painel);
+  color: var(--card-ink);
+  transition: transform .18s ease;
+}
+
+.n5-linha:hover { color: var(--card-ink); }
+.n5-linha[href]:active { transform: scale(0.985); }
+.n5-linha:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 3px; }
+
+.n5-linha-numero {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--accent);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--dark-on-accent);
+}
+
+.n5-linha-texto {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.n5-linha-titulo {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.n5-linha-situacao {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--painel-suave);
+}
+
+.n5-linha-icone {
+  flex: 0 0 auto;
+  display: flex;
+  color: var(--accent);
+}
+
+.n5-linha[data-situacao="concluida"] .n5-linha-numero {
+  background: #e5f4df;
+  color: #214a24;
+}
+
+.n5-linha[data-situacao="concluida"] .n5-linha-situacao { color: #cfeac6; }
+
+/* Trancada: sai do marrom e vai para o creme escuro, sem perder a leitura
+   (o recado "Abre amanhã" é instrução, não enfeite). */
+.n5-linha[data-situacao="trancada"] {
+  border-color: var(--hairline);
+  background: var(--surface-alt);
+  color: oklch(0.42 0.015 55);
+}
+
+.n5-linha[data-situacao="trancada"] .n5-linha-numero {
+  background: oklch(0.84 0.012 70);
+  color: oklch(0.42 0.015 55);
+}
+
+.n5-linha[data-situacao="trancada"] .n5-linha-situacao,
+.n5-linha[data-situacao="trancada"] .n5-linha-icone { color: oklch(0.45 0.015 55); }
+
+/* --------------------------------------------------- títulos de parte */
+.n5-parte {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.n5-parte h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------ a tela da madrugada */
+.n5-concluir {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.n5-concluir p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.n5-concluir p:empty { display: none; }
+
+.n5-preparando {
+  padding: 26px 20px;
+  border: 1px dashed oklch(0.58 0.15 82 / 0.6);
+  border-radius: 18px;
+  background: var(--surface-alt);
+  text-align: center;
+}

@@ -34,7 +34,7 @@
   }
   function returnPath() {
     const next = new URLSearchParams(location.search).get('next');
-    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|oferta-arcanjos-vsl|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael|tres-madrugadas|tres-madrugadas-video)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
+    return next && /^(index|novena|desatadora|dia|dia-desatadora|perfil|admin|oferta-arcanjos|oferta-arcanjos-vsl|arcanjos|arcanjo|oracao-arcanjo|cantico|cantico-dia|oferta-cantico|live-rafael|tres-madrugadas|tres-madrugadas-video|novena-5-nomes|novena-5-nomes-dia)\.html(\?[^#]*)?$/.test(next) ? next : 'index.html';
   }
   function toLogin(message = '') {
     remember('');
@@ -346,7 +346,13 @@
   // página em VSL (oferta-arcanjos-vsl.html); o pop-up continua na das
   // cartas (oferta-arcanjos.html), que é o endereço gravado no banco.
   const ofertaDosArcanjos = origem => `oferta-arcanjos-vsl.html?utm_source=app&utm_medium=card&utm_campaign=arcanjos&utm_content=${origem}`;
-  const temArcanjos = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []).includes(PRODUTO_ARCANJOS);
+  // Desde 25/11/2026 a Central abre também para quem tem a NOVENA DOS 5
+  // NOMES (novena_5_nomes): ela é vendida junto com o "Cântico dos Quatro
+  // Arcanjos", que é esta mesma Central. `temArcanjosAvulso` é só o upsell_01,
+  // o "UP01 antigo": é ele que esconde o card da Novena (ver mais abaixo).
+  const conteudosDela = () => (Array.isArray(state?.conteudos) ? state.conteudos : state?.products || []);
+  const temArcanjosAvulso = () => conteudosDela().includes(PRODUTO_ARCANJOS);
+  const temArcanjos = () => temArcanjosAvulso() || conteudosDela().includes('novena_5_nomes');
   function desenharCardArcanjos() {
     const card = document.getElementById('card-arcanjos');
     if (!card) return;
@@ -566,6 +572,107 @@
     content.replaceChildren(bloco, ajuda, voltar);
     return true;
   }
+  // A NOVENA DOS 5 NOMES — o que a cliente recebe com o novena_5_nomes
+  //
+  // O Up 1 novo do funil (pedido do Arthur em 25/11/2026): nove vídeos, um
+  // por madrugada, e o "Cântico dos Quatro Arcanjos", que é a Central dos
+  // Arcanjos de sempre (temArcanjos, mais acima, já abre para quem tem a
+  // Novena). O conteúdo e as regras das telas moram em js/novena-5-nomes.js.
+  //
+  // O CARD DA HOME, nas palavras dele:
+  //   · tem a Novena              → "LIBERADO", abre a novena;
+  //   · tem o UP01 antigo (só os  → NÃO vê o card, nem para comprar. Ela já
+  //     Arcanjos) e não a Novena    tem os Arcanjos, que são metade da oferta;
+  //   · não tem nenhum dos dois   → "🔒 EXTRA" e "Adquirir", que leva à
+  //                                 página de venda (fora do app). O card dos
+  //                                 Arcanjos, logo abaixo, segue com a venda
+  //                                 dele: cada card leva à sua VSL.
+  // "Tem" é o campo `conteudos`: assinatura cancelada continua valendo, e só
+  // reembolso tira (o novena_5_nomes está no FICA_DEPOIS_DE_CANCELAR).
+  //
+  // ⚠️ Não é cadeado de verdade: os códigos dos vídeos estão no
+  // js/novena-5-nomes.js, arquivo público. Guia a cliente; não protege.
+  const PRODUTO_NOVENA = 'novena_5_nomes';
+  const PAGINA_DA_NOVENA = /\/novena-5-nomes(?:-dia)?(?:\.html)?$/;
+  // A mesma página de venda do pop-up (supabase/popup-novena-5-nomes.sql),
+  // com outra etiqueta: utm_medium=card separa, na venda, o card do pop-up.
+  const ofertaDaNovena = origem => `https://painosso.net/novoup01-app/?utm_source=app&utm_medium=card&utm_campaign=novena-5-nomes&utm_content=${origem}`;
+  const temNovena = () => conteudosDela().includes(PRODUTO_NOVENA);
+  function desenharCardNovena() {
+    const card = document.getElementById('card-novena-5-nomes');
+    if (!card) return;
+    const liberado = temNovena();
+    if (!liberado && temArcanjosAvulso()) {
+      // Sem a marca da situação, a frase "Os itens com 🔒..." não conta este
+      // card escondido como um cadeado na tela (desenharAvisoDosExtras).
+      card.hidden = true;
+      delete card.dataset.situacao;
+      return;
+    }
+    const situacao = liberado ? 'liberado' : 'trancado';
+    card.dataset.situacao = situacao;
+    card.href = liberado ? 'novena-5-nomes.html' : ofertaDaNovena('card-home');
+    card.querySelectorAll('[data-liberado]').forEach(texto => {
+      texto.textContent = texto.dataset[situacao] || texto.textContent;
+    });
+    card.hidden = false;
+  }
+  function trancarPaginaDaNovena() {
+    if (!PAGINA_DA_NOVENA.test(location.pathname)) return false;
+    const content = document.querySelector('.content');
+    if (!content) return false;
+    if (temNovena()) {
+      // Comprou com a tela trancada aberta: a verificação seguinte a encontra
+      // aqui, e só recarregando a novena volta a aparecer.
+      if (content.dataset.trancada) location.reload();
+      return false;
+    }
+    if (content.dataset.trancada) return true;
+    content.dataset.trancada = '1';
+    const titulo = node('h1', 'title', 'Novena dos 5 Nomes');
+    titulo.style.fontSize = '22px';
+    const bloco = node('div', 'heading-block');
+    bloco.append(titulo, node('p', 'subtext', 'A Novena dos 5 Nomes ainda não aparece no seu acesso. Se você já comprou, fale com a nossa equipe que a gente resolve.'));
+    bloco.querySelector('.subtext').style.fontSize = '17px';
+    const ajuda = node('a', 'member-button', 'Falar com a equipe');
+    ajuda.href = 'https://wa.me/5588994432257?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20a%20Novena%20dos%205%20Nomes';
+    ajuda.target = '_blank';
+    ajuda.rel = 'noopener';
+    ajuda.style.textAlign = 'center';
+    const voltar = node('a', 'member-gate-help', 'Voltar para o início');
+    voltar.href = 'index.html';
+    voltar.style.textAlign = 'center';
+    const saidas = [bloco, ajuda];
+    // Quem tem o UP01 antigo não recebe o convite de compra (regra do card).
+    if (!temArcanjosAvulso()) {
+      const conhecer = node('a', 'member-gate-help', 'Conhecer a Novena dos 5 Nomes');
+      conhecer.href = ofertaDaNovena('link-direto');
+      conhecer.style.textAlign = 'center';
+      saidas.push(conhecer);
+    }
+    content.replaceChildren(...saidas, voltar);
+    return true;
+  }
+  // As duas telas da Novena se desenham sozinhas (novena-5-nomes.html e
+  // novena-5-nomes-dia.html): aqui só se entrega o que o servidor sabe dela e
+  // as duas gravações. `servidor: false` é a rede de segurança: a member-api
+  // no ar ainda não manda o campo `novena5`, e a tela abre tudo, sem trava e
+  // sem "Concluí".
+  function chamarNovena() {
+    if (typeof window.desenharNovena5 !== 'function') return;
+    const gravar = async (acao, valores) => {
+      try { state = await api(acao, valores); }
+      catch (error) { if ([401, 403].includes(error.status)) toLogin(error.message); throw error; }
+      render();
+    };
+    window.desenharNovena5({
+      servidor: 'novena5' in state,
+      novena: state.novena5 || null,
+      hoje: state.hoje || '',
+      iniciar: escreveu => gravar('novena_start', { wrote: Boolean(escreveu) }),
+      marcar: (dia, concluida) => gravar('novena_progress', { day: dia, completed: Boolean(concluida) }),
+    });
+  }
   // "Os itens com 🔒 são extras..." — a frase acima dos cards dos extras, na
   // home. Só faz sentido se houver algum 🔒 na tela: para quem já tem os dois
   // extras, ela some. Roda depois dos dois cards, que marcam a situação.
@@ -580,6 +687,7 @@
     desenharCardCantico();
     desenharCardLiveRafael();
     desenharCardTresMadrugadas();
+    desenharCardNovena();
     desenharAvisoDosExtras();
     // A lista de madrugadas é ajustada ANTES do formulário de perfil poder
     // desviar a tela. Se ficasse depois, bastava uma pesquisa pendente para a
@@ -597,7 +705,9 @@
     if (trancarPaginaDoCantico()) return;
     if (trancarPaginaDaLiveRafael()) return;
     if (trancarPaginaDasTresMadrugadas()) return;
+    if (trancarPaginaDaNovena()) return;
     if (setupMemberSurvey()) return;
+    chamarNovena();
     if (bloquearDiaTravado(trava)) return;
     if (bloquearDiaDoCanticoTravado(travaDoCantico)) return;
     if (previaDaOferta) mostrarPreviaDaOferta(); else setupMemberOffer();

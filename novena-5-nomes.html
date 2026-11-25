@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pt-BR" class="member-checking">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novena dos 5 Nomes — 7 Améns da Madrugada</title>
+<!-- Conteúdo de quem comprou: não deve aparecer no Google. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icon-32.png">
+<link rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="stylesheet" href="css/member.css">
+<link rel="stylesheet" href="css/novena-5-nomes.css?v=1">
+<script src="js/member-config.js"></script>
+<script src="js/member.js"></script>
+</head>
+<body>
+<div id="member-gate" role="status">
+  <p>Verificando seu acesso…</p>
+  <noscript><p>Seu navegador está com o JavaScript desligado. Ative para abrir suas orações.</p></noscript>
+  <a class="member-gate-help" href="https://wa.me/5588994432257?text=Preciso%20de%20ajuda%20para%20entrar%20no%20app%207%20Am%C3%A9ns." target="_blank" rel="noopener">Precisa de ajuda? Fale com a gente</a>
+</div>
+<div class="app">
+
+  <div class="header">
+    <button class="back-btn" onclick="location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>Voltar</span>
+    </button>
+    <div class="avatar"><img src="assets/images/icon-96.png" alt="7 Améns da Madrugada" width="44" height="44"></div>
+  </div>
+
+  <div class="content" id="content">
+    <p class="subtext">Carregando...</p>
+  </div>
+
+</div>
+
+<!-- Quem não comprou a Novena não vê esta tela: o js/member.js a troca por
+     um aviso (trancarPaginaDaNovena). -->
+<script src="js/novena-5-nomes.js?v=1"></script>
+<script>
+  // novena-5-nomes.html — a casa da Novena dos 5 Nomes (25/11/2026).
+  //
+  // Duas telas no mesmo endereço:
+  //   1. "Por quem vamos rezar?": na PRIMEIRA vez que ela abre a Novena, e
+  //      de novo quando ela toca em "Trocar os nomes" (?nomes=1). Pede o nome
+  //      dela e o de até quatro pessoas; pode escrever menos, ou nenhum.
+  //   2. O painel: os nomes, a madrugada da vez em destaque, a lista das
+  //      nove (uma por dia) e a entrada do Cântico dos Quatro Arcanjos.
+  //
+  // Quem chama é o js/member.js, a cada verificação de sessão, pela função
+  // desenharNovena5(contexto), com:
+  //   servidor  se a member-api já fala da Novena (campo `novena5`)
+  //   novena    null (ainda não abriu) ou { inicio, escreveu, concluidas }
+  //   hoje      o dia de Brasília, pelo servidor
+  //   iniciar(escreveu) / marcar(dia, concluida)   gravam e redesenham
+  //
+  // ⚠️ Os nomes ficam SÓ no celular dela (js/novena-5-nomes.js). Nenhum texto
+  // desta tela pode dizer que alguém recebe ou lê os nomes.
+  const content = document.getElementById('content');
+  const OVERLAY = 'linear-gradient(to top, oklch(0.06 0.01 40 / 0.35) 0%, transparent 45%)';
+  const FOTO_DA_MADRUGADA = 'assets/images/novena-5-nomes/madrugada.jpg';
+  const seta = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  const cadeado = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  const play = '<svg width="26" height="26" viewBox="0 0 24 24" fill="var(--dark-on-accent)" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg>';
+
+  let contexto = null;
+  let modo = '';          // 'nomes' ou 'painel': o que está desenhado agora
+  let desenhadoCom = '';  // para não redesenhar o painel à toa de 5 em 5 min
+  let editando = new URLSearchParams(location.search).get('nomes') === '1';
+
+  const comecou = () => (contexto.servidor ? Boolean(contexto.novena) : NOVENA5.jaPassouAqui());
+
+  function desenharNovena5(novo) {
+    contexto = novo;
+    if (!comecou() || editando) {
+      // Com a tela dos nomes aberta, a verificação de 5 em 5 minutos não
+      // pode redesenhar nada: apagaria o que ela está digitando.
+      if (modo !== 'nomes') desenharNomes(!comecou());
+      return;
+    }
+    desenharPainel();
+  }
+  window.desenharNovena5 = desenharNovena5;
+
+  // ------------------------------------------------ 1. a tela dos nomes
+  function desenharNomes(primeiraVez) {
+    modo = 'nomes';
+    const rotulos = ['O seu nome', 'Segundo nome', 'Terceiro nome', 'Quarto nome', 'Quinto nome'];
+    content.innerHTML = `
+      <form class="n5-passo" id="n5-form" autocomplete="off" novalidate>
+        <span class="n5-sobretitulo">Novena dos 5 Nomes</span>
+        <div class="heading-block" style="gap:12px;">
+          <h1 class="title">${primeiraVez ? 'Por quem vamos rezar?' : 'Os nomes da sua novena'}</h1>
+          <p class="n5-texto">Escreva o seu nome e o nome das pessoas que você mais carrega no peito. O seu filho, a sua mãe, o seu marido, o seu neto, uma amiga. Quem você quiser.</p>
+          <p class="n5-texto suave">Pode ser só o primeiro nome. Se preferir, escreva menos de cinco.</p>
+        </div>
+        <div class="n5-form">
+          ${rotulos.map((rotulo, i) => `
+            <div class="n5-campo">
+              <label for="n5-nome-${i}">${rotulo}</label>
+              <input id="n5-nome-${i}" name="nome" type="text" maxlength="30" autocapitalize="words" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="${i < 4 ? 'next' : 'done'}">
+            </div>`).join('')}
+        </div>
+        <p class="n5-aviso" id="n5-aviso" role="status"></p>
+        <button class="member-button n5-botao" type="submit">${primeiraVez ? 'Começar a minha novena' : 'Guardar os nomes'}</button>
+        <button class="n5-link" type="button" id="n5-sem-nomes">${primeiraVez ? 'Começar sem escrever os nomes' : 'Voltar sem mudar'}</button>
+      </form>
+    `;
+    const form = document.getElementById('n5-form');
+    const campos = [...form.querySelectorAll('input')];
+    const aviso = document.getElementById('n5-aviso');
+    const botao = form.querySelector('button[type="submit"]');
+    NOVENA5.lerNomes().forEach((nome, i) => { if (campos[i]) campos[i].value = nome; });
+
+    // No celular, o "próximo" do teclado desce para o campo seguinte.
+    campos.forEach((campo, i) => campo.addEventListener('keydown', evento => {
+      if (evento.key !== 'Enter' || i === campos.length - 1) return;
+      evento.preventDefault();
+      campos[i + 1].focus();
+    }));
+
+    async function seguir(nomes, mexerNosNomes) {
+      const guardados = mexerNosNomes ? NOVENA5.guardarNomes(nomes) : NOVENA5.lerNomes();
+      // O servidor só precisa saber de duas coisas: que ela começou, e se
+      // escreveu algum nome. Os nomes em si não saem do celular.
+      const escreveu = guardados.length > 0;
+      const avisar = contexto.servidor && (!contexto.novena || (escreveu && !contexto.novena.escreveu));
+      if (avisar) {
+        botao.disabled = true;
+        const textoDoBotao = botao.textContent;
+        botao.textContent = 'Abrindo a sua novena…';
+        aviso.textContent = '';
+        try { await contexto.iniciar(escreveu); }
+        catch {
+          botao.disabled = false;
+          botao.textContent = textoDoBotao;
+          aviso.textContent = 'Não conseguimos abrir agora. Confira se a internet está ligada e toque de novo.';
+          return;
+        }
+      } else if (!contexto.servidor && !mexerNosNomes) {
+        NOVENA5.guardarNomes(guardados); // marca, neste aparelho, que ela já passou por aqui
+      }
+      editando = false;
+      modo = '';
+      try { history.replaceState(null, '', 'novena-5-nomes.html'); } catch {}
+      desenharNovena5(contexto);
+      window.scrollTo(0, 0);
+    }
+
+    form.addEventListener('submit', evento => {
+      evento.preventDefault();
+      seguir(campos.map(campo => campo.value), true);
+    });
+    document.getElementById('n5-sem-nomes').addEventListener('click', () => {
+      // Primeira vez: começa sem nomes. Trocando: volta sem mexer em nada.
+      seguir([], primeiraVez);
+    });
+  }
+
+  // ------------------------------------------------------- 2. o painel
+  function desenharPainel() {
+    const trava = NOVENA5.calcular(contexto);
+    const feitas = NOVENA5.concluidasDe(contexto);
+    const nomes = NOVENA5.lerNomes();
+    const assinatura = JSON.stringify([trava, feitas, nomes, contexto.servidor]);
+    if (modo === 'painel' && assinatura === desenhadoCom) return;
+    modo = 'painel';
+    desenhadoCom = assinatura;
+
+    const daVez = NOVENA5.madrugadaDaVez(contexto, trava);
+    const completou = feitas.length >= NOVENA5.TOTAL;
+    const madrugadaDaVez = NOVENA5.madrugadas[daVez];
+
+    let linhas = '';
+    for (let n = 1; n <= NOVENA5.TOTAL; n++) {
+      const madrugada = NOVENA5.madrugadas[n];
+      const trancada = n > trava.liberados;
+      const feita = feitas.includes(n);
+      const situacao = trancada ? 'trancada' : feita ? 'concluida' : 'aberta';
+      const recado = trancada ? NOVENA5.selo(n, trava) : feita ? 'Concluída' : 'Toque para assistir';
+      linhas += `
+        <a ${trancada ? '' : `href="novena-5-nomes-dia.html?dia=${n}"`} class="n5-linha" data-situacao="${situacao}">
+          <span class="n5-linha-numero">${feita && !trancada ? '✓' : n}</span>
+          <span class="n5-linha-texto">
+            <span class="n5-linha-titulo">${madrugada.titulo}</span>
+            <span class="n5-linha-situacao">${recado}</span>
+          </span>
+          <span class="n5-linha-icone">${trancada ? cadeado : seta}</span>
+        </a>`;
+    }
+
+    content.innerHTML = `
+      <div class="section-heading">
+        <div class="bar"></div>
+        <div class="heading-block">
+          <h1 class="title" style="font-size:24px;">Novena dos 5 Nomes</h1>
+          <p class="n5-texto suave">Nove madrugadas a Maria, Rainha dos Anjos. Uma por dia.</p>
+        </div>
+      </div>
+
+      <div class="n5-nomes" id="n5-nomes"></div>
+
+      <a href="novena-5-nomes-dia.html?dia=${daVez}" class="card static n5-destaque" style="background-image:${OVERLAY}, url(${FOTO_DA_MADRUGADA});">
+        <div class="num-badge">${daVez}</div>
+        <div class="pill-badge">${completou ? 'Novena completa' : feitas.includes(daVez) ? 'Concluída' : 'Para assistir agora'}</div>
+        <div class="play-btn">${play}</div>
+        <div class="card-body">
+          <h3 class="card-title">${madrugadaDaVez.titulo}</h3>
+          <p class="card-sub">${completou ? 'Você completou as nove madrugadas. Pode assistir de novo quando quiser.' : 'Toque para assistir. Não precisa ser de madrugada.'}</p>
+        </div>
+      </a>
+
+      <div class="n5-parte">
+        <h2>As 9 madrugadas</h2>
+        <p class="n5-texto suave">${trava.liberados < NOVENA5.TOTAL ? 'Uma nova madrugada abre a cada dia.' : 'As nove madrugadas estão abertas.'}</p>
+      </div>
+      <div class="n5-lista">${linhas}</div>
+
+      <div class="n5-parte">
+        <h2>Cântico dos Quatro Arcanjos</h2>
+        <p class="n5-texto suave">Também faz parte da sua novena: as orações de Miguel, Gabriel, Rafael e Uriel, em áudio, para tocar em casa com quem você ama por perto.</p>
+      </div>
+      <a href="arcanjos.html" class="card-produto">
+        <img class="card-produto-foto" src="assets/images/home/arcanjos.jpg" alt="" width="960" height="960" loading="lazy" decoding="async">
+        <div class="card-produto-texto">
+          <span class="card-produto-selo">LIBERADO</span>
+          <h3 class="card-produto-titulo">Central dos Quatro Arcanjos</h3>
+          <p class="card-produto-descricao">As 12 orações dos Quatro Arcanjos: proteção, caminhos, cura e sabedoria.</p>
+          <span class="card-produto-botao"><span>Abrir os Arcanjos</span>${seta}</span>
+        </div>
+      </a>
+
+      <a class="member-gate-help" style="text-align:center;" href="https://wa.me/5588994432257?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20a%20Novena%20dos%205%20Nomes" target="_blank" rel="noopener">Precisa de ajuda? Fale com a nossa equipe</a>
+    `;
+
+    // Os nomes entram como TEXTO, nunca como HTML: foram digitados por ela.
+    const quadro = document.getElementById('n5-nomes');
+    const rotulo = document.createElement('p');
+    rotulo.className = 'n5-nomes-rotulo';
+    const dica = document.createElement('p');
+    dica.className = 'n5-nomes-dica';
+    const trocar = document.createElement('button');
+    trocar.type = 'button';
+    trocar.className = 'n5-link';
+    if (nomes.length) {
+      rotulo.textContent = 'A sua novena é por';
+      const lista = document.createElement('ul');
+      lista.className = 'n5-chips';
+      nomes.forEach(nome => { const item = document.createElement('li'); item.textContent = nome; lista.append(item); });
+      dica.textContent = 'Estes nomes aparecem em cada madrugada, para você dizer em voz alta.';
+      trocar.textContent = 'Trocar os nomes';
+      quadro.append(rotulo, lista, dica, trocar);
+    } else {
+      rotulo.textContent = 'Os nomes da sua novena';
+      dica.textContent = contexto.novena && contexto.novena.escreveu
+        ? 'Os nomes não estão neste aparelho. Escreva de novo para eles aparecerem em cada madrugada.'
+        : 'Você ainda não escreveu os nomes. Quando quiser, é só tocar abaixo.';
+      trocar.textContent = 'Escrever os nomes';
+      quadro.append(rotulo, dica, trocar);
+    }
+    trocar.addEventListener('click', () => {
+      editando = true;
+      modo = '';
+      desenharNovena5(contexto);
+      window.scrollTo(0, 0);
+    });
+  }
+
+  // REDE DE SEGURANÇA: se o js/member.js liberou a tela e, por qualquer
+  // motivo, não chamou esta página (erro no desenho de outra coisa), ela
+  // abre sozinha, sem trava e sem falar com o servidor. Cliente que pagou
+  // não fica olhando para "Carregando...".
+  const vigia = setInterval(() => {
+    if (contexto || content.dataset.trancada) { clearInterval(vigia); return; }
+    if (document.documentElement.classList.contains('member-checking')) return;
+    clearInterval(vigia);
+    setTimeout(() => {
+      if (contexto || content.dataset.trancada) return;
+      desenharNovena5({ servidor: false, novena: null, hoje: '', iniciar: async () => {}, marcar: async () => {} });
+    }, 2500);
+  }, 500);
+</script>
+<script src="js/app.js?v=6"></script>
+</body>
+</html>

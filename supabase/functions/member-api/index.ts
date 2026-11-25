@@ -38,15 +38,35 @@ async function db(path: string, method = 'GET', body?: unknown) {
 const PAGINA = 1000;
 // Trava de segurança: se uma consulta vier errada, isto impede uma varredura
 // sem fim consumindo o banco.
-const TETO_DE_LINHAS = 20000;
+// ⚠️ Era 20.000 até 24/11/2026, e a base passou disso (20.667): o painel
+// escondeu as 667 clientes mais antigas em silêncio, inclusive quem recebia
+// acesso na mão. Se a base chegar perto deste número, subir de novo — o log
+// da função avisa quando o teto for atingido.
+const TETO_DE_LINHAS = 200000;
+// Busca uma tabela ou visão INTEIRA, em blocos, andando pelo id.
+//
+// Por que pelo id, e não "pule N linhas" (offset) — mudança de 24/11/2026:
+// com offset e ordem por data de cadastro, cada bloco obrigava o banco a
+// montar a visão admin_customer_overview INTEIRA (20 mil clientes, com
+// acessos, visitas e orações de cada uma) só para jogar fora as linhas
+// puladas. 21 blocos = 21 vezes a conta toda: 15 a 20 s para abrir o painel,
+// pesando no mesmo banco que as clientes usam para entrar. Andando pelo id
+// (que tem índice), cada bloco monta só as suas 1.000 linhas: ~70 ms,
+// medido na produção.
+//
+// Por isso `path` NÃO pode trazer `order=` nem `limit=`: a ordem é sempre por
+// id e quem precisa de outra ordem reordena depois (ver admin_dashboard). A
+// tabela ou visão precisa ter a coluna `id`, única.
 async function dbTodas(path: string) {
   // Mesmo tipo solto que db() já devolve: o código que consome estas linhas
   // declara o formato que espera em cada uso, e apertar aqui quebraria aquilo.
   // deno-lint-ignore no-explicit-any
   const todas: any[] = [];
   let passo = 0;
+  let ultimoId = '';
   while (todas.length < TETO_DE_LINHAS) {
-    const pagina = await db(`${path}&limit=${PAGINA}&offset=${todas.length}`);
+    const depois = ultimoId ? `&id=gt.${eq(ultimoId)}` : '';
+    const pagina = await db(`${path}${depois}&order=id.asc&limit=${PAGINA}`);
     if (!pagina.length) break;
     // A primeira página revela o teto real do servidor, que pode ser menor que
     // PAGINA. Sem guardar esse número, uma página cheia porém curta seria lida
@@ -54,7 +74,9 @@ async function dbTodas(path: string) {
     if (!passo) passo = pagina.length;
     todas.push(...pagina);
     if (pagina.length < passo) break;
+    ultimoId = String(pagina[pagina.length - 1].id);
   }
+  if (todas.length >= TETO_DE_LINHAS) console.error(`dbTodas: teto de ${TETO_DE_LINHAS} linhas atingido em ${path.split('?')[0]} — a lista está cortada`);
   return todas;
 }
 const eq = (value: string) => encodeURIComponent(value);
@@ -96,7 +118,9 @@ async function access(customerId: string) {
 //
 // `products` continua sendo só o que está ATIVO — login, ofertas, painel.
 // `conteudos` é o que ela pode ABRIR; só a Central e o Cântico leem este campo.
-const FICA_DEPOIS_DE_CANCELAR = ['upsell_01', 'upsell_02'];
+// A NOVENA DOS 5 NOMES (novena_5_nomes) entrou em 25/11/2026 com a mesma
+// regra (Arthur): assinatura mensal, cancelar não tira, reembolso tira.
+const FICA_DEPOIS_DE_CANCELAR = ['upsell_01', 'upsell_02', 'novena_5_nomes'];
 async function conteudosDela(customerId: string, products: string[]) {
   const faltando = FICA_DEPOIS_DE_CANCELAR.filter(key => !products.includes(key));
   if (!faltando.length) return products;
@@ -141,6 +165,33 @@ const hojeEmBrasilia = () =>
 const CHAVE_DE_PROGRESSO = /^(principal:[0-7]|desatadora:[1-9]|cantico:[0-7])$/;
 const JORNADAS = ['principal', 'desatadora', 'cantico'];
 
+// A NOVENA DOS 5 NOMES (25/11/2026) — nove vídeos, um por madrugada, para
+// quem tem o novena_5_nomes. Tudo dela mora numa tabela própria,
+// member_novena_5_nomes (supabase/novena-5-nomes.sql), uma linha por cliente:
+//   started_on      o dia de Brasília em que ela abriu a Novena pela primeira
+//                   vez. É a âncora da trava de uma madrugada por dia, e
+//                   nunca muda depois de gravada.
+//   wrote_names     se ela escreveu algum nome. ⚠️ Os NOMES não chegam aqui:
+//                   ficam só no celular dela (decisão do Arthur, 25/11).
+//   completed_days  as madrugadas que ela marcou como concluídas.
+// O campo `novena5` do snapshot:
+//   ausente  o banco ainda não tem a tabela. A tela abre as nove, sem trava
+//            e sem "Concluí" (rede de segurança, como o `hoje` da trava).
+//   null     ela não tem a Novena, ou tem e ainda não abriu.
+//   objeto   { inicio, escreveu, concluidas }.
+// Custo: uma leitura na chave primária, SÓ para quem tem a Novena.
+const PRODUTO_NOVENA = 'novena_5_nomes';
+type LinhaDaNovena = { started_on: string; wrote_names: boolean; completed_days: number[] | null };
+const linhaDaNovena = async (customerId: string): Promise<LinhaDaNovena | null> =>
+  (await db(`member_novena_5_nomes?customer_id=eq.${customerId}&select=started_on,wrote_names,completed_days&limit=1`))[0] || null;
+async function novenaDela(customerId: string, conteudos: string[]) {
+  if (!conteudos.includes(PRODUTO_NOVENA)) return null;
+  try {
+    const linha = await linhaDaNovena(customerId);
+    return linha ? { inicio: linha.started_on, escreveu: linha.wrote_names, concluidas: linha.completed_days || [] } : null;
+  } catch { return undefined; }
+}
+
 async function snapshot(customer: { id: string; email: string; name: string }, products: string[], includeCampaigns = false) {
   const [progress, catalog, offers, surveys, admin, primeiraVisita, conteudos] = await Promise.all([
     db(`prayer_progress?customer_id=eq.${customer.id}&select=prayer_key,completed,updated_at`),
@@ -169,7 +220,10 @@ async function snapshot(customer: { id: string; email: string; name: string }, p
   // cliente nova: a gravação do dia de visita acontece na mesma leva de
   // consultas e pode chegar depois desta. Não é problema — sem âncora, o
   // js/trava.js usa `hoje`, que é exatamente o dia em que ela está entrando.
-  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null, conteudos, jornadas: JORNADAS };
+  // Depois das outras, porque depende de `conteudos`. Quem não tem a Novena
+  // não gera consulta nenhuma. `undefined` some sozinho do JSON.
+  const novena5 = await novenaDela(customer.id, conteudos);
+  return { customer: { email: customer.email, name: customer.name }, products, progress, catalog, offer: offers[0] || null, survey: surveys[0] || null, admin, hoje: hojeEmBrasilia(), primeiroAcesso: primeiraVisita[0]?.visited_on || null, conteudos, jornadas: JORNADAS, novena5 };
 }
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get('origin');
@@ -302,6 +356,25 @@ Deno.serve(async (req: Request) => {
     if (body.action === 'progress') {
       if (typeof body.prayer_key !== 'string' || !CHAVE_DE_PROGRESSO.test(body.prayer_key) || typeof body.completed !== 'boolean') return respond({ error: 'Progresso inválido.' }, 400);
       await db('prayer_progress?on_conflict=customer_id,prayer_key', 'POST', { customer_id: customerId, prayer_key: body.prayer_key, completed: body.completed, updated_at: new Date().toISOString() });
+    } else if (body.action === 'novena_start' || body.action === 'novena_progress') {
+      // A NOVENA DOS 5 NOMES. `novena_start`: ela passou pela tela dos nomes
+      // (wrote = escreveu algum). `novena_progress`: marcou ou desmarcou uma
+      // madrugada. As duas terminam no snapshot, lá embaixo, como `progress`.
+      const comecando = body.action === 'novena_start';
+      const dia = body.day;
+      if (comecando ? typeof body.wrote !== 'boolean' : (!Number.isInteger(dia) || dia < 1 || dia > 9 || typeof body.completed !== 'boolean')) return respond({ error: 'Solicitação inválida.' }, 400);
+      if (!(await conteudosDela(customerId, products)).includes(PRODUTO_NOVENA)) return respond({ error: 'A Novena dos 5 Nomes ainda não está no seu acesso.' }, 409); // 409, e não 403: no app, 403 manda a cliente de volta para o login
+      const linha = await linhaDaNovena(customerId);
+      const agora = new Date().toISOString();
+      const concluidas = new Set<number>(linha?.completed_days || []);
+      if (!comecando) { if (body.completed) concluidas.add(dia); else concluidas.delete(dia); }
+      const dias = [...concluidas].sort((a, b) => a - b);
+      // O dia em que ela começou NUNCA muda: reabrir a tela dos nomes, ou
+      // trocar os nomes, não pode trancar de novo o que já estava aberto.
+      // E "escreveu" só vai de não para sim.
+      if (!linha) await db('member_novena_5_nomes?on_conflict=customer_id', 'POST', { customer_id: customerId, started_on: hojeEmBrasilia(), wrote_names: comecando && body.wrote, completed_days: dias, updated_at: agora });
+      else if (comecando) { if (body.wrote && !linha.wrote_names) await db(`member_novena_5_nomes?customer_id=eq.${customerId}`, 'PATCH', { wrote_names: true, updated_at: agora }); }
+      else await db(`member_novena_5_nomes?customer_id=eq.${customerId}`, 'PATCH', { completed_days: dias, updated_at: agora });
     } else if (body.action === 'offer_event') {
       const campaignKey = typeof body.campaign_key === 'string' ? body.campaign_key : '';
       const event = typeof body.event === 'string' ? body.event : '';
@@ -489,15 +562,21 @@ Deno.serve(async (req: Request) => {
       // topo do painel são somados a partir dela, e a busca por nome/e-mail
       // acontece no navegador em cima do que chegou. Cortar esta lista faz o
       // painel esconder as clientes mais antigas e ainda exibir totais errados
-      // como se fossem os de verdade — foi o que aconteceu ao travar em 500.
-      // O desempate por id é obrigatório: sem ele, duas clientes cadastradas no
-      // mesmo instante podem pular ou repetir na virada de uma página para a
-      // outra.
+      // como se fossem os de verdade — foi o que aconteceu ao travar em 500,
+      // e de novo ao passar de 20.000 (24/11/2026).
+      // A lista chega na ordem do id (é o que deixa a busca rápida, ver
+      // dbTodas) e é posta aqui na ordem do painel: as mais novas primeiro,
+      // com o id desempatando quem se cadastrou no mesmo instante.
       const [customers, campaigns, catalogue] = await Promise.all([
-        dbTodas('admin_customer_overview?select=*&order=created_at.desc,id.desc'),
+        dbTodas('admin_customer_overview?select=*'),
         db('admin_offer_overview?select=*&order=sort_order.asc'),
         db('products?select=key,title,type,billing_type,enabled&order=sort_order.asc'),
       ]);
+      // As datas chegam do banco sempre no mesmo formato e fuso (UTC), então a
+      // comparação de texto dá a mesma ordem da comparação de datas, sem
+      // perder os microssegundos que o Date do JavaScript joga fora.
+      customers.sort((a: { created_at: string; id: string }, b: { created_at: string; id: string }) =>
+        a.created_at === b.created_at ? (a.id < b.id ? 1 : -1) : (a.created_at < b.created_at ? 1 : -1));
       // A visão que separa Pix de cartão é nova. Se o banco ainda não recebeu
       // o metricas-do-funil.sql, ela simplesmente não existe — e o painel
       // inteiro não pode cair por causa de um número a mais. Sem ela, esse
