@@ -5,6 +5,9 @@
    então as etiquetas que chegam no endereço seguem para o checkout como
    vieram, sem nada trocado.
 
+   Também é usado por oracao-sagrada.html (26/11/2026): mexer aqui muda as
+   duas páginas.
+
    O que o botão diz no HTML:
      data-link      o checkout da Hubla
      data-segundos  o minuto do botão, em segundos (vazio = desde o começo)
