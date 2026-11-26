@@ -49,7 +49,11 @@
      só (o Complete Shield). A venda libera o app e os Arcanjos sozinha
      (en-digistore). O botão leva sempre utm_source=app-en (venda feita pelo
      app, para a UTMify). Acabou a Black Friday: tirar o &voucher= do botão,
-     o riscado e o aviso de cima. -->
+     o riscado e o aviso de cima.
+     🔁 26/11/2026 (Arthur): sai a Digistore, entra a KashPay
+     (checkout-1795664983298, US$ 69 no checkout). Quem libera o app e os
+     Arcanjos é uma automação no Make, do Pedro, fora deste repositório: a
+     en-digistore não recebe essa venda. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -191,13 +195,8 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
         <circle cx="110" cy="14" r="12" opacity=".45"/>
       </svg>
 
-      <!-- O AVISO DA BLACK FRIDAY. Sem cupom (19/11, Arthur): o desconto já vem
-           no preço do checkout. -->
-      <div class="ark-bf">
-        <span class="ark-bf-kicker">BLACK FRIDAY BLESSING</span>
-        <h2 class="ark-bf-title" id="ark-titulo">An extra 30% off, just for you</h2>
-        <p class="ark-bf-text">This week only, every shield is 30% off. No code needed: the discount is already applied at checkout.</p>
-      </div>
+      <!-- O AVISO DA BLACK FRIDAY saiu em 26/11 (KashPay cobra o preço cheio,
+           $69). O texto antigo está no histórico (commit 20ebd3f). -->
 
       <ul class="ark-grid ark-grid--one">
 
@@ -221,20 +220,18 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
             </figure>
           </div>
           <div class="ark-body">
-            <h3 class="ark-name">The Complete Shield</h3>
+            <h3 class="ark-name" id="ark-titulo">The Complete Shield</h3>
             <p class="ark-sub">All four archangels united around your life</p>
             <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$69</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$48.30</span>
+              <span class="ark-now"><span class="ark-sr">Price </span>$69</span>
             </div>
-            <p class="ark-per">Less than $13 per archangel</p>
-            <p class="ark-per">Black Friday: 30% off</p>
+            <p class="ark-per">Less than $18 per archangel</p>
             <ul class="ark-list">
               <li>All 12 prayers of Michael, Gabriel, Uriel and Raphael, in audio and text</li>
               <li>The Perpetual Shield Calendar: which archangel to pray to on each day of the month</li>
               <li>The Heavenly Prayer of the Four Archangels United</li>
             </ul>
-            <a class="ark-btn" href="https://www.checkout-ds24.com/product/741399?plan=1519054&amp;voucher=BLACKFRIDAY30">Choose the Complete Shield</a>
+            <a class="ark-btn" href="https://checkout.kashpay.com/checkout/checkout-1795664983298">Choose the Complete Shield</a>
           </div>
         </li>
 
@@ -243,7 +240,7 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
       <div class="ark-foot">
         <p class="ark-once">A single, one-time contribution. No subscription.</p>
         <a class="ark-decline" href="/en">No thanks, I'll continue without protection</a>
-        <p class="ark-legal">Your order is processed securely by Digistore24, our payment partner.</p>
+        <p class="ark-legal">Your order is processed securely by KashPay, our payment partner.</p>
       </div>
     </section>
 

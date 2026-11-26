@@ -34,7 +34,11 @@
      link (&voucher=): a cliente paga $32.90 sem digitar nada. A venda libera o
      app e o Cântico sozinha (en-digistore). O botão leva sempre
      utm_source=app-en. Acabou a Black Friday: tirar o ?voucher= do botão, o
-     riscado e o aviso de cima. -->
+     riscado e o aviso de cima.
+     🔁 26/11/2026 (Arthur): sai a Digistore, entra a KashPay
+     (checkout-1795665072962, US$ 49 no checkout). Quem libera o app e o
+     Cântico é uma automação no Make, do Pedro, fora deste repositório: a
+     en-digistore não recebe essa venda. -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,13 +110,8 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
         <circle cx="110" cy="14" r="12" opacity=".45"/>
       </svg>
 
-      <!-- O AVISO DA BLACK FRIDAY. Sem cupom (19/11, Arthur): o desconto já vem
-           no preço do checkout. -->
-      <div class="ark-bf">
-        <span class="ark-bf-kicker">BLACK FRIDAY BLESSING</span>
-        <h2 class="ark-bf-title" id="ark-titulo">30% off, just for you</h2>
-        <p class="ark-bf-text">This week only, the Angelic Canticle is 30% off. No code needed: the discount is already applied at checkout.</p>
-      </div>
+      <!-- O AVISO DA BLACK FRIDAY saiu em 26/11 (KashPay cobra o preço cheio,
+           $49). O texto antigo está no histórico (commit 20ebd3f). -->
 
       <ul class="ark-grid ark-grid--one">
         <li class="ark-card ark-card--one">
@@ -120,19 +119,17 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
             <img src="/assets/images/home/cantico.jpg" alt="The Angelic Canticle" width="600" height="400">
           </div>
           <div class="ark-body">
-            <h3 class="ark-name">The Angelic Canticle</h3>
+            <h3 class="ark-name" id="ark-titulo">The Angelic Canticle</h3>
             <p class="ark-sub">Seven days of sacred song, one each day</p>
             <div class="ark-price">
-              <span class="ark-was"><span class="ark-sr">Regular price </span><s>$47</s></span>
-              <span class="ark-now"><span class="ark-sr">Today </span>$32.90</span>
+              <span class="ark-now"><span class="ark-sr">Price </span>$49</span>
             </div>
-            <p class="ark-per">Black Friday: 30% off</p>
             <ul class="ark-list">
               <li>A 7-day journey: your burdens, peace, health, work and finances, family, new paths and gratitude</li>
               <li>One day opens at a time, right here in the app</li>
               <li>Bonus: the Novena to Mary, Undoer of Knots (PDF)</li>
             </ul>
-            <a class="ark-btn" href="https://www.checkout-ds24.com/product/741401?voucher=BLACKFRIDAY30">I want the Angelic Canticle</a>
+            <a class="ark-btn" href="https://checkout.kashpay.com/checkout/checkout-1795665072962">I want the Angelic Canticle</a>
           </div>
         </li>
       </ul>
@@ -140,7 +137,7 @@ window.ETIQUETAS_DE_ORIGEM = (function () {
       <div class="ark-foot">
         <p class="ark-once">A single, one-time contribution. No subscription.</p>
         <a class="ark-decline" href="/en">No thanks, I'll continue without the Canticle</a>
-        <p class="ark-legal">Your order is processed securely by Digistore24, our payment partner.</p>
+        <p class="ark-legal">Your order is processed securely by KashPay, our payment partner.</p>
       </div>
     </section>
 
